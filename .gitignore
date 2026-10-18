@@ -21,3 +21,6 @@ local.properties
 
 # python bytecode
 __pycache__/
+
+# Graphify knowledge graph (rebuilt locally by .claude/hooks/session-start.sh)
+graphify-out/

@@ -1,0 +1,26 @@
+# Graphify: code-only graph of the project's own sources.
+# .gitignore is honored too; this adds what git tracks but the graph must skip.
+
+# Build output, Gradle wrapper and caches
+build/
+.gradle/
+.kotlin/
+gradle/
+graphify-out/
+__pycache__/
+
+# Bundled libraries, generated and binary assets
+app/libs/
+app/src/main/assets/
+app/src/main/res/
+artwork/
+
+# Secrets
+.env
+.env.*
+local.properties
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
