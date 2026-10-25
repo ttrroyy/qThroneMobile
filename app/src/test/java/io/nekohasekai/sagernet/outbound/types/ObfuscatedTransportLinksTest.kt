@@ -25,6 +25,20 @@ class ObfuscatedTransportLinksTest {
         assertEquals(cotten.exportToJson(), again.exportToJson())
     }
 
+    @Test fun cottenLegacyPresetReachesTheEngine() {
+        val json = """{"schema":"whitedns.profile","version":1,"profile":{"name":"Cotten","server":{"domain":"cot.example.com","encryption_key":"k3y","encryption_method":5},
+            "cottenSettings":{"tunnelMode":"legacy","configPreset":"master-storm","transportMode":"preset","deliveryMode":"preset","qnameMode":"preset","ipMode":"preset"}}}"""
+        val cotten = read("cottendns://" + b64(json)) as DnsTunnel
+        val options = cotten.privateConfig(1080, 1081, CarrierBridgeCredentials("user", "pass")).obj("options")
+        assertEquals(true, options["LEGACY_SESSION_ID"])
+        assertEquals(false, options["DNS_EDNS_COOKIE"])
+        assertEquals("udp", options.string("RESOLVER_TRANSPORT"))
+        assertEquals("default", options.string("CONFIG_PRESET"))
+        val again = read(cotten.exportToLink()) as DnsTunnel
+        assertEquals(cotten.exportToJson(), again.exportToJson())
+        assertEquals("master-storm", again.exportToJson().obj("cotten").string("configPreset"))
+    }
+
     @Test fun soarLinkCarriesTheServerKey() {
         val json = """{"schema":"whitedns.profile","version":1,"import_type":"soar","profile":{"name":"Soar IR","resolvers":["1.1.1.1"],
             "soarSettings":{"transport":"auto","discovery":true,"country":"IR"},"server":{"domain":"s.example.com","public_key":"JFHtVsmq5DauWWsc/PbXYS3xd5jCnstAPYEIEVKUC08="}}}"""

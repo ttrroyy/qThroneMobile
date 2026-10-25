@@ -39,6 +39,7 @@ abstract class BoxInstance(
     private val carrierProcesses = mutableListOf<app.qthrone.mobile.bg.carrier.CarrierPool.Lease>()
     private var nativeStatus:NativeConnectionStatus.Writer?=null
     private var nativeWatchdog:Job?=null
+    private var wakeCheck:Job?=null
 
     val boxOrNull: Instance? get() = if (::box.isInitialized) box else null
 
@@ -160,10 +161,32 @@ abstract class BoxInstance(
         if (deferRuleSets) DeferredRuleSets.afterStart(box, config.coreConfig)
     }
 
+    /**
+     * Sleep kills the sockets of native transports (qWDTT, CSQTT, DNS tunnels...) while their clients may still report
+     * live workers, so the watchdog never fires: after a wake, test the connection and reconnect when it stays dead.
+     */
+    fun checkAfterWake() {
+        if(!isInitialized() || config.carrierPlans.isEmpty() || wakeCheck?.isActive==true) return
+        wakeCheck=CoroutineScope(Dispatchers.IO).launch {
+            delay(3_000) // the network returns a moment after the screen
+            repeat(2) { attempt ->
+                if(attempt>0) delay(5_000)
+                if(runCatching { urlTestCurrent(box,core,DataStore.testUrl,10_000,exitsThroughVpn(profile)) }.isSuccess) return@launch
+            }
+            withContext(Dispatchers.Main) {
+                val service=DataStore.baseService
+                if(service!=null && service.data.proxy===this@BoxInstance && service.data.state==app.qthrone.mobile.bg.BaseService.State.Connected) {
+                    Logs.i("Native transport wake check: reconnecting");app.qthrone.mobile.SagerNet.reloadService()
+                }
+            }
+        }
+    }
+
     private fun isCustomFullConfig(): Boolean = (profile.outbound as? Custom)?.isFullConfig() == true
 
     override fun close() {
         nativeWatchdog?.cancel();nativeWatchdog=null
+        wakeCheck?.cancel();wakeCheck=null
         nativeStatus?.close();nativeStatus=null
         boxOrNull?.let(CoreRuntime::detachRunning)
         try { boxOrNull?.close() } finally {

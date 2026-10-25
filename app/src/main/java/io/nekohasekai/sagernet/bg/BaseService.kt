@@ -129,8 +129,9 @@ class BaseService {
                 idleLock.withLock {
                     val box = proxy?.boxOrNull ?: return@withLock
                     // Leaving device idle resets on its own.
-                    if (pausedBox === box || !DataStore.configurationStore.getBoolean(Key.WAKE_RESET_CONNECTIONS, true)) return@withLock
-                    box.resetNetwork()
+                    if (pausedBox === box) return@withLock
+                    if (DataStore.configurationStore.getBoolean(Key.WAKE_RESET_CONNECTIONS, true)) box.resetNetwork()
+                    proxy?.checkAfterWake()
                 }
             }
         }
@@ -150,6 +151,7 @@ class BaseService {
                     if (DataStore.configurationStore.getBoolean(Key.WAKE_RESET_CONNECTIONS, true)) {
                         box.resetNetwork()
                     }
+                    proxy?.checkAfterWake()
                 }
             }
         }

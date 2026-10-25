@@ -191,8 +191,127 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
             server.contains("encryptionMethod") -> server.int("encryptionMethod")
             else -> 1
         }
-        return parseFromJson(jsonObjectOf("type" to (if(scheme=="cottendns") "cottendns" else "masterdns"),"name" to profile.string("name"),
-            "domain" to domains.joinToString(","),"mkey" to key,"encryption" to method))
+        val obj=jsonObjectOf("type" to (if(scheme=="cottendns") "cottendns" else "masterdns"),"name" to profile.string("name"),
+            "domain" to domains.joinToString(","),"mkey" to key,"encryption" to method)
+        if(scheme=="cottendns" && profile.obj("cottenSettings").isNotEmpty()) obj["cotten"]=profile.obj("cottenSettings").copy()
+        return parseFromJson(obj)
+    }
+
+    /**
+     * WhiteDNS's cottenSettings as CottenDNS keys, rendered the way WhiteDNS renders them. The "master-storm" preset is
+     * a legacy MasterDNS/StormDNS server, which only answers the legacy session id over UDP TXT without EDNS cookies.
+     */
+    private fun cottenOptions(s:JsonObject):JsonObject {
+        val o=JsonObject()
+        if(s.isEmpty()) return o
+        fun choice(key:String,allowed:List<String>,fallback:String="preset")=s.string(key).trim().lowercase().takeIf { it in allowed } ?: fallback
+        val preset=choice("configPreset",listOf("default","speed","survival","tcp-survival","master-storm"),"default")
+        val legacy=preset=="master-storm"
+        val survival=preset=="survival"
+        val transportMode=choice("transportMode",listOf("auto","udp","tcp","dot","doh","doh3","doq"))
+        val deliveryMode=choice("deliveryMode",listOf("txt","txt-cname","txt-https","txt-aaaa","all"))
+        val qnameMode=choice("qnameMode",listOf("off","moderate","aggressive"))
+        val ipMode=choice("ipMode",listOf("auto","dual","ipv4","ipv6"))
+        val max=!legacy && s.string("tunnelMode").trim().lowercase()=="cottenmax"
+        o["CONFIG_PRESET"]=if(legacy) "default" else preset
+        o["LEGACY_SESSION_ID"]=legacy
+        if(!legacy) o["TUNNEL_MODE"]=if(max) "cottenmax" else "legacy"
+        o["RESOLVER_IP_MODE"]=if(legacy || ipMode=="preset") "auto" else ipMode
+        val rate=s.string("queryRateLimit").toIntOrNull()?.takeIf { it in 1..10 } ?: 0
+        val scope=choice("queryRateScope",listOf("total","resolver","domain"),"total")
+        o["QUERY_RATE_LIMIT_PER_SECOND"]=if(scope=="total") rate else 0
+        o["QUERY_RATE_LIMIT_PER_RESOLVER_PER_SECOND"]=if(scope=="resolver") rate else 0
+        o["QUERY_RATE_LIMIT_PER_DOMAIN_PER_SECOND"]=if(scope=="domain") rate else 0
+        o["QUERY_TIMING_JITTER"]=when(s.string("timingMask")) { "light" -> 0.3;"strong" -> 0.6;else -> 0.0 }
+        val transport=when {
+            legacy -> "udp"
+            transportMode!="preset" -> transportMode
+            preset=="tcp-survival" -> "tcp"
+            else -> "auto"
+        }
+        o["RESOLVER_TRANSPORT"]=transport
+        if(transport in listOf("dot","doh","doh3","doq")) {
+            s.string("resolverTlsServerName").takeIf { it.isNotBlank() }?.let { o["RESOLVER_TLS_SERVER_NAME"]=it.trim() }
+            s.string("resolverTlsPin").takeIf { it.isNotBlank() }?.let { o["RESOLVER_TLS_PIN"]=it.trim() }
+            fun port(key:String,fallback:Int)=s.variantInt(key).takeIf { it in 1..65535 } ?: fallback
+            when(transport) {
+                "doq" -> o["RESOLVER_DOQ_PORT"]=port("resolverDoTPort",853)
+                "dot" -> o["RESOLVER_DOT_PORT"]=port("resolverDoTPort",853)
+                else -> {
+                    o["RESOLVER_DOH_PORT"]=port("resolverDoHPort",443)
+                    o["RESOLVER_DOH_PATH"]=s.string("resolverDoHPath").trim().ifEmpty { "/dns-query" }
+                }
+            }
+        }
+        o["QUERY_TYPES"]=JsonArray.of(*when {
+            legacy -> listOf("TXT")
+            deliveryMode=="txt-cname" -> listOf("TXT","CNAME")
+            deliveryMode=="txt-https" -> listOf("TXT","HTTPS")
+            deliveryMode=="txt-aaaa" -> listOf("TXT","AAAA")
+            deliveryMode=="all" -> listOf("TXT","CNAME","NULL","HTTPS","AAAA")
+            deliveryMode!="preset" -> listOf("TXT")
+            preset=="speed" || preset=="tcp-survival" -> listOf("TXT","HTTPS")
+            survival -> listOf("TXT","CNAME","HTTPS","A")
+            else -> listOf("TXT")
+        }.toTypedArray())
+        val labels=when {
+            legacy || qnameMode=="off" -> 63
+            qnameMode=="moderate" -> 42
+            qnameMode=="aggressive" -> 32
+            survival -> 42
+            else -> 63
+        }
+        o["QNAME_LABEL_LENGTH"]=labels
+        o["FAST_CONNECT"]=true
+        o["MTU_BACKGROUND_PARALLELISM"]=s.variantInt("backgroundScanParallelism").coerceIn(1,8)
+        o["ADAPTIVE_DUPLICATION"]=!legacy
+        o["DUPLICATION_PREFER_DISTINCT_DOMAINS"]=!legacy
+        o["DNS_EDNS_COOKIE"]=!legacy
+        o["MTU_ADAPTIVE_GROUPING"]=!legacy
+        o["MTU_PROBE_SAMPLES"]=if(survival) 5 else 1
+        o["MTU_MAX_LOSS"]=if(survival) 0.5 else 0.0
+        if(!legacy) {
+            o["ADAPTIVE_DUPLICATION_TARGET_DELIVERY"]=if(survival) 0.97 else 0.95
+            o["EDNS_UDP_SIZE"]=if(survival) 1232 else 4096
+            o["MTU_GROUP_GAP_RATIO"]=0.25
+        }
+        val m=s.obj("cottenMaxOptions")
+        if(!legacy && transport in listOf("dot","doh","doh3","doq") && m.variantInt("dnsPaddingBlockSize")>0) o["DNS_PADDING_BLOCK_SIZE"]=m.variantInt("dnsPaddingBlockSize")
+        if(!legacy && transport=="doh3" && m.bool("doh3FallbackToDoh")) o["RESOLVER_HTTP3_FALLBACK"]=true
+        if(max) {
+            fun num(key:String,fallback:Int)=if(m.contains(key)) m.variantInt(key) else fallback
+            val primary=data.string("domain").split(',').map { it.trim().trimEnd('.').lowercase() }.filter { it.isNotEmpty() }.distinct()
+            val standby=m.string("standbyDomains").split(',','\n',' ').map { it.trim().trimEnd('.').lowercase() }
+                .filter { it.isNotEmpty() && it !in primary }.distinct().take((8-primary.size).coerceAtLeast(0))
+            if(standby.isNotEmpty()) o["STANDBY_DOMAINS"]=JsonArray.of(*standby.toTypedArray())
+            o["COTTENMAX_FAILOVER_AFTER_MILLISECONDS"]=num("failoverAfterMs",3000)
+            // The first HELLO carries 55 base32 characters under the reserved subtree, so long domains need a bigger name budget.
+            val hello=(primary+standby).maxOfOrNull { "cottenmax-v1.$it".length+1+55+54/labels+(if(m.bool("labelCountJitter")) 3 else 0) } ?: 101
+            val safe=maxOf(num("safeQName",101),hello)
+            o["COTTENMAX_SAFE_QNAME"]=safe
+            o["COTTENMAX_MAX_QNAME"]=maxOf(num("maxQName",253),safe)
+            o["COTTENMAX_MAX_ANSWER"]=num("maxAnswer",1232)
+            o["COTTENMAX_MAX_PATH_WINDOW"]=num("maxPathWindow",256)
+            o["COTTENMAX_MAX_INFLIGHT"]=num("maxInflight",256)
+            o["COTTENMAX_FEC_DOWNLOAD_ENABLED"]=m.bool("fecDownloadEnabled")
+            o["COTTENMAX_FEC_DATA_SHARDS"]=num("fecDataShards",4)
+            o["COTTENMAX_FEC_PARITY_SHARDS"]=num("fecParityShards",1)
+            o["COTTENMAX_SESSION_IDLE_MILLISECONDS"]=num("sessionIdleMs",90000)
+            o["COTTENMAX_HOLD_MILLISECONDS"]=num("holdMs",500)
+            o["QNAME_LABEL_COUNT_JITTER"]=m.bool("labelCountJitter")
+            if(m.bool("qnameLossGuard")) o["COTTENMAX_QNAME_LOSS_GUARD"]=true
+            o["RESOLVER_DISCOVERY_ENABLED"]=m.bool("discoveryEnabled")
+            if(m.bool("discoveryEnabled")) {
+                o["RESOLVER_DISCOVERY_COUNTRY"]=m.string("discoveryCountry").trim().lowercase()
+                o["RESOLVER_DISCOVERY_SAMPLE_RANGES"]=num("discoverySampleRanges",0)
+                o["RESOLVER_DISCOVERY_WANT"]=num("discoveryWant",16)
+                o["RESOLVER_DISCOVERY_CONCURRENCY"]=num("discoveryConcurrency",16)
+                o["RESOLVER_DISCOVERY_PACE_MILLISECONDS"]=num("discoveryPaceMs",20)
+                val candidates=m.string("discoveryCandidates").split(',','\n',' ').map { it.trim() }.filter { it.isNotEmpty() }
+                if(candidates.isNotEmpty()) o["RESOLVER_DISCOVERY_CANDIDATES"]=JsonArray.of(*candidates.toTypedArray())
+            }
+        }
+        return o
     }
 
     /** CottenDNS and Soar profiles travel as the links their own apps import. */
@@ -207,6 +326,7 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
         } else {
             server["domains"]=JsonArray.of(*domains.toTypedArray())
             server["encryption_key"]=data.string("mkey");server["encryption_method"]=data.int("encryption")
+            if(data.obj("cotten").isNotEmpty()) profile["cottenSettings"]=data.obj("cotten").copy()
         }
         profile["server"]=server
         val json=jsonObjectOf("schema" to "whitedns.profile","version" to 1,"import_type" to type,"profile" to profile)
@@ -245,6 +365,7 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
         require(valid())
         it["type"]=type
         if(type=="soar") it["server_public_key"]=data.string("pubkey")
+        if(type=="cottendns") { it.remove("cotten");it["options"]=cottenOptions(data.obj("cotten")).merge(data.obj("options")) }
         it["system_resolvers"]=JsonArray.of(*systemResolvers().toTypedArray())
         it["socks"]="127.0.0.1:$port";it["socks_user"]=credentials.username;it["socks_pass"]=credentials.password
     }
