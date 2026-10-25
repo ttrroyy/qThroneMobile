@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mux_state_custom">Custom</string>
+    <string-array name="mux_state_entry">
+        <item>@string/tri_state_default</item>
+        <item>@string/tri_state_on</item>
+        <item>@string/tri_state_off</item>
+        <item>@string/mux_state_custom</item>
+    </string-array>
+    <string name="mux_pool_mode">Pool mode</string>
+    <string name="mux_pool_streams">Streams per connection</string>
+    <string name="mux_pool_connections">Connection pool</string>
+    <string-array name="mux_pool_mode_entry">
+        <item>@string/mux_pool_streams</item>
+        <item>@string/mux_pool_connections</item>
+    </string-array>
+    <string-array name="mux_pool_mode_value" translatable="false">
+        <item>max_streams</item>
+        <item>max_connections</item>
+    </string-array>
+</resources>

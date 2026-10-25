@@ -268,6 +268,22 @@ object SubscriptionQueue {
         return runBlocking { result.await() }
     }
 
+    /** Resolve Domain for chosen profiles, queued like [groupAction] so it never races a refresh. */
+    fun resolveProfiles(ids: List<Long>): String {
+        val result = CompletableDeferred<String>()
+        synchronized(lock) {
+            enqueueLocked(Job(-1L, batch = false, foreground = true) {
+                try {
+                    result.complete(SubscriptionFilters.resolveProfiles(ids))
+                } catch (e: Throwable) {
+                    result.complete(e.readableMessage)
+                    throw e
+                }
+            })
+        }
+        return runBlocking { result.await() }
+    }
+
     /** Suspends until no job is queued or running and no URL-test follow-up is pending. */
     suspend fun awaitIdle() {
         outstanding.first { it == 0 }

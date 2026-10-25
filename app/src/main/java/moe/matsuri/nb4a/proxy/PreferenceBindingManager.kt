@@ -20,6 +20,10 @@ class PreferenceBindingManager {
     fun bool(path: String, cacheName: String = path) =
         add(PreferenceBinding(Type.Bool, path).apply { this.cacheName = cacheName })
 
+    /** [path] names the MuxStateModel member; its rows must be bound before it, as reading the state may clear them. */
+    fun muxState(path: String, cacheName: String) =
+        add(PreferenceBinding(Type.MuxState, path).apply { this.cacheName = cacheName })
+
     fun tri(path: String, unspecifiedPath: String, cacheName: String = path) =
         add(PreferenceBinding(Type.TriState, path, unspecifiedField = unspecifiedPath).apply { this.cacheName = cacheName })
 

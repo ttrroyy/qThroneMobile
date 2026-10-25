@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mux_state_custom">Свой</string>
+    <string name="mux_pool_mode">Режим пула</string>
+    <string name="mux_pool_streams">Потоки на соединение</string>
+    <string name="mux_pool_connections">Пул соединений</string>
+</resources>

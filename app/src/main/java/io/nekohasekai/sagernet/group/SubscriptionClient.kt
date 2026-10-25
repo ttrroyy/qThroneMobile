@@ -82,6 +82,18 @@ object SubscriptionClient {
         }
     }
 
+    /** Resolve Domain for the profiles [ids] of group [gid]; returns the report text. */
+    suspend fun resolveProfiles(gid: Long, ids: List<Long>): String = withContext(Dispatchers.IO) {
+        try {
+            val report = CoreServiceClient.call { it.resolveProfiles(ids.toLongArray()) }.orEmpty()
+            GroupRepo.postReload(gid)
+            report
+        } catch (e: Exception) {
+            Logs.w(e)
+            e.readableMessage
+        }
+    }
+
     fun refreshGroup(gid: Long, showDiff: Boolean) = launchCall(gid) { it.refreshGroup(gid, showDiff) }
 
     fun refreshAll(onlyAllowed: Boolean) = launchCall(-1L) { it.refreshAll(onlyAllowed) }

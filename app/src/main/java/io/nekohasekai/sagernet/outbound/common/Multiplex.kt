@@ -59,7 +59,18 @@ class TcpBrutal {
 }
 
 /** Multiplex (multiplex.h:22-56, multiplex.cpp:50-137). `unspecified` true means "Keep Default". */
-class Multiplex {
+/** A multiplex edited through the Keep default (0) / On (1) / Off (2) / Custom ([MUX_CUSTOM]) menu. */
+interface MuxStateModel {
+    fun getMuxState(): Int
+
+    /** Every state but Custom drops the own settings, so On means the global preset alone. */
+    fun saveMuxState(state: Int)
+}
+
+/** "Custom" in the profile's multiplex menu: On with settings of its own. */
+const val MUX_CUSTOM = 3
+
+class Multiplex : MuxStateModel {
     @JvmField var enabled: Boolean = false
     @JvmField var unspecified: Boolean = true
     @JvmField var protocol: String = ""
@@ -68,6 +79,30 @@ class Multiplex {
     @JvmField var max_streams: Int = 0
     @JvmField var padding: Boolean = false
     @JvmField var brutal: TcpBrutal = TcpBrutal()
+
+    /** Explicitly enabled with settings of its own is Custom, so profiles saved before keep building as they did. */
+    override fun getMuxState(): Int = when {
+        unspecified -> 0
+        !enabled -> 2
+        hasOwnSettings() -> MUX_CUSTOM
+        else -> 1
+    }
+
+    override fun saveMuxState(state: Int) {
+        unspecified = state == 0
+        enabled = state == 1 || state == MUX_CUSTOM
+        if (state != MUX_CUSTOM) {
+            protocol = ""
+            max_connections = 0
+            min_streams = 0
+            max_streams = 0
+            padding = false
+            brutal = TcpBrutal()
+        }
+    }
+
+    fun hasOwnSettings(): Boolean =
+        protocol.isNotEmpty() || max_connections > 0 || min_streams > 0 || max_streams > 0 || padding || brutal.enabled
 
     fun parseFromLink(link: String): Boolean = parseFromLink(LinkParser.parse(link))
 

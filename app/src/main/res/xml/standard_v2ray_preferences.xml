@@ -255,8 +255,8 @@
             app:icon="@drawable/ic_baseline_compare_arrows_24"
             app:key="multiplex.enabled"
             app:title="@string/enable_mux"
-            app:entries="@array/tri_state_entry"
-            app:entryValues="@array/int_array_3"
+            app:entries="@array/mux_state_entry"
+            app:entryValues="@array/int_array_4"
             app:defaultValue="0"
             app:useSimpleSummaryProvider="true" />
         <moe.matsuri.nb4a.ui.SimpleMenuPreference
@@ -266,6 +266,15 @@
             app:entries="@array/mux_protocol_entry"
             app:entryValues="@array/mux_protocol_value"
             app:defaultValue=""
+            app:useSimpleSummaryProvider="true" />
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+            app:icon="@drawable/ic_baseline_low_priority_24"
+            app:key="multiplex.mode"
+            app:persistent="false"
+            app:title="@string/mux_pool_mode"
+            app:entries="@array/mux_pool_mode_entry"
+            app:entryValues="@array/mux_pool_mode_value"
+            app:defaultValue="max_streams"
             app:useSimpleSummaryProvider="true" />
         <EditTextPreference
             app:icon="@drawable/ic_baseline_low_priority_24"

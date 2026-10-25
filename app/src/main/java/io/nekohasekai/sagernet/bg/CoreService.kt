@@ -34,6 +34,8 @@ class CoreService : Service() {
 
         override fun groupAction(gid: Long, action: String): String = SubscriptionQueue.groupAction(gid, action)
 
+        override fun resolveProfiles(ids: LongArray?): String = SubscriptionQueue.resolveProfiles(ids?.toList().orEmpty())
+
         override fun registerSubscriptionCallback(cb: ISubscriptionCallback) = SubscriptionQueue.register(cb)
 
         override fun unregisterSubscriptionCallback(cb: ISubscriptionCallback) = SubscriptionQueue.unregister(cb)

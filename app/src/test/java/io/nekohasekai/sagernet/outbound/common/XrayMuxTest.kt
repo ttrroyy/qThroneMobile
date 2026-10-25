@@ -14,7 +14,7 @@ class XrayMuxTest {
         assertEquals(4, mux.maxConnections)
         assertEquals("skip", mux.xudpProxyUDP443)
         val built = mux.build(BuildContext())
-        assertEquals(4, built["maxConnections"])
+        assertEquals(4, (built["maxConnections"] as Number).toInt())
         assertEquals("skip", built["xudpProxyUDP443"])
 
         val restored = XrayMultiplex()

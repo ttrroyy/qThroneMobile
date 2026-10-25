@@ -138,8 +138,13 @@ internal object SubscriptionFilters {
      * returns, never the system resolver, which the tun answers from FakeIP or remote DNS while the VPN runs. Only
      * answered domains are written back. Returns the report text.
      */
-    suspend fun resolveDomains(gid: Long): String = withContext(Dispatchers.IO) {
-        val targets = ProfileManager.members(gid).filter { profile ->
+    suspend fun resolveDomains(gid: Long): String = resolve(ProfileManager.members(gid))
+
+    /** Resolve Domain for the profiles [ids], from any groups; unknown ids are skipped. */
+    suspend fun resolveProfiles(ids: List<Long>): String = resolve(ProfileManager.getProfiles(ids))
+
+    private suspend fun resolve(profiles: List<ProxyEntity>): String = withContext(Dispatchers.IO) {
+        val targets = profiles.filter { profile ->
             val address = profile.outbound.getAddress()
             !profile.outbound.invalid && address.isNotEmpty() && !address.isIpAddress()
         }
@@ -166,7 +171,7 @@ internal object SubscriptionFilters {
                 }
             }
         }
-        GroupRepo.postReload(gid)
+        for (groupId in changed.mapTo(HashSet()) { it.groupId }) GroupRepo.postReload(groupId)
         val report = app.getString(R.string.subs_resolved, changed.size, targets.size)
         Logs.i(report)
         report

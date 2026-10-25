@@ -22,6 +22,9 @@
         </menu>
     </item>
     <item
+        android:id="@+id/action_resolve_domain"
+        android:title="@string/profiles_resolve_domain" />
+    <item
         android:id="@+id/action_move_up"
         android:title="@string/profiles_move_up" />
     <item

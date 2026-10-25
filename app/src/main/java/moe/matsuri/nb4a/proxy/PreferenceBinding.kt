@@ -5,6 +5,7 @@ import androidx.preference.PreferenceFragmentCompat
 import app.qthrone.mobile.database.DataStore
 import app.qthrone.mobile.ktx.Logs
 import app.qthrone.mobile.ktx.readableMessage
+import app.qthrone.mobile.outbound.common.MuxStateModel
 import java.lang.reflect.Field
 import java.lang.reflect.ParameterizedType
 
@@ -19,6 +20,9 @@ object Type {
      * Boolean companion named by [PreferenceBinding.unspecifiedField] that is true while the value is unspecified.
      */
     const val TriState = 4
+
+    /** The multiplex menu of [app.qthrone.mobile.outbound.common.MuxStateModel] stored as "0" to "3"; bind it last. */
+    const val MuxState = 5
 }
 
 /**
@@ -112,6 +116,8 @@ class PreferenceBinding(
                 f.set(target.owner, state == 1)
                 unspecifiedField?.let { resolve(it) }?.let { it.field.set(it.owner, state == 0) }
             }
+
+            Type.MuxState -> (f.get(target.owner) as? MuxStateModel)?.saveMuxState(readStringToIntFromCache())
         }
     }
 
@@ -132,6 +138,10 @@ class PreferenceBinding(
                 val unspecified = unspecifiedField?.let { resolve(it) }?.let { it.field.get(it.owner) == true } ?: false
                 val state = if (enabled) 1 else if (unspecified) 0 else 2
                 DataStore.profileCacheStore.putString(cacheName, state.toString())
+            }
+
+            Type.MuxState -> (value as? MuxStateModel)?.let {
+                DataStore.profileCacheStore.putString(cacheName, it.getMuxState().toString())
             }
         }
     }

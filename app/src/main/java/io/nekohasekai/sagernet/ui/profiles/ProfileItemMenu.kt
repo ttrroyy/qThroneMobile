@@ -17,6 +17,8 @@ import app.qthrone.mobile.ktx.needReload
 import app.qthrone.mobile.ktx.readableMessage
 import app.qthrone.mobile.ktx.showAllowingStateLoss
 import app.qthrone.mobile.ktx.snackbar
+import app.qthrone.mobile.ktx.isIpAddress
+import app.qthrone.mobile.group.SubscriptionClient
 import app.qthrone.mobile.ktx.startFilesForResult
 import app.qthrone.mobile.ui.ConfigurationFragment
 import app.qthrone.mobile.ui.profile.ProfileConfigExport
@@ -71,6 +73,9 @@ class ProfileItemMenu(private val host: ConfigurationFragment) {
             isEnabled = index in 0 until adapter.memberIds.size - 1
         }
         menu.findItem(R.id.action_delete).isEnabled = !host.isStartedProfile(profile.id)
+        val address = profile.outbound.getAddress()
+        menu.findItem(R.id.action_resolve_domain).isVisible =
+            !profile.outbound.invalid && address.isNotEmpty() && !address.isIpAddress()
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_edit -> edit(profile, adapter.group)
@@ -78,6 +83,7 @@ class ProfileItemMenu(private val host: ConfigurationFragment) {
                 R.id.action_test_url -> test(profile, TestSpec.KIND_URL)
                 R.id.action_test_ip -> test(profile, TestSpec.KIND_IP)
                 R.id.action_test_speed -> test(profile, TestSpec.KIND_SPEED)
+                R.id.action_resolve_domain -> resolve(profile)
                 R.id.action_move_up -> move(profile, -1)
                 R.id.action_move_down -> move(profile, 1)
                 R.id.action_delete -> delete(profile, adapter)
@@ -90,6 +96,14 @@ class ProfileItemMenu(private val host: ConfigurationFragment) {
 
     private fun test(profile: ProxyEntity, kind: Int) {
         ProfileTests.startProfiles(host, kind, listOf(profile.id), profile.groupId)
+    }
+
+    /** Resolve Domain for one profile: the server's domain becomes the address the core's DNS returns. */
+    private fun resolve(profile: ProxyEntity) {
+        host.launchIo {
+            val report = SubscriptionClient.resolveProfiles(profile.groupId, listOf(profile.id))
+            if (report.isNotBlank()) host.onUi { snackbar(report).show() }
+        }
     }
 
     /** One step in the stored order through Group::EmplaceProfile (the D-pad alternative to dragging). */

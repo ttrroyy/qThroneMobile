@@ -16,6 +16,7 @@ import app.qthrone.mobile.database.SettingsMapper
 import app.qthrone.mobile.database.preference.EditTextPreferenceModifiers
 import app.qthrone.mobile.outbound.BuildContext
 import app.qthrone.mobile.outbound.common.Ech
+import app.qthrone.mobile.outbound.common.MUX_CUSTOM
 import moe.matsuri.nb4a.proxy.PreferenceBindingManager
 import moe.matsuri.nb4a.ui.SimpleMenuPreference
 
@@ -139,6 +140,7 @@ fun PreferenceFragmentCompat.presetTriSummary(key: String, defaultOn: Boolean) {
         when (it.value) {
             "1" -> on
             "2" -> off
+            MUX_CUSTOM.toString() -> it.context.getString(R.string.mux_state_custom)
             else -> it.context.getString(R.string.preset_keep_default, if (defaultOn) on else off)
         }
     }
@@ -288,8 +290,10 @@ object TlsBlock {
 
 /** The sing-box multiplex block (`multiplex.*`), shared by shadowsocks, vmess, vless and trojan. */
 object MuxBlock {
+    private const val MODE_STREAMS = "max_streams"
+    private const val MODE_CONNECTIONS = "max_connections"
+
     fun bind(pbm: PreferenceBindingManager, prefix: String = "multiplex") {
-        pbm.tri("$prefix.enabled", "$prefix.unspecified")
         pbm.text("$prefix.protocol")
         pbm.int("$prefix.max_connections")
         pbm.int("$prefix.min_streams")
@@ -298,6 +302,8 @@ object MuxBlock {
         pbm.bool("$prefix.brutal.enabled")
         pbm.int("$prefix.brutal.up_mbps")
         pbm.int("$prefix.brutal.down_mbps")
+        // last: Keep default, On and Off drop the own settings read above
+        pbm.muxState(prefix, "$prefix.enabled")
     }
 
     fun setup(
@@ -307,14 +313,41 @@ object MuxBlock {
     ) = with(pf) {
         numberInput("$prefix.max_connections", "$prefix.min_streams", "$prefix.max_streams", "$prefix.brutal.up_mbps", "$prefix.brutal.down_mbps")
         val category = findPreference<PreferenceCategory>("muxCategory")
-        onMenu("$prefix.enabled") { state ->
-            category?.setChildrenVisible(state == "1", setOf("$prefix.enabled"))
-            if (state == "1") {
-                val brutal = findPreference<SwitchPreference>("$prefix.brutal.enabled")?.isChecked ?: false
-                setVisible(brutal, "$prefix.brutal.up_mbps", "$prefix.brutal.down_mbps")
-            }
+        val store = DataStore.profileCacheStore
+        fun number(key: String) = store.getString("$prefix.$key")?.trim()?.toIntOrNull() ?: 0
+        // The pool mode is not stored: a profile with a connection cap opens in that mode.
+        var mode = if (number("max_connections") > 0 || number("min_streams") > 0) MODE_CONNECTIONS else MODE_STREAMS
+        findPreference<ListPreference>("$prefix.mode")?.value = mode
+        var custom = false
+        var brutal = false
+        fun applyVisibility() {
+            category?.setChildrenVisible(custom, setOf("$prefix.enabled"))
+            if (!custom) return
+            setVisible(mode == MODE_STREAMS, "$prefix.max_streams")
+            setVisible(mode == MODE_CONNECTIONS, "$prefix.max_connections", "$prefix.min_streams")
+            setVisible(brutal, "$prefix.brutal.up_mbps", "$prefix.brutal.down_mbps")
         }
-        onSwitch("$prefix.brutal.enabled") { setVisible(it, "$prefix.brutal.up_mbps", "$prefix.brutal.down_mbps") }
+        onMenu("$prefix.enabled") {
+            custom = it == MUX_CUSTOM.toString()
+            applyVisibility()
+        }
+        onMenu("$prefix.mode") {
+            // the other mode's values would still reach the core, which lets max_connections win
+            if (mode != it) {
+                if (it == MODE_STREAMS) {
+                    findPreference<EditTextPreference>("$prefix.max_connections")?.text = "0"
+                    findPreference<EditTextPreference>("$prefix.min_streams")?.text = "0"
+                } else {
+                    findPreference<EditTextPreference>("$prefix.max_streams")?.text = "0"
+                }
+            }
+            mode = it
+            applyVisibility()
+        }
+        onSwitch("$prefix.brutal.enabled") {
+            brutal = it
+            applyVisibility()
+        }
 
         // multiplex.cpp:128-137
         presetTriSummary("$prefix.enabled", presets.muxDefaultOn)

@@ -17,6 +17,8 @@ interface ICoreService {
   void importUrl(String url, long gid);
   void importFile(String path, long gid);
   String groupAction(long gid, String action);
+  // Resolve Domain for the given profiles, queued like groupAction; returns the report text.
+  String resolveProfiles(in long[] ids);
   void registerSubscriptionCallback(ISubscriptionCallback cb);
   void unregisterSubscriptionCallback(ISubscriptionCallback cb);
 
