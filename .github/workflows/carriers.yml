@@ -6,13 +6,13 @@ on:
       client:
         description: Transport clients to build
         type: choice
-        options: [all, sstp]
+        options: [all, sstp, dns]
         default: all
 permissions:
   contents: read
 jobs:
   clients:
-    if: inputs.client != 'sstp'
+    if: inputs.client == 'all'
     runs-on: ubuntu-22.04
     timeout-minutes: 45
     strategy:
@@ -63,4 +63,29 @@ jobs:
         with:
           name: qThrone-SSTP-${{ matrix.abi }}
           path: qthrone-sstp-*.tar.gz
+          if-no-files-found: error
+  dns:
+    if: inputs.client == 'dns'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        abi: [arm64-v8a, armeabi-v7a, x86_64]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27.0'
+          cache: false
+      - name: Install NDK
+        run: |
+          echo y | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install 'ndk;28.2.13676358'
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/28.2.13676358" >> "$GITHUB_ENV"
+      - name: Build CottenDNS and Soar from pinned sources
+        run: bash scripts/build_dns_engines.sh '${{ matrix.abi }}'
+      - uses: actions/upload-artifact@v7
+        with:
+          name: qThrone-DNS-${{ matrix.abi }}
+          path: qthrone-dns-*.tar.gz
           if-no-files-found: error
