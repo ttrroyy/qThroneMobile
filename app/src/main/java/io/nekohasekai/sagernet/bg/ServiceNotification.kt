@@ -25,6 +25,8 @@ import app.qthrone.mobile.ktx.app
 import app.qthrone.mobile.ktx.getColorAttr
 import app.qthrone.mobile.ktx.runOnMainDispatcher
 import app.qthrone.mobile.ui.SwitchActivity
+import app.qthrone.mobile.ui.test.TestFormat
+import app.qthrone.mobile.widget.ExitIp
 import app.qthrone.mobile.utils.Theme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.sync.Mutex
@@ -72,6 +74,32 @@ class ServiceNotification(
     /** Whether the screen is on; the traffic looper stops polling the core while it is off. */
     val screenOn = MutableStateFlow(SagerNet.power.isInteractive)
 
+    /** "flag Country, City" of the connection's exit, shown between the server name and the speeds. */
+    private var location: String? = null
+    private var speedText: String? = null
+
+    private fun bodyText(): String? = listOfNotNull(location, speedText).joinToString("\n").ifEmpty { null }
+
+    private fun applyBody(builder: NotificationCompat.Builder) {
+        val body = bodyText()
+        builder.setContentText(body)
+        builder.setStyle(if (body == null) null else NotificationCompat.BigTextStyle().bigText(body))
+    }
+
+    /** The exit lookup of this process (exit_country_lookup decides whether it runs) feeds the location line. */
+    private val exitListener: () -> Unit = {
+        val info = ExitIp.info
+        val text = info?.let { exit ->
+            val place = listOf(exit.country, exit.city).filter { it.isNotBlank() }.joinToString(", ")
+            listOf(TestFormat.flag(exit.countryCode), place).filter { it.isNotBlank() }.joinToString(" ")
+        }?.ifEmpty { null }
+        if (text != location) runOnMainDispatcher {
+            location = text
+            useBuilder { applyBody(it) }
+            update()
+        }
+    }
+
     suspend fun postNotificationSpeedUpdate(stats: SpeedDisplayData) {
         if (!DataStore.configurationStore.getBoolean("qmobileNotificationSpeed", false)) return
         useBuilder {
@@ -89,8 +117,7 @@ class ServiceNotification(
                         Formatter.formatFileSize(service, stats.rxRateDirect)
                     )
                 )
-                it.setStyle(NotificationCompat.BigTextStyle().bigText(speedDetail))
-                it.setContentText(speedDetail)
+                speedText = speedDetail
             } else {
                 val speedSimple = (service as Context).getString(
                     R.string.traffic, service.getString(
@@ -99,8 +126,9 @@ class ServiceNotification(
                         R.string.speed, Formatter.formatFileSize(service, stats.rxRateProxy)
                     )
                 )
-                it.setContentText(speedSimple)
+                speedText = speedSimple
             }
+            applyBody(it)
             it.setSubText(
                 service.getString(
                     R.string.traffic,
@@ -119,9 +147,12 @@ class ServiceNotification(
         update()
     }
 
-    /** A restart in place: the new profile's title and buttons, and no speed of the old one. */
+    /** A restart in place: the new profile's title and buttons, and no speed or exit of the old one. */
     suspend fun refresh(newTitle: String) {
         updateActions()
+        ExitIp.clear()
+        location = null
+        speedText = null
         useBuilder {
             it.setContentTitle(newTitle)
             it.setContentText(null)
@@ -144,6 +175,12 @@ class ServiceNotification(
         updateActions()
         useBuilder { it.priority = NotificationCompat.PRIORITY_LOW }
         update()
+        // a fresh lookup for every connection, so a reconnect never shows the previous exit
+        runOnMainDispatcher {
+            ExitIp.listener = exitListener
+            ExitIp.clear()
+            ExitIp.ensure()
+        }
     }
 
     private val showDirectSpeed = DataStore.showDirectSpeed
@@ -272,6 +309,10 @@ class ServiceNotification(
 
     fun destroy() {
         listenPostSpeed = false
+        runOnMainDispatcher {
+            if (ExitIp.listener === exitListener) ExitIp.listener = null
+            ExitIp.clear()
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             (service as Service).stopForeground(Service.STOP_FOREGROUND_REMOVE)
         } else {
