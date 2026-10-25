@@ -104,6 +104,13 @@ object ExitIp {
     /** The stats bar on screen; told about every change of [info] or [refreshing]. */
     var listener: (() -> Unit)? = null
 
+    /**
+     * Set in the service process: a GET through the running core's proxy outbound (url, timeout ms -> body). The app's
+     * own UID is outside the TUN, so in VPN mode without a local inbound this is the only way out.
+     */
+    @Volatile
+    var coreFetch: ((String, Long) -> String)? = null
+
     private var generation = 0
     private var job: Job? = null
 
@@ -152,7 +159,9 @@ object ExitIp {
     private fun lookup(active: () -> Boolean): Info? {
         // "Only route advertised network" rejects this probe.
         if (exitsThroughVpn(ProfileManager.getProfile(DataStore.currentProfile))) return null
-        val client = client() ?: return null
+        val client = client()
+        val fetch = coreFetch
+        if (client == null && fetch == null) return null
         val selected = DataStore.exitLookupProvider
         val chain = PROVIDERS.find { it.id == selected }?.let { listOf(it) } ?: AUTO_CHAIN
         val deadline = SystemClock.elapsedRealtime() + CHAIN_BUDGET_MS
@@ -160,7 +169,8 @@ object ExitIp {
             val remaining = deadline - SystemClock.elapsedRealtime()
             if (remaining <= 0 || !active()) break
             try {
-                query(client, provider, remaining)?.let { return it }
+                val found = if (client != null) query(client, provider, remaining) else provider.parse(fetch!!(provider.url, remaining))
+                found?.let { return it }
                 Logs.w("exit IP lookup: ${provider.id} named no country")
             } catch (e: Exception) {
                 Logs.w("exit IP lookup: ${provider.id}: ${e.readableMessage}")

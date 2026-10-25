@@ -177,6 +177,11 @@ class ServiceNotification(
         update()
         // a fresh lookup for every connection, so a reconnect never shows the previous exit
         runOnMainDispatcher {
+            ExitIp.coreFetch = { url, timeoutMs ->
+                app.qthrone.core.mobile.Mobile.fetchThroughProxy(
+                    CoreRuntime.running?.instance, url, app.qthrone.mobile.ktx.appUserAgent(), timeoutMs.toInt(), 64 * 1024,
+                )
+            }
             ExitIp.listener = exitListener
             ExitIp.clear()
             ExitIp.ensure()
