@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cag_exit_country">Exit country</string>
+    <string name="exit_country_lookup">Look up exit country</string>
+    <string name="exit_country_lookup_sum">After connecting, ask an IP lookup service through the proxy which IP address and country the connection exits from. When off, no such service is contacted.</string>
+    <string name="exit_lookup_provider">Lookup service</string>
+    <string name="exit_lookup_provider_auto">Automatic</string>
+    <string-array name="exit_lookup_provider_entries">
+        <item>@string/exit_lookup_provider_auto</item>
+        <item>ip-api.com</item>
+        <item>ipwho.is</item>
+        <item>ipinfo.io</item>
+        <item>ipapi.co</item>
+        <item>IP2Location.io</item>
+        <item>FreeIPAPI</item>
+        <item>Cloudflare</item>
+    </string-array>
+    <string-array name="exit_lookup_provider_values" translatable="false">
+        <item>auto</item>
+        <item>ip-api</item>
+        <item>ipwho</item>
+        <item>ipinfo</item>
+        <item>ipapi-co</item>
+        <item>ip2location</item>
+        <item>freeipapi</item>
+        <item>cloudflare</item>
+    </string-array>
+</resources>

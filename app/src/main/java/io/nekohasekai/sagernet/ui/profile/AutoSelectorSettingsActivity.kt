@@ -6,6 +6,7 @@ import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
+import androidx.preference.MultiSelectListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
@@ -32,18 +33,20 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import moe.matsuri.nb4a.ui.SimpleMenuPreference
+
 import java.util.regex.Pattern
 import java.util.regex.PatternSyntaxException
 
 /**
- * EditAutoSelector (edit_autoselector.cpp + .ui): the tracked group, the name filter, balancing, the preferred profile
+ * EditAutoSelector (edit_autoselector.cpp + .ui): the tracked groups, the name filter, balancing, the preferred profile
  * with "Use automatic", the live plan summary and the collapsed Advanced groups with the desktop's limits. Saving
  * validates like onEnd and prunes `pool` to the members that still qualify.
  */
 class AutoSelectorSettingsActivity : BindingSettingsActivity<AutoSelector>() {
 
     private companion object {
+        /** "Servers from": the checked group ids as a string set; [AutoSelector.gids] is not a binding. */
+        const val KEY_GIDS = "gids"
         const val KEY_PINNED = "autoselPinned"
         const val KEY_PLAN = "autoselPlan"
         const val KEY_ADVANCED = "autoselAdvanced"
@@ -54,7 +57,7 @@ class AutoSelectorSettingsActivity : BindingSettingsActivity<AutoSelector>() {
 
         /** The fields refreshPlanSummary reads. */
         val PLAN_KEYS =
-            setOf("gid", "nameFilter", "countryFilter", "excludeUnavailable", "poolCap", "buildLimit", "resultValidityMins")
+            setOf(KEY_GIDS, "nameFilter", "countryFilter", "excludeUnavailable", "poolCap", "buildLimit", "resultValidityMins")
     }
 
     /** A spin box of edit_autoselector.ui: its range, unit and the text of 0 when it has one. */
@@ -82,7 +85,7 @@ class AutoSelectorSettingsActivity : BindingSettingsActivity<AutoSelector>() {
         IntField("balanceIntervalSec", 5, 3600, R.plurals.autosel_seconds),
     )
 
-    override fun createEntity() = AutoSelector().apply { gid = DataStore.editingGroup }
+    override fun createEntity() = AutoSelector().apply { gids = arrayListOf(DataStore.editingGroup) }
     override val preferencesResource = R.xml.autoselector_preferences
 
     // Like a chain, a selector is not a sing-box outbound the schema could check, and its JSON holds local ids.
@@ -90,7 +93,6 @@ class AutoSelectorSettingsActivity : BindingSettingsActivity<AutoSelector>() {
 
     init {
         pbm.text("name")
-        pbm.text("gid")
         pbm.text("nameFilter")
         pbm.bool("balance")
         pbm.text("countryFilter")
@@ -110,6 +112,10 @@ class AutoSelectorSettingsActivity : BindingSettingsActivity<AutoSelector>() {
     private var planJob: Job? = null
     private var fragment: PreferenceFragmentCompat? = null
 
+    /** Every group id in tab order: the order checked groups are saved in. */
+    @Volatile
+    private var groupOrder: List<Long> = emptyList()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         advancedExpanded = savedInstanceState?.getBoolean(STATE_ADVANCED) ?: false
         super.onCreate(savedInstanceState)
@@ -123,10 +129,12 @@ class AutoSelectorSettingsActivity : BindingSettingsActivity<AutoSelector>() {
 
     override fun AutoSelector.init() {
         pbm.writeToCacheAll(this)
+        DataStore.profileCacheStore.putStringSet(KEY_GIDS, gids.mapTo(LinkedHashSet()) { it.toString() })
     }
 
     override fun AutoSelector.serialize() {
         pbm.fromCacheAll(this)
+        gids = checkedGroups(gids)
         nameFilter = nameFilter.trim()
         countryFilter = countryFilter.trim()
         testURL = testURL.trim()
@@ -166,8 +174,7 @@ class AutoSelectorSettingsActivity : BindingSettingsActivity<AutoSelector>() {
     private fun validate(): String? {
         val store = DataStore.profileCacheStore
         if (store.getString("name").isNullOrBlank()) return getString(R.string.autosel_name_empty)
-        val gid = store.getString("gid")?.trim()?.toLongOrNull() ?: 0L
-        if (gid <= 0 || GroupRepo.get(gid) == null) return getString(R.string.autosel_select_group)
+        if (checkedIds().none { GroupRepo.get(it) != null }) return getString(R.string.autosel_select_group)
         val filter = store.getString("nameFilter").orEmpty().trim()
         if (filter.isNotEmpty()) {
             try {
@@ -225,26 +232,46 @@ class AutoSelectorSettingsActivity : BindingSettingsActivity<AutoSelector>() {
 
     // ------------------------------------------------------------------------------------------------ rows
 
-    /** "Servers from": non-archived groups in tab order; a tracked group outside that list stays selectable. */
+    /** "Servers from": non-archived groups in tab order; a checked group outside that list stays listed, so it can be unchecked. */
     private fun PreferenceFragmentCompat.setupGroups() {
-        val menu = findPreference<SimpleMenuPreference>("gid") ?: return
+        val pref = findPreference<MultiSelectListPreference>(KEY_GIDS) ?: return
         val groups = GroupRepo.all()
-        var current = menu.value?.trim()?.toLongOrNull() ?: -1L
-        if (current <= 0) current = DataStore.editingGroup
+        val known = groups.mapTo(HashSet()) { it.id }
+        groupOrder = groups.map { it.id }
+        val checked = checkedIds()
         val entries = ArrayList<CharSequence>()
         val values = ArrayList<CharSequence>()
         for (group in groups) {
-            if (group.archive && group.id != current) continue
+            if (group.archive && group.id !in checked) continue
             entries.add(if (group.archive) getString(R.string.autosel_group_archived, group.displayName()) else group.displayName())
             values.add(group.id.toString())
         }
-        if (current > 0 && groups.none { it.id == current }) {
-            entries.add(getString(R.string.autosel_group_missing, current))
-            values.add(current.toString())
+        for (id in checkedGroups(ensureEditingOutbound().gids)) {
+            if (id in known) continue
+            entries.add(getString(R.string.autosel_group_missing, id))
+            values.add(id.toString())
         }
-        menu.entries = entries.toTypedArray()
-        menu.entryValues = values.toTypedArray()
-        if (current > 0) menu.value = current.toString()
+        pref.entries = entries.toTypedArray()
+        pref.entryValues = values.toTypedArray()
+        pref.summaryProvider = Preference.SummaryProvider<MultiSelectListPreference> { p ->
+            val chosen = p.values
+            p.entryValues.indices.filter { p.entryValues[it].toString() in chosen }
+                .joinToString(getString(R.string.autosel_list_separator)) { p.entries[it] }
+                .ifEmpty { getString(R.string.autosel_groups_none) }
+        }
+    }
+
+    /** The ids checked in "Servers from". */
+    private fun checkedIds(): Set<Long> = DataStore.profileCacheStore.getStringSet(KEY_GIDS).orEmpty()
+        .mapNotNullTo(HashSet()) { text -> text.trim().toLongOrNull()?.takeIf { it >= 0 } }
+
+    /** The checked groups in tab order; a checked id no group has any more follows, in its [previous] order. */
+    private fun checkedGroups(previous: List<Long>): MutableList<Long> {
+        val checked = checkedIds()
+        val order = groupOrder.ifEmpty { GroupRepo.all().map { it.id } }
+        val out = order.filterTo(ArrayList()) { it in checked }
+        for (id in previous + checked.sorted()) if (id in checked && id !in out) out.add(id)
+        return out
     }
 
     private fun PreferenceFragmentCompat.setupTexts() {
@@ -356,7 +383,7 @@ class AutoSelectorSettingsActivity : BindingSettingsActivity<AutoSelector>() {
         val store = DataStore.profileCacheStore
         val preview = AutoSelector()
         preview.parseFromJson(ensureEditingOutbound().exportToJson())
-        preview.gid = store.getString("gid")?.trim()?.toLongOrNull() ?: -1L
+        preview.gids = checkedGroups(preview.gids)
         preview.nameFilter = store.getString("nameFilter").orEmpty().trim()
         preview.countryFilter = store.getString("countryFilter").orEmpty().trim()
         preview.excludeUnavailable = store.getBoolean("excludeUnavailable", true)
@@ -377,10 +404,25 @@ class AutoSelectorSettingsActivity : BindingSettingsActivity<AutoSelector>() {
 
     private fun describe(plan: AutoSelectorPlan): String {
         if (!plan.ok) {
-            return getString(if (plan.group == null) R.string.autosel_error_no_group else R.string.autosel_error_no_members)
+            return getString(
+                when {
+                    plan.groups.isNotEmpty() -> R.string.autosel_error_no_members
+                    plan.missingGroups > 0 -> R.string.autosel_error_no_group
+                    else -> R.string.autosel_error_no_tracked_group
+                }
+            )
         }
         val lines = ArrayList<String>()
-        lines.add(getString(R.string.autosel_plan_counts, plan.eligible, plan.membersInGroup, plan.build.size))
+        lines.add(
+            if (plan.groups.size > 1) {
+                getString(R.string.autosel_plan_counts_groups, plan.eligible, plan.membersInGroup, plan.groups.size, plan.build.size)
+            } else {
+                getString(R.string.autosel_plan_counts, plan.eligible, plan.membersInGroup, plan.build.size)
+            }
+        )
+        if (plan.missingGroups > 0) {
+            lines.add(resources.getQuantityString(R.plurals.autosel_plan_missing_groups, plan.missingGroups, plan.missingGroups))
+        }
         if (plan.skipped.isNotEmpty()) {
             val reasons = plan.skipped.joinToString(getString(R.string.autosel_list_separator)) { (skip, count) ->
                 getString(R.string.autosel_plan_skip_item, count, getString(skipText(skip)))

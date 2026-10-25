@@ -72,6 +72,7 @@ class XrayVlessSettingsActivity : BindingSettingsActivity<XrayVless>() {
         pbm.tri("multiplex.enabled", "multiplex.useDefault")
         pbm.int("multiplex.concurrency")
         pbm.int("multiplex.xudpConcurrency")
+        pbm.text("multiplex.xudpProxyUDP443")
 
         jsonObjectText("$STREAM.finalmask", { streamSetting.finalmask }, { streamSetting.finalmask = it })
     }

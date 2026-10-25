@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="autosel_groups_none">Группы не выбраны</string>
+    <string name="autosel_plan_counts_groups">%1$d из %2$d профилей в %3$d группах можно использовать; будет запущено %4$d.</string>
+    <plurals name="autosel_plan_missing_groups">
+        <item quantity="one">%d отслеживаемая группа больше не существует и пропущена.</item>
+        <item quantity="few">%d отслеживаемые группы больше не существуют и пропущены.</item>
+        <item quantity="many">%d отслеживаемых групп больше не существуют и пропущены.</item>
+        <item quantity="other">%d отслеживаемой группы больше не существуют и пропущены.</item>
+    </plurals>
+    <string name="autosel_error_no_tracked_group">Автовыбор не отслеживает ни одной группы</string>
+</resources>

@@ -13,6 +13,21 @@
         <EditTextPreference app:persistent="false" app:key="url_test_timeout_ms" app:title="@string/connection_test_timeout" app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="@string/cag_exit_country">
+        <SwitchPreference
+            app:icon="@drawable/baseline_public_24"
+            app:key="exit_country_lookup"
+            app:summary="@string/exit_country_lookup_sum"
+            app:title="@string/exit_country_lookup" />
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+            app:dependency="exit_country_lookup"
+            app:entries="@array/exit_lookup_provider_entries"
+            app:entryValues="@array/exit_lookup_provider_values"
+            app:key="exit_lookup_provider"
+            app:title="@string/exit_lookup_provider"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
     <PreferenceCategory app:title="@string/cag_logging">
         <moe.matsuri.nb4a.ui.LongClickListPreference
             app:entries="@array/log_level"

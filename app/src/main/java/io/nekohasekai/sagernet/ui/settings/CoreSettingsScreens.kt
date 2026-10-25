@@ -138,6 +138,11 @@ class CoreSettingsFragment : PresetSettingsFragment(R.xml.settings_core_combined
         }
         numeric("test_concurrent",DataStore.testConcurrent,1..32) { DataStore.testConcurrent=it }
         numeric("url_test_timeout_ms",DataStore.urlTestTimeoutMs,100..120000) { DataStore.urlTestTimeoutMs=it }
+        // Off drops the shown exit and a lookup in flight; on waits for the next connection or stats bar tap.
+        pref<SwitchPreference>(SettingsRegistry.EXIT_COUNTRY_LOOKUP.key).setOnPreferenceChangeListener { _, newValue ->
+            if (newValue == false) app.qthrone.mobile.widget.ExitIp.clear()
+            true
+        }
 
         val logLevel = pref<LongClickListPreference>(SettingsRegistry.LOG_LEVEL.key)
         logLevel.dialogLayoutResource = R.layout.layout_loglevel_help

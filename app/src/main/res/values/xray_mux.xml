@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="xray_mux_udp443">UDP/443 (QUIC) in mux</string>
+    <string-array name="xray_mux_udp443_entries">
+        <item>@string/xray_mux_udp443_default</item>
+        <item>@string/xray_mux_udp443_reject</item>
+        <item>@string/xray_mux_udp443_allow</item>
+        <item>@string/xray_mux_udp443_skip</item>
+    </string-array>
+    <string-array name="xray_mux_udp443_values" translatable="false">
+        <item></item>
+        <item>reject</item>
+        <item>allow</item>
+        <item>skip</item>
+    </string-array>
+    <string name="xray_mux_udp443_default">Default (reject)</string>
+    <string name="xray_mux_udp443_reject">Reject: apps fall back to TCP</string>
+    <string name="xray_mux_udp443_allow">Allow through mux</string>
+    <string name="xray_mux_udp443_skip">Send outside mux</string>
+</resources>

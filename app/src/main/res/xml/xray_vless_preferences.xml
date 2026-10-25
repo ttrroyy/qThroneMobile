@@ -332,6 +332,14 @@
             app:title="@string/xray_mux_xudp_concurrency"
             app:defaultValue="16"
             app:useSimpleSummaryProvider="true" />
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+            app:icon="@drawable/ic_baseline_low_priority_24"
+            app:key="multiplex.xudpProxyUDP443"
+            app:title="@string/xray_mux_udp443"
+            app:entries="@array/xray_mux_udp443_entries"
+            app:entryValues="@array/xray_mux_udp443_values"
+            app:defaultValue=""
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
 </PreferenceScreen>

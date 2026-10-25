@@ -1401,7 +1401,7 @@
     <string name="autosel_connectivity_url_empty">Direct test URL (%s)</string>
     <string name="autosel_connectivity_url_none">Not set: the system\'s network state is used</string>
     <string name="autosel_name_empty">Name cannot be empty.</string>
-    <string name="autosel_select_group">Select the group this auto selector should track.</string>
+    <string name="autosel_select_group">Select at least one group for this auto selector to track.</string>
     <string name="autosel_bad_regex">The name filter is not a valid regular expression: %s</string>
     <plurals name="autosel_profiles">
         <item quantity="one">%d profile</item>

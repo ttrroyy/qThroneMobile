@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="xray_mux_udp443">UDP/443 (QUIC) в mux</string>
+    <string name="xray_mux_udp443_default">По умолчанию (отклонять)</string>
+    <string name="xray_mux_udp443_reject">Отклонять: приложения перейдут на TCP</string>
+    <string name="xray_mux_udp443_allow">Пропускать через mux</string>
+    <string name="xray_mux_udp443_skip">Отправлять мимо mux</string>
+</resources>

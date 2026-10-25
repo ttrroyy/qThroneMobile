@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="autosel_groups_none">No group selected</string>
+    <string name="autosel_plan_counts_groups">%1$d of %2$d profiles in the %3$d groups can be used; %4$d would run.</string>
+    <plurals name="autosel_plan_missing_groups">
+        <item quantity="one">%d tracked group no longer exists and is skipped.</item>
+        <item quantity="other">%d tracked groups no longer exist and are skipped.</item>
+    </plurals>
+    <string name="autosel_error_no_tracked_group">Auto selector tracks no group</string>
+</resources>

@@ -267,7 +267,7 @@ object AutoSelectorRuntime {
             var restart = false
             for (id in AutoSelectorProfiles.ids()) {
                 val selector = AutoSelectorProfiles.load(id) ?: continue
-                if (selector.gid != gid) continue
+                if (gid !in selector.gids) continue
                 val alive = AutoSelectorProfiles.existing(selector.pool + selector.lastBuilt)
                 val prunedPool = selector.pool.removeAll { it !in alive }
                 val prunedBuilt = selector.lastBuilt.removeAll { it !in alive }

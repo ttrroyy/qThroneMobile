@@ -13,6 +13,8 @@ class XrayMultiplex {
     @JvmField var useDefault: Boolean = true
     @JvmField var concurrency: Int = 0
     @JvmField var xudpConcurrency: Int = 16
+    /** What the mux does with UDP/443 (QUIC): "" is Xray's own reject, else reject, allow or skip (outside the mux). */
+    @JvmField var xudpProxyUDP443: String = ""
 
     fun parseFromLink(link: String): Boolean = parseFromLink(LinkParser.parse(link))
 
@@ -26,6 +28,7 @@ class XrayMultiplex {
         }
         if (q.has("mux_concurrency")) concurrency = QtStrings.toInt(q.value("mux_concurrency"))
         if (q.has("mux_xudp_concurrency")) xudpConcurrency = QtStrings.toInt(q.value("mux_xudp_concurrency"))
+        if (q.has("mux_xudp_proxy_udp443")) xudpProxyUDP443 = udp443Mode(q.value("mux_xudp_proxy_udp443"))
         return true
     }
 
@@ -38,6 +41,7 @@ class XrayMultiplex {
         }
         if (obj.contains("concurrency")) concurrency = obj.int("concurrency")
         if (obj.contains("xudpConcurrency")) xudpConcurrency = obj.int("xudpConcurrency")
+        if (obj.contains("xudpProxyUDP443")) xudpProxyUDP443 = udp443Mode(obj.string("xudpProxyUDP443"))
         return true
     }
 
@@ -59,6 +63,7 @@ class XrayMultiplex {
         if (enabled) {
             if (concurrency > 0) q.add("mux_concurrency" to concurrency.toString())
             if (xudpConcurrency > 0) q.add("mux_xudp_concurrency" to xudpConcurrency.toString())
+            if (xudpProxyUDP443.isNotEmpty()) q.add("mux_xudp_proxy_udp443" to xudpProxyUDP443)
         }
         return q
     }
@@ -71,6 +76,7 @@ class XrayMultiplex {
         if (!enabled) return obj
         if (concurrency > 0) obj["concurrency"] = concurrency
         if (xudpConcurrency > 0) obj["xudpConcurrency"] = xudpConcurrency
+        if (xudpProxyUDP443.isNotEmpty()) obj["xudpProxyUDP443"] = xudpProxyUDP443
         return obj
     }
 
@@ -81,6 +87,14 @@ class XrayMultiplex {
         if (!obj.bool("enabled")) return JsonObject()
         if (ctx.xrayMuxConcurrency > 0 && concurrency <= 0) obj["concurrency"] = ctx.xrayMuxConcurrency
         if (xudpConcurrency > 0) obj["xudpConcurrency"] = xudpConcurrency
+        if (xudpProxyUDP443.isNotEmpty()) obj["xudpProxyUDP443"] = xudpProxyUDP443
         return obj
+    }
+
+    companion object {
+        /** The modes the core accepts; anything else would fail the Xray start, so it falls back to Xray's default. */
+        val UDP443_MODES = listOf("reject", "allow", "skip")
+
+        fun udp443Mode(raw: String): String = raw.trim().lowercase().takeIf { it in UDP443_MODES }.orEmpty()
     }
 }

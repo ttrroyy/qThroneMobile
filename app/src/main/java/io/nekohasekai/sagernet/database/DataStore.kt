@@ -242,6 +242,8 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var urlTestTimeoutMs by SettingsRegistry.URL_TEST_TIMEOUT_MS
     var testConcurrent by SettingsRegistry.TEST_CONCURRENT
     var directTestUrl by SettingsRegistry.DIRECT_TEST_URL
+    var exitCountryLookup by SettingsRegistry.EXIT_COUNTRY_LOOKUP
+    var exitLookupProvider by SettingsRegistry.EXIT_LOOKUP_PROVIDER
     var speedTestMode by SettingsRegistry.SPEED_TEST_MODE
     var speedTestTimeoutMs by SettingsRegistry.SPEED_TEST_TIMEOUT_MS
     var simpleDlUrl by SettingsRegistry.SIMPLE_DL_URL

@@ -480,7 +480,7 @@
     <string name="autosel_row_untested">Результатов URL-теста пока нет.</string>
     <string name="autosel_sampling">Хранимых выборок</string>
     <string name="autosel_sampling_tip">Рейтинг использует среднее и джиттер за последние столько проверок, поэтому один плохой результат не может понизить хороший сервер.</string>
-    <string name="autosel_select_group">Выберите группу, за которой будет следить этот автовыбор.</string>
+    <string name="autosel_select_group">Выберите хотя бы одну группу, за которой будет следить этот автовыбор.</string>
     <string name="autosel_skip_core_transitions">слишком много переключений ядра</string>
     <string name="autosel_skip_country">отфильтровано по стране</string>
     <string name="autosel_skip_extra_core">профиль с дополнительным ядром</string>

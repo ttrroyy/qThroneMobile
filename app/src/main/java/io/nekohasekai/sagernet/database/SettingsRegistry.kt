@@ -254,6 +254,10 @@ object SettingsRegistry {
     @JvmField val URL_TEST_TIMEOUT_MS = int("url_test_timeout_ms", 5000) { it > 0 }
     @JvmField val TEST_CONCURRENT = int("test_concurrent", 32) { it > 0 }
     @JvmField val DIRECT_TEST_URL = string("direct_test_url", "")
+    /** The exit country of the running connection (widget/ExitIp.kt); off never asks a lookup service on its own. */
+    @JvmField val EXIT_COUNTRY_LOOKUP = bool("exit_country_lookup", true)
+    /** "auto" or one service id of ExitIp; an unknown id runs as "auto". */
+    @JvmField val EXIT_LOOKUP_PROVIDER = string("exit_lookup_provider", "auto")
     /** 0 download + upload, 1 download, 2 upload, 3 simple download, 4 country (Const.hpp:39-49). */
     @JvmField val SPEED_TEST_MODE = int("speed_test_mode", 0) { it in 0..4 }
     @JvmField val SPEED_TEST_TIMEOUT_MS = int("speed_test_timeout_ms", 5000) { it > 0 }

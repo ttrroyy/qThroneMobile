@@ -6,11 +6,10 @@
         app:title="@string/profile_name"
         app:useSimpleSummaryProvider="true" />
 
-    <moe.matsuri.nb4a.ui.SimpleMenuPreference
+    <MultiSelectListPreference
         app:icon="@drawable/ic_baseline_layers_24"
-        app:key="gid"
-        app:title="@string/autosel_group"
-        app:useSimpleSummaryProvider="true" />
+        app:key="gids"
+        app:title="@string/autosel_group" />
 
     <EditTextPreference
         app:dialogMessage="@string/autosel_name_filter_tip"

@@ -84,8 +84,9 @@ class ConfigGenerator @JvmOverloads constructor(
 
         // One plan serves the Xray decision and the build (the desktop plans twice, :446-452 and :1631).
         val plan = (profile as? AutoSelector)?.let { AutoSelectorPlanner(routing.selectors, clock).plan(profileId, it) }
-        val landing = if (plan != null) plan.group?.landingProxyId ?: -1L else landingProxyId
-        val front = if (plan != null) plan.group?.frontProxyId ?: -1L else frontProxyId
+        // An auto-selector builds each member with the landing / front proxy of the group it came from.
+        val landing = if (plan != null) -1L else landingProxyId
+        val front = if (plan != null) -1L else frontProxyId
 
         val state = BuildState(forTest = false)
         val remoteVpnTypes = listOf("openconnect", "openvpn")
@@ -220,7 +221,7 @@ class ConfigGenerator @JvmOverloads constructor(
             }
         }
 
-        for (id in listOf(frontProxyId, landingProxyId)) {
+        for (id in groupProxyIds(landingProxyId, frontProxyId, plan)) {
             if (id <= 0) continue
             val groupProxy = reads.get(id) ?: continue
             if (chains.usesXrayCore(groupProxy)) state.proxyUsesXray = true
@@ -235,6 +236,21 @@ class ConfigGenerator @JvmOverloads constructor(
                 if (hijacked.none { Cidrs.overlap(range, it) }) pre.bypassedPrivateRanges.add(range)
             }
         }
+    }
+
+    /**
+     * The landing / front proxies the main path dials: the given pair, or for an auto-selector those of the groups its
+     * built members came from, each once.
+     */
+    private fun groupProxyIds(landingProxyId: Long, frontProxyId: Long, plan: AutoSelectorPlan?): Collection<Long> {
+        if (plan == null) return listOf(frontProxyId, landingProxyId)
+        val ids = LinkedHashSet<Long>()
+        for (id in plan.build) {
+            val group = plan.groupOf(id) ?: continue
+            ids.add(group.frontProxyId)
+            ids.add(group.landingProxyId)
+        }
+        return ids
     }
 
     /**
@@ -634,8 +650,7 @@ class ConfigGenerator @JvmOverloads constructor(
         state: BuildState, chains: ChainBuilder, reads: ProfileProvider, selector: AutoSelector, selectorId: Long,
         plan: AutoSelectorPlan, warpWrap: Boolean,
     ) {
-        val tracked = plan.group
-        if (!plan.ok || tracked == null) {
+        if (!plan.ok) {
             state.error = plan.error
             return
         }
@@ -650,11 +665,13 @@ class ConfigGenerator @JvmOverloads constructor(
         for (id in plan.build) {
             if (id in rejected) continue
             val member = plan.member(id) ?: continue
+            // each member goes through the landing / front proxy of its own group
+            val memberGroup = plan.groupOf(id) ?: continue
             if (reads.get(id) == null) continue
             val hopIds = ArrayList<Long>()
-            if (tracked.landingProxyId > 0) hopIds.add(tracked.landingProxyId)
+            if (memberGroup.landingProxyId > 0) hopIds.add(memberGroup.landingProxyId)
             hopIds.add(id)
-            if (tracked.frontProxyId > 0) hopIds.add(tracked.frontProxyId)
+            if (memberGroup.frontProxyId > 0) hopIds.add(memberGroup.frontProxyId)
             val bridges = chains.bridgesFor(hopIds)
             bridgeCount += bridges.count
             plannedMembers.add(PlannedMember(member, hopIds, bridges))

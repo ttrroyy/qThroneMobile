@@ -27,7 +27,7 @@ enum class AutoSelectorSkip(@JvmField val reason: String) {
     Unsupported("type this build cannot use"),
 }
 
-/** One profile of the tracked group as the plan reads it: the parsed outbound and the stored test columns. */
+/** One profile of a tracked group as the plan reads it: the parsed outbound and the stored test columns. */
 class SelectorMember(
     @JvmField val id: Long,
     /** Null when the row is gone. */
@@ -53,7 +53,7 @@ class SelectorGroup(
     @JvmField val members: List<SelectorMember>,
 )
 
-/** The storage the auto-selector plan reads: the tracked group, or null when it does not exist. */
+/** The storage the auto-selector plan reads: a tracked group, or null when it does not exist. */
 fun interface SelectorStore {
     fun group(gid: Long): SelectorGroup?
 
@@ -63,7 +63,7 @@ fun interface SelectorStore {
     }
 }
 
-/** AutoSelectorPlan (AutoSelectorPlan.h:31-58). */
+/** AutoSelectorPlan (AutoSelectorPlan.h:31-58) over every tracked group. */
 class AutoSelectorPlan internal constructor() {
     /** Eligible members, best first, capped at pool_cap. */
     var pool: List<Long> = emptyList()
@@ -73,7 +73,12 @@ class AutoSelectorPlan internal constructor() {
     var build: List<Long> = emptyList()
         internal set
 
+    /** Members of all tracked groups, each counted once; the selector itself is not one. */
     var membersInGroup = 0
+        internal set
+
+    /** Tracked groups that no longer exist; they are skipped. */
+    var missingGroups = 0
         internal set
     var eligible = 0
         internal set
@@ -104,21 +109,28 @@ class AutoSelectorPlan internal constructor() {
     var error = ""
         internal set
 
-    /** The tracked group: its members were planned against its landing / front proxy, and the build uses the same. */
-    var group: SelectorGroup? = null
+    /** The tracked groups that exist, in [AutoSelector.gids] order. */
+    var groups: List<SelectorGroup> = emptyList()
         internal set
 
-    private val byId: Map<Long, SelectorMember> by lazy { group?.members?.associateBy { it.id } ?: emptyMap() }
+    internal var memberById: Map<Long, SelectorMember> = emptyMap()
+    internal var memberGroups: Map<Long, SelectorGroup> = emptyMap()
 
     val ok: Boolean get() = error.isEmpty()
 
-    fun member(id: Long): SelectorMember? = byId[id]
+    fun member(id: Long): SelectorMember? = memberById[id]
+
+    /** The group member [id] was taken from: it was planned against that group's landing / front proxy, and is built with it. */
+    fun groupOf(id: Long): SelectorGroup? = memberGroups[id]
 
     /** The editor's plan summary (edit_autoselector.cpp:260-295): the error, or what would run and why. */
     fun summary(): String {
         if (error.isNotEmpty()) return error
         val lines = ArrayList<String>()
-        lines.add("$eligible of $membersInGroup profiles in the group can be used; ${build.size} would run.")
+        val scope = if (groups.size > 1) "in the ${groups.size} groups" else "in the group"
+        lines.add("$eligible of $membersInGroup profiles $scope can be used; ${build.size} would run.")
+        if (missingGroups == 1) lines.add("1 tracked group no longer exists and is skipped.")
+        if (missingGroups > 1) lines.add("$missingGroups tracked groups no longer exist and are skipped.")
         if (skipped.isNotEmpty()) {
             lines.add("Skipped: " + skipped.joinToString(", ") { (skip, count) -> "$count ${skip.reason}" } + ".")
         }
@@ -136,7 +148,7 @@ class AutoSelectorPlan internal constructor() {
 }
 
 /**
- * The planning of src/configs/AutoSelectorPlan.cpp: which members of the tracked group run, in which order, and
+ * The planning of src/configs/AutoSelectorPlan.cpp: which members of the tracked groups run, in which order, and
  * whether some must be measured first. Every call normalises the selector like the desktop, except [rerank].
  * [clock] is unix seconds.
  */
@@ -145,43 +157,78 @@ class AutoSelectorPlanner @JvmOverloads constructor(
     private val clock: () -> Long = { System.currentTimeMillis() / 1000 },
 ) {
 
-    /** PlanAutoSelector (cpp:245-284); [selectorId] is excluded from the members. */
+    /**
+     * The tracked groups that exist, in [AutoSelector.gids] order, and their members in that order: an id listed by
+     * more than one group is taken once, with the first group listing it.
+     */
+    private class Tracked(val groups: List<SelectorGroup>, val missing: Int) {
+        val members = ArrayList<SelectorMember>()
+        val byId = HashMap<Long, SelectorMember>()
+        val groupOf = HashMap<Long, SelectorGroup>()
+
+        init {
+            for (group in groups) {
+                for (member in group.members) {
+                    if (member.id in groupOf) continue
+                    groupOf[member.id] = group
+                    byId[member.id] = member
+                    members.add(member)
+                }
+            }
+        }
+    }
+
+    private fun track(selector: AutoSelector): Tracked {
+        val groups = ArrayList<SelectorGroup>()
+        var missing = 0
+        val seen = HashSet<Long>()
+        for (gid in selector.gids) {
+            if (!seen.add(gid)) continue
+            val group = store.group(gid)
+            if (group == null) missing++ else groups.add(group)
+        }
+        return Tracked(groups, missing)
+    }
+
+    /** PlanAutoSelector (cpp:245-284); [selectorId] is excluded from the members, missing groups are skipped. */
     fun plan(selectorId: Long, selector: AutoSelector): AutoSelectorPlan {
         val plan = AutoSelectorPlan()
         selector.normalize()
         plan.poolCapUsed = selector.poolCap
         plan.buildLimitUsed = selector.buildLimit
         val now = clock()
-        val group = store.group(selector.gid)
-        if (group == null) {
-            plan.error = "Auto selector points at a group that no longer exists"
+        val tracked = track(selector)
+        plan.missingGroups = tracked.missing
+        if (tracked.groups.isEmpty()) {
+            plan.error = if (selector.gids.isEmpty()) "Auto selector tracks no group"
+            else "Auto selector points at a group that no longer exists"
             return plan
         }
-        plan.group = group
-        val members = eligibleMembers(selectorId, selector, group, now, plan)
+        plan.groups = tracked.groups
+        plan.memberById = tracked.byId
+        plan.memberGroups = tracked.groupOf
+        val members = eligibleMembers(selectorId, selector, tracked, now, plan)
         plan.eligible = members.size
         if (members.isEmpty()) {
             plan.error = "Auto selector has no usable members"
             return plan
         }
 
-        var ordered = orderMembers(members, selector.pool, selector, group, now)
+        var ordered = orderMembers(members, selector.pool, selector, tracked, now)
         plan.truncated = ordered.size > selector.poolCap
         if (plan.truncated) ordered = ordered.take(selector.poolCap)
         plan.pool = ordered
         plan.build = ordered.take(selector.buildLimit)
         if (ordered.size > selector.buildLimit) {
-            val byId = group.members.associateBy { it.id }
-            plan.needsRanking = plan.build.any { effectiveLatency(byId[it], selector, now) == 0 }
+            plan.needsRanking = plan.build.any { effectiveLatency(tracked.byId[it], selector, now) == 0 }
         }
         return plan
     }
 
-    /** AutoSelectorRankingCandidates (cpp:286-293): every eligible member in group order. */
+    /** AutoSelectorRankingCandidates (cpp:286-293): every eligible member, groups in tracked order, each in group order. */
     fun rankingCandidates(selectorId: Long, selector: AutoSelector): List<Long> {
         selector.normalize()
-        val group = store.group(selector.gid) ?: return emptyList()
-        return eligibleMembers(selectorId, selector, group, clock(), null)
+        return eligibleMembers(selectorId, selector, track(selector), clock(), null)
     }
 
     /**
@@ -191,12 +238,11 @@ class AutoSelectorPlanner @JvmOverloads constructor(
     @JvmOverloads
     fun unmeasuredCandidates(selectorId: Long, selector: AutoSelector, stale: Collection<Long> = emptyList()): List<Long> {
         selector.normalize()
-        val group = store.group(selector.gid) ?: return emptyList()
+        val tracked = track(selector)
         val now = clock()
-        val byId = group.members.associateBy { it.id }
         val staleSet = stale.toHashSet()
-        return eligibleMembers(selectorId, selector, group, now, null).filter {
-            it in staleSet || effectiveLatency(byId[it], selector, now) == 0
+        return eligibleMembers(selectorId, selector, tracked, now, null).filter {
+            it in staleSet || effectiveLatency(tracked.byId[it], selector, now) == 0
         }
     }
 
@@ -205,11 +251,9 @@ class AutoSelectorPlanner @JvmOverloads constructor(
      * into [AutoSelector.pool] / [AutoSelector.poolRankedAt]. The caller saves the profile.
      */
     fun rerank(selectorId: Long, selector: AutoSelector): List<Long> {
-        val group = store.group(selector.gid)
+        val tracked = track(selector)
         val now = clock()
-        var members = if (group == null) emptyList() else {
-            eligibleMembers(selectorId, selector, group, now, null).sortedWith(byLatency(selector, group, now))
-        }
+        var members = eligibleMembers(selectorId, selector, tracked, now, null).sortedWith(byLatency(selector, tracked.byId, now))
         if (members.size > selector.poolCap) members = members.take(selector.poolCap)
         selector.pool = members.toMutableList()
         selector.poolRankedAt = clock()
@@ -267,16 +311,17 @@ class AutoSelectorPlanner @JvmOverloads constructor(
         return null
     }
 
-    // eligibleMembers (cpp:139-198) against the given group; [plan] collects the counters when set.
+    // eligibleMembers (cpp:139-198), each member against the landing / front proxy of its group; [plan] collects the counters when set.
     private fun eligibleMembers(
-        selectorId: Long, selector: AutoSelector, group: SelectorGroup, now: Long, plan: AutoSelectorPlan?,
+        selectorId: Long, selector: AutoSelector, tracked: Tracked, now: Long, plan: AutoSelectorPlan?,
     ): List<Long> {
         val filters = buildFilters(selector)
         val skips = EnumMap<AutoSelectorSkip, Int>(AutoSelectorSkip::class.java)
         val members = ArrayList<Long>()
         val unavailable = ArrayList<Long>()
-        for (member in group.members) {
+        for (member in tracked.members) {
             if (member.id == selectorId) continue
+            val group = tracked.groupOf[member.id] ?: continue
             if (plan != null) plan.membersInGroup++
             val skip = eligibilityOf(member, selector, filters, now)
             if (skip != null && skip != AutoSelectorSkip.Unavailable) {
@@ -314,7 +359,7 @@ class AutoSelectorPlanner @JvmOverloads constructor(
 
     // orderMembers (cpp:200-222): the persisted pool is the core's ranking prior; newcomers follow by latency.
     private fun orderMembers(
-        members: List<Long>, persistedPool: List<Long>, selector: AutoSelector, group: SelectorGroup, now: Long,
+        members: List<Long>, persistedPool: List<Long>, selector: AutoSelector, tracked: Tracked, now: Long,
     ): List<Long> {
         val eligible = members.toHashSet()
         val ordered = ArrayList<Long>(members.size)
@@ -323,13 +368,12 @@ class AutoSelectorPlanner @JvmOverloads constructor(
             if (id !in eligible || !placed.add(id)) continue
             ordered.add(id)
         }
-        ordered.addAll(members.filter { it !in placed }.sortedWith(byLatency(selector, group, now)))
+        ordered.addAll(members.filter { it !in placed }.sortedWith(byLatency(selector, tracked.byId, now)))
         return ordered
     }
 
     // byLatency (cpp:128-137) as a stable-sort comparator: fresh ok ascending, then untested, then failed.
-    private fun byLatency(selector: AutoSelector, group: SelectorGroup, now: Long): Comparator<Long> {
-        val byId = group.members.associateBy { it.id }
+    private fun byLatency(selector: AutoSelector, byId: Map<Long, SelectorMember>, now: Long): Comparator<Long> {
         return Comparator { left, right ->
             val leftLatency = effectiveLatency(byId[left], selector, now)
             val rightLatency = effectiveLatency(byId[right], selector, now)
