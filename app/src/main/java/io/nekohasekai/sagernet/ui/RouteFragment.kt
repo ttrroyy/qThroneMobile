@@ -164,7 +164,7 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
         if (profile.id == adapter.currentId) return
         RouteQuickSwitch.switchTo(profile.id)
         adapter.setCurrent(profile.id)
-        snackbar(getString(R.string.route_switched, profile.name)).show()
+        RouteQuickSwitch.switched(this, profile.name)
     }
 
     private fun clone(id: Long) = runOnLifecycleDispatcher {

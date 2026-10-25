@@ -34,7 +34,7 @@ object RouteQuickSwitch {
                     val picked = profiles[which]
                     if (picked.id == DataStore.currentRouteId) return@setSingleChoiceItems
                     switchTo(picked.id)
-                    fragment.snackbar(fragment.getString(R.string.route_switched, names[which])).show()
+                    switched(fragment, names[which])
                     onSwitched?.invoke(picked)
                 }
                 .setNeutralButton(if (warp) R.string.warp_disable else R.string.warp_enable) { _, _ ->
@@ -45,10 +45,19 @@ object RouteQuickSwitch {
         }
     }
 
-    /** D15: current_route_id is global; a running service reloads at once, as the desktop restarts the profile. */
+    /** current_route_id is global; a running service picks it up when the user applies the reload, like other settings. */
     fun switchTo(id: Long) {
         DataStore.currentRouteId = id
-        if (DataStore.serviceState.started) SagerNet.reloadService()
+    }
+
+    /** "Routing profile X" when nothing runs, else the usual reload prompt with Apply. */
+    fun switched(fragment: Fragment, name: CharSequence) {
+        if (DataStore.serviceState.started) {
+            fragment.snackbar(fragment.getString(R.string.route_switched, name) + ". " + fragment.getString(R.string.need_reload))
+                .setAction(R.string.apply) { SagerNet.reloadService() }.show()
+        } else {
+            fragment.snackbar(fragment.getString(R.string.route_switched, name)).show()
+        }
     }
 
     /** "Enable Warp" (mainwindow_setup.cpp:893-903): saves enable_warp and reloads a running service. */
