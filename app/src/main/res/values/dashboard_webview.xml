@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dashboard_old_webview_title">Android System WebView is out of date</string>
+    <string name="dashboard_old_webview">The dashboard needs WebView %1$d or newer, and this device has %2$d, so the page may look broken or stay blank. Update Android System WebView (or Chrome, where it provides the WebView) from the app store.</string>
+    <string name="dashboard_update_webview">Update WebView</string>
+    <string name="dashboard_open_anyway">Open anyway</string>
+</resources>

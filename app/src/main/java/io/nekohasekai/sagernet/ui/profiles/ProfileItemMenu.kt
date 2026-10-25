@@ -147,13 +147,8 @@ class ProfileItemMenu(private val host: ConfigurationFragment) {
                     R.id.action_standard_clipboard -> copy(profile.exportLink())
                     R.id.action_universal_qr -> showCode(profile.exportJsonLink(), profile.displayName())
                     R.id.action_universal_clipboard -> copy(profile.exportJsonLink())
-                    R.id.action_config_export_clipboard -> copy(ProfileConfigExport.export(profile).first)
-                    R.id.action_config_export_file -> {
-                        val (config, fileName) = ProfileConfigExport.export(profile)
-                        DataStore.serverConfig = config
-                        host.startFilesForResult(exportConfig, fileName)
-                    }
-
+                    R.id.action_config_export_clipboard -> exportConfiguration(profile, toFile = false)
+                    R.id.action_config_export_file -> exportConfiguration(profile, toFile = true)
                     else -> return@setOnMenuItemClickListener false
                 }
             } catch (e: Exception) {
@@ -163,6 +158,39 @@ class ProfileItemMenu(private val host: ConfigurationFragment) {
             true
         }
         popup.show()
+    }
+
+    /**
+     * Export configuration: the config is built off the main thread, then copied or written to the file the user picks.
+     * A text too large for the clipboard offers the file instead.
+     */
+    private fun exportConfiguration(profile: ProxyEntity, toFile: Boolean) {
+        // A copy parses its own outbound, so the row's cached one is only ever touched on the main thread.
+        val entity = profile.copy()
+        host.launchIo {
+            val (config, fileName) = try {
+                ProfileConfigExport.export(entity)
+            } catch (e: Exception) {
+                Logs.w(e)
+                host.onUi { snackbar(e.readableMessage).show() }
+                return@launchIo
+            }
+            if (toFile) return@launchIo saveToFile(config, fileName)
+            host.onUi {
+                if (SagerNet.trySetPrimaryClip(config)) {
+                    snackbar(R.string.action_export_msg).show()
+                } else {
+                    snackbar(R.string.action_export_err)
+                        .setAction(R.string.action_export_file) { launchIo { saveToFile(config, fileName) } }
+                        .show()
+                }
+            }
+        }
+    }
+
+    private suspend fun saveToFile(config: String, fileName: String) {
+        DataStore.serverConfig = config
+        host.onUi { startFilesForResult(exportConfig, fileName) }
     }
 
     private fun showCode(link: String, name: String) {

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="subs_routes_rebound">Route rules now point at the refreshed servers of the same name: %d</string>
+</resources>

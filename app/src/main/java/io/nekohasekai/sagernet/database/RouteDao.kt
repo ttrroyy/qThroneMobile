@@ -45,6 +45,19 @@ interface RouteDao {
     @Insert
     fun insertRules(rules: List<RouteRuleEntity>)
 
+    /** Every server profile a rule or a default outbound names. */
+    @Query(
+        "SELECT outbound_id FROM route_rules WHERE outbound_id > 0 " +
+            "UNION SELECT default_outbound_id FROM route_profiles WHERE default_outbound_id > 0"
+    )
+    fun referencedOutboundIds(): List<Long>
+
+    @Query("UPDATE route_rules SET outbound_id = :newId WHERE outbound_id = :oldId")
+    fun replaceRuleOutbound(oldId: Long, newId: Long): Int
+
+    @Query("UPDATE route_profiles SET default_outbound_id = :newId WHERE default_outbound_id = :oldId")
+    fun replaceDefaultOutbound(oldId: Long, newId: Long): Int
+
     /** Every profile; their rules go by the foreign key cascade. */
     @Query("DELETE FROM route_profiles")
     fun reset()

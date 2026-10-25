@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dashboard_old_webview_title">Android System WebView устарел</string>
+    <string name="dashboard_old_webview">Для панели нужен WebView %1$d или новее, а на этом устройстве установлен %2$d, поэтому страница может выглядеть неправильно или остаться пустой. Обновите Android System WebView (или Chrome, если WebView берётся из него) в магазине приложений.</string>
+    <string name="dashboard_update_webview">Обновить WebView</string>
+    <string name="dashboard_open_anyway">Всё равно открыть</string>
+</resources>

@@ -4,16 +4,19 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.ShortcutManager
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.getSystemService
 import androidx.core.view.isVisible
 import com.google.zxing.Result
 import com.king.zxing.CameraScan
+import com.king.zxing.DecodeFormatManager
 import com.king.zxing.DefaultCameraScan
 import com.king.zxing.analyze.QRCodeAnalyzer
 import com.king.zxing.util.CodeUtils
@@ -23,7 +26,9 @@ import app.qthrone.mobile.R
 import app.qthrone.mobile.databinding.LayoutScannerBinding
 import app.qthrone.mobile.ktx.*
 import app.qthrone.mobile.widget.applyInsetMargin
+import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.max
 
 
 class ScannerActivity : ThemedActivity(),
@@ -65,21 +70,12 @@ class ScannerActivity : ThemedActivity(),
             val texts = ArrayList<String>()
             try {
                 uris.forEachTry { uri ->
-                    val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        ImageDecoder.decodeBitmap(
-                            ImageDecoder.createSource(
-                                contentResolver, uri
-                            )
-                        ) { decoder, _, _ ->
-                            decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
-                            decoder.isMutableRequired = true
-                        }
-                    } else {
-                        @Suppress("DEPRECATION") MediaStore.Images.Media.getBitmap(
-                            contentResolver, uri
-                        )
+                    val text = try {
+                        decodeImage(uri)
+                    } catch (e: OutOfMemoryError) {
+                        throw IOException(e.readableMessage, e)
                     }
-                    CodeUtils.parseCodeResult(bitmap)?.text?.takeIf { it.isNotBlank() }?.let(texts::add)
+                    text?.takeIf { it.isNotBlank() }?.let(texts::add)
                 }
             } catch (e: Exception) {
                 Logs.w(e)
@@ -96,6 +92,53 @@ class ScannerActivity : ThemedActivity(),
                 if (uris.isNotEmpty() || !::cameraScan.isInitialized) finish()
             }
         }
+    }
+
+    /**
+     * The QR code in the image, looked for with the long side shrunk to the first of [DECODE_SIDES] (zxing copies
+     * every pixel twice more); an image that was shrunk and showed nothing gets one more try at the next size.
+     */
+    private fun decodeImage(uri: Uri): String? {
+        for (side in DECODE_SIDES) {
+            val (bitmap, scaled) = loadBitmap(uri, side) ?: return null
+            val text = try {
+                CodeUtils.parseCodeResult(bitmap, DecodeFormatManager.QR_CODE_HINTS)?.text
+            } finally {
+                bitmap.recycle()
+            }
+            if (text != null || !scaled) return text
+        }
+        return null
+    }
+
+    /** The image with its long side at most [side] px, and whether it had to be shrunk; null when it cannot be read. */
+    private fun loadBitmap(uri: Uri, side: Int): Pair<Bitmap, Boolean>? {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            var scaled = false
+            val bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, uri)) { decoder, info, _ ->
+                decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+                decoder.isMutableRequired = true
+                val sample = sampleSize(info.size.width, info.size.height, side)
+                if (sample > 1) {
+                    decoder.setTargetSampleSize(sample)
+                    scaled = true
+                }
+            }
+            return bitmap to scaled
+        }
+        val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        (contentResolver.openInputStream(uri) ?: return null).use { BitmapFactory.decodeStream(it, null, options) }
+        options.inSampleSize = sampleSize(options.outWidth, options.outHeight, side)
+        options.inJustDecodeBounds = false
+        val bitmap = contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, options) }
+        return bitmap?.let { it to (options.inSampleSize > 1) }
+    }
+
+    /** The power of two that brings the long side of a [width] x [height] image down to at most [side]. */
+    private fun sampleSize(width: Int, height: Int, side: Int): Int {
+        var sample = 1
+        while (max(width, height) / sample > side) sample *= 2
+        return sample
     }
 
     var finished = AtomicBoolean(false)
@@ -173,5 +216,10 @@ class ScannerActivity : ThemedActivity(),
     override fun onDestroy() {
         releaseCamera()
         super.onDestroy()
+    }
+
+    private companion object {
+        /** Long sides in px: a QR code reads at the first, a hi-res photo stays far from the heap limit at both. */
+        val DECODE_SIDES = intArrayOf(2048, 4096)
     }
 }

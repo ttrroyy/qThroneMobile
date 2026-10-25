@@ -119,6 +119,9 @@ internal object SubscriptionRefresh {
         val stickyIds = sticky.mapTo(HashSet()) { it.second }
         fun members(): List<ProxyEntity> = ProfileManager.members(gid).filter { it.id !in stickyIds }
         val previousNative = members().map { it.outbound }.filterIsInstance<app.qthrone.mobile.outbound.types.Qwdtt>()
+        // Taken before anything is deleted, so route rules can follow a replaced node by its name.
+        val routeNames = SubscriptionRouteRebind.referencedNames(members())
+        val removed = ArrayList<Long>()
 
         // Ids a running auto selector can no longer trust: deleted, or same id with new settings.
         val disturbed = ArrayList<Long>()
@@ -135,6 +138,7 @@ internal object SubscriptionRefresh {
                 return
             }
             disturbed.addAll(outcome.deleted)
+            removed.addAll(outcome.deleted)
             // A survivor still belongs to the subscription: fall through to the diff.
             cleared = members().isEmpty()
         }
@@ -198,6 +202,7 @@ internal object SubscriptionRefresh {
             val outcome = ProfileManager.batchDeleteProfiles(stale)
             if (!outcome.ok) dbError(gid)
             disturbed.addAll(outcome.deleted)
+            removed.addAll(outcome.deleted)
 
             // Survivors of the deletion (the running profile, working ones) return to their previous position.
             fun restore(id: Long): Boolean {
@@ -246,6 +251,8 @@ internal object SubscriptionRefresh {
         val filtered = SubscriptionFilters.removeFlagged(gid, members(), options)
         changeText += filtered.report
         disturbed.addAll(filtered.deleted)
+        removed.addAll(filtered.deleted)
+        SubscriptionRouteRebind.rebind(gid, removed, routeNames)
 
         SagerDatabase.proxyDao.clearGroupTestResults(group.id)
         Logs.i("<<<<<<<< " + str(R.string.subs_change_of_log, group.name) + "\n" + changeText)

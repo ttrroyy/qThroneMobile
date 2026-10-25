@@ -24,4 +24,6 @@ runs:
           echo "::error::the sing-box dashboard has no index.html"
           exit 1
         fi
+        # Media range syntax needs Chromium 104; older Android System WebViews would miss the phone layout (#97).
+        python3 buildScript/dashboard_css.py "$DEST"
         du -sh "$DEST"

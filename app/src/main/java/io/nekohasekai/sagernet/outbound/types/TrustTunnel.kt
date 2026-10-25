@@ -49,7 +49,7 @@ class TrustTunnel : Outbound("trusttunnel") {
             when (tag) {
                 0x00L -> {
                     val version = ByteCursor(value).readVarInt()
-                    if (version == null || version > 1) return false
+                    if (version == null || version > 2) return false
                 }
                 0x01L -> tls.server_name = text
                 0x02L -> {
@@ -62,7 +62,7 @@ class TrustTunnel : Outbound("trusttunnel") {
                         haveAddress = true
                     }
                 }
-                0x03L -> custom_sni = text
+                0x03L -> custom_sni = text.trim()
                 0x05L -> username = text
                 0x06L -> password = text
                 0x07L -> tls.insecure = flag
@@ -73,8 +73,10 @@ class TrustTunnel : Outbound("trusttunnel") {
                 0x09L -> quic = value.isNotEmpty() && value[0].toInt() == 2
                 // anti_dpi slows the handshake writes down so the ClientHello spans several segments
                 0x0AL -> if (flag) tls.saveFragmentState(1)
-                0x0BL -> client_random = text
+                0x0BL -> client_random = text.trim()
                 0x0CL -> name = text
+                // v2 subscription URL: must be https; the static fields stay required, so a subscription-only link fails
+                0x0EL -> if (!text.startsWith("https://")) return false
             }
         }
         tls.enabled = true
@@ -97,10 +99,10 @@ class TrustTunnel : Outbound("trusttunnel") {
         if (q.has("health_check")) health_check = q.value("health_check") == "true"
         if (q.has("congestion_control")) {
             quic = true
-            congestion_control = q.value("congestion_control")
+            congestion_control = importCongestion(q.value("congestion_control"))
         }
-        if (q.has("custom_sni")) custom_sni = q.value("custom_sni")
-        if (q.has("client_random")) client_random = q.value("client_random")
+        if (q.has("custom_sni")) custom_sni = q.value("custom_sni").trim()
+        if (q.has("client_random")) client_random = q.value("client_random").trim()
 
         tls.parseFromLink(url)
         tls.enabled = true
@@ -117,7 +119,7 @@ class TrustTunnel : Outbound("trusttunnel") {
         if (obj.contains("password")) password = obj.string("password")
         if (obj.contains("health_check")) health_check = obj.bool("health_check")
         if (obj.contains("quic")) quic = obj.bool("quic")
-        if (obj.contains("quic_congestion_control")) congestion_control = obj.string("quic_congestion_control")
+        if (obj.contains("quic_congestion_control")) congestion_control = importCongestion(obj.string("quic_congestion_control"))
         if (obj.contains("custom_sni")) custom_sni = obj.string("custom_sni")
         if (obj.contains("client_random")) client_random = obj.string("client_random")
         if (obj.contains("tls")) tls.parseFromJson(obj.obj("tls"))
@@ -149,7 +151,7 @@ class TrustTunnel : Outbound("trusttunnel") {
         val obj = JsonObject()
         obj["type"] = "trusttunnel"
         obj.merge(baseExportToJson())
-        writeFields(obj)
+        writeFields(obj, congestion_control)
         if (tls.enabled) obj["tls"] = tls.exportToJson()
         return obj
     }
@@ -159,7 +161,7 @@ class TrustTunnel : Outbound("trusttunnel") {
         val obj = JsonObject()
         obj["type"] = "trusttunnel"
         obj.merge(baseBuild(ctx))
-        writeFields(obj)
+        writeFields(obj, canonicalCongestion(congestion_control))
         if (tls.enabled) {
             val tlsObject = tls.build(ctx)
             // QUIC dials through qtls, which needs a std TLS config: uTLS and Reality fail there on every connection
@@ -176,13 +178,13 @@ class TrustTunnel : Outbound("trusttunnel") {
         return BuildResult(obj)
     }
 
-    private fun writeFields(obj: JsonObject) {
+    private fun writeFields(obj: JsonObject, congestion: String) {
         if (username.isNotEmpty()) obj["username"] = username
         if (password.isNotEmpty()) obj["password"] = password
         if (health_check) obj["health_check"] = health_check
         if (quic) {
             obj["quic"] = quic
-            if (congestion_control.isNotEmpty()) obj["quic_congestion_control"] = congestion_control
+            if (congestion.isNotEmpty()) obj["quic_congestion_control"] = congestion
         }
         if (custom_sni.isNotEmpty()) obj["custom_sni"] = Hosts.toAceHost(custom_sni)
         if (client_random.isNotEmpty()) obj["client_random"] = client_random
@@ -212,6 +214,16 @@ class TrustTunnel : Outbound("trusttunnel") {
     }
 
     companion object {
+        /** sing-trusttunnel runs cubic and reno as such and anything else as BBR. */
+        private val CONGESTION_CONTROLS = listOf("", "bbr", "cubic", "reno", "bbr_standard", "bbr2", "bbr_variant")
+
+        /** Older builds saved menu text ("CUBIC", "Reno"), which the core silently ran as bbr. */
+        private fun canonicalCongestion(value: String): String = value.trim().lowercase().replace(' ', '_')
+
+        /** An imported unknown name is dropped rather than run as BBR under another label. */
+        private fun importCongestion(value: String): String =
+            canonicalCongestion(value).takeIf { it in CONGESTION_CONTROLS }.orEmpty()
+
         /** QUrl::query() of the link: the text after the first '?' of the hierarchical part, up to '#'; null without a '?'. */
         private fun rawQuery(link: String): String? {
             val hash = link.indexOf('#')
