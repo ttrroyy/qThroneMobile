@@ -12,8 +12,8 @@ from pathlib import Path
 
 MODULE = "github.com/sagernet/sing"
 SOURCE = "github.com/throneproj/sing"
-VERSION = "v0.9.4-0.20261002235655-c4c9e6e3b2c1"
-SUM = "h1:nwJcgK/lTOPhg7Awf4Vn23INzrtKWvu/5fM9vLjLSWY="
+VERSION = "v0.9.4-0.20261024082846-e3e392877db8"
+SUM = "h1:V3PK33YPQX6LACVpQ05UFTUKou6jm6bMUJ+sY/otZis="
 MOD_SUM = "h1:K3Owt3xPhHugvlnlPPxZJ/exXdaJfEPOTNorGk4AXjo="
 
 

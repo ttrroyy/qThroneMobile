@@ -2,14 +2,31 @@
 import hashlib
 import io
 import json
+import subprocess
 import tarfile
+import tempfile
 import urllib.request
 from pathlib import Path
 
 root = Path(__file__).resolve().parent.parent
 lock = json.loads((root / 'native-transports.lock.json').read_text())
 properties = dict(line.split('=', 1) for line in (root / 'nb4a.properties').read_text().splitlines() if '=' in line)
-assert properties['THRONE_CORE_REF'] == lock['core_commit'], 'Update the transport lock for the new core pin'
+
+
+def same_transport_sources(ref, built):
+    """The transports take only qwdtt/ and script/ from qThrone, so a core pin with identical trees reuses them."""
+    if ref == built:
+        return True
+    with tempfile.TemporaryDirectory() as repo:
+        git = lambda *args: subprocess.run(['git', '-C', repo, *args], check=True, capture_output=True)
+        git('init', '-q')
+        git('remote', 'add', 'origin', 'https://github.com/ttrroyy/qThrone')
+        git('fetch', '-q', '--depth', '1', 'origin', ref, built)
+        return subprocess.run(['git', '-C', repo, 'diff', '--quiet', built, ref, '--', 'qwdtt', 'script']).returncode == 0
+
+
+core_ref = properties['THRONE_CORE_REF'].strip()
+assert same_transport_sources(core_ref, lock['core_commit']), 'Update the transport lock for the new core pin'
 for name, expected in lock['inputs'].items():
     assert hashlib.sha256((root / name).read_bytes()).hexdigest() == expected, 'Rebuild transports after changing ' + name
 for item in lock['archives']:
@@ -42,7 +59,7 @@ for item in lock['archives']:
 # Small security rebuilds replace only the affected clients, retaining all other pinned transports.
 secure = lock.get('secure_socks')
 if secure:
-    assert secure['core_commit'] == properties['THRONE_CORE_REF'], 'Secure SOCKS core pin mismatch'
+    assert same_transport_sources(core_ref, secure['core_commit']), 'Secure SOCKS core pin mismatch'
     for name, expected in secure['inputs'].items():
         assert hashlib.sha256((root / name).read_bytes()).hexdigest() == expected, 'Rebuild secure SOCKS clients after changing ' + name
     assert {item['abi'] for item in secure['archives']} == {item['abi'] for item in lock['archives']}
