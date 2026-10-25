@@ -9,4 +9,7 @@
         <item quantity="other">%d отслеживаемой группы больше не существуют и пропущены.</item>
     </plurals>
     <string name="autosel_error_no_tracked_group">Автовыбор не отслеживает ни одной группы</string>
+    <string name="autosel_name_exclude">Исключить имена</string>
+    <string name="autosel_name_exclude_tip">Необязательное регулярное выражение. Профили, имя которых совпадает, не используются, например страна или медленный тариф.</string>
+    <string name="autosel_name_exclude_empty">Ничего не исключено</string>
 </resources>

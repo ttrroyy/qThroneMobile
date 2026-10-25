@@ -17,6 +17,12 @@
         app:key="nameFilter"
         app:title="@string/autosel_name_filter" />
 
+    <EditTextPreference
+        app:dialogMessage="@string/autosel_name_exclude_tip"
+        app:icon="@drawable/ic_baseline_filter_list_24"
+        app:key="nameExclude"
+        app:title="@string/autosel_name_exclude" />
+
     <SwitchPreference
         app:icon="@drawable/ic_baseline_shuffle_24"
         app:key="balance"

@@ -22,6 +22,9 @@ class AutoSelector : Outbound("autoselector") {
     /** Case-insensitive regex over the member display name, empty = all. */
     @JvmField var nameFilter: String = ""
 
+    /** Case-insensitive regex over the member display name; a match is left out, empty = none. */
+    @JvmField var nameExclude: String = ""
+
     /** Comma-separated ISO codes matched against the members' test_country, empty = all. */
     @JvmField var countryFilter: String = ""
     @JvmField var excludeUnavailable: Boolean = true
@@ -101,6 +104,7 @@ class AutoSelector : Outbound("autoselector") {
             gids = if (gid >= 0) arrayListOf(gid) else ArrayList()
         }
         if (obj.contains("name_filter")) nameFilter = obj.string("name_filter")
+        if (obj.contains("name_exclude")) nameExclude = obj.string("name_exclude")
         if (obj.contains("country_filter")) countryFilter = obj.string("country_filter")
         if (obj.contains("exclude_unavailable")) excludeUnavailable = boolOr(obj["exclude_unavailable"], true)
         if (obj.contains("pool_cap")) poolCap = intOr(obj["pool_cap"], 1000)
@@ -140,6 +144,7 @@ class AutoSelector : Outbound("autoselector") {
         obj["gid"] = gids.firstOrNull() ?: -1L
         obj["gids"] = idArray(gids)
         obj["name_filter"] = nameFilter
+        if (nameExclude.isNotEmpty()) obj["name_exclude"] = nameExclude
         obj["country_filter"] = countryFilter
         obj["exclude_unavailable"] = excludeUnavailable
         obj["pool_cap"] = poolCap

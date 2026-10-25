@@ -260,7 +260,7 @@ class AutoSelectorPlanner @JvmOverloads constructor(
         return members
     }
 
-    private class Filters(val name: Pattern?, val countries: Set<String>)
+    private class Filters(val name: Pattern?, val countries: Set<String>, val exclude: Pattern? = null)
 
     // buildFilters (cpp:27-39): an invalid regex filters nothing (the editor refuses to save one).
     private fun buildFilters(selector: AutoSelector): Filters {
@@ -276,7 +276,14 @@ class AutoSelectorPlanner @JvmOverloads constructor(
         for (code in selector.countryFilter.split(',')) {
             if (code.isNotEmpty()) countries.add(code.trim().uppercase())
         }
-        return Filters(name, countries)
+        val exclude = selector.nameExclude.trim().takeIf { it.isNotEmpty() }?.let {
+            try {
+                Pattern.compile(it, Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE)
+            } catch (e: PatternSyntaxException) {
+                null
+            }
+        }
+        return Filters(name, countries, exclude)
     }
 
     // eligibilityOf (cpp:50-82); null = eligible.
@@ -301,6 +308,7 @@ class AutoSelectorPlanner @JvmOverloads constructor(
             if (custom.configObject().isEmpty()) return AutoSelectorSkip.Malformed
         }
         if (filters.name != null && !filters.name.matcher(outbound.displayName()).find()) return AutoSelectorSkip.NameFilter
+        if (filters.exclude != null && filters.exclude.matcher(outbound.displayName()).find()) return AutoSelectorSkip.NameFilter
         if (filters.countries.isNotEmpty() && member.testCountry.uppercase() !in filters.countries) {
             return AutoSelectorSkip.CountryFilter
         }

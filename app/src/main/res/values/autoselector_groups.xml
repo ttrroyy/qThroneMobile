@@ -7,4 +7,7 @@
         <item quantity="other">%d tracked groups no longer exist and are skipped.</item>
     </plurals>
     <string name="autosel_error_no_tracked_group">Auto selector tracks no group</string>
+    <string name="autosel_name_exclude">Exclude names matching</string>
+    <string name="autosel_name_exclude_tip">Optional regular expression. Profiles whose name matches are left out, for example a country or a slow tariff.</string>
+    <string name="autosel_name_exclude_empty">Nothing excluded</string>
 </resources>

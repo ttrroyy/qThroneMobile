@@ -57,7 +57,7 @@ class AutoSelectorSettingsActivity : BindingSettingsActivity<AutoSelector>() {
 
         /** The fields refreshPlanSummary reads. */
         val PLAN_KEYS =
-            setOf(KEY_GIDS, "nameFilter", "countryFilter", "excludeUnavailable", "poolCap", "buildLimit", "resultValidityMins")
+            setOf(KEY_GIDS, "nameFilter", "nameExclude", "countryFilter", "excludeUnavailable", "poolCap", "buildLimit", "resultValidityMins")
     }
 
     /** A spin box of edit_autoselector.ui: its range, unit and the text of 0 when it has one. */
@@ -94,6 +94,7 @@ class AutoSelectorSettingsActivity : BindingSettingsActivity<AutoSelector>() {
     init {
         pbm.text("name")
         pbm.text("nameFilter")
+        pbm.text("nameExclude")
         pbm.bool("balance")
         pbm.text("countryFilter")
         pbm.bool("excludeUnavailable")
@@ -136,6 +137,7 @@ class AutoSelectorSettingsActivity : BindingSettingsActivity<AutoSelector>() {
         pbm.fromCacheAll(this)
         gids = checkedGroups(gids)
         nameFilter = nameFilter.trim()
+        nameExclude = nameExclude.trim()
         countryFilter = countryFilter.trim()
         testURL = testURL.trim()
         connectivityURL = connectivityURL.trim()
@@ -175,8 +177,9 @@ class AutoSelectorSettingsActivity : BindingSettingsActivity<AutoSelector>() {
         val store = DataStore.profileCacheStore
         if (store.getString("name").isNullOrBlank()) return getString(R.string.autosel_name_empty)
         if (checkedIds().none { GroupRepo.get(it) != null }) return getString(R.string.autosel_select_group)
-        val filter = store.getString("nameFilter").orEmpty().trim()
-        if (filter.isNotEmpty()) {
+        for (key in listOf("nameFilter", "nameExclude")) {
+            val filter = store.getString(key).orEmpty().trim()
+            if (filter.isEmpty()) continue
             try {
                 Pattern.compile(filter, Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE)
             } catch (e: PatternSyntaxException) {
@@ -281,6 +284,7 @@ class AutoSelectorSettingsActivity : BindingSettingsActivity<AutoSelector>() {
             }
         }
         summary("nameFilter") { getString(R.string.autosel_name_filter_empty) }
+        summary("nameExclude") { getString(R.string.autosel_name_exclude_empty) }
         summary("countryFilter") { getString(R.string.autosel_country_filter_empty) }
         summary("testURL") { getString(R.string.autosel_test_url_empty, DataStore.testUrl) }
         summary("connectivityURL") {
@@ -385,6 +389,7 @@ class AutoSelectorSettingsActivity : BindingSettingsActivity<AutoSelector>() {
         preview.parseFromJson(ensureEditingOutbound().exportToJson())
         preview.gids = checkedGroups(preview.gids)
         preview.nameFilter = store.getString("nameFilter").orEmpty().trim()
+        preview.nameExclude = store.getString("nameExclude").orEmpty().trim()
         preview.countryFilter = store.getString("countryFilter").orEmpty().trim()
         preview.excludeUnavailable = store.getBoolean("excludeUnavailable", true)
         store.getString("poolCap")?.trim()?.toIntOrNull()?.let { preview.poolCap = it }

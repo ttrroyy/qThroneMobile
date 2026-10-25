@@ -347,6 +347,15 @@ class MobileHomeFragment : ToolbarFragment() {
                 chromeKey=nextChromeKey
                 groupReorder=null;nextProfileReorders.clear()
                 column.removeAllViews(); nextLatencyViews.clear(); nextProfileRows.clear(); nextGroupViews.clear(); nextRefreshButtons.clear()
+                // Landscape: the header and the power button in a side column, so the server list keeps the full height.
+                val landscape=resources.configuration.orientation==android.content.res.Configuration.ORIENTATION_LANDSCAPE
+                column.orientation=if(landscape) LinearLayout.HORIZONTAL else LinearLayout.VERTICAL
+                val side=if(landscape) LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL } else column
+                val body=if(landscape) LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL } else column
+                if(landscape) {
+                    column.addView(side,LinearLayout.LayoutParams(dp(280),-1))
+                    column.addView(body,LinearLayout.LayoutParams(0,-1,1f).apply { marginStart=dp(12) })
+                }
                 openSwipe=null
                 val header = LinearLayout(requireContext()).apply { gravity = Gravity.CENTER_VERTICAL }
                 fun headerIcon(icon: Int, description: String, callback: (View) -> Unit) = ImageButton(requireContext()).apply {
@@ -354,6 +363,8 @@ class MobileHomeFragment : ToolbarFragment() {
                     contentDescription = description; setOnClickListener { callback(it) }; MobileFeedback.apply(this,circle=true)
                 }
                 header.addView(headerIcon(R.drawable.ic_mobile_settings, getString(R.string.qmobile_settings)) { host().displayFragmentWithId(R.id.nav_settings) }, LinearLayout.LayoutParams(dp(48), dp(48)))
+                // the routing profile switch (global, Wi-Fi, mobile whitelist...) without a trip through the settings
+                header.addView(headerIcon(R.drawable.ic_mobile_route, getString(R.string.route_profile_quick_switch)) { app.qthrone.mobile.ui.route.RouteQuickSwitch.show(this@MobileHomeFragment) }, LinearLayout.LayoutParams(dp(48), dp(48)))
                 updateBanner = text("", 12f, blue).apply {
                     gravity = Gravity.CENTER
                     minHeight = dp(48)
@@ -379,7 +390,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     marginEnd = dp(6)
                 })
                 header.addView(headerIcon(R.drawable.ic_mobile_add, getString(R.string.qmobile_add)) { addMenu(it) }, LinearLayout.LayoutParams(dp(48), dp(48)))
-                column.addView(header)
+                side.addView(header)
                 updateReleaseBanner()
                 val centre = FrameLayout(requireContext())
                 power = action("") { host().toggleService() }.apply {
@@ -406,7 +417,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     }
                 }
                 centre.addView(power, FrameLayout.LayoutParams(dp(188), dp(188), Gravity.TOP or Gravity.CENTER_HORIZONTAL).apply { topMargin=dp(8) })
-                column.addView(centre, LinearLayout.LayoutParams(-1, dp(206)))
+                side.addView(centre, LinearLayout.LayoutParams(-1, dp(206)))
                 updateState()
                 val imports = LinearLayout(requireContext())
                 fun importButton(label: String, icon: Int, callback: () -> Unit) = LinearLayout(requireContext()).apply {
@@ -446,28 +457,28 @@ class MobileHomeFragment : ToolbarFragment() {
                 geoBanner!!.addView(geoStatus,LinearLayout.LayoutParams(0,-2,1f))
                 geoBanner!!.addView(geoProgress,LinearLayout.LayoutParams(dp(28),dp(28)))
                 geoBanner!!.addView(geoCheck,LinearLayout.LayoutParams(dp(28),dp(28)))
-                column.addView(geoBanner,LinearLayout.LayoutParams(-1,-2).apply { bottomMargin=dp(10) })
+                body.addView(geoBanner,LinearLayout.LayoutParams(-1,-2).apply { bottomMargin=dp(10) })
                 updateGeoStatus()
                 val serverColumn=LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL }
-                subscriptionTop?.let { column.addView(it) }
+                subscriptionTop?.let { body.addView(it) }
                 val serverScroll=ScrollView(requireContext()).apply {
                     isVerticalScrollBarEnabled=false; isHorizontalScrollBarEnabled=false
                     clipToPadding=false; addView(serverColumn,FrameLayout.LayoutParams(-1,-2))
                     setOnScrollChangeListener { _, _, y, _, _ -> serverScrollPosition=y }
                 }
-                column.addView(serverScroll,LinearLayout.LayoutParams(-1,0,1f))
+                body.addView(serverScroll,LinearLayout.LayoutParams(-1,0,1f))
                 serverRows=serverColumn; serverScrollView=serverScroll
                 if(!hasServers) {
-                    column.addView(View(requireContext()), LinearLayout.LayoutParams(-1,0,1f))
+                    body.addView(View(requireContext()), LinearLayout.LayoutParams(-1,0,1f))
                     val identity=LinearLayout(requireContext()).apply { gravity=Gravity.CENTER_VERTICAL or Gravity.CENTER_HORIZONTAL }
                     identity.addView(text("HWID: $hwid",14f,muted).apply { setPadding(dp(4),dp(4),dp(4),dp(4));maxLines=1;maxWidth=(resources.displayMetrics.widthPixels-dp(96)).coerceAtLeast(dp(120));ellipsize=android.text.TextUtils.TruncateAt.MIDDLE;contentDescription="HWID: $hwid" },LinearLayout.LayoutParams(-2,-2))
                     identity.addView(iconAction(R.drawable.ic_mobile_copy_outline,"Скопировать HWID") { SagerNet.trySetPrimaryClip(hwid) }.apply {
                         imageTintList=android.content.res.ColorStateList.valueOf(blue)
                         setPadding(dp(13),dp(13),dp(13),dp(13))
                     },LinearLayout.LayoutParams(dp(40),dp(40)))
-                    column.addView(identity,LinearLayout.LayoutParams(-1,-2))
-                    column.addView(text(getString(R.string.qmobile_empty),14f).apply { gravity=Gravity.CENTER; setPadding(dp(16),dp(16),dp(16),dp(12)) })
-                    column.addView(imports,LinearLayout.LayoutParams(-1,dp(48)))
+                    body.addView(identity,LinearLayout.LayoutParams(-1,-2))
+                    body.addView(text(getString(R.string.qmobile_empty),14f).apply { gravity=Gravity.CENTER; setPadding(dp(16),dp(16),dp(16),dp(12)) })
+                    body.addView(imports,LinearLayout.LayoutParams(-1,dp(48)))
                 }
             }
             val serverColumn=serverRows ?: return@launch
@@ -491,7 +502,9 @@ class MobileHomeFragment : ToolbarFragment() {
             var firstGroup = true
             for ((groupIndex, pair) in groups.withIndex()) {
                 val (group,profiles)=pair
-                if (profiles.isEmpty() && !group.isSubscription) continue
+                // An emptied group stays listed so it can still be renamed, filled or deleted; only a fresh install's
+                // lone empty list is hidden.
+                if (profiles.isEmpty() && !group.isSubscription && groups.all { it.second.isEmpty() }) continue
                 val signature=structure[groupIndex]
                 val window=windows.getValue(group.id)
                 if(profilePages[group.id]==pageSnapshot[group.id]) profilePages[group.id]=window.page
