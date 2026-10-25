@@ -10,9 +10,11 @@ import app.qthrone.mobile.group.ProviderLinks
 import app.qthrone.mobile.group.SubscriptionCrypto
 import app.qthrone.mobile.outbound.link.LinkCodec
 import app.qthrone.mobile.outbound.types.Custom
+import app.qthrone.mobile.outbound.types.DnsTunnel
 import app.qthrone.mobile.outbound.types.OpenConnect
 import app.qthrone.mobile.outbound.types.OpenVpn
 import app.qthrone.mobile.outbound.types.Shadowsocks
+import app.qthrone.mobile.outbound.types.Socks
 import app.qthrone.mobile.outbound.types.WireGuard
 import java.io.ByteArrayOutputStream
 import java.util.zip.Inflater
