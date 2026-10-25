@@ -9,8 +9,6 @@ import android.os.Parcelable
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.ScrollView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
@@ -37,7 +35,6 @@ import app.qthrone.mobile.database.DataStore
 import app.qthrone.mobile.database.ProfileManager
 import app.qthrone.mobile.database.SagerDatabase
 import app.qthrone.mobile.database.preference.OnPreferenceDataStoreChangeListener
-import app.qthrone.mobile.databinding.LayoutGroupItemBinding
 import app.qthrone.mobile.ktx.Logs
 import app.qthrone.mobile.ktx.onMainDispatcher
 import app.qthrone.mobile.ktx.runOnDefaultDispatcher
@@ -405,35 +402,21 @@ abstract class ProfileSettingsActivity<T : Outbound>(
 
             R.id.action_move -> {
                 val activity = requireActivity() as ProfileSettingsActivity<*>
-                val view = LinearLayout(context).apply {
-                    val ent = activity.proxyEntity!!
-                    orientation = LinearLayout.VERTICAL
-
-                    SagerDatabase.groupDao.allGroups()
-                        .filter { !it.isSubscription && it.id != ent.groupId }
-                        .forEach { group ->
-                            LayoutGroupItemBinding.inflate(layoutInflater, this, true).apply {
-                                edit.isVisible = false
-                                options.isVisible = false
-                                groupName.text = group.displayName()
-                                groupUpdate.text = getString(R.string.move)
-                                groupUpdate.setOnClickListener {
-                                    runOnDefaultDispatcher {
-                                        val newGroupId = group.id
-                                        ProfileManager.moveToGroup(listOf(ent.id), newGroupId)
-                                        DataStore.editingGroup = newGroupId // post switch animation
-                                        runOnMainDispatcher {
-                                            activity.finish()
-                                        }
-                                    }
-                                }
-                            }
+                val ent = activity.proxyEntity!!
+                val groups = SagerDatabase.groupDao.allGroups().filter { !it.isSubscription && it.id != ent.groupId }
+                // A tap on the group moves the profile (the group card's own button stayed hidden, so nothing happened).
+                MaterialAlertDialogBuilder(activity)
+                    .setTitle(R.string.profiles_move_to_group)
+                    .setItems(groups.map { it.displayName() }.toTypedArray()) { _, index ->
+                        val newGroupId = groups[index].id
+                        runOnDefaultDispatcher {
+                            ProfileManager.moveToGroup(listOf(ent.id), newGroupId)
+                            DataStore.editingGroup = newGroupId // post switch animation
+                            runOnMainDispatcher { activity.finish() }
                         }
-                }
-                val scrollView = ScrollView(context).apply {
-                    addView(view)
-                }
-                MaterialAlertDialogBuilder(activity).setView(scrollView).show()
+                    }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
                 true
             }
 
