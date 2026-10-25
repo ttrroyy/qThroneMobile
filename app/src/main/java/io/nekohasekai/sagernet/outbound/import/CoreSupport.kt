@@ -41,7 +41,7 @@ internal object CoreSupport {
 
     /** TransportProtocol.Build: h2, h3, http and quic are removed, anything else unknown. */
     private val XRAY_NETWORKS = setOf(
-        "raw", "tcp", "xhttp", "splithttp", "kcp", "mkcp", "grpc", "ws", "websocket", "httpupgrade", "hysteria",
+        "raw", "tcp", "xhttp", "splithttp", "kcp", "mkcp", "grpc", "ws", "websocket", "httpupgrade", "hysteria", "xdrive",
     )
 
     /** StreamConfig.Build: REALITY only over RAW, XHTTP and gRPC. */

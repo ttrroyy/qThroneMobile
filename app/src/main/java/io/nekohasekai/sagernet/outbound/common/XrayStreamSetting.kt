@@ -11,9 +11,13 @@ import app.qthrone.mobile.outbound.json.jsonObjectOf
 import app.qthrone.mobile.outbound.link.Hosts
 import app.qthrone.mobile.outbound.link.LinkParser
 import app.qthrone.mobile.outbound.link.ParsedLink
+import kotlin.reflect.KMutableProperty1
 
 /** xrayStreamSetting.h:5-9 */
-val xrayNetworks = listOf("raw", "xhttp", "ws", "httpupgrade", "grpc")
+val xrayNetworks = listOf("raw", "xhttp", "ws", "httpupgrade", "grpc", "xdrive")
+
+/** The storages XDRIVE speaks; Xray still takes "Google Drive" for google-drive. */
+val xrayXDriveServices = listOf("google-drive", "template", "local")
 /** xrayTLS (xrayStreamSetting.h:17-33, xrayStreamSetting.cpp:248-318). No insecure flag is modelled. */
 class XrayTls {
     @JvmField var serverName: String = ""
@@ -90,7 +94,6 @@ class XrayTls {
     fun build(ctx: BuildContext): JsonObject {
         val obj = exportToJson()
         if (fingerprint.isEmpty() && ctx.utlsFingerprint.isNotEmpty()) obj["fingerprint"] = ctx.utlsFingerprint
-        if (ctx.xrayUseSystemCA) obj["useSystemCA"] = true
         return obj
     }
 }
@@ -683,6 +686,7 @@ class XrayStreamSetting {
     @JvmField var ws: XrayWs = XrayWs()
     @JvmField var httpupgrade: XrayHttpUpgrade = XrayHttpUpgrade()
     @JvmField var grpc: XrayGrpc = XrayGrpc()
+    @JvmField var xdrive: XrayXDrive = XrayXDrive()
 
     fun parseFromLink(link: String): Boolean = parseFromLink(LinkParser.parse(link))
 
@@ -697,7 +701,8 @@ class XrayStreamSetting {
         if (q.has("type")) network = q.value("type").replace("tcp", "raw")
         // XHTTP's former name, which Xray still accepts (Android only)
         if (network == "splithttp") network = "xhttp"
-        if (network !in xrayNetworks) return false
+        // XDRIVE has no share-link format: a link would carry the storage secrets, so profiles travel as JSON.
+        if (network !in xrayNetworks || network == "xdrive") return false
         if (network == "raw" && q.value("headerType") == "http") {
             val request = JsonObject()
             val paths = QtStrings.splitList(q.valueFully("path"))
@@ -741,6 +746,11 @@ class XrayStreamSetting {
         if (network == "ws" && obj.isObject("wsSettings")) ws.parseFromJson(obj.obj("wsSettings"))
         if (network == "httpupgrade" && obj.isObject("httpupgradeSettings")) httpupgrade.parseFromJson(obj.obj("httpupgradeSettings"))
         if (network == "grpc" && obj.isObject("grpcSettings")) grpc.parseFromJson(obj.obj("grpcSettings"))
+        if (network == "xdrive") {
+            if (obj.isObject("xdriveSettings")) xdrive.parseFromJson(obj.obj("xdriveSettings"))
+            if (obj.contains("address")) xdrive.frontAddress = obj.string("address")
+            if (obj.contains("port")) xdrive.frontPort = obj.int("port")
+        }
         return true
     }
 
@@ -814,6 +824,11 @@ class XrayStreamSetting {
             "ws" -> obj["wsSettings"] = ws.exportToJson()
             "httpupgrade" -> obj["httpupgradeSettings"] = httpupgrade.exportToJson()
             "grpc" -> obj["grpcSettings"] = grpc.exportToJson()
+            "xdrive" -> {
+                obj["xdriveSettings"] = xdrive.exportToJson()
+                if (xdrive.frontAddress.isNotEmpty()) obj["address"] = Hosts.toAceHost(xdrive.frontAddress)
+                if (xdrive.frontPort > 0) obj["port"] = xdrive.frontPort
+            }
         }
         return obj
     }
@@ -823,6 +838,11 @@ class XrayStreamSetting {
         val obj = JsonObject()
         obj["network"] = network
         obj["security"] = security
+        // The VLESS address is nominal on XDRIVE; the storage is what tells two profiles apart.
+        if (network == "xdrive") {
+            obj["service"] = xdrive.service
+            if (xdrive.remoteFolder.isNotEmpty()) obj["folder"] = xdrive.remoteFolder
+        }
         if (security == "reality") {
             if (reality.serverName.isNotEmpty()) obj["sni"] = Hosts.toAceHost(reality.serverName)
             if (reality.fingerprint.isNotEmpty()) obj["fingerprint"] = reality.fingerprint
@@ -834,8 +854,86 @@ class XrayStreamSetting {
         return obj
     }
 
-    /** xrayStreamSetting.cpp:921-924: binding and DNS are wired by the core, not the config. */
-    fun build(ctx: BuildContext): JsonObject = exportToJson()
+    /**
+     * xrayStreamSetting.cpp:921-924: binding and DNS are wired by the core, not the config. xray_use_system_ca turns
+     * on useSystemCA in the TLS block and the XHTTP download leg.
+     */
+    fun build(ctx: BuildContext): JsonObject {
+        val obj = exportToJson()
+        if (!ctx.xrayUseSystemCA) return obj
+        if (security == "tls") (obj["tlsSettings"] as? JsonObject)?.set("useSystemCA", true)
+        if (network == "xhttp") obj["xhttpSettings"] = xhttp.build(ctx)
+        return obj
+    }
+}
+
+/**
+ * xrayXDrive: Xray's XDRIVE transport, which carries the stream through files in a cloud storage folder (Google Drive,
+ * a templated HTTP storage or a local folder for tests). The front address and port are the stream's own `address` /
+ * `port`, through which the storage API is dialed.
+ */
+class XrayXDrive {
+    @JvmField var service: String = "google-drive"
+    @JvmField var remoteFolder: String = ""
+    /** google-drive: ClientID, ClientSecret, RefreshToken; template: read as {secret0}, {secret1}, ... */
+    @JvmField var secrets: MutableList<String> = ArrayList()
+    @JvmField var templateSpec: JsonObject = JsonObject()
+    @JvmField var frontAddress: String = ""
+    @JvmField var frontPort: Int = 0
+    // 0 keeps Xray's default.
+    @JvmField var segmentBytes: Long = 0
+    @JvmField var flushIntervalMs: Long = 0
+    @JvmField var pollIntervalMs: Long = 0
+    @JvmField var maxPollIntervalMs: Long = 0
+    @JvmField var sessionTtlSeconds: Long = 0
+    @JvmField var concurrency: Long = 0
+    @JvmField var eagerWindowMs: Long = 0
+    @JvmField var holeTimeoutMs: Long = 0
+    /** Kept as written; the editor has no fields for it. */
+    @JvmField var xmux: JsonObject = JsonObject()
+
+    companion object {
+        /** The Xray key of each tuning field. */
+        @JvmField
+        val TUNING: List<Pair<String, KMutableProperty1<XrayXDrive, Long>>> = listOf(
+            "segmentBytes" to XrayXDrive::segmentBytes,
+            "flushIntervalMs" to XrayXDrive::flushIntervalMs,
+            "pollIntervalMs" to XrayXDrive::pollIntervalMs,
+            "maxPollIntervalMs" to XrayXDrive::maxPollIntervalMs,
+            "sessionTtlSeconds" to XrayXDrive::sessionTtlSeconds,
+            "concurrency" to XrayXDrive::concurrency,
+            "eagerWindowMs" to XrayXDrive::eagerWindowMs,
+            "holeTimeoutMs" to XrayXDrive::holeTimeoutMs,
+        )
+    }
+
+    fun parseFromJson(obj: JsonObject): Boolean {
+        if (obj.isEmpty()) return false
+        if (obj.contains("service")) {
+            service = obj.string("service")
+            if (service == "Google Drive") service = "google-drive"
+        }
+        if (obj.contains("remoteFolder")) remoteFolder = obj.string("remoteFolder")
+        if (obj.contains("secrets")) secrets = obj.array("secrets").strings()
+        if (obj.isObject("template")) templateSpec = obj.obj("template").copy()
+        for ((key, property) in TUNING) if (obj.contains(key)) property.set(this, (obj[key] as? Number)?.toLong() ?: QtStrings.toLong(obj.string(key)))
+        if (obj.isObject("xmux")) xmux = obj.obj("xmux").copy()
+        return true
+    }
+
+    fun exportToJson(): JsonObject {
+        val obj = JsonObject()
+        obj["service"] = service
+        if (remoteFolder.isNotEmpty()) obj["remoteFolder"] = remoteFolder
+        if (secrets.isNotEmpty()) obj["secrets"] = JsonValues.stringArray(secrets)
+        if (templateSpec.isNotEmpty()) obj["template"] = templateSpec.copy()
+        for ((key, property) in TUNING) {
+            val value = property.get(this)
+            if (value != 0L) obj[key] = value
+        }
+        if (xmux.isNotEmpty()) obj["xmux"] = xmux.copy()
+        return obj
+    }
 }
 
 // xrayStreamSetting.cpp:584-604 / 664-684: the `ws-opts` block as the ws and httpupgrade streams read it; a

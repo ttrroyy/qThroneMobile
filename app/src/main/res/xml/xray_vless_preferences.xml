@@ -140,6 +140,44 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        app:key="xrayXdriveCategory"
+        app:title="@string/xdrive_settings">
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+            app:icon="@drawable/ic_baseline_layers_24"
+            app:key="streamSetting.xdrive.service"
+            app:title="@string/xdrive_service"
+            app:entries="@array/xdrive_service_entry"
+            app:entryValues="@array/xdrive_service_value"
+            app:defaultValue="google-drive"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:icon="@drawable/ic_baseline_texture_24"
+            app:key="streamSetting.xdrive.remoteFolder"
+            app:title="@string/xdrive_folder"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:icon="@drawable/ic_baseline_vpn_key_24"
+            app:dialogMessage="@string/xdrive_secrets_hint"
+            app:key="streamSetting.xdrive.secrets"
+            app:title="@string/xdrive_secrets" />
+        <moe.matsuri.nb4a.ui.EditConfigPreference
+            app:icon="@drawable/ic_baseline_texture_24"
+            app:jsonAllowEmpty="true"
+            app:key="streamSetting.xdrive.templateSpec"
+            app:title="@string/xdrive_template" />
+        <EditTextPreference
+            app:icon="@drawable/ic_baseline_airplanemode_active_24"
+            app:key="streamSetting.xdrive.frontAddress"
+            app:title="@string/xdrive_front_address"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:icon="@drawable/ic_baseline_directions_boat_24"
+            app:key="streamSetting.xdrive.frontPort"
+            app:title="@string/xdrive_front_port"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
         app:key="xrayXhttpCategory"
         app:title="@string/xhttp_settings">
         <EditTextPreference

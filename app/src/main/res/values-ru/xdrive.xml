@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="xdrive_settings">Настройки XDRIVE</string>
+    <string name="xdrive_service">Хранилище</string>
+    <string name="xdrive_folder">Папка</string>
+    <string name="xdrive_secrets">Секреты</string>
+    <string name="xdrive_secrets_hint">По одному в строке. Google Drive: client ID, client secret, refresh token. Шаблон: подставляются как {secret0}, {secret1} и так далее.</string>
+    <string name="xdrive_template">Шаблон хранилища (JSON)</string>
+    <string name="xdrive_front_address">Адрес фронта</string>
+    <string name="xdrive_front_port">Порт фронта</string>
+    <string name="xdrive_service_google">Google Drive</string>
+    <string name="xdrive_service_template">Шаблон</string>
+    <string name="xdrive_service_local">Локальная папка (для тестов)</string>
+</resources>

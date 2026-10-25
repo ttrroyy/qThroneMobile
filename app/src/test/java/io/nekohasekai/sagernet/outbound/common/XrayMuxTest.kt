@@ -27,8 +27,24 @@ class XrayMuxTest {
     }
 
     @Test fun systemCaOnlyWhenEnabled() {
-        val tls = XrayTls().apply { serverName = "example.org" }
-        assertNull(tls.build(BuildContext())["useSystemCA"])
-        assertTrue(tls.build(BuildContext(xrayUseSystemCA = true))["useSystemCA"] == true)
+        val stream = XrayStreamSetting().apply {
+            security = "tls"
+            tls.serverName = "example.org"
+        }
+        assertNull(stream.build(BuildContext()).obj("tlsSettings")["useSystemCA"])
+        assertTrue(stream.build(BuildContext(xrayUseSystemCA = true)).obj("tlsSettings")["useSystemCA"] == true)
+    }
+
+    @Test fun xdriveSurvivesJson() {
+        val stream = XrayStreamSetting()
+        stream.parseFromJson(app.qthrone.mobile.outbound.json.JsonInput.parseObject(
+            """{"network":"xdrive","security":"none","address":"front.example","port":443,
+            "xdriveSettings":{"service":"Google Drive","remoteFolder":"q","secrets":["a","b","c"],"pollIntervalMs":250}}"""
+        ))
+        assertEquals("google-drive", stream.xdrive.service)
+        assertEquals(250L, stream.xdrive.pollIntervalMs)
+        val json = stream.exportToJson()
+        assertEquals("front.example", json["address"])
+        assertEquals(3, json.obj("xdriveSettings").array("secrets").size)
     }
 }

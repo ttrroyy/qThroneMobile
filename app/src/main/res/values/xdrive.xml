@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="xdrive_settings">XDRIVE settings</string>
+    <string name="xdrive_service">Storage</string>
+    <string name="xdrive_folder">Folder</string>
+    <string name="xdrive_secrets">Secrets</string>
+    <string name="xdrive_secrets_hint">One per line. Google Drive: client ID, client secret, refresh token. Template: read as {secret0}, {secret1} and so on.</string>
+    <string name="xdrive_template">Storage template (JSON)</string>
+    <string name="xdrive_front_address">Front address</string>
+    <string name="xdrive_front_port">Front port</string>
+    <string name="xdrive_service_google">Google Drive</string>
+    <string name="xdrive_service_template">Template</string>
+    <string name="xdrive_service_local">Local folder (tests)</string>
+    <string-array name="xdrive_service_entry">
+        <item>@string/xdrive_service_google</item>
+        <item>@string/xdrive_service_template</item>
+        <item>@string/xdrive_service_local</item>
+    </string-array>
+    <string-array name="xdrive_service_value" translatable="false">
+        <item>google-drive</item>
+        <item>template</item>
+        <item>local</item>
+    </string-array>
+</resources>

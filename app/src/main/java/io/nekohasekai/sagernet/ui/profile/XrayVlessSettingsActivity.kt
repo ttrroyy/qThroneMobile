@@ -33,6 +33,12 @@ class XrayVlessSettingsActivity : BindingSettingsActivity<XrayVless>() {
         pbm.int("$STREAM.httpupgrade.ed")
         pbm.text("$STREAM.httpupgrade.headers")
 
+        pbm.text("$STREAM.xdrive.service")
+        pbm.text("$STREAM.xdrive.remoteFolder")
+        pbm.text("$STREAM.xdrive.secrets")
+        pbm.text("$STREAM.xdrive.frontAddress")
+        pbm.int("$STREAM.xdrive.frontPort")
+        jsonObjectText("$STREAM.xdrive.templateSpec", { streamSetting.xdrive.templateSpec }, { streamSetting.xdrive.templateSpec = it })
         pbm.text("$STREAM.grpc.serviceName")
         pbm.text("$STREAM.grpc.authority")
         pbm.bool("$STREAM.grpc.multiMode")
@@ -88,6 +94,7 @@ class XrayVlessSettingsActivity : BindingSettingsActivity<XrayVless>() {
         )
         multilineInput(
             "$STREAM.ws.headers", "$STREAM.httpupgrade.headers", "$STREAM.xhttp.headers", "$STREAM.tls.alpn",
+            "$STREAM.xdrive.secrets",
         )
         // empty inherits the uTLS preset (xrayStreamSetting.cpp:312, 377)
         presetMenuSummary("$STREAM.tls.fingerprint", DataStore.utlsFingerprint)
@@ -99,12 +106,17 @@ class XrayVlessSettingsActivity : BindingSettingsActivity<XrayVless>() {
         val httpUpgrade = findPreference<PreferenceCategory>("xrayHttpUpgradeCategory")
         val grpc = findPreference<PreferenceCategory>("xrayGrpcCategory")
         val xhttp = findPreference<PreferenceCategory>("xrayXhttpCategory")
+        val xdrive = findPreference<PreferenceCategory>("xrayXdriveCategory")
         onMenu("$STREAM.network") { network ->
             ws?.isVisible = network == "ws"
             httpUpgrade?.isVisible = network == "httpupgrade"
             grpc?.isVisible = network == "grpc"
             xhttp?.isVisible = network == "xhttp"
+            xdrive?.isVisible = network == "xdrive"
         }
+        // secrets are credentials: shown only as set / not set
+        passwordSummary("$STREAM.xdrive.secrets")
+        portInput("$STREAM.xdrive.frontPort")
 
         val tls = findPreference<PreferenceCategory>("xrayTlsCategory")
         val reality = findPreference<PreferenceCategory>("xrayRealityCategory")

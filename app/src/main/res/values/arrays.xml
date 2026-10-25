@@ -304,6 +304,7 @@
         <item>WebSocket</item>
         <item>HTTPUpgrade</item>
         <item>gRPC</item>
+        <item>XDRIVE</item>
     </string-array>
     <string-array name="xray_network_value" translatable="false">
         <item>raw</item>
@@ -311,6 +312,7 @@
         <item>ws</item>
         <item>httpupgrade</item>
         <item>grpc</item>
+        <item>xdrive</item>
     </string-array>
     <string-array name="xray_security_entry" translatable="false">
         <item>none</item>
