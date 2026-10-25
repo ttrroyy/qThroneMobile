@@ -12,13 +12,8 @@ object SeasonalPolicy {
         in 9..11 -> "halloween"
         else -> "newyear"
     }
-    fun retainedChoice(choice:String):String = when(choice) {
-        "spring","patrick","maslenitsa" -> "easter"
-        "autumn" -> "halloween"
-        "christmas","valentine" -> "newyear"
-        "remembrance","may_remembrance" -> "auto"
-        else -> choice
-    }
+    fun retainedChoice(choice:String):String =
+        if(choice in manualThemes || choice=="auto" || choice=="none") choice else "auto"
     fun resolve(choice:String,now:Long=System.currentTimeMillis(),zone:TimeZone=TimeZone.getDefault()):String {
         if(choice!="auto") return if(choice in manualThemes) choice else "none"
         val local=Calendar.getInstance(zone).apply { timeInMillis=now }

@@ -31,14 +31,10 @@ class SeasonalPolicyTest {
         assertEquals("halloween",SeasonalPolicy.resolve("auto",instant,TimeZone.getTimeZone("Pacific/Kiritimati")))
         assertEquals("kupala",SeasonalPolicy.resolve("auto",instant,TimeZone.getTimeZone("Pacific/Pago_Pago")))
     }
-    @Test fun retainedKeysAndDisabledChoiceSurviveWhileRemovedThemesMapToSeasons() {
+    @Test fun retainedKeysAndDisabledChoiceSurviveWhileUnknownChoicesUseAuto() {
         for(choice in SeasonalPolicy.manualThemes+setOf("auto","none")) assertEquals(choice,SeasonalPolicy.retainedChoice(choice))
-        assertEquals("easter",SeasonalPolicy.retainedChoice("spring"))
-        assertEquals("halloween",SeasonalPolicy.retainedChoice("autumn"))
-        assertEquals("newyear",SeasonalPolicy.retainedChoice("christmas"))
-        assertEquals("auto",SeasonalPolicy.retainedChoice("remembrance"))
-        assertEquals("none",SeasonalPolicy.resolve("remembrance"))
-        assertEquals("none",SeasonalPolicy.resolve("may_remembrance"))
+        assertEquals("auto",SeasonalPolicy.retainedChoice("unsupported"))
+        assertEquals("none",SeasonalPolicy.resolve("unsupported"))
         assertEquals("none",SeasonalPolicy.resolve("none"))
     }
 }
