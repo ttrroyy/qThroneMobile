@@ -171,7 +171,7 @@
             app:title="@string/xdrive_front_address"
             app:useSimpleSummaryProvider="true" />
         <EditTextPreference
-            app:icon="@drawable/ic_baseline_directions_boat_24"
+            app:icon="@drawable/ic_maps_directions_boat"
             app:key="streamSetting.xdrive.frontPort"
             app:title="@string/xdrive_front_port"
             app:useSimpleSummaryProvider="true" />
