@@ -7,6 +7,11 @@
         android:title="@string/group_update"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_search_logs"
+        android:icon="@drawable/ic_baseline_manage_search_24"
+        android:title="@string/log_search"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/action_share_logs"
         android:icon="@drawable/baseline_send_24"
         android:title="@string/log_share"

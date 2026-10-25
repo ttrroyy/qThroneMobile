@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mux_max_connections_preset">Макс. соединений</string>
+    <string name="mux_min_streams_preset">Потоков до нового соединения</string>
+    <string name="mux_brutal_preset_sum">Сервер должен поддерживать TCP Brutal; укажите обе скорости</string>
+</resources>

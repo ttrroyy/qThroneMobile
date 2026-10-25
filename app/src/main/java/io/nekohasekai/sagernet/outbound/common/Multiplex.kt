@@ -201,8 +201,24 @@ class Multiplex : MuxStateModel {
         if (unspecified && ctx.muxDefaultOn) obj["enabled"] = true
         if (!obj.bool("enabled")) return JsonObject()
         if (protocol.isEmpty()) obj["protocol"] = ctx.muxProtocol
-        if (max_streams == 0 && max_connections == 0 && min_streams == 0) obj["max_streams"] = ctx.muxConcurrency
+        // The preset pool applies while the profile sets none of its own.
+        if (max_streams == 0 && max_connections == 0 && min_streams == 0) {
+            if (ctx.muxMode == "max_connections") {
+                if (ctx.muxMaxConnections > 0) obj["max_connections"] = ctx.muxMaxConnections
+                if (ctx.muxMinStreams > 0) obj["min_streams"] = ctx.muxMinStreams
+            } else {
+                obj["max_streams"] = ctx.muxConcurrency
+            }
+        }
         if (ctx.muxPadding) obj["padding"] = true
+        // Preset TCP Brutal only for a profile without settings of its own; a Custom one decides itself.
+        if (!hasOwnSettings() && ctx.muxBrutal) {
+            obj["brutal"] = TcpBrutal().apply {
+                enabled = true
+                up_mbps = ctx.muxBrutalUpMbps
+                down_mbps = ctx.muxBrutalDownMbps
+            }.exportToJson()
+        }
         return obj
     }
 }

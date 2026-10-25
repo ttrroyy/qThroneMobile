@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="log_search">Search</string>
+    <string name="log_search_hint">Text to find</string>
+    <string name="log_search_regex">Regular expression</string>
+    <string name="log_search_problems">Only warnings and errors</string>
+    <string name="log_search_reset">Reset</string>
+    <string name="log_search_nothing">Nothing found</string>
+</resources>

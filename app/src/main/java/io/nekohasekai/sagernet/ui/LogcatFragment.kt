@@ -41,6 +41,11 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
     private var lastLog: String? = null
     private var sharing=false
 
+    /** What the screen shows: lines matching [query] (text, or a regex), and only warnings and errors with [problemsOnly]. */
+    private var query = ""
+    private var useRegex = false
+    private var problemsOnly = false
+
     private val saveLogs = registerForActivityResult(SaveDocument("text/plain")) { uri ->
         if (uri == null) return@registerForActivityResult
         val context = requireContext().applicationContext
@@ -149,9 +154,9 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
         if (lastLog == text || binding.textview.hasSelection()) return
         val follow = lastLog == null || !binding.scroolview.canScrollVertically(1)
         lastLog = text
-        val emptyText = getString(R.string.log_empty)
+        val emptyText = getString(if (filtering()) R.string.log_search_nothing else R.string.log_empty)
         val span = withContext(Dispatchers.Default) {
-            SpannableString(text.ifEmpty { emptyText }).also { result ->
+            SpannableString(filter(text).ifEmpty { emptyText }).also { result ->
                 var offset = 0
                 for (line in result.lines()) {
                     result.setSpan(getColorForLine(line), offset, offset + line.length, SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -165,8 +170,70 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
         }
     }
 
+    private fun filtering() = query.isNotEmpty() || problemsOnly
+
+    private fun isProblem(line: String) =
+        line.contains("ERROR[") || line.contains(" [Error]") || line.contains("WARN[") || line.contains(" [Warning]")
+
+    /** The lines of [text] the search keeps; an invalid regex falls back to plain text. */
+    private fun filter(text: String): String {
+        if (!filtering()) return text
+        val regex = if (useRegex && query.isNotEmpty()) runCatching { Regex(query, RegexOption.IGNORE_CASE) }.getOrNull() else null
+        return text.lineSequence().filter { line ->
+            (!problemsOnly || isProblem(line)) && when {
+                query.isEmpty() -> true
+                regex != null -> regex.containsMatchIn(line)
+                else -> line.contains(query, ignoreCase = true)
+            }
+        }.joinToString("\n")
+    }
+
+    private fun showSearch() {
+        val context = requireContext()
+        val pad = (20 * resources.displayMetrics.density).toInt()
+        val field = android.widget.EditText(context).apply {
+            setText(query)
+            setSelection(query.length)
+            hint = getString(R.string.log_search_hint)
+            isSingleLine = true
+        }
+        val regex = android.widget.CheckBox(context).apply {
+            setText(R.string.log_search_regex)
+            isChecked = useRegex
+        }
+        val problems = android.widget.CheckBox(context).apply {
+            setText(R.string.log_search_problems)
+            isChecked = problemsOnly
+        }
+        val column = android.widget.LinearLayout(context).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(pad, pad / 2, pad, 0)
+            addView(field)
+            addView(regex)
+            addView(problems)
+        }
+        MaterialAlertDialogBuilder(context).setTitle(R.string.log_search)
+            .setView(column)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                applySearch(field.text.toString().trim(), regex.isChecked, problems.isChecked)
+            }
+            .setNeutralButton(R.string.log_search_reset) { _, _ -> applySearch("", false, false) }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun applySearch(text: String, regex: Boolean, problems: Boolean) {
+        query = text
+        useRegex = regex
+        problemsOnly = problems
+        toolbar?.subtitle = if (filtering()) query.ifEmpty { getString(R.string.log_search_problems) } else null
+        lastLog = null
+        viewLifecycleOwner.lifecycleScope.launch { reloadSession() }
+    }
+
     override fun onMenuItemClick(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.action_search_logs -> showSearch()
             R.id.action_log_detail -> {
                 val levels = listOf("debug", "info", "error")
                 MaterialAlertDialogBuilder(requireContext()).setTitle(R.string.log_detail)

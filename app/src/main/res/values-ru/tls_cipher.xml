@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tls_cipher_suites">Наборы шифров</string>
+    <string name="tls_cipher_suites_hint">Наборы для TLS 1.0–1.2, по одному в строке или через запятую. Пусто: по умолчанию.</string>
+</resources>

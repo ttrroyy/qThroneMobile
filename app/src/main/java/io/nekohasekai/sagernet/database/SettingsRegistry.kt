@@ -228,6 +228,13 @@ object SettingsRegistry {
     @JvmField val MUX_CONCURRENCY = int("mux_concurrency", 8) { it >= 0 }
     @JvmField val MUX_PADDING = bool("mux_padding", false)
     @JvmField val MUX_DEFAULT_ON = bool("mux_default_on", false)
+    /** The preset pool: "max_streams" per connection, or "max_connections" with min_streams. */
+    @JvmField val MUX_MODE = oneOf("mux_mode", "max_streams", listOf("max_streams", "max_connections"))
+    @JvmField val MUX_MAX_CONNECTIONS = int("mux_max_connections", 4) { it >= 0 }
+    @JvmField val MUX_MIN_STREAMS = int("mux_min_streams", 4) { it >= 0 }
+    @JvmField val MUX_BRUTAL = bool("mux_brutal", false)
+    @JvmField val MUX_BRUTAL_UP_MBPS = int("mux_brutal_up_mbps", 0) { it >= 0 }
+    @JvmField val MUX_BRUTAL_DOWN_MBPS = int("mux_brutal_down_mbps", 0) { it >= 0 }
     @JvmField val XRAY_MUX_CONCURRENCY = int("xray_mux_concurrency", 8) { it >= 0 }
     @JvmField val XRAY_MUX_DEFAULT_ON = bool("xray_mux_default_on", false)
     @JvmField val FRAGMENT_DEFAULT_ON = bool("fragment_default_on", false)
@@ -273,6 +280,8 @@ object SettingsRegistry {
     @JvmField val NET_INSECURE = bool("net_insecure", false)
     /** Sign-encoded minutes like [ROUTE_AUTO_UPDATE]. */
     @JvmField val SUB_AUTO_UPDATE = int("sub_auto_update", -30)
+    /** Opt-in: a subscription's profile-update-interval header replaces the common period (a group's own one still wins). */
+    @JvmField val SUB_SERVER_INTERVAL = bool("sub_server_interval", false)
     /** Epoch seconds. */
     @JvmField val SUB_AUTO_UPDATE_LAST = long("sub_auto_update_last", 0L) { it >= 0 }
     @JvmField val SUB_CLEAR = bool("sub_clear", false)

@@ -219,6 +219,12 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var muxConcurrency by SettingsRegistry.MUX_CONCURRENCY
     var muxPadding by SettingsRegistry.MUX_PADDING
     var muxDefaultOn by SettingsRegistry.MUX_DEFAULT_ON
+    var muxMode by SettingsRegistry.MUX_MODE
+    var muxMaxConnections by SettingsRegistry.MUX_MAX_CONNECTIONS
+    var muxMinStreams by SettingsRegistry.MUX_MIN_STREAMS
+    var muxBrutal by SettingsRegistry.MUX_BRUTAL
+    var muxBrutalUpMbps by SettingsRegistry.MUX_BRUTAL_UP_MBPS
+    var muxBrutalDownMbps by SettingsRegistry.MUX_BRUTAL_DOWN_MBPS
     var xrayMuxConcurrency by SettingsRegistry.XRAY_MUX_CONCURRENCY
     var xrayMuxDefaultOn by SettingsRegistry.XRAY_MUX_DEFAULT_ON
     var fragmentDefaultOn by SettingsRegistry.FRAGMENT_DEFAULT_ON
@@ -253,6 +259,7 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var netUseProxy by SettingsRegistry.NET_USE_PROXY
     var netInsecure by SettingsRegistry.NET_INSECURE
     var subAutoUpdate by SettingsRegistry.SUB_AUTO_UPDATE
+    var subServerInterval by SettingsRegistry.SUB_SERVER_INTERVAL
     var subAutoUpdateLast by SettingsRegistry.SUB_AUTO_UPDATE_LAST
     var subClear by SettingsRegistry.SUB_CLEAR
     var subShowChangePopup by SettingsRegistry.SUB_SHOW_CHANGE_POPUP

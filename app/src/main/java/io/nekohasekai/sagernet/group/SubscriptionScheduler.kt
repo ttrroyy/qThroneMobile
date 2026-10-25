@@ -63,12 +63,21 @@ object SubscriptionScheduler {
         }
     }
 
-    /** A subscription's own period, else sub_auto_update; null when it is not updated automatically. */
+    /**
+     * A subscription's own period, else (with sub_server_interval on) the period its server asks for, else
+     * sub_auto_update; null when it is not updated automatically. The server period only replaces the common one, so
+     * it never turns automatic updates on by itself, and it is kept within [MIN_INTERVAL_MINUTES] and a week.
+     */
     fun intervalOf(group: app.qthrone.mobile.database.ProxyGroup): Int? {
         if (group.url.isEmpty() || group.archive || group.skipAutoUpdate) return null
-        return group.subOptions.autoUpdateMinutes.takeIf { it >= MIN_INTERVAL_MINUTES }
-            ?: DataStore.subAutoUpdate.takeIf { it >= MIN_INTERVAL_MINUTES }
+        group.subOptions.autoUpdateMinutes.takeIf { it >= MIN_INTERVAL_MINUTES }?.let { return it }
+        val common = DataStore.subAutoUpdate.takeIf { it >= MIN_INTERVAL_MINUTES } ?: return null
+        val serverHours = if (DataStore.subServerInterval) group.subInfo.serverInterval else 0
+        if (serverHours > 0) return (serverHours * 60).coerceIn(MIN_INTERVAL_MINUTES, MAX_SERVER_INTERVAL_MINUTES)
+        return common
     }
+
+    private const val MAX_SERVER_INTERVAL_MINUTES = 7 * 24 * 60
 
     /** The worker wakes at the shortest period in use; each run refreshes only the subscriptions that are due. */
     private fun shortestInterval(): Int = GroupRepo.all().mapNotNull(::intervalOf).minOrNull() ?: 0

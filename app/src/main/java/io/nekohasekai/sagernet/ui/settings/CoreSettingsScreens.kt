@@ -37,6 +37,29 @@ open class PresetSettingsFragment(@androidx.annotation.XmlRes preferences: Int =
         )
         checkInt(SettingsRegistry.MUX_CONCURRENCY.key, R.string.invalid_number) { it >= 0 }
         checkInt(SettingsRegistry.XRAY_MUX_CONCURRENCY.key, R.string.invalid_number) { it >= 0 }
+        for (key in listOf(
+            SettingsRegistry.MUX_MAX_CONNECTIONS.key, SettingsRegistry.MUX_MIN_STREAMS.key,
+            SettingsRegistry.MUX_BRUTAL_UP_MBPS.key, SettingsRegistry.MUX_BRUTAL_DOWN_MBPS.key,
+        )) checkInt(key, R.string.invalid_number) { it >= 0 }
+        // The pool rows of the chosen mode, and the Brutal rates while it is on.
+        fun syncMux(mode: String, brutal: Boolean) {
+            findPreference<Preference>(SettingsRegistry.MUX_CONCURRENCY.key)?.isVisible = mode != "max_connections"
+            findPreference<Preference>(SettingsRegistry.MUX_MAX_CONNECTIONS.key)?.isVisible = mode == "max_connections"
+            findPreference<Preference>(SettingsRegistry.MUX_MIN_STREAMS.key)?.isVisible = mode == "max_connections"
+            findPreference<Preference>(SettingsRegistry.MUX_BRUTAL_UP_MBPS.key)?.isVisible = brutal
+            findPreference<Preference>(SettingsRegistry.MUX_BRUTAL_DOWN_MBPS.key)?.isVisible = brutal
+        }
+        syncMux(DataStore.muxMode, DataStore.muxBrutal)
+        findPreference<Preference>(SettingsRegistry.MUX_MODE.key)?.setOnPreferenceChangeListener { _, value ->
+            syncMux(value as String, DataStore.muxBrutal)
+            needReload()
+            true
+        }
+        findPreference<Preference>(SettingsRegistry.MUX_BRUTAL.key)?.setOnPreferenceChangeListener { _, value ->
+            syncMux(DataStore.muxMode, value as Boolean)
+            needReload()
+            true
+        }
 
         // Size and sleep only feed the custom (dialer-level) fragment (dialog_preset_settings.cpp:40-47).
         val implementation = pref<SimpleMenuPreference>(SettingsRegistry.FRAGMENT_IMPLEMENTATION.key)

@@ -184,6 +184,7 @@ object TlsBlock {
         pbm.text("$prefix.server_name")
         pbm.bool("$prefix.insecure")
         pbm.text("$prefix.alpn")
+        pbm.text("$prefix.cipher_suites")
         pbm.text("$prefix.min_version")
         pbm.text("$prefix.max_version")
         pbm.text("$prefix.certificate")
@@ -239,7 +240,7 @@ object TlsBlock {
         }
 
         multilineInput(
-            "$prefix.alpn", "$prefix.certificate", "$prefix.certificate_sha256", "$prefix.certificate_public_key_sha256",
+            "$prefix.alpn", "$prefix.cipher_suites", "$prefix.certificate", "$prefix.certificate_sha256", "$prefix.certificate_public_key_sha256",
             "$prefix.ech.config",
         )
         echInputs("$prefix.ech")

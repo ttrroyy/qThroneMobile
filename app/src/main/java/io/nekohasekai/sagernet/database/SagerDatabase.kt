@@ -22,7 +22,7 @@ import java.util.concurrent.Executors
         ProxyGroup::class, ProxyEntity::class, RouteProfileEntity::class, RouteRuleEntity::class,
         SettingEntry::class, MarkerEntity::class,
     ],
-    version = 16,
+    version = 17,
     autoMigrations = [
         AutoMigration(from = 8, to = 9),
         AutoMigration(from = 12, to = 13),
@@ -156,6 +156,13 @@ abstract class SagerDatabase : RoomDatabase() {
             }
         }
 
+        /** 16 -> 17: the member list's order gets its own index. */
+        val MIGRATION_16_17: Migration = object : Migration(16, 17) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_profiles_gid_user_order_id` ON `profiles` (`gid`, `user_order`, `id`)")
+            }
+        }
+
         /** Configs.cpp:35-39: a new database starts with an ordinary group named "Default". */
         private val callback = object : RoomDatabase.Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
@@ -211,7 +218,7 @@ abstract class SagerDatabase : RoomDatabase() {
                             .name(config.name).callback(safe).noBackupDirectory(config.useNoBackupDirectory).build()
                     )
                 }
-                .addMigrations(MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_15_16)
+                .addMigrations(MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_15_16, MIGRATION_16_17)
                 .addCallback(callback)
                 .setJournalMode(JournalMode.TRUNCATE)
                 .allowMainThreadQueries()

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mux_max_connections_preset">Max connections</string>
+    <string name="mux_min_streams_preset">Streams before a new connection</string>
+    <string name="mux_brutal_preset_sum">The server must support TCP Brutal; set both rates</string>
+</resources>

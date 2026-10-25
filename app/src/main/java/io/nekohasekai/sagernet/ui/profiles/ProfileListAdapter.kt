@@ -187,7 +187,7 @@ internal class ProfileListAdapter(private val fragment: ProfileListFragment) :
     }
 
     private fun visibleIds(): List<Long> {
-        val filter = query.trim().lowercase()
+        val filter = query.trim()
         val hideAutoSelectors = host?.hideAutoSelectors == true
         return memberIds.filter { id ->
             val entity = entities[id]
@@ -196,8 +196,8 @@ internal class ProfileListAdapter(private val fragment: ProfileListFragment) :
         }
     }
 
-    private fun ProxyEntity.matches(filter: String) = displayName().lowercase().contains(filter) ||
-        displayType().lowercase().contains(filter) || displayAddress().lowercase().contains(filter)
+    private fun ProxyEntity.matches(filter: String) = displayName().contains(filter, ignoreCase = true) ||
+        displayType().contains(filter, ignoreCase = true) || displayAddress().contains(filter, ignoreCase = true)
 
     @SuppressLint("NotifyDataSetChanged")
     private fun publish(changed: Set<Long>, all: Boolean) {

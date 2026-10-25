@@ -158,10 +158,43 @@
             app:key="mux_protocol"
             app:title="@string/mux_type"
             app:useSimpleSummaryProvider="true" />
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+            app:defaultValue="max_streams"
+            app:entries="@array/mux_pool_mode_entry"
+            app:entryValues="@array/mux_pool_mode_value"
+            app:icon="@drawable/ic_baseline_low_priority_24"
+            app:key="mux_mode"
+            app:title="@string/mux_pool_mode"
+            app:useSimpleSummaryProvider="true" />
         <EditTextPreference
             app:icon="@drawable/ic_baseline_low_priority_24"
             app:key="mux_concurrency"
             app:title="@string/preset_concurrency"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:icon="@drawable/ic_baseline_low_priority_24"
+            app:key="mux_max_connections"
+            app:title="@string/mux_max_connections_preset"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:icon="@drawable/ic_baseline_low_priority_24"
+            app:key="mux_min_streams"
+            app:title="@string/mux_min_streams_preset"
+            app:useSimpleSummaryProvider="true" />
+        <SwitchPreference
+            app:icon="@drawable/ic_baseline_speed_24"
+            app:key="mux_brutal"
+            app:summary="@string/mux_brutal_preset_sum"
+            app:title="@string/mux_brutal" />
+        <EditTextPreference
+            app:icon="@drawable/ic_baseline_upload_24"
+            app:key="mux_brutal_up_mbps"
+            app:title="@string/mux_brutal_up_mbps"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:icon="@drawable/ic_baseline_download_24"
+            app:key="mux_brutal_down_mbps"
+            app:title="@string/mux_brutal_down_mbps"
             app:useSimpleSummaryProvider="true" />
         <SwitchPreference
             app:icon="@drawable/baseline_developer_board_24"

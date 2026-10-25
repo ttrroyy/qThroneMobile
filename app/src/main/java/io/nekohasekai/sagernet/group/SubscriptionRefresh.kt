@@ -110,6 +110,8 @@ internal object SubscriptionRefresh {
             if (latest != null) { latest.name = fetched.subInfo.title; SagerDatabase.groupDao.update(latest) }
         }
         SagerDatabase.groupDao.setSubscriptionInfo(gid, System.currentTimeMillis() / 1000, fetched.subInfo.toJsonString())
+        // a new server period may change when the update worker has to wake
+        if (DataStore.subServerInterval && fetched.subInfo.serverInterval != group.subInfo.serverInterval) SubscriptionScheduler.schedule()
         GroupRepo.postUpdate(gid)
 
         // Auto selectors are local state, not servers the remote sent: keep them out of the diff.

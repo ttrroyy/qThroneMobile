@@ -10,6 +10,8 @@
             app:key="subAutoUpdateInterval"
             app:persistent="false"
             app:title="@string/grp_sub_auto_update_interval" />
+        <SwitchPreference app:key="sub_server_interval" app:title="@string/sub_server_interval"
+            app:summary="@string/sub_server_interval_sum" />
         <SwitchPreference app:key="sub_notify_update" app:title="@string/sub_settings_notify"
             app:summary="@string/sub_settings_notify_summary" />
     </PreferenceCategory>

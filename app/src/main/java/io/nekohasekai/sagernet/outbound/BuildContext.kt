@@ -18,6 +18,14 @@ data class BuildContext(
     val muxConcurrency: Int = 8,
     /** SettingsRepo.h:77 mux_padding — multiplex.cpp:135. */
     val muxPadding: Boolean = false,
+    /** mux_mode: "max_streams", or "max_connections" with [muxMaxConnections] and [muxMinStreams]. */
+    val muxMode: String = "max_streams",
+    val muxMaxConnections: Int = 4,
+    val muxMinStreams: Int = 4,
+    /** TCP Brutal for the preset multiplex, with its rates. */
+    val muxBrutal: Boolean = false,
+    val muxBrutalUpMbps: Int = 0,
+    val muxBrutalDownMbps: Int = 0,
     /** SettingsRepo.h:81 fragment_implementation ("built-in" or "custom") — TLS.cpp:433, Outbound.cpp:156. */
     val fragmentImplementation: String = "built-in",
     /** SettingsRepo.h:82 fragment_default_on — TLS.cpp:462. */

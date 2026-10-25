@@ -37,7 +37,8 @@ import kotlinx.parcelize.Parcelize
             onDelete = ForeignKey.CASCADE,
         )
     ],
-    indices = [Index("gid")],
+    // gid alone for the foreign key; gid + order serves the member list without a sort of the whole group
+    indices = [Index("gid"), Index("gid", "user_order", "id")],
 )
 @Parcelize
 data class ProxyEntity(
@@ -71,17 +72,24 @@ data class ProxyEntity(
 
     @IgnoredOnParcel
     @Ignore
-    private var cachedKey: String? = null
+    private var cachedType: String? = null
 
-    /** The parsed profile: an [InvalidOutbound] when the type is unknown or [outboundJson] is not a JSON object. */
+    @IgnoredOnParcel
+    @Ignore
+    private var cachedJson: String? = null
+
+    /**
+     * The parsed profile: an [InvalidOutbound] when the type is unknown or [outboundJson] is not a JSON object. The
+     * cache is checked against the stored strings themselves, so a large list does not build a key on every read.
+     */
     @get:Ignore
     val outbound: Outbound
         get() {
-            val key = "$type\u0000$outboundJson"
-            cachedOutbound?.let { if (cachedKey == key) return it }
+            cachedOutbound?.let { if (cachedType == type && (cachedJson === outboundJson || cachedJson == outboundJson)) return it }
             val parsed = parseOutbound(type, outboundJson)
             cachedOutbound = parsed
-            cachedKey = key
+            cachedType = type
+            cachedJson = outboundJson
             return parsed
         }
 
@@ -91,7 +99,8 @@ data class ProxyEntity(
         name = o.name
         outboundJson = o.exportToJson().toCompact()
         cachedOutbound = o
-        cachedKey = "$type\u0000$outboundJson"
+        cachedType = type
+        cachedJson = outboundJson
         return this
     }
 

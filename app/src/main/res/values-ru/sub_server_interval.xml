@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sub_server_interval">Интервал от сервера</string>
+    <string name="sub_server_interval_sum">Если подписка сообщает, как часто её обновлять, этот период заменяет общий. Период, заданный в самой подписке, по-прежнему важнее.</string>
+</resources>

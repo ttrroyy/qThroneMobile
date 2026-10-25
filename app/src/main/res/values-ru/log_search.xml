@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="log_search">Поиск</string>
+    <string name="log_search_hint">Что найти</string>
+    <string name="log_search_regex">Регулярное выражение</string>
+    <string name="log_search_problems">Только предупреждения и ошибки</string>
+    <string name="log_search_reset">Сбросить</string>
+    <string name="log_search_nothing">Ничего не найдено</string>
+</resources>

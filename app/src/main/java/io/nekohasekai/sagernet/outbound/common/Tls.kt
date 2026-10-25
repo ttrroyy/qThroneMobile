@@ -593,7 +593,9 @@ class Tls {
         if (alpn.isNotEmpty()) obj["alpn"] = JsonValues.stringArray(alpn)
         if (min_version.isNotEmpty()) obj["min_version"] = min_version
         if (max_version.isNotEmpty()) obj["max_version"] = max_version
-        if (cipher_suites.isNotEmpty()) obj["cipher_suites"] = JsonValues.stringArray(cipher_suites)
+        // typed as one line separated by commas or colons (OpenSSL style) as well as one per line
+        val suites = cipher_suites.flatMap { it.split(',', ':') }.map { it.trim() }.filter { it.isNotEmpty() }
+        if (suites.isNotEmpty()) obj["cipher_suites"] = JsonValues.stringArray(suites)
         if (curve_preferences.isNotEmpty()) obj["curve_preferences"] = JsonValues.stringArray(curve_preferences)
         if (certificate.isNotEmpty()) obj["certificate"] = JsonValues.stringArray(certificate)
         if (certificate_path.isNotEmpty()) obj["certificate_path"] = certificate_path

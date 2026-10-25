@@ -98,6 +98,11 @@ class SubscriptionSettingsFragment : SettingsScreenFragment(R.xml.settings_subsc
             SubscriptionScheduler.schedule()
             true
         }
+        pref<androidx.preference.SwitchPreference>(SettingsRegistry.SUB_SERVER_INTERVAL.key).setOnPreferenceChangeListener { _, _ ->
+            // the new value is stored after this returns
+            listView?.post { SubscriptionScheduler.schedule() }
+            true
+        }
     }
 
     /** The four values the requests send (the desktop's Send HWID tooltip), after the custom parameters. */

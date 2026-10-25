@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sub_server_interval">Interval from the server</string>
+    <string name="sub_server_interval_sum">If a subscription tells how often to update it, that period replaces the common one. A period set in the subscription itself still wins.</string>
+</resources>
