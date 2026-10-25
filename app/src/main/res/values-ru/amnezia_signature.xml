@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="amnezia_quic_signature">Создать подпись QUIC</string>
+    <string name="amnezia_quic_signature_sum">Заполняет I1–I5 первыми пакетами QUIC, которые браузер отправил бы на указанный домен, чтобы рукопожатие выглядело как HTTP/3-соединение с ним. Создаётся на телефоне, ничего не отправляется.</string>
+    <string name="amnezia_quic_signature_title">Подпись QUIC</string>
+    <string name="amnezia_quic_signature_domain">Имитируемый домен</string>
+    <string name="amnezia_quic_signature_failed">Не удалось создать подпись QUIC</string>
+</resources>

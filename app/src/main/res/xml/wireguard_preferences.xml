@@ -148,6 +148,12 @@
             app:key="h4"
             app:title="H4"
             app:useSimpleSummaryProvider="true" />
+        <Preference
+            app:icon="@drawable/ic_baseline_texture_24"
+            app:key="amneziaQuicSignature"
+            app:persistent="false"
+            app:summary="@string/amnezia_quic_signature_sum"
+            app:title="@string/amnezia_quic_signature" />
         <EditTextPreference
             app:icon="@drawable/ic_baseline_texture_24"
             app:key="i1"

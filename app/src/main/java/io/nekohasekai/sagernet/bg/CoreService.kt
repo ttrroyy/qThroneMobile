@@ -40,6 +40,13 @@ class CoreService : Service() {
 
         override fun warpRegister(tunnelType: String, proxy: String?, apiHosts: Array<String>?): String =
             WarpRegistration.register(tunnelType, proxy.orEmpty(), apiHosts ?: emptyArray())
+
+        override fun genQuicSignature(domain: String?): String = QuicSignature.generate(domain.orEmpty())
+
+        override fun captureDiagnostics(durationMs: Int, outputPath: String?): String =
+            CoreDiagnostics.capture(durationMs, outputPath.orEmpty())
+
+        override fun stopDiagnostics() = CoreDiagnostics.stop()
     }
 
     override fun onCreate() {

@@ -42,6 +42,12 @@
             app:key="xray_log_level"
             app:title="@string/xray_log_level"
             app:useSimpleSummaryProvider="true" />
+        <Preference
+            app:icon="@drawable/ic_baseline_speed_24"
+            app:key="coreDiagnostics"
+            app:persistent="false"
+            app:summary="@string/diagnostics_sum"
+            app:title="@string/diagnostics_title" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/cag_statistics">
@@ -112,6 +118,11 @@
             app:icon="@drawable/ic_baseline_security_24"
             app:key="use_mozilla_certs"
             app:title="@string/use_mozilla_certs" />
+        <SwitchPreference
+            app:icon="@drawable/ic_baseline_security_24"
+            app:key="xray_use_system_ca"
+            app:summary="@string/xray_use_system_ca_sum"
+            app:title="@string/xray_use_system_ca" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/cag_ntp">

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="diagnostics_title">Профиль производительности ядра</string>
+    <string name="diagnostics_sum">Записывает 30 секунд работы ядра (процессор и память) в файл, которым можно поделиться</string>
+    <string name="diagnostics_warning">Пока идёт запись, повторите проблему: торможение или высокий расход батареи. Файл может содержать адреса и другие данные работы вашего подключения, отправляйте его только тому, кому доверяете.</string>
+    <string name="diagnostics_start">Записать</string>
+    <string name="diagnostics_stop">Остановить</string>
+    <string name="diagnostics_running">Идёт запись 30 секунд…</string>
+    <string name="diagnostics_failed">Не удалось записать профиль</string>
+    <string name="diagnostics_notification">Запись профиля производительности ядра</string>
+</resources>

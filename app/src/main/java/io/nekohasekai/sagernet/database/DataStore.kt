@@ -310,6 +310,7 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var xrayGeositeUrl by SettingsRegistry.XRAY_GEOSITE_URL
     var skipCert by SettingsRegistry.SKIP_CERT
     var useMozillaCerts by SettingsRegistry.USE_MOZILLA_CERTS
+    var xrayUseSystemCa by SettingsRegistry.XRAY_USE_SYSTEM_CA
     var enableNtp by SettingsRegistry.ENABLE_NTP
     var ntpServerAddress by SettingsRegistry.NTP_SERVER_ADDRESS
     var ntpServerPort by SettingsRegistry.NTP_SERVER_PORT

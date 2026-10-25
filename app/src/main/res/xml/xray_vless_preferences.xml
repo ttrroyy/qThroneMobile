@@ -332,6 +332,12 @@
             app:title="@string/xray_mux_xudp_concurrency"
             app:defaultValue="16"
             app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:icon="@drawable/ic_baseline_low_priority_24"
+            app:key="multiplex.maxConnections"
+            app:title="@string/xray_mux_max_connections"
+            app:defaultValue="0"
+            app:useSimpleSummaryProvider="true" />
         <moe.matsuri.nb4a.ui.SimpleMenuPreference
             app:icon="@drawable/ic_baseline_low_priority_24"
             app:key="multiplex.xudpProxyUDP443"

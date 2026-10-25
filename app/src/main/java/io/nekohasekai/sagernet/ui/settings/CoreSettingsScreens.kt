@@ -172,12 +172,16 @@ class CoreSettingsFragment : PresetSettingsFragment(R.xml.settings_core_combined
         reloadOn(
             SettingsRegistry.XRAY_LOG_LEVEL.key, SettingsRegistry.ENABLE_STATS.key,
             SettingsRegistry.DISABLE_TRAFFIC_STATS.key, SettingsRegistry.SKIP_CERT.key,
-            SettingsRegistry.USE_MOZILLA_CERTS.key, SettingsRegistry.NTP_OUTBOUND.key,
+            SettingsRegistry.USE_MOZILLA_CERTS.key, SettingsRegistry.XRAY_USE_SYSTEM_CA.key, SettingsRegistry.NTP_OUTBOUND.key,
         )
 
         bindClashApi()
         bindApiDashboard()
         bindNtp()
+        pref<Preference>(KEY_DIAGNOSTICS).setOnPreferenceClickListener {
+            CoreDiagnosticsDialog.confirm(requireActivity())
+            true
+        }
     }
 
     /** core_box_clash_api is one sign-encoded port: at most 0 is off, the magnitude is kept while off. */
@@ -301,5 +305,6 @@ class CoreSettingsFragment : PresetSettingsFragment(R.xml.settings_core_combined
         const val KEY_CLASH_PORT = "coreClashApiPort"
         const val KEY_API_ENABLED = "coreApiDashboardEnabled"
         const val KEY_API_PORT = "coreApiDashboardPort"
+        const val KEY_DIAGNOSTICS = "coreDiagnostics"
     }
 }

@@ -17,4 +17,7 @@
     <string name="xray_mux_udp443_reject">Reject: apps fall back to TCP</string>
     <string name="xray_mux_udp443_allow">Allow through mux</string>
     <string name="xray_mux_udp443_skip">Send outside mux</string>
+    <string name="xray_mux_max_connections">Max connections (0: no limit)</string>
+    <string name="xray_use_system_ca">System certificates for Xray</string>
+    <string name="xray_use_system_ca_sum">Xray checks server certificates against the Android certificate store, including certificates you installed, instead of its built-in list</string>
 </resources>

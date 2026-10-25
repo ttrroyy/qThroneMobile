@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="resolve_domains_failed">Could not resolve domains: %s</string>
+    <string name="resolve_domain_failed">%1$s was not resolved: %2$s</string>
+</resources>

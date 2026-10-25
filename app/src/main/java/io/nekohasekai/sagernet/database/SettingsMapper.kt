@@ -168,6 +168,7 @@ object SettingsMapper {
         defaultDomainStrategy = DataStore.outboundDomainStrategy,
         directDnsDisableIpv6 = dns?.directDnsDisableIpv6 ?: DataStore.directDnsDisableIpv6,
         useDnsObject = DataStore.useDnsObject,
+        xrayUseSystemCA = DataStore.xrayUseSystemCa,
         routeOwnsDns = dns != null,
     )
 

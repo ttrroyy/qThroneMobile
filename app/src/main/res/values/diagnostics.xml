@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="diagnostics_title">Core performance profile</string>
+    <string name="diagnostics_sum">Records 30 seconds of CPU and memory use of the core into a file you can share</string>
+    <string name="diagnostics_warning">While it records, reproduce the slowdown or high battery use. The file can contain addresses and other runtime data of your connection: send it only to someone you trust.</string>
+    <string name="diagnostics_start">Record</string>
+    <string name="diagnostics_stop">Stop</string>
+    <string name="diagnostics_running">Recording for 30 seconds…</string>
+    <string name="diagnostics_failed">Could not record the profile</string>
+    <string name="diagnostics_notification">Recording a core performance profile</string>
+</resources>

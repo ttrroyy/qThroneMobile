@@ -13,6 +13,8 @@ class XrayMultiplex {
     @JvmField var useDefault: Boolean = true
     @JvmField var concurrency: Int = 0
     @JvmField var xudpConcurrency: Int = 16
+    /** Caps the mux connection pool; 0 leaves it unbounded. Xray reads it as an int16. */
+    @JvmField var maxConnections: Int = 0
     /** What the mux does with UDP/443 (QUIC): "" is Xray's own reject, else reject, allow or skip (outside the mux). */
     @JvmField var xudpProxyUDP443: String = ""
 
@@ -28,6 +30,7 @@ class XrayMultiplex {
         }
         if (q.has("mux_concurrency")) concurrency = QtStrings.toInt(q.value("mux_concurrency"))
         if (q.has("mux_xudp_concurrency")) xudpConcurrency = QtStrings.toInt(q.value("mux_xudp_concurrency"))
+        if (q.has("mux_max_connections")) maxConnections = poolCap(QtStrings.toInt(q.value("mux_max_connections")))
         if (q.has("mux_xudp_proxy_udp443")) xudpProxyUDP443 = udp443Mode(q.value("mux_xudp_proxy_udp443"))
         return true
     }
@@ -41,6 +44,7 @@ class XrayMultiplex {
         }
         if (obj.contains("concurrency")) concurrency = obj.int("concurrency")
         if (obj.contains("xudpConcurrency")) xudpConcurrency = obj.int("xudpConcurrency")
+        if (obj.contains("maxConnections")) maxConnections = poolCap(obj.int("maxConnections"))
         if (obj.contains("xudpProxyUDP443")) xudpProxyUDP443 = udp443Mode(obj.string("xudpProxyUDP443"))
         return true
     }
@@ -51,7 +55,15 @@ class XrayMultiplex {
         enabled = smux.bool("enabled")
         useDefault = false
         val maxStreams = smux.int("max-streams")
-        if (maxStreams > 0) concurrency = maxStreams
+        val smuxMaxConnections = smux.int("max-connections")
+        if (maxStreams > 0) {
+            concurrency = maxStreams
+        } else if (smuxMaxConnections > 0) {
+            // Under a cap, concurrency is when another connection opens: sing-mux's min_streams.
+            maxConnections = poolCap(smuxMaxConnections)
+            val minStreams = smux.int("min-streams")
+            if (minStreams > 0) concurrency = minStreams
+        }
         return true
     }
 
@@ -63,6 +75,7 @@ class XrayMultiplex {
         if (enabled) {
             if (concurrency > 0) q.add("mux_concurrency" to concurrency.toString())
             if (xudpConcurrency > 0) q.add("mux_xudp_concurrency" to xudpConcurrency.toString())
+            if (maxConnections > 0) q.add("mux_max_connections" to maxConnections.toString())
             if (xudpProxyUDP443.isNotEmpty()) q.add("mux_xudp_proxy_udp443" to xudpProxyUDP443)
         }
         return q
@@ -76,6 +89,7 @@ class XrayMultiplex {
         if (!enabled) return obj
         if (concurrency > 0) obj["concurrency"] = concurrency
         if (xudpConcurrency > 0) obj["xudpConcurrency"] = xudpConcurrency
+        if (maxConnections > 0) obj["maxConnections"] = maxConnections
         if (xudpProxyUDP443.isNotEmpty()) obj["xudpProxyUDP443"] = xudpProxyUDP443
         return obj
     }
@@ -87,11 +101,14 @@ class XrayMultiplex {
         if (!obj.bool("enabled")) return JsonObject()
         if (ctx.xrayMuxConcurrency > 0 && concurrency <= 0) obj["concurrency"] = ctx.xrayMuxConcurrency
         if (xudpConcurrency > 0) obj["xudpConcurrency"] = xudpConcurrency
+        if (maxConnections > 0) obj["maxConnections"] = maxConnections
         if (xudpProxyUDP443.isNotEmpty()) obj["xudpProxyUDP443"] = xudpProxyUDP443
         return obj
     }
 
     companion object {
+        fun poolCap(value: Int): Int = value.coerceIn(0, Short.MAX_VALUE.toInt())
+
         /** The modes the core accepts; anything else would fail the Xray start, so it falls back to Xray's default. */
         val UDP443_MODES = listOf("reject", "allow", "skip")
 

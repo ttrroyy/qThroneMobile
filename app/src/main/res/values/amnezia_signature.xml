@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="amnezia_quic_signature">Generate QUIC signature</string>
+    <string name="amnezia_quic_signature_sum">Fills I1 to I5 with the first QUIC packets a browser would send to the chosen domain, so the handshake looks like an HTTP/3 connection to it. Generated on the phone, nothing is sent.</string>
+    <string name="amnezia_quic_signature_title">QUIC signature</string>
+    <string name="amnezia_quic_signature_domain">Domain to imitate</string>
+    <string name="amnezia_quic_signature_failed">Could not generate the QUIC signature</string>
+</resources>

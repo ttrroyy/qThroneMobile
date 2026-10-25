@@ -1,7 +1,11 @@
 package app.qthrone.mobile.group
 
 import app.qthrone.mobile.R
+import app.qthrone.core.mobile.Mobile
+import app.qthrone.core.mobile.ResolveRequest
+import app.qthrone.mobile.bg.CoreRuntime
 import app.qthrone.mobile.bg.ProfileValidator
+import app.qthrone.mobile.bg.proto.CoreConfigs
 import app.qthrone.mobile.database.DataStore
 import app.qthrone.mobile.database.GroupRepo
 import app.qthrone.mobile.database.ServerSortRule
@@ -16,18 +20,14 @@ import app.qthrone.mobile.database.SubscriptionOptions
 import app.qthrone.mobile.ktx.Logs
 import app.qthrone.mobile.ktx.app
 import app.qthrone.mobile.ktx.isIpAddress
+import app.qthrone.mobile.ktx.readableMessage
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Semaphore
-import kotlinx.coroutines.sync.withPermit
-import java.net.InetAddress
-import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.withContext
 
 /** The post-update filters (GroupUpdater.cpp:183-296) and the manual group actions that need the core. */
 internal object SubscriptionFilters {
 
-    private const val RESOLVE_PARALLELISM = 8
+    private const val WRITE_CHUNK = 200
 
     /** [deleted] ids and the report sections to append to the change text. */
     class Outcome(@JvmField val deleted: List<Long>, @JvmField val report: String)
@@ -134,36 +134,63 @@ internal object SubscriptionFilters {
     }
 
     /**
-     * Resolve Domain for group (mainwindow_profiles.cpp:470-495, outbound::ResolveDomainToIP): every member whose
-     * server is a domain takes the first address the system resolver returns. Returns the report text.
+     * Resolve Domain for group: every member whose server is a domain takes the first address the core's dns-direct
+     * returns, never the system resolver, which the tun answers from FakeIP or remote DNS while the VPN runs. Only
+     * answered domains are written back. Returns the report text.
      */
-    suspend fun resolveDomains(gid: Long): String {
+    suspend fun resolveDomains(gid: Long): String = withContext(Dispatchers.IO) {
         val targets = ProfileManager.members(gid).filter { profile ->
             val address = profile.outbound.getAddress()
             !profile.outbound.invalid && address.isNotEmpty() && !address.isIpAddress()
         }
-        val resolved = AtomicInteger()
-        val permits = Semaphore(RESOLVE_PARALLELISM)
-        coroutineScope {
-            for (profile in targets) launch(Dispatchers.IO) {
-                permits.withPermit {
-                    val outbound = profile.outbound
-                    val address = runCatching {
-                        InetAddress.getAllByName(outbound.getAddress()).firstOrNull()?.hostAddress
-                    }.getOrNull()
-                    if (address.isNullOrEmpty()) return@withPermit
-                    val before = profile.outboundJson
-                    outbound.setAddress(address)
-                    profile.putOutbound(outbound)
-                    if (profile.outboundJson == before) return@withPermit
+        val resolved = if (targets.isEmpty()) emptyMap<String, String>() else try {
+            lookup(targets.map { it.outbound.getAddress() }.distinct())
+        } catch (e: Exception) {
+            val message = app.getString(R.string.resolve_domains_failed, e.readableMessage)
+            Logs.w(message)
+            return@withContext message
+        }
+        val changed = ArrayList<ProxyEntity>()
+        for (profile in targets) {
+            val outbound = profile.outbound
+            val address = resolved[outbound.getAddress()] ?: continue
+            val before = profile.outboundJson
+            outbound.setAddress(address)
+            profile.putOutbound(outbound)
+            if (profile.outboundJson != before) changed.add(profile)
+        }
+        for (part in changed.chunked(WRITE_CHUNK)) {
+            SagerDatabase.instance.runInTransaction {
+                for (profile in part) {
                     SagerDatabase.proxyDao.updateOutbound(profile.id, profile.type, profile.name, profile.outboundJson)
-                    resolved.incrementAndGet()
                 }
             }
         }
         GroupRepo.postReload(gid)
-        val report = app.getString(R.string.subs_resolved, resolved.get(), targets.size)
+        val report = app.getString(R.string.subs_resolved, changed.size, targets.size)
         Logs.i(report)
-        return report
+        report
+    }
+
+    /** Domain -> first address, through the running instance's dns-direct or a probe box of the test config. */
+    private fun lookup(domains: List<String>): Map<String, String> {
+        val probe = CoreConfigs.buildTest(emptyList())
+        if (!probe.ok) error(probe.error.orEmpty())
+        val request = ResolveRequest().apply {
+            coreConfig = probe.coreConfig
+            domains.forEach(::addDomain)
+        }
+        val results = Mobile.resolveDomains(CoreRuntime.running?.instance, CoreRuntime.platform, request)
+        val resolved = HashMap<String, String>()
+        while (results.hasNext()) {
+            val result = results.next()
+            val addresses = result.addresses()
+            if (addresses.hasNext()) {
+                resolved[result.domain] = addresses.next()
+            } else {
+                Logs.w(app.getString(R.string.resolve_domain_failed, result.domain, result.error))
+            }
+        }
+        return resolved
     }
 }

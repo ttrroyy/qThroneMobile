@@ -1,14 +1,28 @@
 package app.qthrone.mobile.ui.profile
 
+import android.text.InputType
+import android.widget.FrameLayout
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import app.qthrone.mobile.R
+import app.qthrone.mobile.bg.CoreServiceClient
+import app.qthrone.mobile.ktx.Logs
+import app.qthrone.mobile.ktx.dp2px
+import app.qthrone.mobile.outbound.json.JsonInput
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder
 import app.qthrone.mobile.outbound.types.WireGuard
 import app.qthrone.mobile.ui.warp.WarpClient
 import app.qthrone.mobile.ui.warp.WarpGenerate
 import app.qthrone.mobile.ui.warp.setFieldText
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** WireGuard / AmneziaWG: the endpoint lives in `peer.*`, the interface in the top-level fields. */
 class WireGuardSettingsActivity : BindingSettingsActivity<WireGuard>() {
@@ -87,6 +101,77 @@ class WireGuardSettingsActivity : BindingSettingsActivity<WireGuard>() {
             }
             setFieldText("peer.reserved", identity.reserved.joinToString("\n"))
         }
+
+        findPreference<Preference>(KEY_QUIC_SIGNATURE)?.setOnPreferenceClickListener { button ->
+            askSignatureDomain(this, button)
+            true
+        }
+    }
+
+    private fun askSignatureDomain(screen: PreferenceFragmentCompat, button: Preference) {
+        val layout = TextInputLayout(this).apply { hint = getString(R.string.amnezia_quic_signature_domain) }
+        val input = TextInputEditText(layout.context).apply {
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
+            isSingleLine = true
+            setText(lastSignatureDomain)
+        }
+        layout.addView(input)
+        val container = FrameLayout(this).apply {
+            setPadding(dp2px(20), dp2px(12), dp2px(20), 0)
+            addView(layout)
+        }
+        MobileAlertDialogBuilder(this)
+            .setTitle(R.string.amnezia_quic_signature_title)
+            .setView(container)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                val domain = input.text?.toString()?.trim().orEmpty()
+                if (domain.isNotEmpty()) {
+                    lastSignatureDomain = domain
+                    generateSignature(screen, button, domain)
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun generateSignature(screen: PreferenceFragmentCompat, button: Preference, domain: String) {
+        val idle = button.summary
+        button.isEnabled = false
+        button.summary = getString(R.string.generating)
+        lifecycleScope.launch {
+            val raw = try {
+                withContext(Dispatchers.IO) { CoreServiceClient.call { it.genQuicSignature(domain) } }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Logs.w(e)
+                null
+            }
+            button.summary = idle
+            button.isEnabled = true
+            val result = raw?.let { JsonInput.parseObjectOrNull(it) }
+            val packets = result?.array("packets")?.strings().orEmpty()
+            val error = if (result == null) getString(R.string.warp_core_unreachable) else result.string("error")
+            if (error.isNotEmpty() || packets.isEmpty()) {
+                MobileAlertDialogBuilder(this@WireGuardSettingsActivity)
+                    .setTitle(R.string.amnezia_quic_signature_failed)
+                    .apply { if (error.isNotEmpty()) setMessage(error) }
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
+                return@launch
+            }
+            // An "Edit as JSON" round trip may have rebuilt the screen meanwhile.
+            val target = supportFragmentManager.findFragmentById(R.id.settings) as? PreferenceFragmentCompat ?: screen
+            SIGNATURE_FIELDS.forEachIndexed { i, key -> target.setFieldText(key, packets.getOrElse(i) { "" }) }
+        }
+    }
+
+    private companion object {
+        const val KEY_QUIC_SIGNATURE = "amneziaQuicSignature"
+        val SIGNATURE_FIELDS = listOf("i1", "i2", "i3", "i4", "i5")
+
+        // Offered again next time.
+        var lastSignatureDomain = ""
     }
 
 }

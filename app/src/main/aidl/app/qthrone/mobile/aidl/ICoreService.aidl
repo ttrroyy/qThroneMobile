@@ -22,4 +22,12 @@ interface ICoreService {
 
   // WARP: blocks up to 10 s + 10 s per API host; returns JSON (see WarpRegistration).
   String warpRegister(String tunnelType, String proxy, in String[] apiHosts);
+
+  // AmneziaWG I1..I5 from a QUIC handshake to domain, built offline; returns JSON (see QuicSignature).
+  String genQuicSignature(String domain);
+
+  // CPU and heap profile of :bg: blocks for the window (at most 60 s) or until stopDiagnostics and writes the zip to
+  // outputPath; returns "" or the error (see CoreDiagnostics).
+  String captureDiagnostics(int durationMs, String outputPath);
+  void stopDiagnostics();
 }

@@ -5,4 +5,7 @@
     <string name="xray_mux_udp443_reject">Отклонять: приложения перейдут на TCP</string>
     <string name="xray_mux_udp443_allow">Пропускать через mux</string>
     <string name="xray_mux_udp443_skip">Отправлять мимо mux</string>
+    <string name="xray_mux_max_connections">Макс. соединений (0: без ограничения)</string>
+    <string name="xray_use_system_ca">Системные сертификаты для Xray</string>
+    <string name="xray_use_system_ca_sum">Xray проверяет сертификаты серверов по хранилищу Android, включая установленные вами, а не по встроенному списку</string>
 </resources>

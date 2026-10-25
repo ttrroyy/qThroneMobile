@@ -72,6 +72,7 @@ class XrayVlessSettingsActivity : BindingSettingsActivity<XrayVless>() {
         pbm.tri("multiplex.enabled", "multiplex.useDefault")
         pbm.int("multiplex.concurrency")
         pbm.int("multiplex.xudpConcurrency")
+        pbm.int("multiplex.maxConnections")
         pbm.text("multiplex.xudpProxyUDP443")
 
         jsonObjectText("$STREAM.finalmask", { streamSetting.finalmask }, { streamSetting.finalmask = it })
@@ -83,7 +84,7 @@ class XrayVlessSettingsActivity : BindingSettingsActivity<XrayVless>() {
         numberInput(
             "$STREAM.ws.ed", "$STREAM.ws.heartbeatPeriod", "$STREAM.httpupgrade.ed",
             "$STREAM.xhttp.scMaxBufferedPosts", "$STREAM.xhttp.hKeepAlivePeriod",
-            "multiplex.concurrency", "multiplex.xudpConcurrency",
+            "multiplex.concurrency", "multiplex.xudpConcurrency", "multiplex.maxConnections",
         )
         multilineInput(
             "$STREAM.ws.headers", "$STREAM.httpupgrade.headers", "$STREAM.xhttp.headers", "$STREAM.tls.alpn",

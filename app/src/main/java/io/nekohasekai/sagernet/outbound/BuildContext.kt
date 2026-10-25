@@ -48,6 +48,8 @@ data class BuildContext(
     val directDnsDisableIpv6: Boolean = false,
     /** SettingsRepo.h:189 use_dns_object. */
     val useDnsObject: Boolean = false,
+    /** xray_use_system_ca: useSystemCA in every TLS block of an Xray outbound, the XHTTP download leg included. */
+    val xrayUseSystemCA: Boolean = false,
     /** generate.cpp BuildContext::routeOwnsDns: the routing profile has its own DNS, which also beats [useDnsObject]. */
     val routeOwnsDns: Boolean = false,
 ) {

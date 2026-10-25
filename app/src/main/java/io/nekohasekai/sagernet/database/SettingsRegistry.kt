@@ -334,6 +334,8 @@ object SettingsRegistry {
     @JvmField val XRAY_GEOSITE_URL = string("xray_geosite_url", "https://github.com/Loyalsoldier/v2ray-rules-dat/raw/release/geosite.dat")
     @JvmField val SKIP_CERT = bool("skip_cert", false)
     @JvmField val USE_MOZILLA_CERTS = bool("use_mozilla_certs", false)
+    /** Xray TLS checks servers against the Android system store instead of its built-in roots. */
+    @JvmField val XRAY_USE_SYSTEM_CA = bool("xray_use_system_ca", false)
     @JvmField val ENABLE_NTP = bool("enable_ntp", false)
     @JvmField val NTP_SERVER_ADDRESS = string("ntp_server_address", "")
     @JvmField val NTP_SERVER_PORT = int("ntp_server_port", 0) { it in 0..65535 }

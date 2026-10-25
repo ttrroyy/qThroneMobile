@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="resolve_domains_failed">Не удалось разрешить домены: %s</string>
+    <string name="resolve_domain_failed">%1$s не разрешился: %2$s</string>
+</resources>

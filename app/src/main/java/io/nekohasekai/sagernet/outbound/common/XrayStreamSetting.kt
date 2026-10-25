@@ -90,6 +90,7 @@ class XrayTls {
     fun build(ctx: BuildContext): JsonObject {
         val obj = exportToJson()
         if (fingerprint.isEmpty() && ctx.utlsFingerprint.isNotEmpty()) obj["fingerprint"] = ctx.utlsFingerprint
+        if (ctx.xrayUseSystemCA) obj["useSystemCA"] = true
         return obj
     }
 }
@@ -446,8 +447,15 @@ class XrayXhttp {
         return obj
     }
 
-    /** xrayStreamSetting.cpp:544-546. */
-    fun build(ctx: BuildContext): JsonObject = exportToJson()
+    /** xrayStreamSetting.cpp:544-546; the download leg's TLS follows xray_use_system_ca like the main one. */
+    fun build(ctx: BuildContext): JsonObject {
+        val obj = exportToJson()
+        if (!ctx.xrayUseSystemCA) return obj
+        val download = (obj["extra"] as? JsonObject)?.get("downloadSettings") as? JsonObject ?: return obj
+        val tls = download["tlsSettings"] as? JsonObject
+        if (tls != null && !tls.contains("useSystemCA")) tls["useSystemCA"] = true
+        return obj
+    }
 }
 
 /** xrayWS (xrayStreamSetting.h:100-114, xrayStreamSetting.cpp:548-631). */
