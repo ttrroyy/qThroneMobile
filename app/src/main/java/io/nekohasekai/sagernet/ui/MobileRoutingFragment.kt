@@ -71,10 +71,13 @@ class MobileRoutingFragment : ToolbarFragment() {
             for ((index, rule) in route.rules.withIndex()) {
                 val matches = rule.domain_suffix + rule.domain + rule.ip_cidr + rule.package_name
                 val title = rule.name.ifBlank { matches.joinToString(", ").ifBlank { getString(R.string.qmobile_route_advanced) } }
-                root.addView(line(title + "\n" + target(rule.outbound_id)) {
+                val state = if (rule.disabled) " · " + getString(R.string.route_rule_off_mark) else ""
+                root.addView(line(title + "\n" + target(rule.outbound_id) + state) {
+                    val toggle = getString(if (rule.disabled) R.string.route_rule_turn_on else R.string.route_rule_turn_off)
                     MaterialAlertDialogBuilder(requireContext()).setTitle(title)
-                        .setItems(arrayOf(getString(R.string.qmobile_route_target),getString(R.string.qmobile_route_remove))) { _,action ->
+                        .setItems(arrayOf(getString(R.string.qmobile_route_target),toggle,getString(R.string.qmobile_route_remove))) { _,action ->
                             if (action==0) chooseTarget(rule.outbound_id) { id -> save(route) { it.rules[index].outbound_id=id } }
+                            else if (action==1) save(route) { it.rules[index].disabled=!rule.disabled }
                             else MaterialAlertDialogBuilder(requireContext()).setMessage(R.string.qmobile_route_remove)
                                 .setNegativeButton(android.R.string.cancel,null).setPositiveButton(android.R.string.ok) { _,_ -> save(route) { it.rules.removeAt(index) } }.show()
                         }.show()

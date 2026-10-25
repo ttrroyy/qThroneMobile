@@ -1,7 +1,9 @@
 package app.qthrone.mobile.bg.proto
 
+import app.qthrone.mobile.database.DataStore
 import app.qthrone.mobile.database.ProxyEntity
 import app.qthrone.mobile.database.ProxyGroup
+import app.qthrone.mobile.database.RouteManager
 import app.qthrone.mobile.database.SagerDatabase
 import app.qthrone.mobile.database.SettingsMapper
 import app.qthrone.mobile.outbound.Outbound
@@ -11,11 +13,13 @@ import app.qthrone.mobile.outbound.config.GeneratorSettings
 import app.qthrone.mobile.outbound.config.ProfileProvider
 import app.qthrone.mobile.outbound.config.RoutingInput
 import app.qthrone.mobile.outbound.config.TestCandidate
+import app.qthrone.mobile.route.RouteDns
 
 /**
  * The config generator wired to the app: profiles come from the profile table, the settings and the build-time
  * globals from DataStore through [SettingsMapper], the current route profile and the rule-set list from
- * RouteManager (main configs only; test configs never read them), the landing / front proxy from the profile's group.
+ * RouteManager (main configs only; test configs read only the profile's own DNS), the landing / front proxy from the
+ * profile's group.
  */
 object CoreConfigs {
 
@@ -25,10 +29,12 @@ object CoreConfigs {
         override fun get(id: Long): Outbound? = cache.getOrPut(id) { SagerDatabase.proxyDao.getById(id)?.outbound }
     }
 
+    /** [dns]: the routing profile's own DNS, null for the global one; [settings] must be mapped with the same. */
     fun generator(
         routing: RoutingInput = RoutingInput.DEFAULT,
         settings: GeneratorSettings = SettingsMapper.generatorSettings(),
-    ): ConfigGenerator = ConfigGenerator(DatabaseProfiles(), settings, SettingsMapper.buildContext(), routing)
+        dns: RouteDns? = null,
+    ): ConfigGenerator = ConfigGenerator(DatabaseProfiles(), settings, SettingsMapper.buildContext(dns), routing)
 
     /**
      * The main config of [profile]; throws with the generator's message when it cannot be built. [deferRuleSets]
@@ -36,7 +42,6 @@ object CoreConfigs {
      */
     fun buildMain(profile: ProxyEntity, deferRuleSets: Boolean = false): GeneratedConfig {
         val (landing, front) = groupProxies(profile.groupId)
-        var settings = SettingsMapper.generatorSettings().copy(deferRuleSets = deferRuleSets)
         val options = SagerDatabase.groupDao.getById(profile.groupId)?.subOptions
         val bound = options?.takeIf { it.routingProvider.isNotBlank() && it.providerRoutingEnabled }
         val route = when {
@@ -45,6 +50,9 @@ object CoreConfigs {
                 app.qthrone.mobile.outbound.json.JsonInput.parseObjectOrNull(bound.providerRouting) ?: app.qthrone.mobile.outbound.json.JsonObject(), bound.routingProvider)
             else -> app.qthrone.mobile.database.RouteManager.current().copy()
         }
+        // Provider routing below still wins over the routing profile's own DNS, which wins over Settings > DNS.
+        val dns = route.activeDns()
+        var settings = SettingsMapper.generatorSettings(dns).copy(deferRuleSets = deferRuleSets)
         var routing = SettingsMapper.routingInput(route)
         val fullJson = profile.outbound.isXrayFullConfig()
         val providerRouting=app.qthrone.mobile.route.ProviderRouting.stored(route)
@@ -62,7 +70,7 @@ object CoreConfigs {
             }
         }
         val profiles = DatabaseProfiles()
-        var context = SettingsMapper.buildContext()
+        var context = SettingsMapper.buildContext(dns)
         if (app.qthrone.mobile.outbound.config.TransportIpPolicy.ipv4Only(profile.outbound, profiles)) {
             settings = app.qthrone.mobile.outbound.config.TransportIpPolicy.settings(settings)
             context = app.qthrone.mobile.outbound.config.TransportIpPolicy.context(context)
@@ -82,7 +90,8 @@ object CoreConfigs {
             val (landing, front) = groups.getOrPut(groupId) { groupProxies(groupId) }
             TestCandidate(id, landing, front)
         }
-        return generator().buildTest(candidates)
+        val dns = RouteManager.customDns(DataStore.currentRouteId)
+        return generator(settings = SettingsMapper.generatorSettings(dns), dns = dns).buildTest(candidates)
     }
 
     /** (landing_proxy_id, front_proxy_id) of a group, -1 when unset (any id <= 0 is "none"). */

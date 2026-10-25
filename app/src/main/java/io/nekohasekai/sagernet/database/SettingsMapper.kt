@@ -15,6 +15,7 @@ import app.qthrone.mobile.outbound.json.JsonArray
 import app.qthrone.mobile.outbound.json.jsonObjectOf
 import app.qthrone.mobile.outbound.types.AutoSelector
 import app.qthrone.mobile.outbound.types.Custom
+import app.qthrone.mobile.route.RouteDns
 import app.qthrone.core.mobile.Mobile
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
@@ -47,9 +48,11 @@ object SettingsMapper {
         AutoSelector.groupNames = AutoSelector.GroupNames { gid -> SagerDatabase.groupDao.getById(gid)?.displayName() }
     }
 
-    fun generatorSettings(): GeneratorSettings {
+    /** The DNS fields come from [dns], the routing profile's own DNS (RouteDns::Current), when given. */
+    fun generatorSettings(dns: RouteDns? = null): GeneratorSettings {
         val mixedEnabled = !DataStore.mixedInboundDisabled
         val clashApi = DataStore.coreBoxClashApi
+        val routeDns = dns ?: RouteDnsSettings.global()
         return GeneratorSettings(
             logLevel = DataStore.logLevel,
             ntpEnabled = DataStore.enableNtp,
@@ -86,9 +89,9 @@ object SettingsMapper {
                 GeneratorSettings.splitLines(DataStore.individual).toSet(),DataStore.bypass) else emptyList(),
             httpProxyEnabled = DataStore.appendHttpProxy,
             httpProxyBypassDomains = GeneratorSettings.splitLines(DataStore.httpProxyBypass),
-            remoteDns = DataStore.remoteDns,
-            remoteDnsDisableIpv6 = DataStore.remoteDnsDisableIpv6,
-            directDns = DataStore.directDns,
+            remoteDns = routeDns.remoteDns,
+            remoteDnsDisableIpv6 = routeDns.remoteDnsDisableIpv6,
+            directDns = routeDns.directDns,
             underlyingDns = DataStore.coreBoxUnderlyingDns,
             dnsCacheCapacity = DataStore.dnsCacheCapacity,
             dnsDisableCache = DataStore.dnsDisableCache,
@@ -96,19 +99,19 @@ object SettingsMapper {
             dnsPersistCache = DataStore.dnsPersistCache,
             dnsReverseMapping = DataStore.dnsReverseMapping,
             dnsObject = DataStore.dnsObject,
-            dnsFinalOut = DataStore.dnsFinalOut,
+            dnsFinalOut = routeDns.dnsFinalOut,
             dnsOptimistic = DataStore.dnsOptimistic,
             dnsOptimisticTimeout = DataStore.dnsOptimisticTimeout,
             dnsQueryTimeout = DataStore.dnsQueryTimeout,
             dnsUseHosts = DataStore.dnsUseHosts,
             dnsPredefinedEnable = DataStore.dnsPredefinedEnable,
             dnsPredefinedRules = DataStore.dnsPredefinedRules,
-            fakeDns = DataStore.fakedns,
-            fakeIpDisableIpv6 = DataStore.fakeipDisableIpv6,
+            fakeDns = routeDns.fakeDns,
+            fakeIpDisableIpv6 = routeDns.fakeIpDisableIpv6,
             resolveDomainStrategy = DataStore.domainStrategy,
             rulesetMirror = DataStore.rulesetMirror,
             adblockEnable = DataStore.adblockEnable,
-            enableDnsRouting = DataStore.enableDnsRouting,
+            enableDnsRouting = routeDns.enableDnsRouting,
             enableTunRouting = DataStore.enableTunRouting,
             blockQuic = DataStore.blockQuic,
             trafficStats = DataStore.enableStats,
@@ -137,8 +140,11 @@ object SettingsMapper {
         )
     }
 
-    /** DataStore -> BuildContext: the preset globals and the domain strategies. TLS spoof is never mapped (decision D8). */
-    fun buildContext(): BuildContext = BuildContext(
+    /**
+     * DataStore -> BuildContext: the preset globals and the domain strategies, with direct_dns_disable_ipv6 from [dns],
+     * the routing profile's own DNS, when given. TLS spoof is never mapped (decision D8).
+     */
+    fun buildContext(dns: RouteDns? = null): BuildContext = BuildContext(
         skipCert = DataStore.skipCert,
         utlsFingerprint = DataStore.utlsFingerprint,
         muxDefaultOn = DataStore.muxDefaultOn,
@@ -160,8 +166,9 @@ object SettingsMapper {
         xrayMuxConcurrency = DataStore.xrayMuxConcurrency,
         xrayMuxDefaultOn = DataStore.xrayMuxDefaultOn,
         defaultDomainStrategy = DataStore.outboundDomainStrategy,
-        directDnsDisableIpv6 = DataStore.directDnsDisableIpv6,
+        directDnsDisableIpv6 = dns?.directDnsDisableIpv6 ?: DataStore.directDnsDisableIpv6,
         useDnsObject = DataStore.useDnsObject,
+        routeOwnsDns = dns != null,
     )
 
     /** xray_vless_preference for link and subscription imports (utils.cpp:50-70). */

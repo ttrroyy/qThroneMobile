@@ -44,14 +44,16 @@ data class BuildContext(
     val buildingTestConfig: Boolean = false,
     /** SettingsRepo.h:199 default_domain_strategy — xrayStreamSetting.cpp:282-299. */
     val defaultDomainStrategy: String = "",
-    /** SettingsRepo.h:182 direct_dns_disable_ipv6. */
+    /** direct_dns_disable_ipv6 of RouteDns::Current: the routing profile's own DNS, else SettingsRepo.h:182. */
     val directDnsDisableIpv6: Boolean = false,
     /** SettingsRepo.h:189 use_dns_object. */
     val useDnsObject: Boolean = false,
+    /** generate.cpp BuildContext::routeOwnsDns: the routing profile has its own DNS, which also beats [useDnsObject]. */
+    val routeOwnsDns: Boolean = false,
 ) {
-    /** getDirectDomainStrategy (xrayStreamSetting.cpp:282-287). */
+    /** getDirectDomainStrategy (xrayStreamSetting.cpp:1342-1349). */
     fun directDomainStrategy(): String =
-        if (directDnsDisableIpv6 && !useDnsObject) "ipv4_only" else defaultDomainStrategy
+        if (directDnsDisableIpv6 && (routeOwnsDns || !useDnsObject)) "ipv4_only" else defaultDomainStrategy
 
     /** getXrayOutboundDomainStrategy (xrayStreamSetting.cpp:289-299). */
     fun xrayOutboundDomainStrategy(): String = when (directDomainStrategy()) {

@@ -3,6 +3,7 @@ package app.qthrone.mobile.database
 import androidx.room.InvalidationTracker
 import app.qthrone.mobile.ktx.Logs
 import app.qthrone.mobile.ktx.runOnIoDispatcher
+import app.qthrone.mobile.route.RouteDns
 import app.qthrone.mobile.route.RouteProfile
 import app.qthrone.mobile.route.RuleSetCatalog
 import java.io.File
@@ -29,6 +30,12 @@ object RouteManager {
     fun get(id: Long): RouteProfile? = SagerDatabase.instance.runInTransaction(Callable {
         dao.getProfile(id)?.toModel(dao.rulesOf(id))
     })
+
+    /**
+     * GetCustomDns (RoutesRepo.cpp): the profile's ActiveDns without loading its rules; null when it follows the
+     * global DNS settings or does not exist.
+     */
+    fun customDns(id: Long): RouteDns? = RouteProfileEntity.dnsFromJson(dao.customDnsJson(id))
 
     /**
      * The profile named by current_route_id; a missing or raw one falls back to the first profile Android can use

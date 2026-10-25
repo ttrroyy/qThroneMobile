@@ -91,7 +91,7 @@ data class GeneratorSettings(
     /** dns_persist_cache: experimental.cache_file.store_fakeip / store_dns. */
     val dnsPersistCache: Boolean = false,
     val dnsReverseMapping: Boolean = false,
-    /** dns_object: the raw dns section used when BuildContext.useDnsObject is set (never for tests). */
+    /** dns_object: the raw dns section used when BuildContext.useDnsObject is set without routeOwnsDns (not in tests). */
     val dnsObject: String = "",
     /** dns_final_out: "remote" or "direct". */
     val dnsFinalOut: String = "remote",

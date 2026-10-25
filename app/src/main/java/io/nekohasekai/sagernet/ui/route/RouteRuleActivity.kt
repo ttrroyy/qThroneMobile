@@ -59,7 +59,7 @@ class RouteRuleActivity : ThemedActivity(R.layout.layout_config_settings), OnPre
 
         private val TEXT_KEYS = listOf(
             "name", "action", "outbound_id", "reject_method", "strategy", "network", "protocol", "ip_version",
-            "override_address", "override_port",
+            "override_address", "override_port", "tls_fragment_fallback_delay",
         )
         private val LIST_KEYS = listOf(
             "domain_suffix", "domain", "ip_cidr", "rule_set", "package_name", "network_type", "domain_keyword",
@@ -68,13 +68,15 @@ class RouteRuleActivity : ThemedActivity(R.layout.layout_config_settings), OnPre
         )
         private val BOOL_KEYS = listOf(
             "sniff_override_dest", "ip_is_private", "source_ip_is_private", "invert", "no_drop", "network_is_expensive",
+            "tls_fragment", "tls_record_fragment",
         )
 
         /** The members inside the collapsed group. */
         private val ADVANCED_KEYS = listOf(
             "domain_keyword", "domain_regex", "ip_is_private", "source_ip_cidr", "source_ip_is_private", "port",
             "port_range", "source_port", "source_port_range", "network", "protocol", "ip_version", "inbound", "invert",
-            "override_address", "override_port", "no_drop", "package_name_regex", "process_name", "process_path",
+            "override_address", "override_port", "tls_fragment", "tls_fragment_fallback_delay", "tls_record_fragment",
+            "no_drop", "package_name_regex", "process_name", "process_path",
             "process_path_regex", "network_is_expensive", "wifi_ssid", "wifi_bssid",
         )
 
@@ -418,7 +420,11 @@ class RouteRuleActivity : ThemedActivity(R.layout.layout_config_settings), OnPre
             setVisible(effective == "reject", "reject_method", "no_drop")
             setVisible(effective == "resolve", "strategy")
             setVisible(effective == "sniff", "sniff_override_dest")
-            setVisible(routes || effective == "route-options", "override_address", "override_port")
+            setVisible(routes || effective == "route-options", "override_address", "override_port", "tls_fragment", "tls_record_fragment")
+            val fragment = store.getBoolean("tls_fragment", false)
+            setVisible((routes || effective == "route-options") && fragment, "tls_fragment_fallback_delay")
+            // The core takes one fragment kind at a time.
+            findPreference<Preference>("tls_record_fragment")?.isEnabled = !fragment
             for (key in DESKTOP_ONLY_KEYS) findPreference<Preference>(key)?.isVisible = !store.getString(key).isNullOrBlank()
 
             val set = ADVANCED_KEYS.count { key ->

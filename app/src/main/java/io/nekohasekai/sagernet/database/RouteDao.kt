@@ -20,6 +20,10 @@ interface RouteDao {
     @Query("SELECT COUNT(*) FROM route_profiles")
     fun count(): Long
 
+    /** The profile's dns_json while custom_dns is on; null when it is off or the profile does not exist. */
+    @Query("SELECT dns_json FROM route_profiles WHERE id = :id AND custom_dns != 0")
+    fun customDnsJson(id: Long): String?
+
     @Query("SELECT * FROM route_rules ORDER BY route_profile_id, rule_order")
     fun allRules(): List<RouteRuleEntity>
 

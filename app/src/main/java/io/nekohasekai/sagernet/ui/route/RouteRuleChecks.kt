@@ -123,7 +123,8 @@ internal object RouteRuleChecks {
     fun hasConditions(rule: RouteRule): Boolean = rule.nonDefaultAttributes().any { it !in ACTION_OPTIONS }
 
     private val ACTION_OPTIONS = setOf(
-        "invert", "override_address", "override_port", "tls_spoof", "tls_spoof_method", "reject_method", "no_drop",
+        "invert", "override_address", "override_port", "tls_fragment", "tls_fragment_fallback_delay", "tls_record_fragment",
+        "tls_spoof", "tls_spoof_method", "reject_method", "no_drop",
         "sniff_override_dest", "strategy",
     )
 }

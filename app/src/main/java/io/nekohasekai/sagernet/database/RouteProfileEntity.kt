@@ -3,6 +3,8 @@ package app.qthrone.mobile.database
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import app.qthrone.mobile.outbound.json.JsonInput
+import app.qthrone.mobile.route.RouteDns
 import app.qthrone.mobile.route.RouteProfile
 import app.qthrone.mobile.route.RouteRule
 
@@ -25,8 +27,12 @@ data class RouteProfileEntity(
     /** Compact JSON int array. */
     @ColumnInfo(name = "endpoint_profile_ids", defaultValue = "[]") var endpointProfileIds: String = "[]",
     @ColumnInfo(name = "inner_hop_endpoint_ids", defaultValue = "[]") var innerHopEndpointIds: String = "[]",
+    /** The profile's RouteDns as Qt-compact JSON, '' when it has none. */
+    @ColumnInfo(name = "dns_json", defaultValue = "") var dnsJson: String = "",
+    @ColumnInfo(name = "custom_dns", defaultValue = "0") var customDns: Boolean = false,
 ) {
 
+    /** custom_dns only counts when dns_json holds an object (RoutesRepo.cpp routeProfileFromJson). */
     fun toModel(rules: List<RouteRuleEntity>): RouteProfile = RouteProfile().also {
         it.id = id
         it.name = name
@@ -40,6 +46,8 @@ data class RouteProfileEntity(
         it.prevent_modifications = preventModifications
         it.endpoint_profile_ids = endpointProfileIds
         it.inner_hop_endpoint_ids = innerHopEndpointIds
+        it.dns = dnsFromJson(dnsJson)
+        it.custom_dns = customDns && it.dns != null
         it.rules = rules.sortedBy { r -> r.ruleOrder }.mapTo(ArrayList<RouteRule>()) { r -> r.toModel() }
     }
 
@@ -59,6 +67,14 @@ data class RouteProfileEntity(
             preventModifications = p.prevent_modifications,
             endpointProfileIds = p.endpoint_profile_ids,
             innerHopEndpointIds = p.inner_hop_endpoint_ids,
+            dnsJson = p.dns?.toJson()?.toCompact() ?: "",
+            customDns = p.custom_dns,
         )
+
+        /** A stored dns_json; anything but a JSON object reads as no DNS. */
+        fun dnsFromJson(text: String?): RouteDns? {
+            if (text.isNullOrBlank()) return null
+            return JsonInput.parseObjectOrNull(text)?.let(RouteDns::fromJson)
+        }
     }
 }

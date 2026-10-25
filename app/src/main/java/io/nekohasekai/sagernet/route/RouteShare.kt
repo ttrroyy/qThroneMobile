@@ -22,8 +22,9 @@ object RouteShare {
         "domain_keyword", "domain_regex", "source_ip_cidr", "source_ip_is_private", "ip_cidr", "ip_is_private",
         "source_port", "source_port_range", "port", "port_range", "process_name", "process_path", "process_path_regex",
         "package_name", "package_name_regex", "network_type", "network_is_expensive", "wifi_ssid", "wifi_bssid",
-        "rule_set", "invert", "method", "reject_method", "no_drop", "override_address", "override_port", "tls_spoof",
-        "tls_spoof_method", "override_destination", "strategy", "sniffers",
+        "rule_set", "invert", "method", "reject_method", "no_drop", "override_address", "override_port", "tls_fragment",
+        "tls_fragment_fallback_delay", "tls_record_fragment", "tls_spoof", "tls_spoof_method", "override_destination",
+        "strategy", "sniffers", "disabled",
     )
 
     class Imported(val profile: RouteProfile?, val fatal: String, val warnings: List<String>, val legacyArray: Boolean)
@@ -36,6 +37,7 @@ object RouteShare {
         root["kind"] = KIND
         root["v"] = 1
         root["name"] = p.name
+        p.activeDns()?.let { root["dns"] = it.toJson() }
         root["default_outbound"] = OutboundIds.toName(p.default_outbound_id)
         val rules = JsonArray()
         for (rule in p.rules) {
@@ -46,6 +48,7 @@ object RouteShare {
             if (obj.isEmpty()) continue
             obj["name"] = rule.name
             obj["type"] = type.token
+            if (rule.disabled) obj["disabled"] = true
             rules.add(obj)
         }
         root["rules"] = rules
@@ -141,7 +144,21 @@ object RouteShare {
             rule.name = name.ifEmpty { "rule_" + fallbackNum++ }
             profile.rules.add(rule)
         }
+        adoptDns(profile, root, warnings)
         return Imported(profile, "", warnings, false)
+    }
+
+    /** A usable root `dns` object becomes the profile's own DNS; another is dropped with a warning. */
+    private fun adoptDns(profile: RouteProfile, root: JsonObject, warnings: MutableList<String>) {
+        if (!root.isObject("dns")) return
+        val dns = RouteDns.fromJson(root.obj("dns"))
+        val problem = dns.problem()
+        if (problem.isNotEmpty()) {
+            warnings.add("DNS settings dropped: $problem")
+            return
+        }
+        profile.custom_dns = true
+        profile.dns = dns
     }
 
     /**
@@ -269,6 +286,10 @@ object RouteShare {
             "no_drop" -> rule.no_drop = scalar == "true"
             "override_address" -> rule.override_address = scalar
             "override_port" -> rule.override_port = scalar
+            "disabled" -> rule.disabled = scalar == "true"
+            "tls_fragment" -> rule.tls_fragment = scalar == "true"
+            "tls_fragment_fallback_delay" -> rule.tls_fragment_fallback_delay = scalar
+            "tls_record_fragment" -> rule.tls_record_fragment = scalar == "true"
             "tls_spoof" -> rule.tls_spoof = scalar
             "tls_spoof_method" -> rule.tls_spoof_method = scalar
             "override_destination" -> rule.sniff_override_dest = scalar == "true"

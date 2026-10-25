@@ -40,8 +40,9 @@ class Tuic : Outbound("tuic") {
         if (!url.isValid) return false
         val q = url.query
         super.parseFromLink(url)
-        uuid = url.userName
-        password = url.password
+        val (linkUuid, linkPassword) = url.userInfoPair()
+        uuid = linkUuid
+        password = linkPassword
         if (q.has("congestion_control")) congestion_control = q.value("congestion_control")
         if (q.has("udp_relay_mode")) udp_relay_mode = q.value("udp_relay_mode")
         if (q.has("udp_over_stream")) udp_over_stream = q.value("udp_over_stream") == "true"

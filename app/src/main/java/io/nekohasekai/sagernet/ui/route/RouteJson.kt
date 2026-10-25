@@ -1,6 +1,8 @@
 package app.qthrone.mobile.ui.route
 
+import app.qthrone.mobile.outbound.json.JsonInput
 import app.qthrone.mobile.route.OutboundIds
+import app.qthrone.mobile.route.RouteDns
 import app.qthrone.mobile.route.RouteProfile
 import app.qthrone.mobile.route.RouteRule
 import org.json.JSONArray
@@ -21,6 +23,8 @@ internal object RouteJson {
         put("remote_url", p.remote_url)
         put("auto_update", p.auto_update)
         put("remote_last_update", p.remote_last_update)
+        put("custom_dns", p.custom_dns)
+        p.dns?.let { put("dns", JSONObject(it.toJson().toCompact())) }
         put("rules", JSONArray().apply { for (r in p.rules) put(ruleObject(r)) })
     }.toString()
 
@@ -34,6 +38,8 @@ internal object RouteJson {
             remote_url = obj.optString("remote_url")
             auto_update = obj.optBoolean("auto_update")
             remote_last_update = obj.optLong("remote_last_update")
+            dns = obj.optJSONObject("dns")?.let { RouteDns.fromJson(JsonInput.fromOrgJson(it)) }
+            custom_dns = obj.optBoolean("custom_dns") && dns != null
             val arr = obj.optJSONArray("rules") ?: JSONArray()
             for (i in 0 until arr.length()) rules.add(ruleFrom(arr.optJSONObject(i) ?: continue))
         }
@@ -42,6 +48,7 @@ internal object RouteJson {
     private fun ruleObject(r: RouteRule) = JSONObject().apply {
         put("name", r.name)
         put("type", r.type)
+        put("disabled", r.disabled)
         put("action", r.action)
         put("outbound_id", r.outbound_id)
         for (f in RouteRule.STRING_FIELDS) put(f.name, f.get(r))
@@ -52,6 +59,7 @@ internal object RouteJson {
     private fun ruleFrom(obj: JSONObject) = RouteRule().apply {
         name = obj.optString("name")
         type = obj.optInt("type")
+        disabled = obj.optBoolean("disabled")
         action = obj.optString("action", "route")
         outbound_id = obj.optLong("outbound_id", OutboundIds.DIRECT)
         for (f in RouteRule.STRING_FIELDS) f.set(this, obj.optString(f.name))

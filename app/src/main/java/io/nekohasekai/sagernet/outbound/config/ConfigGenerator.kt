@@ -133,10 +133,12 @@ class ConfigGenerator @JvmOverloads constructor(
     }
 
     /**
-     * The profile the build works on: a copy (the desktop copies it too, :1964), with the Linux-only `bypass` action
-     * turned into `route` to the same outbound (D12), so it also feeds the DNS and tun lists like any route rule.
+     * The profile the build works on: a copy (the desktop copies it too, :1964) without its disabled rules, which the
+     * desktop skips in every rule walk (23b5bfcb), and with the Linux-only `bypass` action turned into `route` to the
+     * same outbound (D12), so it also feeds the DNS and tun lists like any route rule.
      */
     private fun routeProfileForBuild(profile: RouteProfile): RouteProfile = profile.copy().also { copy ->
+        copy.rules.removeAll { it.disabled }
         for (rule in copy.rules) if (rule.action == "bypass") rule.action = "route"
     }
 
@@ -774,9 +776,12 @@ class ConfigGenerator @JvmOverloads constructor(
         if (warp.isEndpoint()) state.endpoints.add(obj) else state.outbounds.add(obj)
     }
 
-    /** buildDNSSection (:873-1114) without the Tailscale, tunnel DNS, extra-core and DNS-server hijack rules. */
+    /**
+     * buildDNSSection (:873-1114) without the Tailscale, tunnel DNS, extra-core and DNS-server hijack rules. The DNS
+     * values in [settings] are RouteDns::Current's; a routing profile with its own DNS also overrides the DNS object.
+     */
     private fun buildDnsSection(state: BuildState, useDnsObj: Boolean) {
-        if (buildContext.useDnsObject && useDnsObj) {
+        if (!buildContext.routeOwnsDns && buildContext.useDnsObject && useDnsObj) {
             val dns = JsonInput.parseObject(settings.dnsObject)
             if (settings.deferRuleSets && dns.isArray("rules")) {
                 // As in appendDnsRoutingRules; a whole rule goes, since dropping only its rule_set would widen it.

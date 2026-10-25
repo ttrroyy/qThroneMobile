@@ -22,7 +22,7 @@ import java.util.concurrent.Executors
         ProxyGroup::class, ProxyEntity::class, RouteProfileEntity::class, RouteRuleEntity::class,
         SettingEntry::class, MarkerEntity::class,
     ],
-    version = 15,
+    version = 16,
     autoMigrations = [
         AutoMigration(from = 8, to = 9),
         AutoMigration(from = 12, to = 13),
@@ -144,6 +144,18 @@ abstract class SagerDatabase : RoomDatabase() {
             }
         }
 
+        /** 15 -> 16: rules can be switched off and carry route-level TLS fragment; routing profiles get their own DNS. */
+        val MIGRATION_15_16: Migration = object : Migration(15, 16) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `route_rules` ADD COLUMN `tls_fragment` INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE `route_rules` ADD COLUMN `tls_fragment_fallback_delay` TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE `route_rules` ADD COLUMN `tls_record_fragment` INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE `route_rules` ADD COLUMN `disabled` INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE `route_profiles` ADD COLUMN `dns_json` TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE `route_profiles` ADD COLUMN `custom_dns` INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         /** Configs.cpp:35-39: a new database starts with an ordinary group named "Default". */
         private val callback = object : RoomDatabase.Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
@@ -199,7 +211,7 @@ abstract class SagerDatabase : RoomDatabase() {
                             .name(config.name).callback(safe).noBackupDirectory(config.useNoBackupDirectory).build()
                     )
                 }
-                .addMigrations(MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12)
+                .addMigrations(MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_15_16)
                 .addCallback(callback)
                 .setJournalMode(JournalMode.TRUNCATE)
                 .allowMainThreadQueries()

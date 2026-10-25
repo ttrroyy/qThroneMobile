@@ -44,15 +44,17 @@ class Shadowsocks : Outbound("shadowsocks") {
         // shadowsocks.cpp:23 re-parses url.toString(), which round-trips to the same components
         super.parseFromLink(url)
 
-        if (url.password.isEmpty()) {
+        // a percent-encoded "method%3Apassword" (SIP002 plain form) is split after decoding; base64 never holds a ':'
+        val (linkMethod, linkPassword) = url.userInfoPair()
+        if (linkPassword.isEmpty()) {
             // traditional format: "method:password" base64 in the username (url-safe alphabet, shadowsocks.cpp:27)
             val methodPassword = Base64Strict.decodeToString(url.userName, urlSafe = true)
             if (methodPassword.isEmpty()) return false
             method = QtStrings.substrBefore(methodPassword, ":")
             password = QtStrings.substrAfter(methodPassword, ":")
         } else {
-            method = url.userName
-            password = url.password
+            method = linkMethod
+            password = linkPassword
         }
 
         plugin = q.valueFully("plugin").replace("simple-obfs;", "obfs-local;")

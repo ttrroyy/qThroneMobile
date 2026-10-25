@@ -369,8 +369,7 @@ object ProfileImport {
                 for (node in proxies) {
                     val proxy = ClashProxy(node)
                     val profileType = OutboundFactory.typeForClash(proxy.type) ?: continue
-                    val encryption = proxy.string("encryption")
-                    val outbound = if (proxy.type == "vless" && (proxy.string("network") == "xhttp" || (encryption.isNotEmpty() && encryption != "none"))) {
+                    val outbound = if (clashUsesXrayVless(proxy)) {
                         OutboundFactory.newByType("xrayvless")
                     } else {
                         OutboundFactory.newByType(profileType)
@@ -386,6 +385,25 @@ object ProfileImport {
             } catch (e: Exception) {
                 warn("YAML Exception", e.message ?: "Failed to parse the Clash configuration.")
             }
+        }
+
+        /** sing-box VLESS rejects flows other than vision; xhttp and encryption also need the Xray core. */
+        private fun clashUsesXrayVless(proxy: ClashProxy): Boolean {
+            if (proxy.type != "vless") return false
+            if (preference == OutboundFactory.XrayVlessPreference.AllVLESS) return true
+            val flow = proxy.string("flow").trim().lowercase()
+            val singBoxFlow = flow.isEmpty() || flow == "none" || flow == "xtls-rprx-vision"
+            val encryption = proxy.string("encryption")
+            return proxy.string("network") == "xhttp" || (encryption.isNotEmpty() && encryption != "none") || !singBoxFlow ||
+                clashRealityOnXray(proxy)
+        }
+
+        /** The links' REALITY preference, limited to the networks Xray runs REALITY over; sing-box also carries ws. */
+        private fun clashRealityOnXray(proxy: ClashProxy): Boolean {
+            if (!proxy.bool("tls") || proxy.obj("reality-opts").string("public-key").isEmpty()) return false
+            if (preference == OutboundFactory.XrayVlessPreference.XhttpOnly) return false
+            val network = proxy.string("network")
+            return network.isEmpty() || network == "tcp" || network == "grpc"
         }
 
         /** Parser::wireguardFile (SubscriptionParser.cpp:541-548). */

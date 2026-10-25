@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="route_rule_enabled">Правило включено</string>
+    <string name="route_rule_disabled">Выключено: остаётся в профиле, но не используется</string>
+    <string name="route_dns_title">DNS</string>
+    <string name="route_dns_global">Общие настройки DNS</string>
+    <string name="route_dns_global_sum">Серверы из Настройки › DNS</string>
+    <string name="route_dns_custom">Свои настройки DNS</string>
+    <string name="route_dns_custom_sum">Эти серверы заменяют общие, пока выбран этот профиль маршрутизации</string>
+    <string name="route_dns_object_note">В Настройки › DNS включён свой объект DNS; при своих серверах здесь он к этому профилю не применяется</string>
+    <string name="route_dns_scope_note">Hosts, заданные ответы, базовый DNS и расширенные настройки DNS всегда берутся из Настройки › DNS. Маршрутизация подписки сохраняет свой DNS.</string>
+    <string name="route_dns_own_servers">Профиль использует свои DNS-серверы: удалённый %1$s, прямой %2$s.</string>
+    <string name="dns_route_override_note">Текущий профиль маршрутизации «%1$s» использует свои DNS-серверы, поэтому серверы и поведение ниже действуют только для других профилей</string>
+    <string name="route_dns_global_servers">Удалённый %1$s, прямой %2$s</string>
+    <string name="dns_server_suggestions">Недавние и предложенные серверы</string>
+    <string name="route_dns_server_empty">Укажите сервер</string>
+    <string name="route_rule_tls_fragment">Фрагментация TLS</string>
+    <string name="route_rule_tls_fragment_sum">Делить TLS-рукопожатие на несколько TCP-сегментов для подходящих соединений</string>
+    <string name="route_rule_tls_fragment_fallback_delay">Задержка фрагментации</string>
+    <string name="route_rule_tls_record_fragment">Фрагментация TLS-записей</string>
+    <string name="route_rule_tls_record_fragment_sum">Делить TLS-рукопожатие на несколько TLS-записей; не действует при включённой фрагментации TLS</string>
+    <string name="route_rule_turn_off">Выключить</string>
+    <string name="route_rule_turn_on">Включить</string>
+    <string name="route_rule_off_mark">выключено</string>
+</resources>

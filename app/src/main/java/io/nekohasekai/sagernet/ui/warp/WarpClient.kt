@@ -6,6 +6,7 @@ import app.qthrone.mobile.database.DataStore
 import app.qthrone.mobile.ktx.LOCALHOST
 import app.qthrone.mobile.ktx.Logs
 import app.qthrone.mobile.ktx.app
+import app.qthrone.mobile.ktx.appRequestsNeedProxy
 import app.qthrone.mobile.ktx.appRequestsViaProxy
 import app.qthrone.mobile.outbound.json.JsonInput
 import app.qthrone.mobile.outbound.link.LinkCodec
@@ -83,7 +84,11 @@ object WarpClient {
      */
     fun proxy(): String {
         if (!appRequestsViaProxy()) return ""
-        if (!DataStore.serviceState.connected) error(app.getString(R.string.warp_proxy_not_started))
+        if (!DataStore.serviceState.connected) {
+            // only net_use_proxy needs a running profile; the proxy service mode goes direct like httpGet
+            if (appRequestsNeedProxy()) error(app.getString(R.string.warp_proxy_not_started))
+            return ""
+        }
         if (DataStore.mixedInboundDisabled) return ""
         var host = DataStore.inboundAddress.let { if (it == "::") LOCALHOST else it }
         if (host.contains(':')) host = "[$host]"

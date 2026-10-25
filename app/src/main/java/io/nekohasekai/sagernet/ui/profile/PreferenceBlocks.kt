@@ -243,6 +243,8 @@ object TlsBlock {
         echInputs("$prefix.ech")
         if (mustTls) {
             findPreference<Preference>(enabledKey)?.isVisible = false
+            // a new profile starts with TLS off, and with the switch hidden the block would be dropped on save
+            if (!DataStore.profileCacheStore.getBoolean(enabledKey, false)) DataStore.profileCacheStore.putBoolean(enabledKey, true)
         } else {
             onSwitch(enabledKey) {
                 enabled = it

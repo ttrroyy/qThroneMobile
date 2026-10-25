@@ -197,6 +197,9 @@ object SettingsRegistry {
     @JvmField val REMOTE_DNS_DISABLE_IPV6 = bool("remote_dns_disable_ipv6", false)
     @JvmField val DIRECT_DNS = string("direct_dns", "localhost")
     @JvmField val DIRECT_DNS_DISABLE_IPV6 = bool("direct_dns_disable_ipv6", false)
+    /** Servers typed into the remote / direct DNS fields, newest first (DnsServerHistory). */
+    @JvmField val REMOTE_DNS_HISTORY = stringList("remote_dns_history", emptyList())
+    @JvmField val DIRECT_DNS_HISTORY = stringList("direct_dns_history", emptyList())
     @JvmField val CORE_BOX_UNDERLYING_DNS = string("core_box_underlying_dns", "")
     @JvmField val DNS_FINAL_OUT = oneOf("dns_final_out", "remote", DNS_FINAL_OUTS)
     @JvmField val ENABLE_DNS_ROUTING = bool("enable_dns_routing", true)

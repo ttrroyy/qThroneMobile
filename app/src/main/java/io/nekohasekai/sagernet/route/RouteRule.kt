@@ -17,6 +17,8 @@ import kotlin.reflect.KMutableProperty1
 class RouteRule {
     @JvmField var name: String = ""
     @JvmField var type: Int = RuleType.CUSTOM.id
+    /** Kept in the profile but left out of the generated config. */
+    @JvmField var disabled: Boolean = false
     @JvmField var ip_version: String = ""
     @JvmField var network: String = ""
     @JvmField var protocol: String = ""
@@ -53,6 +55,9 @@ class RouteRule {
     @JvmField var no_drop: Boolean = false
     @JvmField var override_address: String = ""
     @JvmField var override_port: String = ""
+    @JvmField var tls_fragment: Boolean = false
+    @JvmField var tls_fragment_fallback_delay: String = ""
+    @JvmField var tls_record_fragment: Boolean = false
     @JvmField var tls_spoof: String = ""
     @JvmField var tls_spoof_method: String = ""
     @JvmField var sniffers: MutableList<String> = mutableListOf()
@@ -63,6 +68,7 @@ class RouteRule {
         val c = RouteRule()
         c.name = name
         c.type = type
+        c.disabled = disabled
         for (f in STRING_FIELDS) f.set(c, f.get(this))
         for (f in LIST_FIELDS) f.set(c, ArrayList(f.get(this)))
         for (f in BOOL_FIELDS) f.set(c, f.get(this))
@@ -134,13 +140,20 @@ class RouteRule {
         val act = effectiveAction()
         obj["action"] = act
         if (act == "reject") {
-            if (reject_method.isNotBlank()) obj["reject_method"] = reject_method.trim()
-            if (no_drop) obj["no_drop"] = true
+            // the core reads `method`, fails on an unknown one and on no_drop alongside drop
+            val method = reject_method.trim().lowercase()
+            if (method in REJECT_METHODS) obj["method"] = method
+            if (no_drop && method != "drop") obj["no_drop"] = true
         }
         if (act == "route" || act == "route-options" || act == "bypass") {
             if (override_address.isNotBlank()) obj["override_address"] = override_address.trim()
             val port = QtStrings.toInt(override_port)
             if (port > 0) obj["override_port"] = port
+            if (tls_fragment) {
+                obj["tls_fragment"] = true
+                // the core reads the delay only alongside tls_fragment
+                if (tls_fragment_fallback_delay.isNotBlank()) obj["tls_fragment_fallback_delay"] = tls_fragment_fallback_delay.trim()
+            } else if (tls_record_fragment) obj["tls_record_fragment"] = true
             if (tls_spoof.isNotBlank()) {
                 obj["tls_spoof"] = tls_spoof.trim()
                 if (tls_spoof_method.isNotBlank()) obj["tls_spoof_method"] = tls_spoof_method.trim()
@@ -274,6 +287,9 @@ class RouteRule {
         b("invert", invert)
         s("override_address", override_address)
         if (QtStrings.toInt(override_port) > 0) out.add("override_port")
+        b("tls_fragment", tls_fragment)
+        s("tls_fragment_fallback_delay", tls_fragment_fallback_delay)
+        b("tls_record_fragment", tls_record_fragment)
         s("tls_spoof", tls_spoof)
         s("tls_spoof_method", tls_spoof_method)
         s("reject_method", reject_method)
@@ -318,8 +334,8 @@ class RouteRule {
         /** Scalar string members besides name and action. */
         val STRING_FIELDS: List<KMutableProperty1<RouteRule, String>> = listOf(
             RouteRule::ip_version, RouteRule::network, RouteRule::protocol, RouteRule::reject_method,
-            RouteRule::override_address, RouteRule::override_port, RouteRule::tls_spoof,
-            RouteRule::tls_spoof_method, RouteRule::strategy,
+            RouteRule::override_address, RouteRule::override_port, RouteRule::tls_fragment_fallback_delay,
+            RouteRule::tls_spoof, RouteRule::tls_spoof_method, RouteRule::strategy,
         )
 
         /** List members; each is the desktop column `<name>_json`. */
@@ -334,7 +350,8 @@ class RouteRule {
 
         val BOOL_FIELDS: List<KMutableProperty1<RouteRule, Boolean>> = listOf(
             RouteRule::source_ip_is_private, RouteRule::ip_is_private, RouteRule::invert, RouteRule::no_drop,
-            RouteRule::sniff_override_dest, RouteRule::network_is_expensive,
+            RouteRule::sniff_override_dest, RouteRule::network_is_expensive, RouteRule::tls_fragment,
+            RouteRule::tls_record_fragment,
         )
 
         /** The package_name entry for connections whose app is not identified (no owner, or a uid without a package). */
@@ -345,9 +362,13 @@ class RouteRule {
 
         /** Rule JSON keys that configure the action rather than narrow the match. */
         private val ACTION_KEYS = setOf(
-            "action", "outbound", "reject_method", "no_drop", "override_address", "override_port", "tls_spoof",
-            "tls_spoof_method", "override_destination", "strategy",
+            "action", "outbound", "method", "no_drop", "override_address", "override_port", "tls_fragment",
+            "tls_fragment_fallback_delay", "tls_record_fragment", "tls_spoof", "tls_spoof_method",
+            "override_destination", "strategy",
         )
+
+        /** The reject methods the core accepts. */
+        private val REJECT_METHODS = listOf("default", "drop", "reply")
 
         private val ADDRESS_ATTRIBUTES = setOf("domain", "domain_suffix", "domain_keyword", "domain_regex", "rule_set", "ip_cidr")
         private val PROCESS_ATTRIBUTES = setOf("process_path", "process_name")

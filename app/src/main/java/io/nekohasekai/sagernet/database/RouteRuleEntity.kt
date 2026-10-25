@@ -68,6 +68,10 @@ data class RouteRuleEntity(
     @ColumnInfo(name = "network_type_json", defaultValue = "[]") var networkTypeJson: String = "[]",
     @ColumnInfo(name = "network_is_expensive", defaultValue = "0") var networkIsExpensive: Boolean = false,
     @ColumnInfo(name = "package_name_regex_json", defaultValue = "[]") var packageNameRegexJson: String = "[]",
+    @ColumnInfo(name = "tls_fragment", defaultValue = "0") var tlsFragment: Boolean = false,
+    @ColumnInfo(name = "tls_fragment_fallback_delay", defaultValue = "") var tlsFragmentFallbackDelay: String = "",
+    @ColumnInfo(name = "tls_record_fragment", defaultValue = "0") var tlsRecordFragment: Boolean = false,
+    @ColumnInfo(name = "disabled", defaultValue = "0") var disabled: Boolean = false,
 ) {
 
     fun toModel(): RouteRule = RouteRule().also {
@@ -111,6 +115,10 @@ data class RouteRuleEntity(
         it.network_type = listFromJson(networkTypeJson)
         it.network_is_expensive = networkIsExpensive
         it.package_name_regex = listFromJson(packageNameRegexJson)
+        it.tls_fragment = tlsFragment
+        it.tls_fragment_fallback_delay = tlsFragmentFallbackDelay
+        it.tls_record_fragment = tlsRecordFragment
+        it.disabled = disabled
     }
 
     companion object {
@@ -159,6 +167,10 @@ data class RouteRuleEntity(
             networkTypeJson = listToJson(r.network_type),
             networkIsExpensive = r.network_is_expensive,
             packageNameRegexJson = listToJson(r.package_name_regex),
+            tlsFragment = r.tls_fragment,
+            tlsFragmentFallbackDelay = r.tls_fragment_fallback_delay,
+            tlsRecordFragment = r.tls_record_fragment,
+            disabled = r.disabled,
         )
 
         /** QListStr2QJsonArray (Utils.cpp:110-118) written compact. */

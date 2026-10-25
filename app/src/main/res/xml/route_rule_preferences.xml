@@ -151,6 +151,18 @@
             app:title="@string/route_rule_override_port"
             app:useSimpleSummaryProvider="true" />
         <SwitchPreference
+            app:key="tls_fragment"
+            app:summary="@string/route_rule_tls_fragment_sum"
+            app:title="@string/route_rule_tls_fragment" />
+        <EditTextPreference
+            app:key="tls_fragment_fallback_delay"
+            app:title="@string/route_rule_tls_fragment_fallback_delay"
+            app:useSimpleSummaryProvider="true" />
+        <SwitchPreference
+            app:key="tls_record_fragment"
+            app:summary="@string/route_rule_tls_record_fragment_sum"
+            app:title="@string/route_rule_tls_record_fragment" />
+        <SwitchPreference
             app:key="no_drop"
             app:summary="@string/route_rule_no_drop_sum"
             app:title="@string/route_rule_no_drop" />

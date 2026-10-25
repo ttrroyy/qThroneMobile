@@ -29,8 +29,9 @@ class Juicity : Outbound("juicity") {
         val url = LinkParser.parse(link)
         if (!url.isValid) return false
         super.parseFromLink(url)
-        uuid = url.userName
-        password = url.password
+        val (linkUuid, linkPassword) = url.userInfoPair()
+        uuid = linkUuid
+        password = linkPassword
         tls.parseFromLink(url)
         tls.enabled = true
         if (serverPort == 0) serverPort = 443

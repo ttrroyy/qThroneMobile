@@ -553,7 +553,7 @@ class MainActivity : ThemedActivity(),
             val usesWifi = withContext(Dispatchers.IO) {
                 runCatching {
                     RouteManager.current().rules.any { rule ->
-                        rule.wifi_ssid.any { it.isNotBlank() } || rule.wifi_bssid.any { it.isNotBlank() }
+                        !rule.disabled && (rule.wifi_ssid.any { it.isNotBlank() } || rule.wifi_bssid.any { it.isNotBlank() })
                     }
                 }.getOrDefault(false)
             }

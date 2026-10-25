@@ -172,6 +172,11 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
         val copy = profile.copy().apply {
             this.id = 0L
             name = profile.name + " clone"
+            // an update replaces a remote profile's rules, so the clone is the local copy that keeps edits
+            is_remote = false
+            remote_url = ""
+            auto_update = false
+            remote_last_update = 0L
         }
         RouteManager.save(copy)
         onMainDispatcher {
@@ -262,11 +267,12 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
                 pasteDialog()
                 return@launch
             }
-            val prompt = if (imported.legacyArray) {
+            val what = if (imported.legacyArray) {
                 getString(R.string.route_import_clipboard_rules)
             } else {
                 getString(R.string.route_import_clipboard_profile, RouteImports.nameOf(activity, profile))
             }
+            val prompt = RouteImports.withDnsNote(activity, what, profile)
             MaterialAlertDialogBuilder(activity)
                 .setTitle(R.string.route_import_clipboard_title)
                 .setMessage(RouteImports.withNotes(activity, prompt, imported.warnings))
@@ -312,8 +318,9 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
                     return@launch
                 }
                 dialog.dismiss()
-                if (imported.warnings.isNotEmpty()) {
-                    RouteImports.showMessage(activity, R.string.route_import_warnings_title, imported.warnings.joinToString("\n"))
+                val notes = listOfNotNull(RouteImports.dnsNote(activity, profile), imported.warnings.joinToString("\n").ifEmpty { null })
+                if (notes.isNotEmpty()) {
+                    RouteImports.showMessage(activity, R.string.route_import_warnings_title, notes.joinToString("\n\n"))
                 }
                 applyImported(profile, imported.legacyArray)
             }

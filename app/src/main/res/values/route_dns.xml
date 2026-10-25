@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="route_rule_enabled">Rule enabled</string>
+    <string name="route_rule_disabled">Disabled: kept in the profile but not used</string>
+    <string name="route_dns_title">DNS</string>
+    <string name="route_dns_global">Global DNS settings</string>
+    <string name="route_dns_global_sum">The servers set in Settings › DNS</string>
+    <string name="route_dns_custom">Own DNS settings</string>
+    <string name="route_dns_custom_sum">These servers replace the global ones while this routing profile is in use</string>
+    <string name="route_dns_object_note">Settings › DNS uses a custom DNS object; with own servers here it does not apply to this profile</string>
+    <string name="route_dns_scope_note">Hosts, predefined answers, the underlying DNS and the advanced DNS settings always come from Settings › DNS. Subscription routing keeps its own DNS.</string>
+    <string name="route_dns_own_servers">It uses its own DNS servers: remote %1$s, direct %2$s.</string>
+    <string name="dns_route_override_note">The current routing profile \"%1$s\" uses its own DNS servers, so the servers and behaviour below apply only to other profiles</string>
+    <string name="route_dns_global_servers">Remote %1$s, direct %2$s</string>
+    <string name="dns_server_suggestions">Recent and suggested servers</string>
+    <string name="route_dns_server_empty">Enter a server</string>
+    <string name="route_rule_tls_fragment">TLS fragment</string>
+    <string name="route_rule_tls_fragment_sum">Split the TLS handshake into several TCP segments for matching connections</string>
+    <string name="route_rule_tls_fragment_fallback_delay">Fragment fallback delay</string>
+    <string name="route_rule_tls_record_fragment">TLS record fragment</string>
+    <string name="route_rule_tls_record_fragment_sum">Split the TLS handshake into several TLS records; ignored while TLS fragment is on</string>
+    <string name="route_rule_turn_off">Turn off</string>
+    <string name="route_rule_turn_on">Turn on</string>
+    <string name="route_rule_off_mark">off</string>
+</resources>

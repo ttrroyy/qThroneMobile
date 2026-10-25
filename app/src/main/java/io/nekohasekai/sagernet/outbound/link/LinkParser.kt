@@ -53,6 +53,15 @@ class ParsedLink(
 
     /** QUrl::port(defaultPort). */
     fun port(default: Int): Int = if (port >= 0) port else default
+
+    /**
+     * [userName] and [password] of a scheme whose user-info is always `id:secret`: the split happens at a literal ':'
+     * before decoding, so an encoded `%3A` leaves the whole pair in [userName] and [password] empty.
+     */
+    fun userInfoPair(): Pair<String, String> {
+        if (password.isNotEmpty() || !userName.contains(':')) return userName to password
+        return userName.substringBefore(':') to userName.substringAfter(':')
+    }
 }
 
 /** QUrl(link) in TolerantMode, reduced to what the profile parsers read. */

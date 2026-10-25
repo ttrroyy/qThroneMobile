@@ -23,6 +23,11 @@ class RouteProfile {
     /** Compact JSON int arrays of openvpn/openconnect profile ids. */
     @JvmField var endpoint_profile_ids: String = "[]"
     @JvmField var inner_hop_endpoint_ids: String = "[]"
+
+    /** Picks between the global DNS settings and [dns], which is kept either way once set. */
+    @JvmField var custom_dns: Boolean = false
+    @JvmField var dns: RouteDns? = null
+
     @JvmField var rules: MutableList<RouteRule> = mutableListOf()
 
     fun copy(): RouteProfile {
@@ -39,9 +44,14 @@ class RouteProfile {
         c.prevent_modifications = prevent_modifications
         c.endpoint_profile_ids = endpoint_profile_ids
         c.inner_hop_endpoint_ids = inner_hop_endpoint_ids
+        c.custom_dns = custom_dns
+        c.dns = dns
         c.rules = rules.mapTo(ArrayList()) { it.copy() }
         return c
     }
+
+    /** ActiveDns: the DNS this profile imposes; null while the global settings apply. */
+    fun activeDns(): RouteDns? = if (custom_dns) dns else null
 
     /** The number of profile ids in [endpoint_profile_ids]. */
     fun endpointCount(): Int = RULE_IDS.findAll(endpoint_profile_ids).count()

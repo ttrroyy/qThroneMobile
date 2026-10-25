@@ -1,13 +1,20 @@
 package app.qthrone.mobile.ui.settings
 
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.SwitchPreference
 import app.qthrone.mobile.R
+import app.qthrone.mobile.database.DataStore
+import app.qthrone.mobile.database.RouteManager
+import app.qthrone.mobile.database.SagerDatabase
 import app.qthrone.mobile.database.SettingValidators
 import app.qthrone.mobile.database.SettingsRegistry
 import app.qthrone.mobile.ktx.needReload
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import moe.matsuri.nb4a.ui.EditConfigPreference
 
 /** Routing Settings › DNS: the simple settings, predefined answers and the custom DNS object. */
@@ -75,10 +82,29 @@ class DnsSettingsFragment : SettingsScreenFragment(R.xml.settings_dns) {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        showRouteOverride()
+    }
+
+    /** The current routing profile's own DNS replaces the servers and behaviour here. */
+    private fun showRouteOverride() {
+        val note = findPreference<Preference>(KEY_ROUTE_OVERRIDE) ?: return
+        lifecycleScope.launch {
+            val name = withContext(Dispatchers.IO) {
+                val id = DataStore.currentRouteId
+                if (RouteManager.customDns(id) == null) null else SagerDatabase.routeDao.getProfile(id)?.name
+            }
+            note.summary = name?.let { getString(R.string.dns_route_override_note, it) }
+            note.isVisible = name != null
+        }
+    }
+
     private companion object {
         const val KEY_SERVERS = "dnsServers"
         const val KEY_BEHAVIOUR = "dnsBehaviour"
         const val KEY_ADVANCED = "dnsAdvanced"
+        const val KEY_ROUTE_OVERRIDE = "dnsRouteOverride"
     }
 }
 

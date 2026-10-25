@@ -193,6 +193,8 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var remoteDnsDisableIpv6 by SettingsRegistry.REMOTE_DNS_DISABLE_IPV6
     var directDns by SettingsRegistry.DIRECT_DNS
     var directDnsDisableIpv6 by SettingsRegistry.DIRECT_DNS_DISABLE_IPV6
+    var remoteDnsHistory by SettingsRegistry.REMOTE_DNS_HISTORY
+    var directDnsHistory by SettingsRegistry.DIRECT_DNS_HISTORY
     var coreBoxUnderlyingDns by SettingsRegistry.CORE_BOX_UNDERLYING_DNS
     var dnsFinalOut by SettingsRegistry.DNS_FINAL_OUT
     var enableDnsRouting by SettingsRegistry.ENABLE_DNS_ROUTING
