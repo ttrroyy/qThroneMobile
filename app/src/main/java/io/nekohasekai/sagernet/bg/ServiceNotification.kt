@@ -21,7 +21,9 @@ import app.qthrone.mobile.database.DataStore
 import app.qthrone.mobile.database.ProfileOrder
 import app.qthrone.mobile.database.ProxyEntity
 import app.qthrone.mobile.database.SagerDatabase
+import app.qthrone.core.mobile.Mobile
 import app.qthrone.mobile.ktx.app
+import app.qthrone.mobile.ktx.appUserAgent
 import app.qthrone.mobile.ktx.getColorAttr
 import app.qthrone.mobile.ktx.runOnMainDispatcher
 import app.qthrone.mobile.ui.SwitchActivity
@@ -178,8 +180,8 @@ class ServiceNotification(
         // a fresh lookup for every connection, so a reconnect never shows the previous exit
         runOnMainDispatcher {
             ExitIp.coreFetch = { url, timeoutMs ->
-                app.qthrone.core.mobile.Mobile.fetchThroughProxy(
-                    CoreRuntime.running?.instance, url, app.qthrone.mobile.ktx.appUserAgent(), timeoutMs.toInt(), 64 * 1024,
+                Mobile.fetchThroughProxy(
+                    CoreRuntime.running?.instance, url, appUserAgent(), timeoutMs.toInt(), 64 * 1024,
                 )
             }
             ExitIp.listener = exitListener
