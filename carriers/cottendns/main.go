@@ -13,6 +13,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"net"
 	"os"
 	"os/signal"
@@ -64,6 +65,10 @@ func writeConfig(p profile, folder string) (string, string, error) {
 	cfg := map[string]any{}
 	// Advanced CottenDNS keys may come with the profile; identity, listener and logging stay ours.
 	for key, value := range p.Options {
+		// JSON numbers arrive as float64, and TOML integer keys refuse 3000.0.
+		if f, ok := value.(float64); ok && f == math.Trunc(f) && math.Abs(f) < 1<<53 {
+			value = int64(f)
+		}
 		cfg[strings.ToUpper(key)] = value
 	}
 	for i := range domains {
