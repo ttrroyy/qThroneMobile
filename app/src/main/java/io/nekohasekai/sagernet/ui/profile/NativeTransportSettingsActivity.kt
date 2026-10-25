@@ -85,10 +85,17 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
                 "dnstt" -> defaults["pubkey"]=""
                 "vaydns" -> defaults.putAll(mapOf("pubkey" to "","record_type" to "txt","dnstt_compat" to false,"clientid_size" to 2,"idle_timeout" to "","keepalive" to ""))
                 "slipstream" -> defaults.putAll(mapOf("cert" to "","authoritative" to false,"congestion_control" to "bbr","keep_alive_interval" to 400))
-                "masterdns" -> defaults.putAll(mapOf("mkey" to "","encryption" to 1))
+                "masterdns","cottendns" -> defaults.putAll(mapOf("mkey" to "","encryption" to 1))
+                "soar" -> defaults["pubkey"]=""
             }
             for((key,value) in defaults) if(!document.contains(key)) document[key]=value
-            if(type!="masterdns") {
+            if(type=="soar") {
+                // The advanced Soar settings of an imported profile stay as they came.
+                val soar=document.obj("soar")
+                for((key,value) in mapOf("discovery" to true,"country" to "IR")) if(!soar.contains(key)) soar[key]=value
+                document["soar"]=soar
+            }
+            if(!app.qthrone.mobile.outbound.types.DnsTunnel.keyed(type)) {
                 val backend=document.obj("backend")
                 for(key in listOf("user","password","pk","method")) if(!backend.contains(key)) backend[key]=""
                 document["backend"]=backend
@@ -132,7 +139,8 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "dnstt" -> listOf("name","domain","pubkey","resolvers") + backendFields
             "vaydns" -> listOf("name","domain","pubkey","resolvers","record_type","dnstt_compat","clientid_size","idle_timeout","keepalive") + backendFields
             "slipstream" -> listOf("name","domain","cert","resolvers","authoritative","congestion_control","keep_alive_interval") + backendFields
-            "masterdns" -> listOf("name","domain","mkey","encryption","resolvers")
+            "masterdns","cottendns" -> listOf("name","domain","mkey","encryption","resolvers")
+            "soar" -> listOf("name","domain","pubkey","resolvers","soar.discovery","soar.country")
             "sstp" -> listOf("name","server","server_port","username","password","sni","allow_insecure")
             "s3bypass" -> listOf("name") + listOf("endpoint","region","bucket","prefix","sessionsDir","accessKey","secretKey").map { "storage.$it" } +
                 listOf("pollIntervalMs","writeIntervalMs","idleTimeoutSec","maxFileSizeBytes").map { "tuning.$it" }
@@ -154,7 +162,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             DataStore.profileCacheStore.putString(cache("transport_$kind"),value)
         }
         // write() skips every "type" member; the backend's is a field of its own.
-        if(type in dnsTypes && type!="masterdns") {
+        if(type in dnsTypes && !app.qthrone.mobile.outbound.types.DnsTunnel.keyed(type)) {
             val kind=document.obj("backend").string("type").ifEmpty { "socks" }
             fields["backend_type"]=kind
             DataStore.profileCacheStore.putString(cache("backend_type"),kind)
@@ -264,6 +272,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "idle_timeout" to "Тайм-аут простоя", "keepalive" to "Интервал keepalive", "cert" to "Сертификат сервера (PEM)",
             "authoritative" to "Резолвер — авторитетный сервер", "congestion_control" to "Управление перегрузкой",
             "keep_alive_interval" to "Keepalive QUIC, мс", "mkey" to "Ключ шифрования", "encryption" to "Шифрование",
+            "discovery" to "Искать рабочие резолверы страны", "country" to "Страна сети",
             "backend_type" to "Сервис на сервере", "user" to "Логин", "username" to "Имя пользователя", "sni" to "SNI (Server Name)", "allow_insecure" to "Разрешить недоверенный сертификат", "pk" to "Приватный ключ SSH", "method" to "Метод шифрования",
             "endpoint" to "Адрес хранилища (endpoint)", "region" to "Регион", "bucket" to "Корзина (bucket)", "prefix" to "Префикс",
             "sessionsDir" to "Каталог сессий", "accessKey" to "Access Key", "secretKey" to "Secret Key",
@@ -498,10 +507,10 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
         }
         refreshEditors()
         if(editingOutbound.type in dnsTypes) preferenceScreen.addPreference(Preference(requireContext()).apply {
-            summary=(if(editingOutbound.type in listOf("slipstream","masterdns")) "Резолверы: по одному в строке, IP или IP:порт (UDP)."
+            summary=(if(editingOutbound.type=="slipstream" || app.qthrone.mobile.outbound.types.DnsTunnel.keyed(editingOutbound.type)) "Резолверы: по одному в строке, IP или IP:порт (UDP)."
                 else "Резолверы: по одному в строке — IP или IP:порт (UDP), https://… (DoH), tls://… (DoT).")+
                 " Без резолверов используются DNS-серверы текущей сети."+
-                if(editingOutbound.type=="masterdns") "" else " Через туннель передаётся только TCP, DNS-запросы идут по TCP."
+                if(app.qthrone.mobile.outbound.types.DnsTunnel.keyed(editingOutbound.type)) "" else " Через туннель передаётся только TCP, DNS-запросы идут по TCP."
             isSelectable=false
         })
         if(editingOutbound.type=="s3bypass") preferenceScreen.addPreference(Preference(requireContext()).apply {

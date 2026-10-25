@@ -34,7 +34,7 @@ runs:
         path: |
           app/libs/qThroneCore.aar
           app/src/main/assets/schema/sing-box.json
-        key: throne-core-${{ env.THRONE_CORE_REF }}-${{ env.THRONE_CORE_SHA }}-${{ env.THRONE_CORE_SCRIPT_SHA }}-${{ hashFiles('.github/actions/throne-core/action.yml', 'core-dependencies.json', 'scripts/prepare_mobile_core.py', 'scripts/patch_mobile_trusttunnel.py', 'scripts/patch_mobile_socks.py', 'scripts/patch_mobile_xray_socks.py', 'core-patches/xray-socks/*.go', 'core-patches/socks/*.go', 'core-patches/trusttunnel/*.go', 'core-patches/mobile/*.go') }}
+        key: throne-core-${{ env.THRONE_CORE_REF }}-${{ env.THRONE_CORE_SHA }}-${{ env.THRONE_CORE_SCRIPT_SHA }}-${{ hashFiles('.github/actions/throne-core/action.yml', 'core-dependencies.json', 'scripts/prepare_mobile_core.py', 'scripts/patch_mobile_trusttunnel.py', 'scripts/patch_mobile_socks.py', 'scripts/patch_mobile_xray_socks.py', 'core-patches/xray-socks/*.go', 'core-patches/socks/*.go', 'core-patches/trusttunnel/*.go', 'core-patches/mobile/*.go', 'scripts/patch_mobile_obfs.py', 'core-patches/obfs/*.go') }}
     - name: Install Golang
       if: steps.cache.outputs.cache-hit != 'true'
       uses: actions/setup-go@v7
@@ -59,6 +59,10 @@ runs:
       run: |
         python3 scripts/patch_mobile_socks.py "$THRONE_DIR/core"
         python3 scripts/patch_mobile_xray_socks.py "$THRONE_DIR/core"
+    - name: WireGuard obfuscators and Phobos SOCKS5
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: python3 scripts/patch_mobile_obfs.py "$THRONE_DIR/core"
     - name: Setup Java
       if: steps.cache.outputs.cache-hit != 'true'
       uses: actions/setup-java@v6
@@ -97,6 +101,11 @@ runs:
       shell: bash
       working-directory: ${{ env.THRONE_DIR }}/core
       run: CGO_ENABLED=0 go test github.com/sagernet/sing/protocol/socks github.com/xtls/xray-core/proxy/socks -count=1
+    - name: Obfuscator wire compatibility
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      working-directory: ${{ env.THRONE_DIR }}/core
+      run: CGO_ENABLED=0 go test ./internal/obfs -count=1
     # Same registries as the AAR: the Android TAGS of script/build_android.sh (cf. script/gen_schema.sh). with_purego and
     # CGO_ENABLED=0 only keep cronet-go from linking its static library; option registration does not depend on them.
     - name: Generate sing-box schema
@@ -133,4 +142,4 @@ runs:
         path: |
           app/libs/qThroneCore.aar
           app/src/main/assets/schema/sing-box.json
-        key: throne-core-${{ env.THRONE_CORE_REF }}-${{ env.THRONE_CORE_SHA }}-${{ env.THRONE_CORE_SCRIPT_SHA }}-${{ hashFiles('.github/actions/throne-core/action.yml', 'core-dependencies.json', 'scripts/prepare_mobile_core.py', 'scripts/patch_mobile_trusttunnel.py', 'scripts/patch_mobile_socks.py', 'scripts/patch_mobile_xray_socks.py', 'core-patches/xray-socks/*.go', 'core-patches/socks/*.go', 'core-patches/trusttunnel/*.go', 'core-patches/mobile/*.go') }}
+        key: throne-core-${{ env.THRONE_CORE_REF }}-${{ env.THRONE_CORE_SHA }}-${{ env.THRONE_CORE_SCRIPT_SHA }}-${{ hashFiles('.github/actions/throne-core/action.yml', 'core-dependencies.json', 'scripts/prepare_mobile_core.py', 'scripts/patch_mobile_trusttunnel.py', 'scripts/patch_mobile_socks.py', 'scripts/patch_mobile_xray_socks.py', 'core-patches/xray-socks/*.go', 'core-patches/socks/*.go', 'core-patches/trusttunnel/*.go', 'core-patches/mobile/*.go', 'scripts/patch_mobile_obfs.py', 'core-patches/obfs/*.go') }}

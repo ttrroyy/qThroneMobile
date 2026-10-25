@@ -5,15 +5,18 @@ import app.qthrone.mobile.outbound.link.*
 import app.qthrone.mobile.bg.carrier.*
 
 /**
- * A DNS tunnel profile: DNSTT, VayDNS, Slipstream or MasterDNS. The fields are those of the dnst:// format
- * (net2share/dnst-url-spec); links of the apps that predate it are read too (slipnet://, masterdns://).
- * The resolvers are the profile's own; without them the network's DNS servers are used at launch.
+ * A DNS tunnel profile: DNSTT, VayDNS, Slipstream, MasterDNS, CottenDNS or Soar. The fields are those of the dnst://
+ * format (net2share/dnst-url-spec); links of the apps that predate it are read too (slipnet://, and the masterdns://,
+ * stormdns://, cottendns:// and soar:// profiles). The resolvers are the profile's own; without them the network's
+ * DNS servers are used at launch.
  */
 class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
     override val carrierKind get()=when(type) {
         "vaydns" -> CarrierKind.VAYDNS
         "slipstream" -> CarrierKind.SLIPSTREAM
         "masterdns" -> CarrierKind.MASTERDNS
+        "cottendns" -> CarrierKind.COTTENDNS
+        "soar" -> CarrierKind.SOAR
         else -> CarrierKind.DNSTT
     }
     private var data=JsonObject()
@@ -21,11 +24,16 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
     override fun displayAddress()=data.string("domain")
 
     companion object {
-        val TYPES=listOf("dnstt","vaydns","slipstream","masterdns")
-        val TITLES=mapOf("dnstt" to "DNSTT","vaydns" to "VayDNS","slipstream" to "SlipStream","masterdns" to "MasterDNS")
+        val TYPES=listOf("dnstt","vaydns","slipstream","masterdns","cottendns","soar")
+        val TITLES=mapOf("dnstt" to "DNSTT","vaydns" to "VayDNS","slipstream" to "SlipStream","masterdns" to "MasterDNS",
+            "cottendns" to "CottenDNS","soar" to "Soar")
+        /** The engines with a domain and key of their own and their own client, not VayDNS's. */
+        fun keyed(type:String)=type=="masterdns" || type=="cottendns" || type=="soar"
+        private val SOAR_LABEL=Regex("[a-z0-9]([a-z0-9-]*[a-z0-9])?")
         val BACKENDS=listOf("socks","ssh","shadowsocks")
         val RECORD_TYPES=listOf("txt","cname","a","aaaa","mx","ns","srv","null","caa")
         private const val PREFIX="dnst://"
+        private val WHITEDNS_SCHEMES=listOf("masterdns","stormdns","cottendns","soar")
         private val HEX64=Regex("[0-9a-fA-F]{64}")
 
         /** SlipNet's tunnel types that are DNS tunnels this client runs, by its export name. */
@@ -50,7 +58,8 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
         data=obj.copy();data.remove("type");data.remove("tag")
         name=obj.string("name").ifEmpty { obj.string("tag") };data.remove("name")
         data["domain"]=data.string("domain").trim().trimEnd('.')
-        if(type!="masterdns" && !data.contains("backend")) data["backend"]=jsonObjectOf("type" to "socks")
+        if(!keyed(type) && !data.contains("backend")) data["backend"]=jsonObjectOf("type" to "socks")
+        if(keyed(type)) data.remove("backend")
         server=data.string("domain");serverPort=0
         return valid()
     }
@@ -60,10 +69,14 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
         if(domain.isEmpty() || domain.length>253 || domain.any { it.isWhitespace() || it=='/' }) return false
         when(type) {
             "dnstt","vaydns" -> if(!data.string("pubkey").matches(HEX64)) return false
-            "masterdns" -> if(data.string("mkey").isBlank() || data.int("encryption") !in 0..5) return false
+            "masterdns","cottendns" -> if(data.string("mkey").isBlank() || data.int("encryption") !in 0..5) return false
+            "soar" -> {
+                if(domain.length>45 || !domain.contains('.') || domain.lowercase().split('.').any { it.length>63 || !it.matches(SOAR_LABEL) }) return false
+                if(Base64Strict.decode(data.string("pubkey").trim())?.size!=32) return false
+            }
         }
         if(type=="vaydns" && data.string("record_type").isNotEmpty() && data.string("record_type") !in RECORD_TYPES) return false
-        if(type!="masterdns") {
+        if(!keyed(type)) {
             val backend=data.obj("backend")
             when(backend.string("type")) {
                 "socks" -> {}
@@ -81,8 +94,8 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
             when {
                 text.startsWith(PREFIX) -> parseDnst(text.removePrefix(PREFIX))
                 text.startsWith("slipnet://") -> parseSlipNet(text.removePrefix("slipnet://"))
-                text.startsWith("masterdns://") -> parseWhiteDns(text.removePrefix("masterdns://"))
-                else -> false
+                else -> WHITEDNS_SCHEMES.firstOrNull { text.startsWith("$it://",ignoreCase=true) }
+                    ?.let { parseWhiteDns(text.substring(it.length+3),it) } ?: false
             }
         } catch(_:Exception) { false }
     }
@@ -153,14 +166,51 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
         return parseFromJson(obj)
     }
 
-    /** WhiteDNS's MasterDnsVPN profile link: base64url JSON of the whitedns.profile schema. */
-    private fun parseWhiteDns(body:String):Boolean {
+    /** The whitedns.profile link of the Iranian DNS tunnel apps: base64 JSON whose scheme names the engine. */
+    private fun parseWhiteDns(body:String,scheme:String):Boolean {
         val payload=body.substringBefore('#').substringBefore('?')
         val json=JsonInput.parseObject(String(Base64Strict.decode(payload.trimEnd('='),true) ?: Base64Strict.decode(payload) ?: return false,Charsets.UTF_8))
+        return parseWhiteDnsProfile(json,scheme)
+    }
+
+    /** StormDNS speaks MasterDnsVPN's protocol and runs on its client; CottenDNS and Soar have their own. */
+    fun parseWhiteDnsProfile(json:JsonObject,linkScheme:String=""):Boolean {
         if(json.string("schema")!="whitedns.profile") return false
+        val scheme=linkScheme.lowercase().takeIf { it=="cottendns" || it=="soar" } ?: json.string("import_type").lowercase()
         val profile=json.obj("profile");val server=profile.obj("server")
-        return parseFromJson(jsonObjectOf("type" to "masterdns","name" to profile.string("name"),"domain" to server.string("domain"),
-            "mkey" to server.string("encryption_key"),"encryption" to server.int("encryption_method")))
+        val domains=server.array("domains").strings().map { it.trim() }.filter { it.isNotEmpty() }.ifEmpty { listOf(server.string("domain").trim()) }
+        if(scheme=="soar") {
+            val obj=jsonObjectOf("type" to "soar","name" to profile.string("name"),"domain" to domains.first(),
+                "pubkey" to server.string("public_key"),"resolvers" to JsonArray.of(*profile.array("resolvers").strings().toTypedArray()))
+            if(profile.obj("soarSettings").isNotEmpty()) obj["soar"]=profile.obj("soarSettings").copy()
+            return parseFromJson(obj)
+        }
+        val key=server.string("encryption_key").ifEmpty { server.string("encryptionKey") }
+        val method=when {
+            server.contains("encryption_method") -> server.int("encryption_method")
+            server.contains("encryptionMethod") -> server.int("encryptionMethod")
+            else -> 1
+        }
+        return parseFromJson(jsonObjectOf("type" to (if(scheme=="cottendns") "cottendns" else "masterdns"),"name" to profile.string("name"),
+            "domain" to domains.joinToString(","),"mkey" to key,"encryption" to method))
+    }
+
+    /** CottenDNS and Soar profiles travel as the links their own apps import. */
+    private fun exportWhiteDns():String {
+        val domains=data.string("domain").split(',').filter { it.isNotBlank() }
+        val server=jsonObjectOf("domain" to domains.firstOrNull().orEmpty())
+        val profile=jsonObjectOf("name" to name.ifEmpty { domains.firstOrNull().orEmpty() })
+        if(type=="soar") {
+            server["public_key"]=data.string("pubkey")
+            if(data.obj("soar").isNotEmpty()) profile["soarSettings"]=data.obj("soar").copy()
+            if(data.array("resolvers").isNotEmpty()) profile["resolvers"]=data.array("resolvers").copy()
+        } else {
+            server["domains"]=JsonArray.of(*domains.toTypedArray())
+            server["encryption_key"]=data.string("mkey");server["encryption_method"]=data.int("encryption")
+        }
+        profile["server"]=server
+        val json=jsonObjectOf("schema" to "whitedns.profile","version" to 1,"import_type" to type,"profile" to profile)
+        return type+"://"+Base64Strict.encode(json.toCompact(),urlSafe=true,padding=false)
     }
 
     override fun exportToJson()=data.copy().also { it["type"]=type;if(name.isNotEmpty()) it["name"]=name }
@@ -169,6 +219,7 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
     /** dnst:// (§2): the readable form, or base64url JSON when a certificate or key would not fit in a URL. */
     override fun exportToLink():String {
         if(!valid()) return ""
+        if(type=="cottendns" || type=="soar") return exportWhiteDns()
         val backend=data.obj("backend")
         if(data.string("cert").isNotEmpty() || backend.string("pk").isNotEmpty()) {
             val transport=JsonObject().also { t -> t["type"]=type;for((k,v) in data) if(k!="backend" && k!="resolvers") t[k]=v }
@@ -193,6 +244,7 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
     override fun privateConfig(port:Int,udpPort:Int,credentials:CarrierBridgeCredentials)=data.copy().also {
         require(valid())
         it["type"]=type
+        if(type=="soar") it["server_public_key"]=data.string("pubkey")
         it["system_resolvers"]=JsonArray.of(*systemResolvers().toTypedArray())
         it["socks"]="127.0.0.1:$port";it["socks_user"]=credentials.username;it["socks_pass"]=credentials.password
     }

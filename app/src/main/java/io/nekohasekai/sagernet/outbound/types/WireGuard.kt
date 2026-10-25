@@ -10,7 +10,9 @@ import app.qthrone.mobile.outbound.import.ClashProxy
 import app.qthrone.mobile.outbound.json.JsonArray
 import app.qthrone.mobile.outbound.json.JsonObject
 import app.qthrone.mobile.outbound.json.JsonValues
+import app.qthrone.mobile.outbound.link.Base64Strict
 import app.qthrone.mobile.outbound.link.Hosts
+import app.qthrone.mobile.outbound.link.LinkCodec
 import app.qthrone.mobile.outbound.link.LinkBuilder
 import app.qthrone.mobile.outbound.link.LinkParser
 import app.qthrone.mobile.outbound.link.ParsedLink
@@ -175,6 +177,19 @@ class WireGuard : Outbound("wireguard") {
     @JvmField var random_trailers: Boolean = false
     @JvmField var disable_cookies: Boolean = false
 
+    /** Obfuscator in front of the server: "wg-obfuscator" (ClusterM, Phobos) or "wgobfs" (xt_wgobfs); empty is plain WireGuard. */
+    @JvmField var obfs_type: String = ""
+    @JvmField var obfs_key: String = ""
+    /** wg-obfuscator: NONE, STUN or MEDIA (an RTP video stream). */
+    @JvmField var obfs_masking: String = ""
+    /** -1 keeps the obfuscator's default of 4. */
+    @JvmField var obfs_max_dummy: Int = -1
+    @JvmField var obfs_obfuscate_bytes: Int = 0
+    @JvmField var obfs_media_pt: Int = 0
+    /** Decimal, empty when the SSRC is random. */
+    @JvmField var obfs_media_ssrc: String = ""
+    @JvmField var obfs_media_clock: Int = 0
+
     /**
      * wireguard.cpp:124-245: wg-quick / AmneziaWG INI text, or a wg:// / wireguard:// / awg:// URL. The scheme is not
      * checked, and awg:// alone does not enable AmneziaWG; only its parameters do, as on the desktop.
@@ -247,20 +262,53 @@ class WireGuard : Outbound("wireguard") {
         strKey("random_trailers") { random_trailers = parseAmneziaBool(it) }
         strKey("disable_cookies") { disable_cookies = parseAmneziaBool(it) }
 
+        if (q.has("obfs")) {
+            obfs_type = q.valueFully("obfs")
+            obfs_key = q.valueFully("obfs_key")
+            obfs_masking = q.valueFully("obfs_masking").uppercase()
+            if (q.has("obfs_max_dummy")) obfs_max_dummy = QtStrings.toInt(q.valueFully("obfs_max_dummy"))
+            obfs_obfuscate_bytes = QtStrings.toInt(q.valueFully("obfs_bytes"))
+            obfs_media_pt = QtStrings.toInt(q.valueFully("obfs_media_pt"))
+            obfs_media_ssrc = ssrcText(q.valueFully("obfs_media_ssrc"))
+            obfs_media_clock = QtStrings.toInt(q.valueFully("obfs_media_clock"))
+        }
+
         fixAddress()
         return !(private_key.isEmpty() || peer.public_key.isEmpty() || server.isEmpty())
     }
 
     // wireguard.cpp:125-184: keys are matched lower-cased; no base parse, so the name and dial fields stay untouched.
     private fun parseIni(text: String): Boolean {
+        var section = ""
+        var target = ""
         for (line in QtStrings.split(text, "\n")) {
             val trimmed = line.trim()
             if (trimmed.isEmpty() || trimmed.startsWith('#')) continue
-            if (trimmed == "[Peer]" || trimmed == "[Interface]") continue
+            if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+                section = trimmed.substring(1, trimmed.length - 1).trim().lowercase()
+                continue
+            }
             val eqIdx = trimmed.indexOf('=')
             if (eqIdx < 0) continue
             val key = trimmed.substring(0, eqIdx).trim().lowercase()
             val value = trimmed.substring(eqIdx + 1).trim()
+            // Phobos links write "none" for every field the panel left unset.
+            if (value.equals("none", ignoreCase = true)) continue
+            // The [instance] section of a Phobos .conf is the wg-obfuscator client in front of the server.
+            if (section == "instance") {
+                obfs_type = "wg-obfuscator"
+                when (key) {
+                    "key" -> obfs_key = value
+                    "target" -> target = value
+                    "masking" -> obfs_masking = value.uppercase().takeIf { it != "AUTO" }.orEmpty()
+                    "max-dummy" -> obfs_max_dummy = QtStrings.toInt(value)
+                    "obfuscate-bytes" -> obfs_obfuscate_bytes = QtStrings.toInt(value)
+                    "media-pt" -> obfs_media_pt = QtStrings.toInt(value)
+                    "media-ssrc" -> obfs_media_ssrc = ssrcText(value)
+                    "media-clock" -> obfs_media_clock = QtStrings.toInt(value)
+                }
+                continue
+            }
             when (key) {
                 "privatekey" -> private_key = value
                 "address" -> address = QtStrings.splitSkipEmpty(value.replace(" ", ""), ",")
@@ -309,8 +357,18 @@ class WireGuard : Outbound("wireguard") {
                 "disablecookies", "disable_cookies" -> { disable_cookies = parseAmneziaBool(value); enable_amnezia = true }
             }
         }
+        // The peer's Endpoint points at the local obfuscator; the server is its target.
+        val colon = target.lastIndexOf(':')
+        if (colon > 0) {
+            var host = target.substring(0, colon).trim()
+            if (host.startsWith('[') && host.endsWith(']')) host = host.substring(1, host.length - 1)
+            peer.address = host
+            peer.port = QtStrings.toInt(target.substring(colon + 1))
+            server = peer.address
+            serverPort = peer.port
+        }
         fixAddress()
-        return private_key.isNotEmpty() && peer.public_key.isNotEmpty()
+        return private_key.isNotEmpty() && peer.public_key.isNotEmpty() && (obfs_type.isEmpty() || obfs_key.isNotEmpty())
     }
 
     override fun parseFromClash(node: JsonObject): Boolean {
@@ -359,12 +417,18 @@ class WireGuard : Outbound("wireguard") {
         if (obj.contains("worker_count")) worker_count = obj.int("worker_count")
         if (obj.contains("udp_timeout")) udp_timeout = obj.string("udp_timeout")
         if (obj.contains("amnezia_wg")) amneziaFromJson(obj.obj("amnezia_wg"))
+        if (obj.contains("obfs")) obfsFromJson(obj.obj("obfs"))
         fixAddress()
         return true
     }
 
     /** wireguard.cpp:262-312: `wg://<peer address>:<peer port>?...`, dial items before the peer items. */
     override fun exportToLink(): String {
+        // wg-obfuscator profiles travel as Phobos links, which Phobos clients import too.
+        if (obfsType() == "wg-obfuscator") {
+            return "phobos://" + Base64Strict.encode(exportPhobosConf().toByteArray(Charsets.UTF_8), urlSafe = true, padding = false) +
+                "#" + (if (name.isEmpty()) "none" else LinkCodec.percentEncodeAll(name))
+        }
         val url = LinkBuilder("wg")
         url.host = peer.address
         url.port = peer.port
@@ -406,6 +470,11 @@ class WireGuard : Outbound("wireguard") {
             if (disable_cookies) url.addQueryItem("disable_cookies", "true")
         }
 
+        if (obfsType().isNotEmpty()) {
+            url.addQueryItem("obfs", obfs_type)
+            url.addQueryItem("obfs_key", obfs_key)
+        }
+
         url.addQueryItems(baseLinkQuery())
         url.addQueryItems(peer.exportToLink())
         return url.build()
@@ -430,6 +499,10 @@ class WireGuard : Outbound("wireguard") {
         if (name.isNotEmpty()) obj["tag"] = name
         obj.merge(dial.build(ctx))
         writeFields(obj)
+        if (obfsType().isNotEmpty()) {
+            if (enable_amnezia) return BuildResult(JsonObject(), "WireGuard obfuscation cannot be combined with AmneziaWG")
+            if (obfs_key.isEmpty()) return BuildResult(JsonObject(), "WireGuard obfuscation needs a key")
+        }
         val peerObj = peer.build(ctx)
         if (peerObj.isNotEmpty()) obj["peers"] = JsonArray.of(peerObj)
         return BuildResult(obj)
@@ -444,6 +517,56 @@ class WireGuard : Outbound("wireguard") {
         if (udp_timeout.isNotEmpty()) obj["udp_timeout"] = udp_timeout
         val amnezia = amneziaToJson()
         if (amnezia.isNotEmpty()) obj["amnezia_wg"] = amnezia
+        val obfs = obfsToJson()
+        if (obfs.isNotEmpty()) obj["obfs"] = obfs
+    }
+
+    /** The obfuscator in use; the editor's "off" and anything unknown are plain WireGuard. */
+    fun obfsType(): String = obfs_type.takeIf { it == "wg-obfuscator" || it == "wgobfs" }.orEmpty()
+
+    /** The core's "obfs" object; empty without an obfuscator. */
+    fun obfsToJson(): JsonObject {
+        val obj = JsonObject()
+        if (obfsType().isEmpty()) return obj
+        obj["type"] = obfs_type
+        obj["key"] = obfs_key
+        if (obfs_type != "wg-obfuscator") return obj
+        if (obfs_masking.isNotEmpty() && obfs_masking != "NONE") obj["masking"] = obfs_masking.lowercase()
+        if (obfs_max_dummy >= 0) obj["max_dummy"] = obfs_max_dummy
+        if (obfs_obfuscate_bytes > 0) obj["obfuscate_bytes"] = obfs_obfuscate_bytes
+        if (obfs_media_pt > 0) obj["media_pt"] = obfs_media_pt
+        if (parseSsrc(obfs_media_ssrc) > 0) obj["media_ssrc"] = parseSsrc(obfs_media_ssrc)
+        if (obfs_media_clock > 0) obj["media_clock"] = obfs_media_clock
+        return obj
+    }
+
+    private fun obfsFromJson(obj: JsonObject) {
+        obfs_type = obj.string("type")
+        obfs_key = obj.string("key")
+        obfs_masking = obj.string("masking").uppercase()
+        obfs_max_dummy = if (obj.contains("max_dummy")) obj.int("max_dummy") else -1
+        obfs_obfuscate_bytes = obj.int("obfuscate_bytes")
+        obfs_media_pt = obj.int("media_pt")
+        obfs_media_ssrc = ssrcText(JsonValues.toInteger(obj["media_ssrc"]).toString())
+        obfs_media_clock = obj.int("media_clock")
+    }
+
+    /** The Phobos client .conf: [Interface], [Peer] and the obfuscator's [instance]. */
+    fun exportPhobosConf(): String {
+        val conf = arrayListOf("[Interface]", "PrivateKey = $private_key", "Address = " + address.joinToString(", "))
+        if (mtu > 0) conf += "MTU = $mtu"
+        conf += listOf("", "[Peer]", "PublicKey = " + peer.public_key)
+        if (peer.pre_shared_key.isNotEmpty()) conf += "PresharedKey = " + peer.pre_shared_key
+        conf += "AllowedIPs = 0.0.0.0/0, ::/0"
+        if (peer.persistent_keepalive.isNotEmpty()) conf += "PersistentKeepalive = " + peer.persistent_keepalive
+        conf += listOf("Endpoint = 127.0.0.1:13255", "", "[instance]", "source-if = 127.0.0.1", "source-lport = 13255",
+            "target = " + Hosts.displayAddress(peer.address, peer.port), "key = $obfs_key", "masking = " + obfs_masking.ifEmpty { "NONE" })
+        if (obfs_max_dummy >= 0) conf += "max-dummy = $obfs_max_dummy"
+        if (obfs_obfuscate_bytes > 0) conf += "obfuscate-bytes = $obfs_obfuscate_bytes"
+        if (obfs_media_pt > 0) conf += "media-pt = $obfs_media_pt"
+        if (parseSsrc(obfs_media_ssrc) > 0) conf += "media-ssrc = " + parseSsrc(obfs_media_ssrc)
+        if (obfs_media_clock > 0) conf += "media-clock = $obfs_media_clock"
+        return conf.joinToString("\n") + "\n"
     }
 
     /** wireguard.cpp:359-373: the peer holds the address the profile list and the DNS resolver work with. */
@@ -466,7 +589,13 @@ class WireGuard : Outbound("wireguard") {
     override fun displayType(): String = "WireGuard"
 
     /** wireguard.cpp:383-385. */
-    override fun security(): SecurityInfo = SecurityInfo("Encrypted", if (enable_amnezia) "AmneziaWG" else "", SecurityLevel.Secure)
+    override fun security(): SecurityInfo = SecurityInfo("Encrypted", when {
+        enable_amnezia -> "AmneziaWG"
+        obfsType() == "wgobfs" -> "wgobfs"
+        obfsType().isEmpty() -> ""
+        obfs_masking.isEmpty() || obfs_masking == "NONE" -> "wg-obfuscator"
+        else -> "wg-obfuscator $obfs_masking"
+    }, SecurityLevel.Secure)
 
     /** wireguard.cpp:387-389. */
     override fun isEndpoint(): Boolean = true
@@ -555,5 +684,16 @@ class WireGuard : Outbound("wireguard") {
             val trimmed = value.trim().lowercase()
             return trimmed == "true" || trimmed == "1" || trimmed == "on" || trimmed == "yes"
         }
+
+        /** An RTP SSRC as wg-obfuscator reads it: decimal or 0x hex, 32 bits. */
+        @JvmStatic
+        fun parseSsrc(value: String): Long {
+            val text = value.trim().lowercase()
+            val parsed = if (text.startsWith("0x")) text.substring(2).toLongOrNull(16) else text.toLongOrNull()
+            return parsed?.takeIf { it in 0..0xFFFFFFFFL } ?: 0
+        }
+
+        @JvmStatic
+        fun ssrcText(value: String): String = parseSsrc(value).takeIf { it > 0 }?.toString().orEmpty()
     }
 }

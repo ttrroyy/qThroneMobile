@@ -1780,4 +1780,15 @@
     <string name="qmobile_vk_captcha">Подтверждение VK…</string>
     <string name="qmobile_vk_waiting">Ожидание VK…</string>
     <string name="qmobile_reconnecting">Переподключение…</string>
+    <string name="wg_obfs_settings">Обфускация</string>
+    <string name="wg_obfs_type">Обфускатор</string>
+    <string name="wg_obfs_key">Ключ обфускатора</string>
+    <string name="wg_obfs_obfuscate_bytes">Обфусцировать байт (0: весь пакет)</string>
+    <string name="obfs_off">Выключен</string>
+    <string name="obfs_masking">Маскировка</string>
+    <string name="obfs_masking_none">Нет</string>
+    <string name="obfs_media_ssrc">SSRC для MEDIA (пусто: случайный)</string>
+    <string name="phobos_settings">Phobos</string>
+    <string name="phobos_key">Ключ Phobos</string>
+    <string name="phobos_key_summary">Для сервера Phobos в режиме SOCKS5; пусто для обычного SOCKS-прокси</string>
 </resources>

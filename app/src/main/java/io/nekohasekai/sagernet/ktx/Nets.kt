@@ -43,6 +43,12 @@ fun appUserAgent(): String = DataStore.userAgent2.ifBlank { USER_AGENT }
 /** App requests use the mixed inbound with net_use_proxy or in proxy service mode (HTTPRequestHelper.cpp:26). */
 fun appRequestsViaProxy(): Boolean = DataStore.netUseProxy || DataStore.serviceMode == Key.MODE_PROXY
 
+/**
+ * Whether an app request that would use the proxy fails while no profile runs: only with net_use_proxy (or a
+ * request that asks for the proxy itself). The proxy service mode alone goes direct then.
+ */
+fun appRequestsNeedProxy(useProxy: Boolean = false): Boolean = useProxy || DataStore.netUseProxy
+
 // App-internal HTTP (subscriptions, update check): through the mixed inbound when [viaProxy] and the service is
 // connected and that inbound exists, direct otherwise. The main process never loads the core.
 fun newHttpClient(
@@ -125,7 +131,8 @@ private const val MAX_REDIRECTS = 20
  * NetworkRequestHelper::HttpGet (HTTPRequestHelper.cpp:25-91): 10 s connect/inactivity timeouts, redirects followed
  * except from https to http, net_insecure, the user agent (options or user_agent2 / the app default), a body cap.
  * With net_use_proxy, the proxy service mode or [HttpGetOptions.useProxy] the request goes through the mixed inbound
- * as an HTTP proxy, and fails while no profile runs; a VPN without the mixed inbound tunnels the request instead.
+ * as an HTTP proxy; a VPN without the mixed inbound tunnels the request instead. While no profile runs it fails
+ * with net_use_proxy or useProxy, and goes direct in the proxy service mode ([appRequestsNeedProxy]).
  * Blocking: call it off the main thread.
  */
 fun httpGet(url: String, options: HttpGetOptions = HttpGetOptions()): HttpGetResponse {
@@ -135,10 +142,11 @@ fun httpGet(url: String, options: HttpGetOptions = HttpGetOptions()): HttpGetRes
         .writeTimeout(options.timeoutSeconds.coerceIn(5, 300).toLong(), TimeUnit.SECONDS)
         .followRedirects(false)
         .followSslRedirects(false)
-    if (options.useProxy || appRequestsViaProxy()) {
-        if (!DataStore.serviceState.connected) {
-            return HttpGetResponse(ByteArray(0), null, app.getString(R.string.subs_request_proxy_no_profile))
-        }
+    val connected = DataStore.serviceState.connected
+    if (!connected && appRequestsNeedProxy(options.useProxy)) {
+        return HttpGetResponse(ByteArray(0), null, app.getString(R.string.subs_request_proxy_no_profile))
+    }
+    if (connected && (options.useProxy || appRequestsViaProxy())) {
         if (!DataStore.mixedInboundDisabled) {
             val address = DataStore.inboundAddress.let { if (it == "::") LOCALHOST else it }
             builder.proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(address, DataStore.inboundHttpPort)))

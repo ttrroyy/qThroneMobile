@@ -38,11 +38,16 @@ class WireGuardSettingsActivity : BindingSettingsActivity<WireGuard>() {
         )) pbm.text(field)
         pbm.bool("random_trailers")
         pbm.bool("disable_cookies")
+        pbm.text("obfs_type")
+        pbm.text("obfs_key")
+        pbm.text("obfs_masking")
+        pbm.int("obfs_obfuscate_bytes")
+        pbm.text("obfs_media_ssrc")
     }
 
     override fun PreferenceFragmentCompat.onPreferencesCreated() {
         portInput("peer.port")
-        numberInput("mtu", "worker_count", "jc", "jmin", "jmax", "s1", "s2", "s3", "s4")
+        numberInput("mtu", "worker_count", "jc", "jmin", "jmax", "s1", "s2", "s3", "s4", "obfs_obfuscate_bytes")
         passwordSummary("private_key", "peer.pre_shared_key")
         multilineInput("address", "peer.reserved")
         // stored one per line, shown on one
@@ -59,6 +64,12 @@ class WireGuardSettingsActivity : BindingSettingsActivity<WireGuard>() {
                 val child = amnezia.getPreference(i)
                 if (child.key != "enable_amnezia") child.isVisible = on
             }
+        }
+
+        // wg-obfuscator has masking options; wgobfs only a key.
+        onMenu("obfs_type") { type ->
+            setVisible(type == "wg-obfuscator" || type == "wgobfs", "obfs_key")
+            setVisible(type == "wg-obfuscator", "obfs_masking", "obfs_obfuscate_bytes", "obfs_media_ssrc")
         }
 
         // edit_wireguard.cpp:39-51

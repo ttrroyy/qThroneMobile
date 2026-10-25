@@ -10,7 +10,6 @@ import app.qthrone.mobile.ktx.app
 import app.qthrone.mobile.ktx.Logs
 import app.qthrone.mobile.bg.carrier.NativeCarrier
 import app.qthrone.mobile.bg.carrier.QwdttPing
-import app.qthrone.mobile.bg.proto.ProbeTimeout
 import app.qthrone.core.mobile.Mobile
 import app.qthrone.core.mobile.TestRequest
 import app.qthrone.core.mobile.URLTestHandler
@@ -49,7 +48,7 @@ internal class UrlTestRunner(session: TestSession) : LatencySweep(session) {
 
     override suspend fun measure(probe: TestProbe, batch: List<ProxyEntity>, emit: (ProbeResult) -> Unit) {
         val accepting = AtomicBoolean(true)
-        val timeout = ProbeTimeout.effective(session.options.timeoutMs, probe.carrierPlans.isNotEmpty())
+        val timeout = session.options.timeoutMs
         try {
             awaitScopedUrlProbe(urlProbeBudgetMs(probe.profileIds.size, session.options.concurrency, timeout)) { done ->
                 startScoped(probe, batch, { if (accepting.get()) emit(it) }, done)
@@ -70,7 +69,8 @@ internal class UrlTestRunner(session: TestSession) : LatencySweep(session) {
     private fun startScoped(probe: TestProbe, batch: List<ProxyEntity>, emit: (ProbeResult) -> Unit, done: () -> Unit): AutoCloseable {
         val request = probe.request().apply {
             url = session.options.url
-            timeoutMs = ProbeTimeout.effective(session.options.timeoutMs,probe.carrierPlans.isNotEmpty())
+            // As on the desktop: the configured timeout, and the core gives the unmeasured first request 5 s more for the tunnel.
+            timeoutMs = session.options.timeoutMs
             maxConcurrency = session.options.concurrency
         }
         // The probe box closes with the test, so the verdict is asked for up front (TestRunner.cpp:171-176).
@@ -84,11 +84,12 @@ internal class UrlTestRunner(session: TestSession) : LatencySweep(session) {
     /** qWDTT is measured by its own TURN/DTLS handshake, like the original app and the desktop client. */
     private suspend fun ping(profile: ProxyEntity): ProbeResult {
         if (session.cancelled) return ProbeResult(profile.id, error = ERROR_ABORTED, measured = false)
-        val timeout = QWDTT_PING_TIMEOUT_MS.coerceAtLeast(session.options.timeoutMs.toLong())
+        // As on the desktop: VK access has its own budget, the TURN/DTLS handshake the test timeout but at least 15 s.
+        val handshake = QWDTT_HANDSHAKE_MS.coerceAtLeast(session.options.timeoutMs.toLong())
         // Detached so that a ping stuck in a blocking call cannot hold its probe slot past the deadline.
-        val attempt = PING_SCOPE.async { QwdttPing.measure(profile.id, profile.outbound as NativeCarrier, timeout) }
+        val attempt = PING_SCOPE.async { QwdttPing.measure(profile.id, profile.outbound as NativeCarrier, QWDTT_AUTH_BUDGET_MS, handshake) }
         val outcome = try {
-            withTimeoutOrNull(timeout + PING_OVERRUN_MS) { attempt.await() } ?: run {
+            withTimeoutOrNull(QWDTT_AUTH_BUDGET_MS + handshake + PING_OVERRUN_MS) { attempt.await() } ?: run {
                 Logs.w("qWDTT ping of profile ${profile.id} overran its deadline: ${QwdttPing.stuckThreads()}")
                 attempt.cancel()
                 QwdttPing.Outcome(0, "HTTP test timed out")
@@ -118,8 +119,7 @@ internal class UrlTestRunner(session: TestSession) : LatencySweep(session) {
         val request = TestRequest().apply {
             testCurrent = true
             url = session.options.url
-            timeoutMs = ProbeTimeout.effective(session.options.timeoutMs,
-                ProfileManager.getProfile(running.profileId)?.outbound is NativeCarrier)
+            timeoutMs = session.options.timeoutMs
             maxConcurrency = 1
             if (exitsThroughVpn(ProfileManager.getProfile(running.profileId))) addVPNEndpointTag(CoreConfig.TAG_PROXY)
         }
@@ -190,10 +190,13 @@ internal class UrlTestRunner(session: TestSession) : LatencySweep(session) {
         const val ERROR_NOT_RUNNING = "instance is not running"
 
         /** Profiles backed by a native client process instead of a sing-box outbound. */
-        val NATIVE_TYPES = listOf("qwdtt","csqtt","wdttplus","openflux","olcrtc","dnstt","vaydns","slipstream","masterdns","s3bypass","sstp")
+        val NATIVE_TYPES = listOf("qwdtt","csqtt","wdttplus","openflux","olcrtc","dnstt","vaydns","slipstream","masterdns","cottendns","soar","s3bypass","sstp")
 
-        /** Credentials, an automatic VK check and the handshake; the original app allows 20 s without a check. */
-        const val QWDTT_PING_TIMEOUT_MS = 60_000L
+        /** VK access for a ping: hashes, credentials and an automatic check (the desktop's desktopPingAuthBudget). */
+        const val QWDTT_AUTH_BUDGET_MS = 90_000L
+
+        /** The TURN allocation and DTLS handshake once credentials are there, as the original app allows. */
+        const val QWDTT_HANDSHAKE_MS = 15_000L
 
         /** Grace past a ping's own deadline before its result is given up on. */
         private const val PING_OVERRUN_MS = 15_000L

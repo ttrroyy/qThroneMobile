@@ -17,11 +17,14 @@ class SocksSettingsActivity : BindingSettingsActivity<Socks>() {
         pbm.text("username")
         pbm.text("password")
         pbm.bool("uot")
+        pbm.text("phobos_key")
+        pbm.text("phobos_masking")
+        pbm.text("phobos_media_ssrc")
     }
 
     override fun PreferenceFragmentCompat.onPreferencesCreated() {
         portInput("serverPort")
-        passwordSummary("password")
+        passwordSummary("password", "phobos_key")
         onMenu("version") { setVisible(it != "4", "password") }
     }
 

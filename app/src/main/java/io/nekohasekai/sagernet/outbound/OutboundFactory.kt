@@ -34,7 +34,7 @@ object OutboundFactory {
     /** Every factory string of OutboundFactory.cpp:35-61 (R2 Р В РІР‚в„ўР вЂ™Р’В§A). */
     @JvmField
     val ALL_TYPES: List<String> = listOf(
-        "qwdtt", "csqtt", "wdttplus", "openflux", "olcrtc", "dnstt", "vaydns", "slipstream", "masterdns", "s3bypass", "sstp", "socks", "http", "shadowsocks", "chain", "autoselector", "vmess", "trojan", "vless", "xrayvless", "hysteria",
+        "qwdtt", "csqtt", "wdttplus", "openflux", "olcrtc", "dnstt", "vaydns", "slipstream", "masterdns", "cottendns", "soar", "s3bypass", "sstp", "socks", "http", "shadowsocks", "chain", "autoselector", "vmess", "trojan", "vless", "xrayvless", "hysteria",
         "tuic", "juicity", "trusttunnel", "anytls", "mieru", "snell", "shadowtls", "wireguard", "masque", "openvpn",
         "openconnect", "tailscale", "ssh", "custom", "extracore", "naive", "direct",
     )
@@ -67,6 +67,8 @@ object OutboundFactory {
         "vaydns" to { DnsTunnel("vaydns") },
         "slipstream" to { DnsTunnel("slipstream") },
         "masterdns" to { DnsTunnel("masterdns") },
+        "cottendns" to { DnsTunnel("cottendns") },
+        "soar" to { DnsTunnel("soar") },
         "s3bypass" to { S3Bypass() },
         "sstp" to { Sstp() },
         "wdttplus" to { WdttPlus() },
@@ -113,10 +115,12 @@ object OutboundFactory {
         Protocol("openflux", listOf("openflux://"), listOf("openflux"), emptyList()),
         Protocol("olcrtc", listOf("olcrtc://"), listOf("olcrtc"), emptyList()),
         // One model reads every DNS tunnel link and takes its transport from it.
-        Protocol("dnstt", listOf("dnst://", "slipnet://", "masterdns://"), listOf("dnstt"), emptyList()),
+        Protocol("dnstt", listOf("dnst://", "slipnet://", "masterdns://", "stormdns://", "cottendns://", "soar://"), listOf("dnstt"), emptyList()),
         Protocol("vaydns", emptyList(), listOf("vaydns"), emptyList()),
         Protocol("slipstream", emptyList(), listOf("slipstream"), emptyList()),
         Protocol("masterdns", emptyList(), listOf("masterdns"), emptyList()),
+        Protocol("cottendns", emptyList(), listOf("cottendns"), emptyList()),
+        Protocol("soar", emptyList(), listOf("soar"), emptyList()),
         Protocol("s3bypass", emptyList(), listOf("s3bypass"), emptyList()),
         Protocol("sstp", listOf("sstp://"), listOf("sstp"), emptyList()),
         Protocol("csqtt", listOf("csqtt://"), listOf("csqtt"), emptyList()),

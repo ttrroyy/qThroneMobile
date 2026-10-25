@@ -1721,4 +1721,11 @@
     <string name="exit_ip_location">%1$s، %2$s</string>
     <string name="exit_ip_summary">IP خروجی: %1$s</string>
     <string name="exit_ip_summary_location">IP خروجی: %1$s (%2$s)</string>
+    <string name="wg_obfs_settings">مبهم‌سازی</string>
+    <string name="wg_obfs_type">مبهم‌ساز</string>
+    <string name="wg_obfs_key">کلید مبهم‌ساز</string>
+    <string name="obfs_off">خاموش</string>
+    <string name="obfs_masking">پوشش</string>
+    <string name="obfs_masking_none">هیچ</string>
+    <string name="phobos_key">کلید Phobos</string>
 </resources>

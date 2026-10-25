@@ -214,6 +214,38 @@
         <item>@string/tri_state_on</item>
         <item>@string/tri_state_off</item>
     </string-array>
+    <string-array name="wg_obfs_type_entry">
+        <item>@string/obfs_off</item>
+        <item>wg-obfuscator (ClusterM, Phobos)</item>
+        <item>wgobfs (xt_wgobfs)</item>
+    </string-array>
+    <string-array name="wg_obfs_type_value" translatable="false">
+        <item></item>
+        <item>wg-obfuscator</item>
+        <item>wgobfs</item>
+    </string-array>
+    <string-array name="wg_obfs_masking_entry">
+        <item>@string/obfs_masking_none</item>
+        <item>STUN</item>
+        <item>MEDIA</item>
+    </string-array>
+    <string-array name="wg_obfs_masking_value" translatable="false">
+        <item></item>
+        <item>STUN</item>
+        <item>MEDIA</item>
+    </string-array>
+    <string-array name="phobos_masking_entry">
+        <item>@string/obfs_masking_none</item>
+        <item>STUN</item>
+        <item>MEDIA</item>
+        <item>TLS</item>
+    </string-array>
+    <string-array name="phobos_masking_value" translatable="false">
+        <item></item>
+        <item>STUN</item>
+        <item>MEDIA</item>
+        <item>TLS</item>
+    </string-array>
     <string-array name="socks_version_entry" translatable="false">
         <item>SOCKS4</item>
         <item>SOCKS5</item>

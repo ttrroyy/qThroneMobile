@@ -199,13 +199,18 @@ object ProfileImport {
                 }
                 // A sing-box config becomes one profile per outbound and endpoint, as on the desktop:
                 // its route and groups would replace the app's own routing.
+                if (doc.string("schema") == "whitedns.profile") {
+                    val tunnel=DnsTunnel()
+                    if(tunnel.parseWhiteDnsProfile(doc)) produce(tunnel) else log("Invalid DNS tunnel profile")
+                    return
+                }
                 MasterDnsFiles.fromJson(doc)?.let { config ->
                     val outbound=OutboundFactory.newByType("masterdns")
                     if(outbound.parseFromJson(config)) produce(outbound) else log("Invalid MasterDNS profile")
                     return
                 }
                 val type=doc.string("type").lowercase()
-                if (type in listOf("qwdtt","wdtt","csqtt","wdttplus","openflux","olcrtc","dnstt","vaydns","slipstream","masterdns","s3bypass","sstp",
+                if (type in listOf("qwdtt","wdtt","csqtt","wdttplus","openflux","olcrtc","dnstt","vaydns","slipstream","masterdns","cottendns","soar","s3bypass","sstp",
                         "chain","autoselector","custom","xrayvless")) {
                     val outbound=OutboundFactory.newByType(type)
                     if(outbound.parseFromJson(doc)) produce(outbound) else log("Invalid $type profile")
@@ -449,8 +454,32 @@ object ProfileImport {
                 vpnLink(line, depth)
                 return
             }
+            if (line.startsWith("phobos://", ignoreCase = true)) {
+                phobosLink(line)
+                return
+            }
             val outbound = OutboundFactory.parseLink(line, preference)
             if (outbound != null && OutboundFactory.typeForScheme(line) == "wireguard") setNameIfEmpty(outbound, overrideName)
+            produce(outbound)
+        }
+
+        /** A Phobos link is the client's whole .conf in base64url: WireGuard behind the obfuscator, or its SOCKS5 mode. */
+        private fun phobosLink(line: String) {
+            var raw = line.substring(9)
+            var name = ""
+            val fragment = raw.indexOf('#')
+            if (fragment != -1) {
+                name = LinkCodec.decodeFully(raw.substring(fragment + 1)).trim()
+                raw = raw.substring(0, fragment)
+            }
+            if (name == "none") name = ""
+            val conf = Base64Strict.decode(raw.trim().trimEnd('='), urlSafe = true)?.toString(Charsets.UTF_8).orEmpty()
+            val outbound: Outbound = if (Regex("(?im)^\\s*mode\\s*=\\s*socks5\\s*$").containsMatchIn(conf)) {
+                Socks().takeIf { it.parsePhobosConf(conf) }
+            } else {
+                WireGuard().takeIf { it.parseFromLink(conf) }
+            } ?: run { log("Invalid Phobos link"); return }
+            setNameIfEmpty(outbound, name)
             produce(outbound)
         }
 

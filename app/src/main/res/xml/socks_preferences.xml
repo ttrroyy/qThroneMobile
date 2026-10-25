@@ -42,4 +42,27 @@
             app:title="@string/udp_over_tcp" />
     </PreferenceCategory>
 
+    <PreferenceCategory
+        app:title="@string/phobos_settings">
+        <EditTextPreference
+            app:icon="@drawable/ic_settings_password"
+            app:key="phobos_key"
+            app:title="@string/phobos_key"
+            app:summary="@string/phobos_key_summary"
+            app:dialogLayout="@layout/layout_password_dialog" />
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+            app:icon="@drawable/ic_baseline_texture_24"
+            app:key="phobos_masking"
+            app:title="@string/obfs_masking"
+            app:entries="@array/phobos_masking_entry"
+            app:entryValues="@array/phobos_masking_value"
+            app:defaultValue=""
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:icon="@drawable/ic_baseline_tune_24"
+            app:key="phobos_media_ssrc"
+            app:title="@string/obfs_media_ssrc"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
 </PreferenceScreen>

@@ -1901,4 +1901,15 @@
     <string name="qmobile_vk_captcha">VK confirmation…</string>
     <string name="qmobile_vk_waiting">Waiting for VK…</string>
     <string name="qmobile_reconnecting">Reconnecting…</string>
+    <string name="wg_obfs_settings">Obfuscation</string>
+    <string name="wg_obfs_type">Obfuscator</string>
+    <string name="wg_obfs_key">Obfuscator key</string>
+    <string name="wg_obfs_obfuscate_bytes">Obfuscate bytes (0: whole packet)</string>
+    <string name="obfs_off">Off</string>
+    <string name="obfs_masking">Masking</string>
+    <string name="obfs_masking_none">None</string>
+    <string name="obfs_media_ssrc">MEDIA SSRC (empty: random)</string>
+    <string name="phobos_settings">Phobos</string>
+    <string name="phobos_key">Phobos key</string>
+    <string name="phobos_key_summary">For a Phobos server in SOCKS5 mode; empty for a plain SOCKS proxy</string>
 </resources>

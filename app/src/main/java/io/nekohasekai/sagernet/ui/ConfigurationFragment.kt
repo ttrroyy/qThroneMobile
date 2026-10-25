@@ -93,7 +93,7 @@ class ConfigurationFragment : ToolbarFragment(R.layout.layout_group_list),
         /** Below this height (a phone in landscape) the header hides while the list scrolls down. */
         private const val COMPACT_HEIGHT_DP = 480
 
-        /** SubscriptionInfoCard.cpp:171-175: the time left is redrawn every minute. */
+        /** SubscriptionInfoCard.cpp:174-178: the time left is redrawn every minute. */
         private const val INFO_CARD_TICK_MS = 60_000L
 
         /** From this width in landscape the test panel stands beside the list: 40 % of the width, 320 to 420 dp. */

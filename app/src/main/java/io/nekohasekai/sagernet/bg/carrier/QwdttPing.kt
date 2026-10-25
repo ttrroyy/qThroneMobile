@@ -24,6 +24,9 @@ object QwdttPing {
 
     private val result = Regex("^PING_RESULT\\|([0-9]{1,9})$")
 
+    /** The client's log line once VK gave credentials: the handshake budget starts there. */
+    private fun authorized(line: String) = line.contains("[VK Auth] Success") || line.contains("[VK Auth] Using cached credentials")
+
     /** Where the app's carrier and test code is blocked right now, for a ping that overran its deadline. */
     fun stuckThreads(): String = Thread.getAllStackTraces().entries
         .filter { (_, stack) -> stack.any { it.className.startsWith("app.qthrone.mobile.bg.") } }
@@ -31,11 +34,12 @@ object QwdttPing {
             thread.name + " " + thread.state + ": " + stack.take(14).joinToString(" < ") { it.className.substringAfterLast('.') + "." + it.methodName }
         }
 
-    suspend fun measure(profileId: Long, profile: NativeCarrier, timeoutMs: Long): Outcome = withContext(Dispatchers.IO) {
-        // Automatic hashes come from VK over blocking calls: a stop interrupts them, the ping's deadline bounds them,
+    suspend fun measure(profileId: Long, profile: NativeCarrier, authBudgetMs: Long, handshakeMs: Long): Outcome = withContext(Dispatchers.IO) {
+        val authDeadline = System.nanoTime() + authBudgetMs * 1_000_000
+        // Automatic hashes come from VK over blocking calls: a stop interrupts them, the VK budget bounds them,
         // and a ping never waits for a sign-in.
         val plan = try {
-            withTimeout(timeoutMs) { runInterruptible { CarrierPlan.qwdtt(profileId, profile, interactive = false) } }
+            withTimeout(authBudgetMs) { runInterruptible { CarrierPlan.qwdtt(profileId, profile, interactive = false) } }
         } catch (_: TimeoutCancellationException) {
             return@withContext Outcome(0, "VK не выдал хеши звонков вовремя")
         }
@@ -62,19 +66,24 @@ object QwdttPing {
             // Automatic VK checks are solved as for a tunnel; one that needs the user fails the probe instead.
             val captcha = CarrierCaptchaBridge(process, allowUi = false)
             val latency = java.util.concurrent.atomic.AtomicInteger(-1)
+            // Set once, by the first credentials: later hashes share the same handshake budget.
+            val handshakeDeadline = java.util.concurrent.atomic.AtomicLong(0)
             val reader = Thread({
                 runCatching {
                     process.inputStream.bufferedReader().forEachLine { line ->
                         captcha.accept(line)
+                        if (authorized(line)) handshakeDeadline.compareAndSet(0, System.nanoTime() + handshakeMs * 1_000_000)
                         result.find(line.trim())?.let { latency.set(it.groupValues[1].toInt()) }
                     }
                 }
             }, "qThrone-qwdtt-ping").apply { isDaemon = true; start() }
             try {
-                val deadline = System.nanoTime() + timeoutMs * 1_000_000
                 while (process.isAlive) {
                     coroutineContext.ensureActive()
-                    if (System.nanoTime() > deadline) return@withContext Outcome(0, "HTTP test timed out")
+                    val now = System.nanoTime()
+                    val handshake = handshakeDeadline.get()
+                    if (handshake == 0L && now > authDeadline) return@withContext Outcome(0, "VK не выдал доступ к звонку вовремя")
+                    if (handshake != 0L && now > handshake) return@withContext Outcome(0, "TURN/DTLS handshake timed out")
                     delay(100)
                 }
                 reader.join(500)

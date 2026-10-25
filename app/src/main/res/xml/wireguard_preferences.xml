@@ -218,4 +218,41 @@
             app:title="@string/amnezia_disable_cookies" />
     </PreferenceCategory>
 
+    <PreferenceCategory
+        app:key="obfsCategory"
+        app:title="@string/wg_obfs_settings">
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+            app:icon="@drawable/ic_baseline_security_24"
+            app:key="obfs_type"
+            app:title="@string/wg_obfs_type"
+            app:entries="@array/wg_obfs_type_entry"
+            app:entryValues="@array/wg_obfs_type_value"
+            app:defaultValue=""
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:icon="@drawable/ic_settings_password"
+            app:key="obfs_key"
+            app:title="@string/wg_obfs_key"
+            app:dialogLayout="@layout/layout_password_dialog" />
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+            app:icon="@drawable/ic_baseline_texture_24"
+            app:key="obfs_masking"
+            app:title="@string/obfs_masking"
+            app:entries="@array/wg_obfs_masking_entry"
+            app:entryValues="@array/wg_obfs_masking_value"
+            app:defaultValue=""
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:icon="@drawable/ic_baseline_tune_24"
+            app:key="obfs_obfuscate_bytes"
+            app:title="@string/wg_obfs_obfuscate_bytes"
+            app:defaultValue="0"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:icon="@drawable/ic_baseline_tune_24"
+            app:key="obfs_media_ssrc"
+            app:title="@string/obfs_media_ssrc"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
 </PreferenceScreen>

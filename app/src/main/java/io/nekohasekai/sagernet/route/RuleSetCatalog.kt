@@ -1,5 +1,7 @@
 package app.qthrone.mobile.route
 
+import java.util.regex.Pattern
+
 /** The name → .srs URL map of the routeprofiles `srslist.h` (the desktop's compiled-in ruleSetList). */
 class RuleSetCatalog(entries: List<Pair<String, String>>) {
     private val map = LinkedHashMap<String, String>()
@@ -35,9 +37,17 @@ class RuleSetCatalog(entries: List<Pair<String, String>>) {
     }
 
     companion object {
-        private val ENTRY = Regex("\\{\\s*\"([^\"]+)\"\\s*,\\s*\"([^\"]+)\"\\s*\\}")
+        private val ENTRY = Pattern.compile("\\{\\s*\"([^\"]+)\"\\s*,\\s*\"([^\"]+)\"\\s*\\}")
 
-        fun parseSrsList(text: String): RuleSetCatalog =
-            RuleSetCatalog(ENTRY.findAll(text).map { it.groupValues[1] to it.groupValues[2] }.toList())
+        /**
+         * One matcher for the whole text: Regex.findAll makes a new matcher per match, and each one copies the
+         * whole text natively on Android, about a gigabyte for the ~2000 entries (fatal on 32-bit devices).
+         */
+        fun parseSrsList(text: String): RuleSetCatalog {
+            val matcher = ENTRY.matcher(text)
+            val entries = ArrayList<Pair<String, String>>()
+            while (matcher.find()) entries.add(matcher.group(1)!! to matcher.group(2)!!)
+            return RuleSetCatalog(entries)
+        }
     }
 }

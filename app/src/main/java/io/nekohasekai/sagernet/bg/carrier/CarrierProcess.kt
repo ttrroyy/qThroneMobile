@@ -20,6 +20,8 @@ enum class CarrierKind(val executable: String, val configFlag: String, val minim
     VAYDNS("libdnstun.so", "--qthrone-config", 24),
     SLIPSTREAM("libdnstun.so", "--qthrone-config", 24),
     MASTERDNS("libmasterdns.so", "--qthrone-config", 24),
+    COTTENDNS("libcottendns.so", "--qthrone-config", 24),
+    SOAR("libsoar.so", "--qthrone-config", 24),
     S3BYPASS("libs3bypass.so", "--qthrone-config", 24),
     SSTP("libsstp.so", "--qthrone-config", 24),
     // WDTT Plus takes flags and its secrets as START_CONFIG on stdin, as its own app starts it.

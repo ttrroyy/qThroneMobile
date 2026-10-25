@@ -24,7 +24,7 @@ suspend fun urlTestCurrent(instance: Instance, core: CoreConfig, url: String, ti
     val request = TestRequest().apply {
         testCurrent = true
         this.url = url
-        this.timeoutMs = ProbeTimeout.effective(timeoutMs,app.qthrone.mobile.database.DataStore.baseService?.data?.proxy?.config?.carrierPlans?.isNotEmpty()==true)
+        this.timeoutMs = timeoutMs
         maxConcurrency = 1
         core.outboundTags.forEach(::addOutboundTag)
         if (vpnExit) addVPNEndpointTag(CoreConfig.TAG_PROXY)

@@ -156,5 +156,37 @@
         "sources": "qThroneMobile SSTP 9409f474ec032e97c9fc3c90d03f15f1fada0b1d\nAndroid ABI x86_64\n"
       }
     ]
+  },
+  "dns_engines": {
+    "build_commit": "e5ffc208f5c5f060248fa03990d4f6428335a54c",
+    "inputs": {
+      "carriers/cottendns/main.go": "cc878634a0b42cd0d5ea26bc41b01384d2836600248ec12be73002956902238c",
+      "carriers/soar/main.go": "226a402d2f0f5b0feb81655ff4570fec3e4242047906f860a2c11cef19954ce9",
+      "carriers/soar/socks.go": "58e5e8917373f50b78c3e3dbad789985868bb867c592169a940780011744520f",
+      "scripts/build_dns_engines.sh": "b9d196ec102f7059fad1b0108eaab315915e2197556762dbc38d97149cc826c3"
+    },
+    "archives": [
+      {
+        "abi": "armeabi-v7a",
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-dns-e5ffc208-armeabi-v7a.tar.gz",
+        "name": "qthrone-dns-e5ffc208-armeabi-v7a.tar.gz",
+        "sha256": "3ed7bbb8cbeaa2e9730dd218d0f26470e5c241b2607666bd1293716d8c0cb8c5",
+        "sources": "qThroneMobile DNS engines e5ffc208f5c5f060248fa03990d4f6428335a54c\nCottenDNS 7db7b73658c791cce62300d29647e4d369d6e1e4\nSoar fea80aae6c60a9f27d7358e5f967cbc9b57bb37d\nAndroid ABI armeabi-v7a\n"
+      },
+      {
+        "abi": "arm64-v8a",
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-dns-e5ffc208-arm64-v8a.tar.gz",
+        "name": "qthrone-dns-e5ffc208-arm64-v8a.tar.gz",
+        "sha256": "def6cf50a62a47d7657d0f94edd443056b22d9931cad01cdf6ce25a337f92593",
+        "sources": "qThroneMobile DNS engines e5ffc208f5c5f060248fa03990d4f6428335a54c\nCottenDNS 7db7b73658c791cce62300d29647e4d369d6e1e4\nSoar fea80aae6c60a9f27d7358e5f967cbc9b57bb37d\nAndroid ABI arm64-v8a\n"
+      },
+      {
+        "abi": "x86_64",
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-dns-e5ffc208-x86_64.tar.gz",
+        "name": "qthrone-dns-e5ffc208-x86_64.tar.gz",
+        "sha256": "51413b3ced9cbbe27f2d3f2e76a15d742c209ca77524299e9cbf6328ab874985",
+        "sources": "qThroneMobile DNS engines e5ffc208f5c5f060248fa03990d4f6428335a54c\nCottenDNS 7db7b73658c791cce62300d29647e4d369d6e1e4\nSoar fea80aae6c60a9f27d7358e5f967cbc9b57bb37d\nAndroid ABI x86_64\n"
+      }
+    ]
   }
 }
