@@ -34,7 +34,7 @@ object OutboundFactory {
     /** Every factory string of OutboundFactory.cpp:35-61 (R2 Р В РІР‚в„ўР вЂ™Р’В§A). */
     @JvmField
     val ALL_TYPES: List<String> = listOf(
-        "qwdtt", "csqtt", "wdttplus", "openflux", "olcrtc", "dnstt", "vaydns", "slipstream", "masterdns", "cottendns", "soar", "s3bypass", "sstp", "socks", "http", "shadowsocks", "chain", "autoselector", "vmess", "trojan", "vless", "xrayvless", "hysteria",
+        "qwdtt", "csqtt", "wdttplus", "openflux", "openfluxkey", "olcrtc", "dnstt", "vaydns", "slipstream", "masterdns", "cottendns", "soar", "s3bypass", "sstp", "socks", "http", "shadowsocks", "chain", "autoselector", "vmess", "trojan", "vless", "xrayvless", "hysteria",
         "tuic", "juicity", "trusttunnel", "anytls", "mieru", "snell", "shadowtls", "wireguard", "masque", "openvpn",
         "openconnect", "tailscale", "ssh", "custom", "extracore", "naive", "direct",
     )
@@ -70,6 +70,7 @@ object OutboundFactory {
         "cottendns" to { DnsTunnel("cottendns") },
         "soar" to { DnsTunnel("soar") },
         "s3bypass" to { S3Bypass() },
+        "openfluxkey" to { OpenFluxKey() },
         "sstp" to { Sstp() },
         "wdttplus" to { WdttPlus() },
     )
@@ -112,6 +113,8 @@ object OutboundFactory {
 
     @JvmField
     val PROTOCOLS: List<Protocol> = listOf(
+        // The wlruscfd/openflux-server fork's links, before the original's openflux://v1/.
+        Protocol("openfluxkey", listOf("openflux://import"), listOf("openfluxkey"), emptyList()),
         Protocol("openflux", listOf("openflux://"), listOf("openflux"), emptyList()),
         Protocol("olcrtc", listOf("olcrtc://"), listOf("olcrtc"), emptyList()),
         // One model reads every DNS tunnel link and takes its transport from it.

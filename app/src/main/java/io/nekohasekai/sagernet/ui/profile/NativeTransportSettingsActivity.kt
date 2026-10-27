@@ -79,6 +79,9 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
                 if(!document.contains(key)) document[key]=value
         }
         if(type == "openflux" && !document.contains("context")) document["context"]=""
+        if(type == "openfluxkey")
+            for((key,value) in mapOf("transport" to "boards","doc_url" to "","key_token" to "","e2e_encryption" to false))
+                if(!document.contains(key)) document[key]=value
         if(type in dnsTypes) {
             val defaults=linkedMapOf<String,Any>("domain" to "","resolvers" to JsonArray())
             when(type) {
@@ -142,6 +145,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "masterdns","cottendns" -> listOf("name","domain","mkey","encryption","resolvers")
             "soar" -> listOf("name","domain","pubkey","resolvers","soar.discovery","soar.country")
             "sstp" -> listOf("name","server","server_port","username","password","sni","allow_insecure")
+            "openfluxkey" -> listOf("name","transport","doc_url","key_token","e2e_encryption")
             "s3bypass" -> listOf("name") + listOf("endpoint","region","bucket","prefix","sessionsDir","accessKey","secretKey").map { "storage.$it" } +
                 listOf("pollIntervalMs","writeIntervalMs","idleTimeoutSec","maxFileSizeBytes").map { "tuning.$it" }
             else -> listOf("name","provider","transport","room","key","token","channel","dns","device_id") + optionDefaults.keys.map { "options.$it" }
@@ -279,7 +283,8 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "endpoint" to "Адрес хранилища (endpoint)", "region" to "Регион", "bucket" to "Корзина (bucket)", "prefix" to "Префикс",
             "sessionsDir" to "Каталог сессий", "accessKey" to "Access Key", "secretKey" to "Secret Key",
             "pollIntervalMs" to "Опрос хранилища, мс", "writeIntervalMs" to "Запись в хранилище, мс",
-            "idleTimeoutSec" to "Тайм-аут простоя, с", "maxFileSizeBytes" to "Наибольший объект, байт")
+            "idleTimeoutSec" to "Тайм-аут простоя, с", "maxFileSizeBytes" to "Наибольший объект, байт",
+            "doc_url" to "Ссылка на документ или доску", "key_token" to "Ключ доступа", "e2e_encryption" to "Сквозное шифрование ключом")
         val choices = mutableMapOf("hash_source" to listOf("manual","auto"),"mode" to listOf("raw","wg"), "obfs" to listOf("audio","video"),
             "vk_anon_path" to listOf("vkcalls","legacy"), "captcha_mode" to listOf("auto","wv","rjs"),
             "provider" to listOf("jitsi","telemost","wbstream"),
@@ -293,6 +298,10 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "congestion_control" to listOf("BBR","DCUBIC"),"encryption" to listOf("Нет","XOR","ChaCha20","AES-128-GCM","AES-192-GCM","AES-256-GCM"),"hash_source" to listOf("Вручную","Авто"),"mode" to listOf("RAW","WG"),"turn_tcp" to listOf("UDP","TCP"),
             "vk_anon_path" to listOf("Звонок VK","Капча"),"captcha_mode" to listOf("Автоматически, с переходом в браузер","Окно браузера","Автоматически"),
             "provider" to listOf("Jitsi","Телемост","WBStream"),"obfs" to listOf("Аудио","Видео"))
+        if(editingOutbound.type=="openfluxkey") {
+            choices["transport"]=app.qthrone.mobile.outbound.types.OpenFluxKey.TRANSPORTS
+            captions["transport"]=listOf("Яндекс Документы","Яндекс Волга","MAX","Яндекс Доски","Mail.ru","МТС Линк","Телемост","Cups.online","Авито","Яндекс Документы, несколько")
+        }
         if(editingOutbound.type=="csqtt") {
             choices["hash_source"]=listOf("manual","auto","auto_js")
             captions["hash_source"]=listOf("Вручную","Auto API","Auto JS")

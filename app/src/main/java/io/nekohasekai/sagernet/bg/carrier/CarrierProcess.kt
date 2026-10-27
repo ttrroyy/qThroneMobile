@@ -15,6 +15,7 @@ enum class CarrierKind(val executable: String, val configFlag: String, val minim
     QWDTT("libqwdtt.so", "-config", 24),
     CSQTT("libqwdtt.so", "-csqtt-config", 26),
     OPENFLUX("libopenflux.so", "--qthrone-config", 24),
+    OPENFLUXKEY("libopenfluxkey.so", "--qthrone-config", 24),
     OLCRTC("libolcrtc.so", "--qthrone-config", 24),
     DNSTT("libdnstun.so", "--qthrone-config", 24),
     VAYDNS("libdnstun.so", "--qthrone-config", 24),
@@ -47,14 +48,14 @@ class CarrierProcess private constructor(private val process: Process, private v
     private val unavailableCall = AtomicBoolean(false)
     private class UnavailableCall:IllegalStateException("VK: выбранный хеш недоступен; звонок не найден")
     private class TransientStartup:IllegalStateException("Временная ошибка авторизации VK; повторите подключение")
-    private val captcha=CarrierCaptchaBridge(process,allowUi=allowInteractions,client=when(kind) { CarrierKind.CSQTT -> "csqtt"; CarrierKind.WDTTPLUS -> "wdttplus"; else -> "qwdtt" })
+    private val captcha=CarrierCaptchaBridge(process,allowUi=allowInteractions,client=when(kind) { CarrierKind.CSQTT -> "csqtt"; CarrierKind.WDTTPLUS -> "wdttplus"; CarrierKind.OPENFLUX,CarrierKind.OPENFLUXKEY -> "openflux"; else -> "qwdtt" })
     private val health=NativeTransportHealth(minimumRecoveryPeak=if(kind==CarrierKind.CSQTT) 10 else 9)
     private var wdttLifecycle: WdttPlusLifecycle? = null
     private var wdttBootstrap: WdttPlusBootstrapRelay? = null
     private var wdttDeadSince=0L
     fun recoveryFailure(): Pair<String,Boolean>? {
         if(closed.get() || captcha.waiting) return null
-        if(captcha.userCancelled) return "Подтверждение VK отменено" to true
+        if(captcha.userCancelled) return (if(kind in listOf(CarrierKind.OPENFLUX,CarrierKind.OPENFLUXKEY)) "Проверка Яндекса отменена" else "Подтверждение VK отменено") to true
         startupFailure.get()?.let { return it to true }
         val exited=try { process.exitValue();true } catch(_:IllegalThreadStateException) { false }
         // WDTT Plus v20 keeps a live Go process through loss of workers, DNS and network handovers.

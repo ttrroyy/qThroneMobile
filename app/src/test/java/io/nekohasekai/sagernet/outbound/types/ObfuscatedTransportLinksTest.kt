@@ -82,6 +82,21 @@ class ObfuscatedTransportLinksTest {
         assertEquals(socks.exportToJson(), again.exportToJson())
     }
 
+    @Test fun forkImportLinkRunsTheForkClient() {
+        val json = """{"name":"Board","mode":"key","control_url":"https://185.195.25.48","key_token":"key_RLWMuHQ6M29FZyXww19MuR5",""" +
+            """"doc_url":"https://boards.yandex.ru/whiteboard/?hash=f1e577e0ad744189d6b752f9e46f041b","transport":"boards","e2e_encryption":true}"""
+        val link = "openflux://import?data=" + b64(json)
+        val key = read(link) as OpenFluxKey
+        assertEquals(CarrierKind.OPENFLUXKEY, key.carrierKind)
+        val config = key.privateConfig(1080, 1081, CarrierBridgeCredentials("user", "pass"))
+        assertEquals("boards", config.string("transport"))
+        assertEquals("https://boards.yandex.ru/whiteboard/?hash=f1e577e0ad744189d6b752f9e46f041b", config.string("doc_url"))
+        assertFalse(config.contains("e2e_encryption"))
+        val again = read(key.exportToLink()) as OpenFluxKey
+        assertEquals(key.exportToJson(), again.exportToJson())
+        assertTrue(read("openflux://import?data=" + b64("""{"transport":"boards","doc_url":"http://boards.yandex.ru/x"}""")) == null)
+    }
+
     @Test fun warpAmneziaConfKeepsBothAddresses() {
         val conf = "[Interface]\nAddress = 172.16.0.2/32\nAddress = 2606:4700:110:827c:dcbb:200:a6e7:fbc4/128\n" +
             "PrivateKey = h+tGZJvVA5XBtvBeR9aMZ71ZuN8m6+CNawC+8KnVGbU=\nMTU = 1420\nJc = 4\nJmin = 40\nJmax = 70\nH1 = 1\nH2 = 2\nH3 = 3\nH4 = 4\n" +

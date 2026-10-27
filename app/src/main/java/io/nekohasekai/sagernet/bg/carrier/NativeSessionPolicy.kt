@@ -54,6 +54,11 @@ internal object NativeSessionPolicy {
                 .map { it.string("type")+" "+it.string(if(it.string("type")=="direct") "dial" else "url").trim() }.toSet()
             return carriers(first).intersect(carriers(second)).isNotEmpty()
         }
+        if(firstKind==CarrierKind.OPENFLUXKEY && secondKind==CarrierKind.OPENFLUXKEY) {
+            // One board or document carries one client of the fork's exit.
+            fun documents(json:String)=JsonInput.parseObject(json).let { (it.array("doc_urls").strings()+it.string("doc_url")).filter(String::isNotBlank).toSet() }
+            return documents(first).intersect(documents(second)).isNotEmpty()
+        }
         if(firstKind==CarrierKind.SSTP && secondKind==CarrierKind.SSTP) {
             val a=JsonInput.parseObject(first);val b=JsonInput.parseObject(second)
             return a.string("server").isNotBlank() && a.string("server")==b.string("server") &&

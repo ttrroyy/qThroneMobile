@@ -29,6 +29,7 @@ core_ref = properties['THRONE_CORE_REF'].strip()
 assert same_transport_sources(core_ref, lock['core_commit']), 'Update the transport lock for the new core pin'
 for name, expected in lock['inputs'].items():
     assert hashlib.sha256((root / name).read_bytes()).hexdigest() == expected, 'Rebuild transports after changing ' + name
+# OpenFlux's client now comes from the engines archive below, which replaces this archive's libopenflux.so.
 for item in lock['archives']:
     with urllib.request.urlopen(item['url'], timeout=60) as response:
         archive = response.read()
@@ -127,10 +128,11 @@ for item in sstp['archives']:
     (license_dir / 'SSTP-SOURCES.txt').write_bytes(files['SOURCES.txt'])
     print('Verified SSTP transport:', item['abi'])
 
-# CottenDNS and Soar are pinned apart from the other transports.
+# CottenDNS, Soar, OpenFlux and OpenFlux Key are pinned apart from the other transports.
 assert 'dns_engines' in lock, 'Build and pin the DNS engines before packaging this version'
 dns = lock['dns_engines']
-source_paths = {p.relative_to(root).as_posix() for folder in ('carriers/cottendns', 'carriers/soar') for p in (root / folder).glob('*.go')}
+engine_folders = ('carriers/cottendns', 'carriers/soar', 'carriers/openflux', 'carriers/openfluxkey')
+source_paths = {p.relative_to(root).as_posix() for folder in engine_folders for p in (root / folder).rglob('*.go')}
 source_paths.add('scripts/build_dns_engines.sh')
 assert source_paths == set(dns['inputs']), 'Rebuild the DNS engines after adding or removing source files'
 for name, expected in dns['inputs'].items():
@@ -146,17 +148,18 @@ for item in dns['archives']:
             assert member.isfile() and '/' not in member.name and '\\' not in member.name
             assert member.name not in files, 'Duplicate DNS engine archive entry'
             files[member.name] = tar.extractfile(member).read()
-    assert set(files) == {'libcottendns.so', 'libsoar.so', 'CottenDNS-LICENSE', 'Soar-LICENSE', 'DNS.json', 'SOURCES.txt', 'SHA256SUMS'}
+    assert set(files) == {'libcottendns.so', 'libsoar.so', 'libopenflux.so', 'libopenfluxkey.so', 'CottenDNS-LICENSE', 'Soar-LICENSE',
+                          'OpenFlux-LICENSE', 'OpenFluxKey-LICENSE', 'DNS.json', 'SOURCES.txt', 'SHA256SUMS'}
     provenance = json.loads(files['DNS.json'])
     assert provenance == {'build_commit': dns['build_commit'], 'abi': item['abi'], 'inputs': dns['inputs']}, 'DNS engine build provenance mismatch'
     assert files['SOURCES.txt'].decode() == item['sources']
     sums = dict(line.split()[::-1] for line in files['SHA256SUMS'].decode().splitlines())
-    assert set(sums) == {'libcottendns.so', 'libsoar.so'}
+    assert set(sums) == {'libcottendns.so', 'libsoar.so', 'libopenflux.so', 'libopenfluxkey.so'}
     license_dir = root / 'app/src/main/assets/carrier-licenses' / item['abi']
     for name, expected in sums.items():
         assert hashlib.sha256(files[name]).hexdigest() == expected, 'DNS engine binary checksum mismatch'
         (root / 'deployment/carriers' / item['abi'] / name).write_bytes(files[name])
-    for name in ('CottenDNS-LICENSE', 'Soar-LICENSE'):
+    for name in ('CottenDNS-LICENSE', 'Soar-LICENSE', 'OpenFlux-LICENSE', 'OpenFluxKey-LICENSE'):
         (license_dir / name).write_bytes(files[name])
     (license_dir / 'DNS-SOURCES.txt').write_bytes(files['SOURCES.txt'])
     print('Verified DNS engines:', item['abi'])

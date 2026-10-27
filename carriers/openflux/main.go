@@ -30,7 +30,30 @@ type config struct {
 	SOCKS     string `json:"socks"`
 	SOCKSUser string `json:"socks_user"`
 	SOCKSPass string `json:"socks_pass"`
+	// Tests pass false: nobody is there to answer the provider's check.
+	InteractiveCaptcha *bool `json:"interactive_captcha"`
+	LatencyProbe       bool  `json:"latency_probe"`
 }
+
+// openfluxCaptcha is the mobile package's pending check: a real site's page the client itself
+// opens. A script's own setup page and a check of the exit are not answered here.
+type openfluxCaptcha struct{}
+
+func (openfluxCaptcha) pendingCaptcha() string {
+	if mobile.PendingCaptchaOwn() || mobile.PendingCaptchaProxy() != "" || mobile.PendingCaptchaHTML() != "" {
+		return ""
+	}
+	return mobile.PendingCaptchaURL()
+}
+
+func (openfluxCaptcha) submitCaptcha(cookies string) error {
+	if msg := mobile.SubmitCaptchaCookies(cookies); msg != "" {
+		return fmt.Errorf("%s", msg)
+	}
+	return nil
+}
+
+func (openfluxCaptcha) cancelCaptcha() { mobile.CancelCaptcha() }
 
 func readConfig(path string) (config, error) {
 	var c config
@@ -128,8 +151,9 @@ func printLogs(lastCaptcha *string) {
 	}
 	if pending := mobile.PendingCaptchaTransport(); pending != *lastCaptcha {
 		*lastCaptcha = pending
-		if pending != "" {
-			fmt.Printf("[OpenFlux] %s: сервис запросил проверку «я не робот»\n", pending)
+		// Checks this client answers are reported by watchCaptcha; the rest only here.
+		if pending != "" && (openfluxCaptcha{}).pendingCaptcha() == "" {
+			fmt.Printf("[OpenFlux] %s: сервис запросил проверку, которую этот клиент не показывает\n", pending)
 		}
 	}
 }
@@ -156,14 +180,20 @@ func run() int {
 
 	stop := make(chan struct{})
 	go func() {
-		scanner := bufio.NewScanner(io.LimitReader(os.Stdin, 4096))
+		scanner := bufio.NewScanner(io.LimitReader(os.Stdin, 1<<20))
 		for scanner.Scan() {
-			if strings.TrimSpace(scanner.Text()) == "STOP" {
+			line := strings.TrimSpace(scanner.Text())
+			if line == "STOP" {
 				break
+			}
+			if value, ok := strings.CutPrefix(line, "CAPTCHA_RESULT|"); ok {
+				deliverCaptcha(value)
 			}
 		}
 		close(stop)
 	}()
+	interactive := (c.InteractiveCaptcha == nil || *c.InteractiveCaptcha) && !c.LatencyProbe
+	go watchCaptcha(stop, openfluxCaptcha{}, captchaInteractive(interactive), solveCaptcha)
 
 	inner, err := freeLoopbackAddress()
 	if err != nil {

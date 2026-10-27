@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# CottenDNS and Soar: their own clients behind the authenticated loopback SOCKS5 bridge,
-# pinned and built apart from the other transports, which stay as they are.
+# CottenDNS, Soar, OpenFlux and the wlruscfd/openflux-server fork (OpenFlux Key): their own
+# clients behind the authenticated loopback SOCKS5 bridge, pinned and built apart from the other
+# transports, which stay as they are. This libopenflux.so replaces the one of the main archive.
 set -euo pipefail
 ABI=${1:?Android ABI is required}
 ROOT=$(pwd)
@@ -36,20 +37,36 @@ mkdir -p "$SOURCE/soar/cmd/qthrone-soar"
 cp "$ROOT/carriers/soar/"*.go "$SOURCE/soar/cmd/qthrone-soar/"
 (cd "$SOURCE/soar"; go build -trimpath -buildvcs=false -buildmode=pie -ldflags="$FLAGS" -o "$OUT/libsoar.so" ./cmd/qthrone-soar)
 cp "$SOURCE/soar/LICENSE" "$OUT/Soar-LICENSE"
+# OpenFlux through its own mobile package, as the original Android app runs it (and as the main archive built it).
+FLUX=edcf77a1848a72370cfba9f346d3b897b61e7e7d
+fetch_source "$SOURCE/openflux" https://github.com/p1neappleXpress/OpenFlux.git "$FLUX"
+mkdir -p "$SOURCE/openflux/mobile/cmd/qthrone-openflux"
+cp "$ROOT/carriers/openflux/"*.go "$SOURCE/openflux/mobile/cmd/qthrone-openflux/"
+(cd "$SOURCE/openflux/mobile"; go build -trimpath -buildvcs=false -buildmode=pie -ldflags='-s -w -checklinkname=0' -o "$OUT/libopenflux.so" ./cmd/qthrone-openflux)
+cp "$SOURCE/openflux/LICENSE" "$OUT/OpenFlux-LICENSE"
+# The fork's exit nodes frame traffic their own way: its profiles run through the fork's own bridge.
+FLUXKEY=fc5647767c9daba6571ec3157f9be9b6ffe6e551
+fetch_source "$SOURCE/openfluxkey" https://github.com/wlruscfd/openflux-server.git "$FLUXKEY"
+mkdir -p "$SOURCE/openfluxkey/cmd/qthrone-openfluxkey"
+cp "$ROOT/carriers/openfluxkey/"*.go "$SOURCE/openfluxkey/cmd/qthrone-openfluxkey/"
+cp "$ROOT/carriers/openfluxkey/bridge/"*.go "$SOURCE/openfluxkey/bridge/"
+(cd "$SOURCE/openfluxkey"; go build -trimpath -buildvcs=false -buildmode=pie -ldflags='-s -w -checklinkname=0' -o "$OUT/libopenfluxkey.so" ./cmd/qthrone-openfluxkey)
+cp "$SOURCE/openfluxkey/LICENSE" "$OUT/OpenFluxKey-LICENSE"
 for binary in "$OUT/"*.so; do
   "$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf" -h "$binary" | grep -q 'Type:.*DYN'
 done
-python3 - "$ABI" "$OUT" "$COTTENDNS" "$SOAR" <<'PY'
+python3 - "$ABI" "$OUT" "$COTTENDNS" "$SOAR" "$FLUX" "$FLUXKEY" <<'PY'
 import hashlib,json,subprocess,sys
 from pathlib import Path
-abi,out,cotten,soar=sys.argv[1],Path(sys.argv[2]),sys.argv[3],sys.argv[4]
+abi,out,cotten,soar,flux,fluxkey=sys.argv[1],Path(sys.argv[2]),sys.argv[3],sys.argv[4],sys.argv[5],sys.argv[6]
 commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
-paths=sorted(p for folder in ('carriers/cottendns','carriers/soar') for p in Path(folder).glob('*.go'))
+paths=sorted(p for folder in ('carriers/cottendns','carriers/soar','carriers/openflux','carriers/openfluxkey') for p in Path(folder).rglob('*.go'))
 paths.append(Path('scripts/build_dns_engines.sh'))
 inputs={p.as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
 (out/'DNS.json').write_text(json.dumps({'build_commit':commit,'abi':abi,'inputs':inputs},indent=2)+'\n')
-(out/'SOURCES.txt').write_text(f'qThroneMobile DNS engines {commit}\nCottenDNS {cotten}\nSoar {soar}\nAndroid ABI {abi}\n')
-(out/'SHA256SUMS').write_text(''.join(f'{hashlib.sha256((out/n).read_bytes()).hexdigest()}  {n}\n' for n in ('libcottendns.so','libsoar.so')))
+(out/'SOURCES.txt').write_text(f'qThroneMobile DNS engines {commit}\nCottenDNS {cotten}\nSoar {soar}\nOpenFlux {flux}\nOpenFlux Key {fluxkey}\nAndroid ABI {abi}\n')
+(out/'SHA256SUMS').write_text(''.join(f'{hashlib.sha256((out/n).read_bytes()).hexdigest()}  {n}\n' for n in ('libcottendns.so','libsoar.so','libopenflux.so','libopenfluxkey.so')))
 PY
 tar -C "$OUT" -czf "qthrone-dns-$(git rev-parse --short=8 HEAD)-$ABI.tar.gz" \
-  libcottendns.so libsoar.so CottenDNS-LICENSE Soar-LICENSE DNS.json SOURCES.txt SHA256SUMS
+  libcottendns.so libsoar.so libopenflux.so libopenfluxkey.so CottenDNS-LICENSE Soar-LICENSE OpenFlux-LICENSE OpenFluxKey-LICENSE \
+  DNS.json SOURCES.txt SHA256SUMS

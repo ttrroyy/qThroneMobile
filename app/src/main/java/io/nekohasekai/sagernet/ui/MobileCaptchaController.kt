@@ -47,8 +47,13 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
                     if(!url.matches(Regex("[A-Za-z0-9_-]{16,512}"))) { reply(id,"error:invalid call hash");return }
                     show(id,url,true);return
                 }
+                val client=intent.getStringExtra("client") ?: "qwdtt"
+                if(client=="openflux") {
+                    if(!CaptchaAddressPolicy.allowedOpenFlux(url)) { reply(id,"error:invalid captcha address");return }
+                    showOpenFlux(id,url);return
+                }
                 if(!allowed(url)) { reply(id,"error:invalid captcha address");return }
-                show(id,url,automatic=intent.getBooleanExtra("automatic",false),client=intent.getStringExtra("client") ?: "qwdtt")
+                show(id,url,automatic=intent.getBooleanExtra("automatic",false),client=client)
             }
         }
     }
@@ -307,6 +312,107 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
             }
         }
         web.postDelayed(polling,400)
+    }
+    /**
+     * OpenFlux's provider check, as the original OpenFlux apps show it (CaptchaDialog/CaptchaBrowser): the page in
+     * one sheet with "Готово, проверка пройдена" and "Позже". The page's cookies go back once the user confirms, or
+     * on their own once the page has settled for 1.5 s on the document behind the check (a real browser is often
+     * let through without one). One sheet at a time, like the VK captcha: a new request replaces the old one.
+     */
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun showOpenFlux(id: String,url: String) {
+        if(app.qthrone.mobile.bg.carrier.CarrierUiRequests.pending()?.getStringExtra("id")!=id) return
+        val previousSheet=dialog
+        cleanupWeb?.invoke()
+        previousSheet?.dismiss()
+        currentId=id
+        showOnResume=true
+        val ui=ServerUi(host)
+        val sheet=BottomSheetDialog(host)
+        dialog=sheet
+        val body=LinearLayout(host).apply { orientation=LinearLayout.VERTICAL;setBackgroundColor(MobilePalette.surface) }
+        body.addView(TextView(host).apply { text="Яндекс просит пройти проверку";textSize=19f;setTextColor(MobilePalette.text);setPadding(ui.dp(16),ui.dp(14),ui.dp(16),ui.dp(4)) })
+        body.addView(TextView(host).apply {
+            text="Пройдите проверку, затем нажмите «Готово». Если страница откроется без проверки, OpenFlux передаст результат сам."
+            textSize=13f;setTextColor(MobilePalette.muted);setPadding(ui.dp(16),0,ui.dp(16),ui.dp(10))
+        })
+        var cleaned=false
+        var settledSince=0L
+        val web=WebView(host).apply {
+            setBackgroundColor(MobilePalette.surface)
+            settings.javaScriptEnabled=true
+            settings.domStorageEnabled=true
+            settings.loadWithOverviewMode=true
+            settings.useWideViewPort=true
+            settings.allowFileAccess=false
+            settings.allowContentAccess=false
+            settings.mixedContentMode=android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW
+            webChromeClient=android.webkit.WebChromeClient()
+            android.webkit.CookieManager.getInstance().setAcceptCookie(true)
+            android.webkit.CookieManager.getInstance().setAcceptThirdPartyCookies(this,true)
+            webViewClient=object: WebViewClient() {
+                // The check may pass through Yandex's own pages; nothing else opens here.
+                override fun shouldOverrideUrlLoading(view: WebView,request: WebResourceRequest)=
+                    !CaptchaAddressPolicy.allowedOpenFlux(request.url.toString())
+            }
+        }
+        body.addView(web,LinearLayout.LayoutParams(-1,(host.resources.displayMetrics.heightPixels*.6f).toInt()))
+        fun cookies(): String {
+            val manager=android.webkit.CookieManager.getInstance()
+            val merged=linkedMapOf<String,String>()
+            for(address in listOfNotNull(url,web.url).filter(CaptchaAddressPolicy::allowedOpenFlux).distinct())
+                manager.getCookie(address).orEmpty().split(';').map { it.trim() }.filter { '=' in it }
+                    .forEach { merged[it.substringBefore('=')]=it.substringAfter('=') }
+            return merged.entries.joinToString("; ") { "${it.key}=${it.value}" }
+        }
+        fun submit() {
+            if(currentId!=id) return
+            val header=cookies()
+            if(header.isEmpty() || header.length>16384 || header.any { it=='\n' || it=='\r' }) {
+                android.widget.Toast.makeText(host,"Проверка ещё не пройдена",android.widget.Toast.LENGTH_SHORT).show()
+                return
+            }
+            reply(id,header);currentId=null;cleanupWeb?.invoke();sheet.dismiss()
+        }
+        val buttons=LinearLayout(host).apply { setPadding(ui.dp(16),ui.dp(10),ui.dp(16),ui.dp(16)) }
+        buttons.addView(ui.button("Позже") { sheet.dismiss() },LinearLayout.LayoutParams(0,-2,1f).apply { marginEnd=ui.dp(8) })
+        buttons.addView(ui.button("Готово, проверка пройдена",primary=true) { submit() },LinearLayout.LayoutParams(0,-2,2f))
+        body.addView(buttons)
+        val polling=object: Runnable {
+            override fun run() {
+                if(currentId!=id || cleaned) return
+                val address=web.url.orEmpty()
+                val settled=web.progress==100 && CaptchaAddressPolicy.allowedOpenFlux(address) && !CaptchaAddressPolicy.openFluxCheckpoint(address)
+                val now=android.os.SystemClock.uptimeMillis()
+                if(!settled) settledSince=0L
+                else if(settledSince==0L) settledSince=now
+                else if(now-settledSince>=1_500L && cookies().isNotEmpty()) { submit();return }
+                web.postDelayed(this,300)
+            }
+        }
+        val expiry=android.os.Handler(android.os.Looper.getMainLooper())
+        val expire=Runnable { if(currentId==id) { reply(id,"error:timeout");currentId=null;cleanupWeb?.invoke();sheet.dismiss() } }
+        val cleanup: () -> Unit = {
+            if(!cleaned) {
+                cleaned=true
+                expiry.removeCallbacks(expire)
+                web.removeCallbacks(polling)
+                // "Позже" or the sheet's own dismissal declines; the client stays quiet for a while.
+                if(currentId==id) { reply(id,"error:cancelled");currentId=null }
+                web.stopLoading();web.destroy()
+                if(dialog===sheet) dialog=null
+                cleanupWeb=null
+            }
+        }
+        cleanupWeb=cleanup
+        sheet.setOnDismissListener { cleanup() }
+        sheet.setCancelable(false)
+        sheet.setContentView(body)
+        expiry.postDelayed(expire,app.qthrone.mobile.bg.carrier.NativeCaptchaPolicy.visibleTimeout("openflux"))
+        if(host.lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) sheet.show()
+        web.onResume()
+        web.loadUrl(url)
+        web.postDelayed(polling,300)
     }
     override fun close() { val sheet=dialog;cleanupWeb?.invoke();sheet?.dismiss();host.lifecycle.removeObserver(lifecycleObserver);runCatching { host.unregisterReceiver(receiver) } }
     /** The original's touch: a random point in the label, pressure 0.5-0.9, held 80-180 ms, released with a slight drift. */
