@@ -6,6 +6,7 @@ import app.qthrone.mobile.outbound.link.Base64Strict
 import app.qthrone.mobile.outbound.link.LinkParser
 import app.qthrone.mobile.outbound.types.DnsTunnel
 import app.qthrone.mobile.outbound.types.Http
+import app.qthrone.mobile.outbound.types.OpenFluxKey
 import app.qthrone.mobile.outbound.types.S3Bypass
 import app.qthrone.mobile.outbound.types.Sstp
 import app.qthrone.mobile.outbound.types.WdttPlus
