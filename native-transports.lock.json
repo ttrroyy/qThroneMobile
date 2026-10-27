@@ -157,34 +157,41 @@
     ]
   },
   "dns_engines": {
-    "build_commit": "0cacdc817837d1b546d4432085c11d2176126336",
+    "build_commit": "056763f12f2ef5bef94522cac7e9a15281f646b5",
     "inputs": {
       "carriers/cottendns/main.go": "92b010081316339d875ab022d35bea848546f860046fbaf16f341cf79327a9da",
+      "carriers/openflux/captcha.go": "422f26b83a774bcffc045d04fd9c6d1fc4a4b9d15daf02b4fc157b782e65d1e3",
+      "carriers/openflux/captcha_android.go": "6ec861a02602563272d31a91c74e37a4bffec3f1a6a711cc840ad9e496385843",
+      "carriers/openflux/main.go": "473bbe46826c384c693a2bd84af708493441cd74b3a1cd7057291360a4885ba5",
+      "carriers/openfluxkey/bridge/qthrone.go": "2fd24a5e22e81dd322eb8a658dc29393a8ddaf1917788da6671aa9a40fa42dd4",
+      "carriers/openfluxkey/captcha.go": "422f26b83a774bcffc045d04fd9c6d1fc4a4b9d15daf02b4fc157b782e65d1e3",
+      "carriers/openfluxkey/captcha_android.go": "6ec861a02602563272d31a91c74e37a4bffec3f1a6a711cc840ad9e496385843",
+      "carriers/openfluxkey/main.go": "b83d72be89ab6937c9d1621eac9f0d62bc6b019a44ff67333684704ce6b9da0e",
       "carriers/soar/main.go": "226a402d2f0f5b0feb81655ff4570fec3e4242047906f860a2c11cef19954ce9",
       "carriers/soar/socks.go": "58e5e8917373f50b78c3e3dbad789985868bb867c592169a940780011744520f",
-      "scripts/build_dns_engines.sh": "b9d196ec102f7059fad1b0108eaab315915e2197556762dbc38d97149cc826c3"
+      "scripts/build_dns_engines.sh": "c4f003d32273eba5e977dc137e824dbf711d52143a900f189fbc0a0159cc6b28"
     },
     "archives": [
       {
         "abi": "armeabi-v7a",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-dns-0cacdc81-armeabi-v7a.tar.gz",
-        "name": "qthrone-dns-0cacdc81-armeabi-v7a.tar.gz",
-        "sha256": "cd514101297e064232e051a77eac169f33d98a398e41aa4ba8213d19aba7a7be",
-        "sources": "qThroneMobile DNS engines 0cacdc817837d1b546d4432085c11d2176126336\nCottenDNS 7db7b73658c791cce62300d29647e4d369d6e1e4\nSoar fea80aae6c60a9f27d7358e5f967cbc9b57bb37d\nAndroid ABI armeabi-v7a\n"
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-dns-056763f1-armeabi-v7a.tar.gz",
+        "name": "qthrone-dns-056763f1-armeabi-v7a.tar.gz",
+        "sha256": "e1759e55231872153aa544709db71c1e8d35c7e3f0d53c97ab19528f37dd6506",
+        "sources": "qThroneMobile DNS engines 056763f12f2ef5bef94522cac7e9a15281f646b5\nCottenDNS 7db7b73658c791cce62300d29647e4d369d6e1e4\nSoar fea80aae6c60a9f27d7358e5f967cbc9b57bb37d\nOpenFlux edcf77a1848a72370cfba9f346d3b897b61e7e7d\nOpenFlux Key fc5647767c9daba6571ec3157f9be9b6ffe6e551\nAndroid ABI armeabi-v7a\n"
       },
       {
         "abi": "arm64-v8a",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-dns-0cacdc81-arm64-v8a.tar.gz",
-        "name": "qthrone-dns-0cacdc81-arm64-v8a.tar.gz",
-        "sha256": "c9e080a5d63a3e63e9f0f6423ae884d44c53a9855216a0cfbde421f49be5f79a",
-        "sources": "qThroneMobile DNS engines 0cacdc817837d1b546d4432085c11d2176126336\nCottenDNS 7db7b73658c791cce62300d29647e4d369d6e1e4\nSoar fea80aae6c60a9f27d7358e5f967cbc9b57bb37d\nAndroid ABI arm64-v8a\n"
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-dns-056763f1-arm64-v8a.tar.gz",
+        "name": "qthrone-dns-056763f1-arm64-v8a.tar.gz",
+        "sha256": "95c9e3ce4d87f8c88aca3fe7d87589fde03063249f3906fee5d746f092ce39f2",
+        "sources": "qThroneMobile DNS engines 056763f12f2ef5bef94522cac7e9a15281f646b5\nCottenDNS 7db7b73658c791cce62300d29647e4d369d6e1e4\nSoar fea80aae6c60a9f27d7358e5f967cbc9b57bb37d\nOpenFlux edcf77a1848a72370cfba9f346d3b897b61e7e7d\nOpenFlux Key fc5647767c9daba6571ec3157f9be9b6ffe6e551\nAndroid ABI arm64-v8a\n"
       },
       {
         "abi": "x86_64",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-dns-0cacdc81-x86_64.tar.gz",
-        "name": "qthrone-dns-0cacdc81-x86_64.tar.gz",
-        "sha256": "c69967c93633c3b7191b8b0770349dac577a1e0dc3b0f313a56c72a13d7b2821",
-        "sources": "qThroneMobile DNS engines 0cacdc817837d1b546d4432085c11d2176126336\nCottenDNS 7db7b73658c791cce62300d29647e4d369d6e1e4\nSoar fea80aae6c60a9f27d7358e5f967cbc9b57bb37d\nAndroid ABI x86_64\n"
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-dns-056763f1-x86_64.tar.gz",
+        "name": "qthrone-dns-056763f1-x86_64.tar.gz",
+        "sha256": "edd1ea7f517f20e94b8b6e50f405f9bc5990584cd3b44d8d13d55ee0b43e2ca9",
+        "sources": "qThroneMobile DNS engines 056763f12f2ef5bef94522cac7e9a15281f646b5\nCottenDNS 7db7b73658c791cce62300d29647e4d369d6e1e4\nSoar fea80aae6c60a9f27d7358e5f967cbc9b57bb37d\nOpenFlux edcf77a1848a72370cfba9f346d3b897b61e7e7d\nOpenFlux Key fc5647767c9daba6571ec3157f9be9b6ffe6e551\nAndroid ABI x86_64\n"
       }
     ]
   }

@@ -83,7 +83,8 @@ class CarrierCaptchaBridge(private val process: Process, private val onlyIfUiIdl
     }
     @Synchronized private fun respond(id: String?,result: String?) {
         if(id==null || id!=requestId || result==null || result.length>16384 || result.any { it=='\n' || it=='\r' }) return
-        if(result=="error:cancelled") cancelledByUser=true
+        // Both OpenFlux apps keep the connection after "Позже" or a closed check: the client asks again later.
+        if(result=="error:cancelled" && client !in listOf("openflux","openfluxkey")) cancelledByUser=true
         synchronized(process) {
             runCatching { process.outputStream.write((command+result+"\n").toByteArray());process.outputStream.flush() }
         }

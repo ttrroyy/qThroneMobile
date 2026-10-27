@@ -48,9 +48,10 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
                     show(id,url,true);return
                 }
                 val client=intent.getStringExtra("client") ?: "qwdtt"
-                if(client=="openflux") {
+                if(client=="openflux" || client=="openfluxkey") {
                     if(!CaptchaAddressPolicy.allowedOpenFlux(url)) { reply(id,"error:invalid captcha address");return }
-                    showOpenFlux(id,url);return
+                    if(client=="openflux") showOpenFlux(id,url) else showOpenFluxKey(id,url)
+                    return
                 }
                 if(!allowed(url)) { reply(id,"error:invalid captcha address");return }
                 show(id,url,automatic=intent.getBooleanExtra("automatic",false),client=client)
@@ -414,6 +415,108 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
         web.loadUrl(url)
         web.postDelayed(polling,300)
     }
+    /**
+     * The wlruscfd/openflux-server fork's check, as its app shows it (CaptchaWebViewDialog): a desktop Chrome page with
+     * a "checking in the background" note, cookie banners accepted on their own, and the result sent by itself once the
+     * Yandex document itself has loaded (no "captcha" in the path, readyState complete, #client-config present), with
+     * the cookies of every Yandex host the app reads. "Продолжить" sends them again; closing declines for now.
+     */
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun showOpenFluxKey(id: String,url: String) {
+        if(app.qthrone.mobile.bg.carrier.CarrierUiRequests.pending()?.getStringExtra("id")!=id) return
+        val previousSheet=dialog
+        cleanupWeb?.invoke()
+        previousSheet?.dismiss()
+        currentId=id
+        showOnResume=true
+        val ui=ServerUi(host)
+        val sheet=BottomSheetDialog(host)
+        dialog=sheet
+        val body=LinearLayout(host).apply { orientation=LinearLayout.VERTICAL;setBackgroundColor(MobilePalette.surface) }
+        val header=LinearLayout(host).apply { gravity=android.view.Gravity.CENTER_VERTICAL }
+        header.addView(TextView(host).apply { text="Решите проверку, чтобы продолжить";textSize=19f;setTextColor(MobilePalette.text);setPadding(ui.dp(16),ui.dp(14),ui.dp(8),ui.dp(10)) },LinearLayout.LayoutParams(0,-2,1f))
+        header.addView(android.widget.ImageButton(host).apply {
+            setImageResource(app.qthrone.mobile.R.drawable.ic_navigation_close)
+            imageTintList=android.content.res.ColorStateList.valueOf(MobilePalette.accent(host))
+            background=null;contentDescription="Закрыть проверку"
+            setOnClickListener { sheet.dismiss() }
+        },LinearLayout.LayoutParams(ui.dp(48),ui.dp(48)))
+        body.addView(header)
+        val hint=LinearLayout(host).apply { gravity=android.view.Gravity.CENTER_VERTICAL;setPadding(ui.dp(16),0,ui.dp(16),ui.dp(10)) }
+        hint.addView(android.widget.ProgressBar(host).apply { indeterminateTintList=android.content.res.ColorStateList.valueOf(MobilePalette.muted) },LinearLayout.LayoutParams(ui.dp(18),ui.dp(18)))
+        hint.addView(TextView(host).apply {
+            text="Яндекс проверяет вас в фоне. Ничего делать не нужно: окно закроется само, пустая страница здесь это нормально."
+            textSize=13f;setTextColor(MobilePalette.muted);setPadding(ui.dp(12),0,0,0)
+        },LinearLayout.LayoutParams(0,-2,1f))
+        body.addView(hint)
+        var cleaned=false
+        var solved=false
+        val web=WebView(host).apply {
+            setBackgroundColor(MobilePalette.surface)
+            settings.javaScriptEnabled=true
+            settings.domStorageEnabled=true
+            settings.loadsImagesAutomatically=true
+            settings.allowFileAccess=false
+            settings.allowContentAccess=false
+            settings.mixedContentMode=android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW
+            settings.userAgentString=FORK_USER_AGENT
+            webChromeClient=android.webkit.WebChromeClient()
+            android.webkit.CookieManager.getInstance().setAcceptCookie(true)
+            android.webkit.CookieManager.getInstance().setAcceptThirdPartyCookies(this,true)
+            webViewClient=object: WebViewClient() {
+                override fun shouldOverrideUrlLoading(view: WebView,request: WebResourceRequest)=
+                    !CaptchaAddressPolicy.allowedOpenFlux(request.url.toString())
+            }
+        }
+        body.addView(web,LinearLayout.LayoutParams(-1,(host.resources.displayMetrics.heightPixels*.7f).toInt()))
+        fun cookies(): String {
+            val manager=android.webkit.CookieManager.getInstance()
+            val merged=linkedMapOf<String,String>()
+            for(address in (listOfNotNull(url,web.url)+FORK_COOKIE_HOSTS).filter(CaptchaAddressPolicy::allowedOpenFlux).distinct())
+                manager.getCookie(address).orEmpty().split(';').map { it.trim() }.filter { '=' in it }
+                    .forEach { merged[it.substringBefore('=')]=it.substringAfter('=') }
+            return merged.entries.joinToString("; ") { "${it.key}=${it.value}" }
+        }
+        fun submit() {
+            if(currentId!=id || !solved) return
+            val header=cookies()
+            if(header.isEmpty() || header.length>16384 || header.any { it=='\n' || it=='\r' }) return
+            reply(id,header);currentId=null;cleanupWeb?.invoke();sheet.dismiss()
+        }
+        body.addView(ui.button("Продолжить") { submit() },LinearLayout.LayoutParams(-1,-2).apply { setMargins(ui.dp(16),ui.dp(10),ui.dp(16),ui.dp(16)) })
+        val polling=object: Runnable {
+            override fun run() {
+                if(currentId!=id || cleaned) return
+                web.evaluateJavascript(FORK_ACCEPT_CONSENT,null)
+                web.evaluateJavascript(FORK_READY) { raw ->
+                    if(raw=="true" && currentId==id && !cleaned) { solved=true;submit() }
+                }
+                web.postDelayed(this,700)
+            }
+        }
+        val expiry=android.os.Handler(android.os.Looper.getMainLooper())
+        val expire=Runnable { if(currentId==id) { reply(id,"error:timeout");currentId=null;cleanupWeb?.invoke();sheet.dismiss() } }
+        val cleanup: () -> Unit = {
+            if(!cleaned) {
+                cleaned=true
+                expiry.removeCallbacks(expire)
+                web.removeCallbacks(polling)
+                if(currentId==id) { reply(id,"error:cancelled");currentId=null }
+                web.stopLoading();web.destroy()
+                if(dialog===sheet) dialog=null
+                cleanupWeb=null
+            }
+        }
+        cleanupWeb=cleanup
+        sheet.setOnDismissListener { cleanup() }
+        sheet.setCancelable(false)
+        sheet.setContentView(body)
+        expiry.postDelayed(expire,app.qthrone.mobile.bg.carrier.NativeCaptchaPolicy.visibleTimeout("openfluxkey"))
+        if(host.lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) sheet.show()
+        web.onResume()
+        web.loadUrl(url)
+        web.postDelayed(polling,700)
+    }
     override fun close() { val sheet=dialog;cleanupWeb?.invoke();sheet?.dismiss();host.lifecycle.removeObserver(lifecycleObserver);runCatching { host.unregisterReceiver(receiver) } }
     /** The original's touch: a random point in the label, pressure 0.5-0.9, held 80-180 ms, released with a slight drift. */
     private fun touch(web: WebView,label: org.json.JSONArray) {
@@ -453,6 +556,23 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
         web.postDelayed({ send(android.view.MotionEvent.ACTION_UP,x+(random.nextFloat()*2f-1f)*density,y+(random.nextFloat()-0.5f)*density,0f) },150L+random.nextLong(0,170))
     }
     private companion object {
+        // openflux-app's CaptchaWebViewDialog: its browser, the hosts it reads cookies from, its consent and ready checks.
+        const val FORK_USER_AGENT="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+        val FORK_COOKIE_HOSTS=listOf("https://yandex.com/","https://yandex.ru/","https://passport.yandex.ru/","https://auth.yandex.ru/",
+            "https://disk.yandex.ru/","https://docs.yandex.ru/")
+        const val FORK_ACCEPT_CONSENT="""(function () {
+          var wanted = ['Allow all', 'Разрешить все', 'Accept all', 'Allow essential cookies', 'Разрешить обязательные'];
+          var nodes = document.querySelectorAll('button, [role=button], a');
+          for (var i = 0; i < nodes.length; i++) {
+            var t = (nodes[i].innerText || nodes[i].textContent || '').trim();
+            for (var j = 0; j < wanted.length; j++) { if (t === wanted[j]) { nodes[i].click(); return 'clicked'; } }
+          }
+          return 'none';
+        })();"""
+        const val FORK_READY="""(function () {
+          if (location.pathname.toLowerCase().indexOf('captcha') !== -1) return false;
+          return document.readyState === 'complete' && !!document.getElementById('client-config');
+        })();"""
         val captchaCookieHosts=listOf("https://id.vk.ru","https://id.vk.com","https://vk.ru","https://vk.com")
         // Capture only the captcha API's success field, without exposing a Java interface to page frames.
         val INTERCEPT="""(() => {
