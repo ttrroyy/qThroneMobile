@@ -1740,6 +1740,7 @@
     <string name="log_hide_destinations">Hide destinations</string>
     <string name="log_saved">Logs saved</string>
     <string name="log_export_failed">Log export failed: %s</string>
+    <string name="log_export_preparing">Preparing the log…</string>
     <string name="log_crash_title">qThrone crashed</string>
 
     <!-- platform: Wi-Fi rules, notification, battery, widgets, package pickers -->

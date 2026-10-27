@@ -6,13 +6,11 @@ import app.qthrone.mobile.route.ProviderRouting
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.OpenableColumns
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
 import app.qthrone.mobile.R
-import app.qthrone.mobile.databinding.LayoutRouteRemotePromptBinding
 import app.qthrone.mobile.group.SubscriptionClient
 import app.qthrone.mobile.database.GroupRepo
 import app.qthrone.mobile.database.ProfileManager
@@ -55,7 +53,7 @@ object SubscribeFlows {
                     if (activity.isFinishing || activity.isDestroyed) return@onMainDispatcher
                     if (decoded == null) notify(activity, activity.getString(R.string.provider_crypto_import_error))
                     else if (SubscriptionCrypto.isHttpUrl(decoded.data)) {
-                        showSubscriptionPrompt(activity, content, decoded.name.ifBlank { hostOf(decoded.data) }, decoded)
+                        showSubscriptionPrompt(activity, content, decoded.name.ifBlank { hostOf(decoded.data) })
                     } else importInto(activity, decoded.data, gid)
                 }
             }
@@ -89,7 +87,7 @@ object SubscribeFlows {
         if (batch.isNotEmpty()) importInto(activity, batch.joinToString("\n"), gid)
     }
 
-    /** "Add this subscription?" with the "Auto update" checkbox (throne://addsub, clash://install-config). */
+    /** Adds a subscription link (throne://addsub, clash://install-config, a pasted URL) without asking. */
     fun addSubscription(activity: FragmentActivity, url: String, name: String) {
         if (ProviderLinks.isEncrypted(url)) {
             runOnDefaultDispatcher {
@@ -97,7 +95,7 @@ object SubscribeFlows {
                 onMainDispatcher {
                     if (activity.isFinishing || activity.isDestroyed) return@onMainDispatcher
                     if (decoded == null) notify(activity, activity.getString(R.string.provider_crypto_import_error))
-                    else showSubscriptionPrompt(activity, url, name.ifBlank { decoded.name.ifBlank { hostOf(decoded.data) } }, decoded)
+                    else showSubscriptionPrompt(activity, url, name.ifBlank { decoded.name.ifBlank { hostOf(decoded.data) } })
                 }
             }
             return
@@ -105,7 +103,7 @@ object SubscribeFlows {
         showSubscriptionPrompt(activity, url, name)
     }
 
-    private fun showSubscriptionPrompt(activity: FragmentActivity, url: String, name: String, decoded: ProviderLinks.Link? = null) {
+    private fun showSubscriptionPrompt(activity: FragmentActivity, url: String, name: String) {
         val link = url.trim()
         if (link.isEmpty()) {
             MaterialAlertDialogBuilder(activity)
@@ -115,24 +113,8 @@ object SubscribeFlows {
                 .show()
             return
         }
-        val groupName = name.trim().ifEmpty { hostOf(link) }
-        val binding = LayoutRouteRemotePromptBinding.inflate(activity.layoutInflater)
-        val displayed = if (decoded?.encrypted == true) activity.getString(R.string.provider_crypto_hidden, decoded.provider, decoded.format) else link
-        binding.message.text = activity.getString(R.string.grp_add_subscription_prompt, groupName, displayed)
-        binding.autoUpdate.setText(R.string.grp_auto_update)
-        binding.autoUpdate.isChecked = true
-        val resolved = decoded?.data ?: ProviderLinks.subscription(link)?.data ?: link
-        binding.allowInsecureRequests.visibility = if(resolved.startsWith("https://",true)) View.VISIBLE else View.GONE
-        binding.allowInsecureRequests.text = activity.getString(R.string.sub_settings_insecure_requests) + "\n" +
-            activity.getString(R.string.sub_settings_insecure_requests_summary)
-        MaterialAlertDialogBuilder(activity)
-            .setTitle(R.string.grp_add_subscription)
-            .setView(binding.root)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                subscribe(activity, link, groupName, binding.autoUpdate.isChecked, binding.allowInsecureRequests.isChecked)
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
+        // Added at once with auto update on; update and TLS options live in the subscription's settings.
+        subscribe(activity, link, name.trim().ifEmpty { hostOf(link) }, true, false)
     }
 
     /**

@@ -82,6 +82,18 @@ class ObfuscatedTransportLinksTest {
         assertEquals(socks.exportToJson(), again.exportToJson())
     }
 
+    @Test fun warpAmneziaConfKeepsBothAddresses() {
+        val conf = "[Interface]\nAddress = 172.16.0.2/32\nAddress = 2606:4700:110:827c:dcbb:200:a6e7:fbc4/128\n" +
+            "PrivateKey = h+tGZJvVA5XBtvBeR9aMZ71ZuN8m6+CNawC+8KnVGbU=\nMTU = 1420\nJc = 4\nJmin = 40\nJmax = 70\nH1 = 1\nH2 = 2\nH3 = 3\nH4 = 4\n" +
+            "I1 = <b 0xc7000000010809a1ed4edbbe7615>\n\n[Peer]\nPublicKey = bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=\n" +
+            "Endpoint = 8.6.112.9:500\nAllowedIPs = 0.0.0.0/0, ::/0\n"
+        val wg = read(conf) as WireGuard
+        assertEquals(listOf("172.16.0.2/32", "2606:4700:110:827c:dcbb:200:a6e7:fbc4/128"), wg.address)
+        assertEquals("<b 0xc7000000010809a1ed4edbbe7615>", wg.i1)
+        assertEquals(500, wg.peer.port)
+        assertTrue(wg.build(BuildContext()).error.isEmpty())
+    }
+
     @Test fun wgobfsKeyTravelsInTheWgLink() {
         val wg = WireGuard().apply {
             private_key = "MBrnZoTdyT/LR4XpB7tElSxyVTQdXFw0tvVJOMSL/GI="

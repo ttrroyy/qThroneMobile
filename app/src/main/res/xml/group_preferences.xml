@@ -12,8 +12,10 @@
         <SwitchPreference app:key="groupSubInsecureRequests" app:title="@string/sub_settings_insecure_requests" app:summary="@string/sub_settings_insecure_requests_summary" />
         <SwitchPreference app:key="groupSubHwidCookie" app:title="@string/sub_settings_hwid_cookie" app:summary="@string/sub_settings_hwid_cookie_summary" />
     </PreferenceCategory>
-    <!-- One untitled section, most used first. -->
+    <!-- One untitled section, most used first: the chain through front and landing proxies, then updates. -->
     <PreferenceCategory app:key="groupSubscription">
+        <Preference app:icon="@drawable/ic_hardware_router" app:key="groupFrontProxyId" app:persistent="false" app:title="@string/grp_front_proxy" />
+        <Preference app:icon="@drawable/baseline_public_24" app:key="groupLandingProxyId" app:persistent="false" app:title="@string/grp_landing_proxy" />
         <SwitchPreference app:icon="@drawable/ic_baseline_update_24" app:key="groupSkipAutoUpdate" app:title="@string/grp_skip_auto_update" />
         <EditTextPreference app:key="groupSubAutoUpdateMinutes" app:title="@string/grp_auto_update_interval" />
         <SwitchPreference app:defaultValue="true" app:icon="@drawable/ic_device_data_usage" app:key="groupSubShowInfoCard" app:summary="@string/grp_show_info_card_tip" app:title="@string/grp_show_info_card" />
@@ -35,7 +37,5 @@
         <EditTextPreference app:key="groupSubHwidOs" app:title="@string/grp_os" />
         <EditTextPreference app:key="groupSubHwidOsVersion" app:title="@string/grp_os_version" />
         <EditTextPreference app:key="groupSubHwidModel" app:title="@string/grp_device_model" />
-        <Preference app:icon="@drawable/ic_hardware_router" app:key="groupFrontProxyId" app:persistent="false" app:title="@string/grp_front_proxy" />
-        <Preference app:icon="@drawable/baseline_public_24" app:key="groupLandingProxyId" app:persistent="false" app:title="@string/grp_landing_proxy" />
     </PreferenceCategory>
 </PreferenceScreen>

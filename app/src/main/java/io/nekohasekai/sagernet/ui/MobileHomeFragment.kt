@@ -126,6 +126,12 @@ class MobileHomeFragment : ToolbarFragment() {
             } finally { reordering=false;refresh() }
         }
     }
+    private fun moveProfile(id: Long, groupId: Long) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try { withContext(Dispatchers.IO) { ProfileManager.moveToGroup(listOf(id),groupId) } }
+            finally { reordering=false;refresh() }
+        }
+    }
     /**
      * An expanded subscription can be taller than the screen; dragging it then hides everything
      * and leaves no visible place to drop. Fold every group to its header while a group moves,
@@ -531,6 +537,9 @@ class MobileHomeFragment : ToolbarFragment() {
                 val profileDrag=MobileReorder(rows,serverScroll,{ reorderActive(it) },{
                     saveReorder(group.id,MobileProfilePaging.reorder(profiles.map { p -> p.id },visibleProfiles.map { p -> p.id },it))
                 })
+                profileDrag.movable=true
+                // A profile dragged out of another group lands at the end of this one; subscriptions refill themselves.
+                if(!group.isSubscription) profileDrag.acceptFrom(box) { id -> moveProfile(id,group.id) }
                 nextProfileReorders[group.id]=profileDrag
                 val title = LinearLayout(requireContext()).apply { gravity = Gravity.CENTER_VERTICAL }
                 val arrow = ImageView(requireContext()).apply {

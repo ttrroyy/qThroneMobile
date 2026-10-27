@@ -836,6 +836,7 @@
     <string name="log_buffer_size">Размер буфера журнала (КБ)</string>
     <string name="log_crash_title">qThrone аварийно завершился</string>
     <string name="log_export_failed">Не удалось экспортировать журнал: %s</string>
+    <string name="log_export_preparing">Готовлю журнал…</string>
     <string name="log_hide_destinations">Скрывать назначения</string>
     <string name="log_hide_sensitive">Скрывать конфиденциальные данные</string>
     <string name="log_save">Сохранить журнал…</string>

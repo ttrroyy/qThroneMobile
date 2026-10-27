@@ -50,6 +50,8 @@ private class ChainScan {
     var xrayHopCount = 0
     var hasCustomFullConfig = false
     var coreTransitions = 0
+    var nativeCount = 0
+    var nativeIdx = -1
 }
 
 /** socksBridgeInbound (generate.cpp:340-351): the sing-box side of an Xray -> sing-box bridge. */
@@ -147,6 +149,10 @@ internal class ChainBuilder(
         // Same for a custom Xray full config: traffic exits through its socks bridge into the user's Xray.
         if (scan.xrayFullConfigCount == 1 && scan.hopCount > 1 && scan.xrayFullConfigIdx != scan.hopCount - 1)
             return "Custom Xray full config can only be the final hop in a chain (top of the chain editor)"
+        // A native transport is a SOCKS bridge on this phone's loopback: a hop in front of it would dial that address
+        // from its own server, so it only works as the entry hop (the front proxy).
+        if (scan.nativeCount > 1 || (scan.nativeCount == 1 && scan.hopCount > 1 && scan.nativeIdx != scan.hopCount - 1))
+            return "Нативный транспорт (qWDTT, CSQTT, WDTT Plus, OpenFlux, DNS-туннели и другие) может быть только первым звеном цепочки: фронтовым прокси группы или верхним профилем в цепочке"
         if (scan.coreTransitions > 2)
             return "Too many core transitions, the valid sequence is: (optional sing-box chain)->(optional xray chain)->(optional sing-box chain)"
         return ""
@@ -171,6 +177,10 @@ internal class ChainBuilder(
                 continue
             }
             val stored = profiles.get(id) ?: return "Null proxy in chain, you may want to check your configs"
+            if (stored is app.qthrone.mobile.bg.carrier.NativeCarrier) {
+                scan.nativeCount++
+                scan.nativeIdx = hops.size
+            }
             val outbound = if(stored is app.qthrone.mobile.bg.carrier.NativeCarrier) {
                 try {
                     state.carrierPlans.getOrPut(id) { app.qthrone.mobile.bg.carrier.CarrierPlan.qwdtt(id,stored,interactive=!state.forTest) }.outbound()

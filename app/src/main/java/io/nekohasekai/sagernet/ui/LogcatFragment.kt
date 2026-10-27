@@ -270,6 +270,7 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
                 if(sharing) return true
                 sharing=true;item.isEnabled=false
                 val context = requireContext()
+                safeSnackbar(context.getString(R.string.log_export_preparing))
                 val redact = DataStore.logExportRedact
                 val destinations = hideDestinations
                 viewLifecycleOwner.lifecycleScope.launch {

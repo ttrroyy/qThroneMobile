@@ -311,7 +311,8 @@ class WireGuard : Outbound("wireguard") {
             }
             when (key) {
                 "privatekey" -> private_key = value
-                "address" -> address = QtStrings.splitSkipEmpty(value.replace(" ", ""), ",")
+                // WARP and Amnezia write IPv4 and IPv6 as separate Address lines.
+                "address" -> address = (address + QtStrings.splitSkipEmpty(value.replace(" ", ""), ",")).toMutableList()
                 "mtu" -> mtu = QtStrings.toInt(value)
                 "publickey" -> peer.public_key = value
                 "presharedkey", "preshared_key", "psk" -> peer.pre_shared_key = value

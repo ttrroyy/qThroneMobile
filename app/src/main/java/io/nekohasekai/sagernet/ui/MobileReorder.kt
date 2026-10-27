@@ -20,6 +20,8 @@ internal class MobileReorder(
     private val release: (View) -> Unit = {},
 ) {
     private val ids=linkedMapOf<View,Long>()
+    /** Profile rows: another group's [acceptFrom] zone may take the dragged item. */
+    var movable=false
     private var source: View?=null
     private var original=emptyList<View>()
     private var accepted=false
@@ -123,6 +125,35 @@ internal class MobileReorder(
                 view.animate().translationY(0f).setDuration(160).start()
             }
         }
+    }
+
+    /**
+     * Lets an item dragged out of another movable list be dropped anywhere on [zone] (a whole group card,
+     * so a collapsed or empty group takes it too); [receive] gets its id. The source list then restores its order.
+     */
+    fun acceptFrom(zone: View, receive: (Long) -> Unit) {
+        zone.setOnDragListener { _,event ->
+            val state=event.localState as? MobileReorder
+            if(state==null || state===this || !state.movable) false else {
+                when(event.action) {
+                    DragEvent.ACTION_DRAG_ENTERED -> zone.animate().alpha(.6f).setDuration(90).start()
+                    DragEvent.ACTION_DRAG_EXITED,DragEvent.ACTION_DRAG_ENDED -> zone.animate().alpha(1f).setDuration(90).start()
+                    DragEvent.ACTION_DRAG_LOCATION -> state.follow(zone,event.y)
+                    DragEvent.ACTION_DROP -> {
+                        zone.animate().alpha(1f).setDuration(90).start()
+                        state.source?.let { state.ids[it] }?.let(receive)
+                    }
+                }
+                true
+            }
+        }
+    }
+
+    /** Keeps auto-scroll following the finger while it is over another list. */
+    private fun follow(view: View,y: Float) {
+        val at=IntArray(2);view.getLocationOnScreen(at)
+        val mine=IntArray(2);container.getLocationOnScreen(mine)
+        pointerY=at[1]+y-mine[1]
     }
 
     fun cancel() { finish(false) }

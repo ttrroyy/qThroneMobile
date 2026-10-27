@@ -48,13 +48,16 @@ object LogExport {
         // Sharing and saving may run concurrently; neither may overwrite or delete the other's snapshot.
         val file = File.createTempFile(fileName().removeSuffix(".txt") + "-", ".txt", dir)
         val redactor = if (redact) LogRedactor(hideDestinations) else null
+        // The logcat snapshot takes up to seconds; it runs while core.log is redacted.
+        val logcat = java.util.concurrent.FutureTask { logcat() }
+        Thread(logcat, "qThrone-logcat-export").apply { isDaemon = true; start() }
         file.bufferedWriter().use { out ->
             out.write(header(context, redact, hideDestinations))
             section(out, "core.log", String(CoreLog.read(0)), redactor)
             if (CoreLog.previousFile.exists()) {
                 section(out, "core.log.prev (previous service session)", String(CoreLog.readPrevious()), redactor)
             }
-            section(out, "logcat (this app, last $LOGCAT_LINES lines)", logcat(), redactor)
+            section(out, "logcat (this app, last $LOGCAT_LINES lines)", logcat.get(), redactor)
         }
         return file
     }
