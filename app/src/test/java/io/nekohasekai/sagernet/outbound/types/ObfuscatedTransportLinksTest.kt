@@ -83,14 +83,14 @@ class ObfuscatedTransportLinksTest {
     }
 
     @Test fun forkImportLinkRunsTheForkClient() {
-        val json = """{"name":"Board","mode":"key","control_url":"https://185.195.25.48","key_token":"key_RLWMuHQ6M29FZyXww19MuR5",""" +
-            """"doc_url":"https://boards.yandex.ru/whiteboard/?hash=f1e577e0ad744189d6b752f9e46f041b","transport":"boards","e2e_encryption":true}"""
+        val json = """{"name":"Board","mode":"key","control_url":"https://203.0.113.10","key_token":"key_example0000000000",""" +
+            """"doc_url":"https://boards.yandex.ru/whiteboard/?hash=0123456789abcdef0123456789abcdef","transport":"boards","e2e_encryption":true}"""
         val link = "openflux://import?data=" + b64(json)
         val key = read(link) as OpenFluxKey
         assertEquals(CarrierKind.OPENFLUXKEY, key.carrierKind)
         val config = key.privateConfig(1080, 1081, CarrierBridgeCredentials("user", "pass"))
         assertEquals("boards", config.string("transport"))
-        assertEquals("https://boards.yandex.ru/whiteboard/?hash=f1e577e0ad744189d6b752f9e46f041b", config.string("doc_url"))
+        assertEquals("https://boards.yandex.ru/whiteboard/?hash=0123456789abcdef0123456789abcdef", config.string("doc_url"))
         assertFalse(config.contains("e2e_encryption"))
         val again = read(key.exportToLink()) as OpenFluxKey
         assertEquals(key.exportToJson(), again.exportToJson())
