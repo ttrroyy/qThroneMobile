@@ -86,6 +86,7 @@ class Csqtt:Qwdtt() {
     override fun privateConfig(port:Int,udpPort:Int,credentials:CarrierBridgeCredentials):JsonObject {
         require(server.isNotBlank() && serverPort in 1..65535)
         require(password.isNotEmpty() && (password+deviceId).none { it=='|' || it=='\n' || it=='\r' })
+        require(hashSource in listOf("auto","auto_js") || hashes.isNotEmpty()) { "Добавьте хеши VK в профиль или выберите автоматический источник" }
         require(deviceId.isNotEmpty() && (hashSource in listOf("auto","auto_js") || hashes.size in 1..6) && hashes.distinct().size==hashes.size)
         require(hashes.all { h -> h.length>=16 && h.none { it==',' || it=='|' || it.isWhitespace() } })
         require(workers == normalizeWorkers(workers) && obfs in listOf("audio","video","unified"))

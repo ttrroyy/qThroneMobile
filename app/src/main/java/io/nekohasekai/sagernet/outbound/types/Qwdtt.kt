@@ -109,6 +109,7 @@ open class Qwdtt : Outbound("qwdtt"), app.qthrone.mobile.bg.carrier.NativeCarrie
         require(server.isNotBlank() && serverPort in 1..65535 && rawPort in 1..65535)
         require(password.isNotEmpty() && password.none { it=='|' || it=='\n' || it=='\r' })
         require(deviceId.isNotEmpty() && deviceId.none { it=='|' || it=='\n' || it=='\r' })
+        require(hashSource == "auto" || hashes.isNotEmpty()) { "Добавьте хеши VK в профиль или выберите автоматический источник" }
         require((hashSource == "auto" || hashes.size in 1..4) && workers in 1..108)
         require(mode in listOf("raw","wg") && obfs in listOf("audio","video"))
         require(vkAnonPath in listOf("vkcalls","legacy") && captchaMode in listOf("auto","wv","rjs"))

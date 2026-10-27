@@ -113,6 +113,7 @@ class WdttPlus : Qwdtt() {
         require(server.isNotBlank() && serverPort in 1..65535)
         require(password.isNotEmpty() && password.none { it == '\n' || it == '\r' })
         require(deviceId.isNotEmpty() && deviceId.none { it == '\n' || it == '\r' })
+        require(hashSource == "auto" || hashes.isNotEmpty()) { "Добавьте хеши VK в профиль или выберите автоматический источник" }
         require((hashSource == "auto" || hashes.size in 1..4) && workers in 9..108 && captchaMode in listOf("auto", "wv", "rjs"))
         // Flags as WDTT Plus's TunnelManager passes them; Go boolean flags only as -flag=value.
         val args = mutableListOf(

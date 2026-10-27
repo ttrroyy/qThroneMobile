@@ -41,6 +41,7 @@ import java.net.UnknownHostException
 
 /** Shorter screen-off spells keep their connections: switching the screen off and on is not sleep. */
 private const val SLEEP_RESET_AFTER_MS = 30_000L
+private const val WAKE_CHECK_AFTER_MS = 5_000L
 
 class BaseService {
 
@@ -83,7 +84,7 @@ class BaseService {
                 Action.REFRESH_WIFI_STATE -> refreshWifiState(ctx)
                 Action.AUTO_SELECTOR_AUTOMATIC -> AutoSelectorRuntime.releasePin(intent.getLongExtra(Action.EXTRA_PROFILE_ID, 0L))
                 PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED -> applyIdleMode()
-                Intent.ACTION_SCREEN_OFF -> screenOffAt = SystemClock.elapsedRealtime()
+                Intent.ACTION_SCREEN_OFF -> { screenOffAt = SystemClock.elapsedRealtime(); proxy?.cancelWakeCheck() }
                 Intent.ACTION_SCREEN_ON -> resetAfterSleep()
 
                 Action.RESET_UPSTREAM_CONNECTIONS -> runOnDefaultDispatcher {
@@ -124,13 +125,16 @@ class BaseService {
         private fun resetAfterSleep() {
             val off = screenOffAt
             screenOffAt = 0L
-            if (off == 0L || SystemClock.elapsedRealtime() - off < SLEEP_RESET_AFTER_MS) return
+            if (off == 0L) return
+            val slept = SystemClock.elapsedRealtime() - off
+            // Native sessions can die within seconds of sleep, so they are checked after any real screen-off.
+            if (slept < WAKE_CHECK_AFTER_MS) return
             runOnDefaultDispatcher {
                 idleLock.withLock {
                     val box = proxy?.boxOrNull ?: return@withLock
                     // Leaving device idle resets on its own.
                     if (pausedBox === box) return@withLock
-                    if (DataStore.configurationStore.getBoolean(Key.WAKE_RESET_CONNECTIONS, true)) box.resetNetwork()
+                    if (slept >= SLEEP_RESET_AFTER_MS && DataStore.configurationStore.getBoolean(Key.WAKE_RESET_CONNECTIONS, true)) box.resetNetwork()
                     proxy?.checkAfterWake()
                 }
             }

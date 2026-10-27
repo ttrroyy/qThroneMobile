@@ -237,7 +237,9 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
         }
         if(type in dnsTypes) for(key in listOf("cert","idle_timeout","keepalive")) if(result.string(key).isBlank()) result.remove(key)
         val candidate = OutboundFactory.newByType(type)
-        require(candidate.parseFromJson(result)) { "Проверьте параметры профиля" }
+        // A profile may be saved without hashes and get them later; the launch asks for them.
+        val checked = if(type in listOf("qwdtt","csqtt","wdttplus") && result.array("hashes").isEmpty()) result.copy().also { it["hashes"]=JsonArray.of("0".repeat(16)) } else result
+        require(candidate.parseFromJson(checked)) { "Проверьте параметры профиля" }
         (candidate as NativeCarrier).privateConfig(1080,1081,CarrierBridgeCredentials("validation","validation"))
         require(parseFromJson(result))
     }
@@ -506,6 +508,31 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             true
         }
         refreshEditors()
+        // The original qWDTT list shows the password's device slots and frees this phone's one.
+        val qwdtt=editingOutbound as? app.qthrone.mobile.outbound.types.Qwdtt
+        if(qwdtt!=null && qwdtt.type=="qwdtt" && DataStore.editingId!=0L) preferenceScreen.addPreference(Preference(requireContext()).apply {
+            title="Устройства на сервере";summary="Сколько устройств привязано к паролю";isPersistent=false
+            setOnPreferenceClickListener {
+                summary="Проверка…"
+                lifecycleScope.launch {
+                    val status=withContext(Dispatchers.IO) { app.qthrone.mobile.deploy.QwdttProfileApi.status(qwdtt) }
+                    if(status==null) { summary="Сервер не сообщает об устройствах для этого пароля";return@launch }
+                    summary="Привязано ${status.boundDevices} из ${status.maxDevices}, активно ${status.activeDevices}"+
+                        if(status.currentBound) ". Это устройство привязано" else ". Это устройство не привязано"
+                    if(!status.currentBound) return@launch
+                    app.qthrone.mobile.ui.MobileAlertDialogBuilder(requireContext()).setTitle("Отвязать устройство")
+                        .setMessage("Отвязать это устройство от пароля? Место на сервере освободится, а следующее подключение привяжет устройство снова, если место будет свободно.")
+                        .setPositiveButton("Отвязать") { _,_ ->
+                            lifecycleScope.launch {
+                                val ok=withContext(Dispatchers.IO) { app.qthrone.mobile.deploy.QwdttProfileApi.unbind(qwdtt) }
+                                Toast.makeText(requireContext(),if(ok) "Устройство отвязано" else "Не удалось отвязать устройство",Toast.LENGTH_SHORT).show()
+                                if(ok) summary="Это устройство отвязано"
+                            }
+                        }.setNegativeButton(android.R.string.cancel,null).show()
+                }
+                true
+            }
+        })
         if(editingOutbound.type in dnsTypes) preferenceScreen.addPreference(Preference(requireContext()).apply {
             summary=(if(editingOutbound.type=="slipstream" || app.qthrone.mobile.outbound.types.DnsTunnel.keyed(editingOutbound.type)) "Резолверы: по одному в строке, IP или IP:порт (UDP)."
                 else "Резолверы: по одному в строке — IP или IP:порт (UDP), https://… (DoH), tls://… (DoT).")+

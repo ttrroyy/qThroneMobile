@@ -40,6 +40,8 @@ abstract class BoxInstance(
     private var nativeStatus:NativeConnectionStatus.Writer?=null
     private var nativeWatchdog:Job?=null
     private var wakeCheck:Job?=null
+    private var cpuLock:android.os.PowerManager.WakeLock?=null
+    private var wifiLock:android.net.wifi.WifiManager.WifiLock?=null
 
     val boxOrNull: Instance? get() = if (::box.isInitialized) box else null
 
@@ -142,6 +144,7 @@ abstract class BoxInstance(
             throw error
         }
         CoreRuntime.attachRunning(box, profile.id)
+        if(config.carrierPlans.isNotEmpty()) holdLocks()
         if(nativeStatus!=null) nativeWatchdog=CoroutineScope(Dispatchers.IO).launch {
             while(isActive) {
                 delay(1000)
@@ -168,9 +171,14 @@ abstract class BoxInstance(
     fun checkAfterWake() {
         if(!isInitialized() || config.carrierPlans.isEmpty() || wakeCheck?.isActive==true) return
         wakeCheck=CoroutineScope(Dispatchers.IO).launch {
-            delay(3_000) // the network returns a moment after the screen
-            repeat(2) { attempt ->
-                if(attempt>0) delay(5_000)
+            // As the original qWDTT: test only once the phone's own network is validated again, up to 20 s.
+            delay(2_000)
+            val deadline=android.os.SystemClock.elapsedRealtime()+20_000
+            while(!underlyingValidated() && android.os.SystemClock.elapsedRealtime()<deadline) delay(500)
+            // No network yet: its return reconnects native transports on its own (BaseService.preInit).
+            if(!underlyingValidated()) return@launch
+            repeat(3) { attempt ->
+                if(attempt>0) delay(4_000)
                 if(runCatching { urlTestCurrent(box,core,DataStore.testUrl,10_000,exitsThroughVpn(profile)) }.isSuccess) return@launch
             }
             withContext(Dispatchers.Main) {
@@ -182,11 +190,39 @@ abstract class BoxInstance(
         }
     }
 
+    /** The screen went off again: a check now would test a sleeping network. */
+    fun cancelWakeCheck() { wakeCheck?.cancel();wakeCheck=null }
+
+    private fun underlyingValidated()=app.qthrone.mobile.SagerNet.underlyingNetwork?.let {
+        app.qthrone.mobile.SagerNet.connectivity.getNetworkCapabilities(it)
+            ?.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+    }==true
+
+    /**
+     * The original qWDTT and CSQTT apps hold the CPU and Wi-Fi awake for the whole tunnel: without it the phone's sleep
+     * stops their keepalives and the TURN/DNS sessions expire, so after an unlock nothing is left to resume.
+     */
+    @Suppress("DEPRECATION")
+    private fun holdLocks() {
+        val context=app.qthrone.mobile.ktx.app
+        cpuLock=runCatching { app.qthrone.mobile.SagerNet.power.newWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK,"qthrone:native-transport")
+            .apply { setReferenceCounted(false);acquire() } }.onFailure { Logs.w(it) }.getOrNull()
+        val wifi=context.applicationContext.getSystemService(android.content.Context.WIFI_SERVICE) as? android.net.wifi.WifiManager
+        val mode=if(android.os.Build.VERSION.SDK_INT>=29) android.net.wifi.WifiManager.WIFI_MODE_FULL_LOW_LATENCY else android.net.wifi.WifiManager.WIFI_MODE_FULL_HIGH_PERF
+        wifiLock=runCatching { wifi?.createWifiLock(mode,"qthrone:native-transport")?.apply { setReferenceCounted(false);acquire() } }.onFailure { Logs.w(it) }.getOrNull()
+    }
+
+    private fun releaseLocks() {
+        runCatching { cpuLock?.takeIf { it.isHeld }?.release() };cpuLock=null
+        runCatching { wifiLock?.takeIf { it.isHeld }?.release() };wifiLock=null
+    }
+
     private fun isCustomFullConfig(): Boolean = (profile.outbound as? Custom)?.isFullConfig() == true
 
     override fun close() {
         nativeWatchdog?.cancel();nativeWatchdog=null
         wakeCheck?.cancel();wakeCheck=null
+        releaseLocks()
         nativeStatus?.close();nativeStatus=null
         boxOrNull?.let(CoreRuntime::detachRunning)
         try { boxOrNull?.close() } finally {

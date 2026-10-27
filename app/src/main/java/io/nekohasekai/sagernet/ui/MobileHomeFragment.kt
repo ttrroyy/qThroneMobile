@@ -640,6 +640,11 @@ class MobileHomeFragment : ToolbarFragment() {
                             viewLifecycleOwner.lifecycleScope.launch {
                                 val result=withContext(Dispatchers.IO) { ProfileManager.batchDeleteProfiles(listOf(profile.id),stopRunning=true) }
                                 if(!result.ok) Toast.makeText(requireContext(),R.string.qmobile_delete_failed,Toast.LENGTH_LONG).show()
+                                else if(profile.type=="qwdtt" && profile.id !in result.kept) app.qthrone.mobile.ktx.runOnDefaultDispatcher {
+                                    if(app.qthrone.mobile.deploy.QwdttProfileApi.releaseDeleted(listOf(profile))>0) withContext(Dispatchers.Main) {
+                                        Toast.makeText(app.qthrone.mobile.ktx.app,"Устройство отвязано от сервера",Toast.LENGTH_SHORT).show()
+                                    }
+                                }
                             }
                         }).apply { onOpened={ opened -> openSwipe?.takeIf { it!==opened }?.closeActions(); openSwipe=opened } }
                     profileDrag.bind(row,swipe,profile.id)
@@ -736,7 +741,8 @@ class MobileHomeFragment : ToolbarFragment() {
             it.profileId==(if(state.connected) DataStore.currentProfile else DataStore.selectedProxy)
         }
         val stage=if(testing && test.testCurrent) null else snapshot?.stage
-        val caption=if(testing || state.canStop || state.connected) getString(when(stage) {
+        val caption=if(state == app.qthrone.mobile.bg.BaseService.State.Stopping) getString(R.string.stopping)
+        else if(testing || state.canStop || state.connected) getString(when(stage) {
             app.qthrone.mobile.bg.carrier.NativeConnectionStage.AUTHORIZING -> R.string.qmobile_vk_authorizing
             app.qthrone.mobile.bg.carrier.NativeConnectionStage.CAPTCHA -> R.string.qmobile_vk_captcha
             app.qthrone.mobile.bg.carrier.NativeConnectionStage.WAITING_VK -> R.string.qmobile_vk_waiting

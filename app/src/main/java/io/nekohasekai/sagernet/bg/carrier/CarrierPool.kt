@@ -74,12 +74,15 @@ object CarrierPool {
             }
             if(last) {
                 // Keep the entry until STOP and child cleanup finish. A new launch of
-                // this device must never overlap its previous Go/Rust process.
-                try { entry.process?.close() }
-                finally {
-                    synchronized(entries) { if(entries[plan.key]===entry) entries.remove(plan.key) }
-                    entry.closed.complete(Unit)
-                }
+                // this device must never overlap its previous Go/Rust process, but the
+                // caller (a stop on the service's main thread) need not wait for it.
+                Thread({
+                    try { entry.process?.close() }
+                    finally {
+                        synchronized(entries) { if(entries[plan.key]===entry) entries.remove(plan.key) }
+                        entry.closed.complete(Unit)
+                    }
+                },"carrier-close").start()
             }
         }
         try {
