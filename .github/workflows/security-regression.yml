@@ -54,6 +54,8 @@ jobs:
           "$ADB" shell settings put global window_animation_scale 0
           "$ADB" shell settings put global transition_animation_scale 0
           "$ADB" shell settings put global animator_duration_scale 0
+          # A boot-time Pixel Launcher ANR can otherwise cover instrumented touches.
+          "$ADB" shell am force-stop com.google.android.apps.nexuslauncher
       - name: Test command authorization and database preservation
         shell: bash
         run: |

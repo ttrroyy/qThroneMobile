@@ -69,6 +69,10 @@ def confirm_import_group(new=False):
         tap_text('Cancel')
     tap_text('Create a group / subscription')
     time.sleep(2)
+    if not any(n.get('content-desc') == 'Apply' or n.get('text') == 'Apply' for n in ET.fromstring(screen_xml()).iter('node')):
+        tap_text('Name')
+        shell('input','text','Server%slist')
+        tap_text('OK')
     capture('38-create-group')
     tap_text('Apply')
     time.sleep(2)
@@ -112,8 +116,9 @@ for label,name in [('TUN settings','27-tun-settings'),('Core settings','28-core-
     shell('input','keyevent','4');time.sleep(2)
     assert 'General settings' in screen_xml(), 'Settings back navigation returned to home'
 
-tap_text('Backup and restore');capture('32-backup-buttons')
+tap_text('Backup and restore');tap_text('Локально');capture('32-backup-buttons')
 assert 'qThrone Desktop' in screen_xml(), 'Desktop backup format label missing'
+shell('input','keyevent','4');time.sleep(2)
 shell('input','keyevent','4');time.sleep(2)
 tap_text('Routing settings')
 capture('02-routing')
