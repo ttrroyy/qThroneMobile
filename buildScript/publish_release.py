@@ -9,7 +9,7 @@ from release_assets import ABIS, release_notes, sha256
 
 
 def gh(*args, check=True):
-    return subprocess.run(["gh", *map(str, args)], check=check, capture_output=True, text=True)
+    return subprocess.run(["gh", *map(str, args)], check=check, capture_output=True, text=True, encoding="utf-8")
 
 
 def validate_assets(dist, manifest):
