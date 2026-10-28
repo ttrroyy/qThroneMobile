@@ -15,6 +15,31 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class CarrierProcessTest {
+    @Test fun directFlagIsPassedOnlyToTheQwdttClient(): Unit = runBlocking {
+        val root=Files.createTempDirectory("native-direct-mode").toFile()
+        try {
+            for(name in listOf("libqwdtt.so","libcsqtt_transport.so")) File(root,name).apply { writeText("fixture");setExecutable(true) }
+            for(kind in listOf(CarrierKind.QWDTT,CarrierKind.CSQTT)) {
+                var command=emptyList<String>()
+                val failure=runCatching {
+                    CarrierProcess.start(kind,root,File(root,"configs"),35,"""{"no_dtls":true}""",12345,CarrierBridgeCredentials.fresh()) { builder ->
+                        command=builder.command().toList()
+                        object:Process() {
+                            override fun getOutputStream()=ByteArrayOutputStream()
+                            override fun getInputStream()=ByteArrayInputStream(byteArrayOf())
+                            override fun getErrorStream()=ByteArrayInputStream(byteArrayOf())
+                            override fun waitFor()=1
+                            override fun exitValue()=1
+                            override fun destroy() {}
+                        }
+                    }
+                }.exceptionOrNull()
+                assertNotNull(failure)
+                assertEquals(kind==CarrierKind.QWDTT,"-notls" in command)
+                assertTrue(File(root,"configs").listFiles().orEmpty().isEmpty())
+            }
+        } finally { root.deleteRecursively() }
+    }
     @Test fun cancelledStartupReturnsBeforePoolOwnedVkCleanup(): Unit = runBlocking {
         val root=Files.createTempDirectory("csqtt-cancel-start").toFile()
         val created=kotlinx.coroutines.CompletableDeferred<CarrierProcess>()

@@ -74,7 +74,7 @@ class Csqtt:Qwdtt() {
         return parseFromJson(obj)
     }
     override fun exportToJson()=super.exportToJson().also {
-        for(key in listOf("mode","raw_port","go_dns")) it.remove(key)
+        for(key in listOf("mode","raw_port","go_dns","no_dtls")) it.remove(key)
         it["turn_transport"]=turnTransport;it["srtp_mode"]=srtpMode;it["fingerprint"]=fingerprint
         it["client_ids"]=clientIds;it["custom_turn_ips"]=customTurnIps
         it["vk_access_token"]=vkAccessToken

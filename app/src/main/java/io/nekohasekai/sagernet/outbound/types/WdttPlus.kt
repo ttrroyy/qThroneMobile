@@ -87,7 +87,7 @@ class WdttPlus : Qwdtt() {
 
     override fun exportToJson() = super.exportToJson().also {
         it["type"] = "wdttplus"
-        for (key in listOf("mode", "raw_port", "turn_tcp", "obfs", "go_dns", "vk_anon_path")) it.remove(key)
+        for (key in listOf("mode", "raw_port", "turn_tcp", "obfs", "go_dns", "vk_anon_path", "no_dtls")) it.remove(key)
         it["wg_port"] = wgPort; it["local_port"] = localPort
         it["tcp_only"] = tcpOnly; it["turn_sni"] = turnSni; it["rt_masque"] = rtMasque
         it["rt_masque_server_bootstrap"] = rtMasqueServerBootstrap

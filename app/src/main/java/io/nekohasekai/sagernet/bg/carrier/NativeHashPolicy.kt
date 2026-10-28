@@ -71,6 +71,7 @@ object NativeHashPolicy {
             incoming.turnTcp=it.turnTcp
             incoming.captchaMode=it.captchaMode
             if(incoming.type=="qwdtt") {
+                if(incoming.serverPort==it.serverPort) incoming.noDtls=it.noDtls
                 incoming.rawPort=it.rawPort;incoming.obfs=it.obfs;incoming.vkAnonPath=it.vkAnonPath;incoming.goDns=it.goDns
             }
             if(incoming is Csqtt && it is Csqtt) {

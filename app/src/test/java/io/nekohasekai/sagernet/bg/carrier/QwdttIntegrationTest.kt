@@ -18,9 +18,11 @@ class QwdttIntegrationTest {
         assertTrue(Qwdtt().apply { assertTrue(parseFromLink(direct.exportToLink())) }.noDtls)
         assertFalse(Qwdtt().apply { assertTrue(parseFromLink(link+"&no_dtls=0")) }.noDtls)
         assertFalse(Qwdtt().apply { assertTrue(parseFromLink(link.replace("56002","56000"))) }.noDtls)
-        assertFalse(app.qthrone.mobile.outbound.types.Csqtt().apply {
+        val csqtt=app.qthrone.mobile.outbound.types.Csqtt().apply {
             assertTrue(parseFromJson(app.qthrone.mobile.outbound.json.jsonObjectOf("type" to "csqtt","server" to "192.0.2.1","server_port" to 56002,"password" to "fixture")))
-        }.noDtls)
+        }
+        assertFalse(csqtt.noDtls)
+        assertFalse(csqtt.exportToJson().contains("no_dtls"))
     }
     private fun profile()=Qwdtt().apply {
         assertTrue(parseFromLink("qwdtt://config?peer=192.0.2.1%3A56000&pass=a%2Bb&hashes=demo_hash_123456789&device_id=stable-test&mode=raw"))
