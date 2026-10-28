@@ -4,6 +4,6 @@
     <string name="qmobile_new_group">Создать группу / подписку</string>
     <string name="qmobile_existing_group">Добавить в существующую группу</string>
     <string name="qmobile_manage_groups">Управление группами и подписками</string>
-    <string name="qmobile_collapse_all">Свернуть все группы</string>
+    <string name="qmobile_fold_all">Свернуть все группы</string>
     <string name="qmobile_expand_all">Развернуть все группы</string>
 </resources>

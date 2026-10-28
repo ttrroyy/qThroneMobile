@@ -952,7 +952,7 @@ class MobileHomeFragment : ToolbarFragment() {
                 .putStringSet("collapsedGroups",collapsed.map { it.toString() }.toSet()).apply()
             refresh()
         }
-        popup.menu.add(R.string.qmobile_collapse_all).setOnMenuItemClickListener { collapse(true);true }
+        popup.menu.add(R.string.qmobile_fold_all).setOnMenuItemClickListener { collapse(true);true }
         popup.menu.add(R.string.qmobile_expand_all).setOnMenuItemClickListener { collapse(false);true }
         popup.menu.add(R.string.qmobile_refresh).setOnMenuItemClickListener {
             viewLifecycleOwner.lifecycleScope.launch { withContext(Dispatchers.IO) { GroupRepo.all().filter { it.isSubscription }.forEach { SubscriptionClient.refreshGroup(it.id,false) } } };true
