@@ -92,7 +92,8 @@ object CarrierPool {
                     val privateJson=NativeSessionPolicy.probeConfig(plan.kind,plan.privateJson,interactive,latencyProbe)
                     val started=CarrierProcess.start(plan.kind,java.io.File(context.applicationInfo.nativeLibraryDir),
                         java.io.File(context.cacheDir,"carriers"),android.os.Build.VERSION.SDK_INT,
-                        privateJson,plan.port,plan.credentials,allowInteractions=interactive,onStatus=onStatus)
+                        privateJson,plan.port,plan.credentials,allowInteractions=interactive,onStatus=onStatus,
+                        onCreated={ process -> synchronized(entries) { entry.process=process } })
                     synchronized(entries) { entry.process=started }
                     entry.ready.complete(started)
                 } catch(error:Throwable) { entry.ready.completeExceptionally(error);throw error }

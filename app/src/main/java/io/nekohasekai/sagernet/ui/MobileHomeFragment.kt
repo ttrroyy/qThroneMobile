@@ -365,12 +365,13 @@ class MobileHomeFragment : ToolbarFragment() {
                 openSwipe=null
                 val header = LinearLayout(requireContext()).apply { gravity = Gravity.CENTER_VERTICAL }
                 fun headerIcon(icon: Int, description: String, callback: (View) -> Unit) = ImageButton(requireContext()).apply {
-                    setImageResource(icon); imageTintList=android.content.res.ColorStateList.valueOf(foregroundColor); background = null; setPadding(dp(10),dp(10),dp(10),dp(10))
-                    contentDescription = description; setOnClickListener { callback(it) }; MobileFeedback.apply(this,circle=true)
+                    setImageResource(icon); imageTintList=android.content.res.ColorStateList.valueOf(foregroundColor); background = tile(); setPadding(dp(12),dp(12),dp(12),dp(12))
+                    contentDescription = description; tooltipText = description; setOnClickListener { callback(it) }; MobileFeedback.apply(this)
                 }
-                header.addView(headerIcon(R.drawable.ic_mobile_settings, getString(R.string.qmobile_settings)) { host().displayFragmentWithId(R.id.nav_settings) }, LinearLayout.LayoutParams(dp(48), dp(48)))
+                header.addView(headerIcon(R.drawable.ic_mobile_settings, getString(R.string.qmobile_settings)) { settingsMenu(it) }, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginEnd=dp(8) })
                 // the routing profile switch (global, Wi-Fi, mobile whitelist...) without a trip through the settings
-                header.addView(headerIcon(R.drawable.ic_mobile_route, getString(R.string.route_profile_quick_switch)) { app.qthrone.mobile.ui.route.RouteQuickSwitch.show(this@MobileHomeFragment) }, LinearLayout.LayoutParams(dp(48), dp(48)))
+                header.addView(headerIcon(R.drawable.ic_mobile_route, getString(R.string.route_profile_quick_switch)) { routingMenu(it) }, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginEnd=dp(8) })
+                header.addView(headerIcon(R.drawable.ic_mobile_subscriptions, getString(R.string.qmobile_manage_groups)) { subscriptionsMenu(it) }, LinearLayout.LayoutParams(dp(48), dp(48)))
                 updateBanner = text("", 12f, blue).apply {
                     gravity = Gravity.CENTER
                     minHeight = dp(48)
@@ -608,7 +609,7 @@ class MobileHomeFragment : ToolbarFragment() {
                         isFocusable = true
                         setOnClickListener {
                             DataStore.selectedProxy = profile.id
-                            if (DataStore.serviceState.connected) SagerNet.reloadService()
+                            if (DataStore.serviceState.canStop) SagerNet.reloadService()
                             this@MobileHomeFragment.profileRows.forEach { (id,view) -> view.background=tile(id==profile.id); MobileFeedback.apply(view) }
                         }
                     }
@@ -888,7 +889,7 @@ class MobileHomeFragment : ToolbarFragment() {
     }
     private fun addMenu(anchor: View) {
         val popup = androidx.appcompat.widget.PopupMenu(requireContext(), anchor)
-        popup.menu.add(getString(R.string.grp_add_subscription)).setOnMenuItemClickListener { addSubscription();true }
+        popup.menu.add(getString(R.string.qmobile_new_group)).setOnMenuItemClickListener { addSubscription();true }
         popup.menu.add(getString(R.string.qmobile_clipboard)).setOnMenuItemClickListener { importClipboard(); true }
         popup.menu.add(getString(R.string.qmobile_qr)).setOnMenuItemClickListener { startActivity(Intent(requireContext(), ScannerActivity::class.java)); true }
         popup.menu.add(getString(R.string.qmobile_file)).setOnMenuItemClickListener { importFile.launch("*/*");true }
@@ -905,39 +906,60 @@ class MobileHomeFragment : ToolbarFragment() {
         popup.show()
     }
     private fun addSubscription() {
-        val sheet=MobileSheetDialog(requireContext())
-        val body=LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL;setPadding(dp(20),dp(20),dp(20),dp(28));setBackgroundColor(surface) }
-        body.addView(text(getString(R.string.grp_add_subscription),20f).apply { setTypeface(null,Typeface.BOLD) })
-        val name=EditText(requireContext()).apply { hint=getString(R.string.qmobile_subscription_name);setTextColor(foregroundColor);setHintTextColor(muted);isSingleLine=true }
-        val url=EditText(requireContext()).apply { hint=getString(R.string.qmobile_subscription_url);setTextColor(foregroundColor);setHintTextColor(muted);isSingleLine=true;inputType=android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_URI }
-        body.addView(name);body.addView(url)
-        val insecure=com.google.android.material.switchmaterial.SwitchMaterial(requireContext()).apply {
-            text=getString(R.string.sub_settings_insecure_requests);textSize=14f;setTextColor(foregroundColor);minHeight=dp(48)
+        addGroup.launch(Intent(requireContext(), SubscriptionEditorActivity::class.java))
+    }
+    private val addGroup = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()) { result ->
+        val id=result.data?.getLongExtra(GroupSettingsActivity.EXTRA_GROUP_ID,0L) ?: 0L
+        if(result.resultCode==android.app.Activity.RESULT_OK && id>0) viewLifecycleOwner.lifecycleScope.launch {
+            val group=withContext(Dispatchers.IO) { GroupRepo.get(id) }
+            if(group?.isSubscription==true) SubscriptionClient.refreshGroup(id,false)
         }
-        body.addView(insecure)
-        body.addView(text(getString(R.string.sub_settings_insecure_requests_summary),13f,muted))
-        body.addView(action(getString(R.string.qmobile_save)) {
-            val address=url.text.toString().trim()
-            val requestedName=name.text.toString().trim()
-            val allowInsecure=insecure.isChecked
-            viewLifecycleOwner.lifecycleScope.launch {
-                try {
-                    val wrapped=withContext(Dispatchers.IO) { app.qthrone.mobile.group.ProviderLinks.decodeChecked(address) }
-                    val parsed=android.net.Uri.parse(wrapped?.data ?: address)
-                    if(parsed.scheme?.lowercase() !in listOf("https","http") || parsed.host.isNullOrBlank() || parsed.userInfo!=null) {
-                        url.error=getString(R.string.qmobile_subscription_url);return@launch
+    }
+    private fun settingsMenu(anchor: View) {
+        val popup=androidx.appcompat.widget.PopupMenu(requireContext(),anchor)
+        popup.menu.add(R.string.settings).setOnMenuItemClickListener { host().displayFragmentWithId(R.id.nav_settings);true }
+        popup.menu.add(R.string.settings_dns).setOnMenuItemClickListener { host().openSettingsScreen(app.qthrone.mobile.ui.settings.DnsSettingsFragment::class.java.name,getString(R.string.settings_dns));true }
+        popup.menu.add(R.string.menu_log).setOnMenuItemClickListener { host().displayFragmentWithId(R.id.nav_logcat);true }
+        popup.show()
+    }
+    private fun routingMenu(anchor: View) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val routes=withContext(Dispatchers.IO) { RouteManager.usable() }
+            if(!anchor.isAttachedToWindow) return@launch
+            val popup=androidx.appcompat.widget.PopupMenu(requireContext(),anchor)
+            routes.forEach { route ->
+                popup.menu.add(route.name).apply {
+                    isCheckable=true;isChecked=route.id==DataStore.currentRouteId
+                    setOnMenuItemClickListener {
+                        app.qthrone.mobile.ui.route.RouteQuickSwitch.switchTo(route.id)
+                        app.qthrone.mobile.ui.route.RouteQuickSwitch.switched(this@MobileHomeFragment,route.name);true
                     }
-                    val created=SubscriptionClient.subscribeUrl(address,requestedName.ifBlank { wrapped?.name.orEmpty().ifBlank { parsed.host.orEmpty() } },true,allowInsecure)
-                    if(created<=0) { url.error=getString(R.string.provider_crypto_import_error);return@launch }
-                    sheet.dismiss()
-                } catch(error: kotlinx.coroutines.CancellationException) {
-                    throw error
-                } catch(error: Exception) {
-                    url.error=getString(R.string.provider_crypto_import_error)
                 }
             }
-        })
-        sheet.setContentView(body);sheet.show()
+            popup.menu.add(R.string.warp_enable).apply {
+                isCheckable=true;isChecked=DataStore.enableWarp
+                setOnMenuItemClickListener { app.qthrone.mobile.ui.route.RouteQuickSwitch.setWarpEnabled(this@MobileHomeFragment,!isChecked);true }
+            }
+            popup.menu.add(R.string.settings).setOnMenuItemClickListener { host().displayFragmentWithId(R.id.nav_route);true }
+            popup.show()
+        }
+    }
+    private fun subscriptionsMenu(anchor: View) {
+        val popup=androidx.appcompat.widget.PopupMenu(requireContext(),anchor)
+        fun collapse(all: Boolean) {
+            if(all) groupViews.keys.forEach { collapsed.add(it) } else collapsed.clear()
+            requireContext().getSharedPreferences("dashboard",Context.MODE_PRIVATE).edit()
+                .putStringSet("collapsedGroups",collapsed.map { it.toString() }.toSet()).apply()
+            refresh()
+        }
+        popup.menu.add(R.string.qmobile_collapse_all).setOnMenuItemClickListener { collapse(true);true }
+        popup.menu.add(R.string.qmobile_expand_all).setOnMenuItemClickListener { collapse(false);true }
+        popup.menu.add(R.string.qmobile_refresh).setOnMenuItemClickListener {
+            viewLifecycleOwner.lifecycleScope.launch { withContext(Dispatchers.IO) { GroupRepo.all().filter { it.isSubscription }.forEach { SubscriptionClient.refreshGroup(it.id,false) } } };true
+        }
+        popup.menu.add(R.string.qmobile_manage_groups).setOnMenuItemClickListener { host().displayFragmentWithId(R.id.nav_group);true }
+        popup.menu.add(R.string.qmobile_new_group).setOnMenuItemClickListener { addSubscription();true }
+        popup.show()
     }
     private fun manualProfile() {
         val sheet=MobileSheetDialog(requireContext())
@@ -1004,7 +1026,7 @@ class MobileHomeFragment : ToolbarFragment() {
                 setOnClickListener {
                     isEnabled=false
                     sheet.dismiss()
-                    startActivity(Intent(requireContext(),app.qthrone.mobile.ui.profile.settingsActivityFor(type)).putExtra("qmobileProfileType",type))
+                    ImportTargetActivity.start(requireActivity(),"manual",type)
                 }
             },LinearLayout.LayoutParams(-1,-2).apply { bottomMargin=dp(8) })
         }

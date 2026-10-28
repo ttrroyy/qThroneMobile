@@ -31,7 +31,7 @@ import com.king.zxing.util.CodeUtils
 /**
  * The desktop's import entry points (mainwindow_deeplink.cpp): pasted, scanned or shared text
  * (import_or_handle_deeplink, import_text), the throne:// deep links and the "Add this subscription?" prompt.
- * Imports go to group [gid] of each call, the current group when it is negative.
+ * Imports go to the explicit group [gid]; otherwise the user chooses the destination first.
  */
 object SubscribeFlows {
 
@@ -45,6 +45,8 @@ object SubscribeFlows {
         val content = text.trim()
         if (content.isEmpty()) return
         if (ProviderRouting.isLink(content)) { importRoute(activity, content); return }
+        if (RouteImports.isRouteLink(content)) { importRoute(activity, content); return }
+        if (gid <= 0) { ImportTargetActivity.start(activity, "text", content); return }
         if (ProviderLinks.isProviderLink(content)) {
             // RSA key parsing and authenticated decryption must not stall the main thread.
             runOnDefaultDispatcher {
@@ -53,7 +55,7 @@ object SubscribeFlows {
                     if (activity.isFinishing || activity.isDestroyed) return@onMainDispatcher
                     if (decoded == null) notify(activity, activity.getString(R.string.provider_crypto_import_error))
                     else if (SubscriptionCrypto.isHttpUrl(decoded.data)) {
-                        showSubscriptionPrompt(activity, content, decoded.name.ifBlank { hostOf(decoded.data) })
+                        addSubscription(activity, content, decoded.name.ifBlank { hostOf(decoded.data) }, gid)
                     } else importInto(activity, decoded.data, gid)
                 }
             }
@@ -64,13 +66,13 @@ object SubscribeFlows {
             return
         }
         subscribeLink(content)?.let {
-            addSubscription(activity, it.url, it.name)
+            addSubscription(activity, it.url, it.name, gid)
             return
         }
         if (content.startsWith("http://") || content.startsWith("https://")) {
             val uri=Uri.parse(content)
             if(uri.userInfo!=null) importInto(activity,content,gid)
-            else addSubscription(activity,uri.buildUpon().fragment(null).build().toString(),uri.fragment.orEmpty().ifBlank { hostOf(content) })
+            else addSubscription(activity,uri.buildUpon().fragment(null).build().toString(),uri.fragment.orEmpty().ifBlank { hostOf(content) },gid)
             return
         }
         importInto(activity, content, gid)
@@ -78,6 +80,8 @@ object SubscribeFlows {
 
     /** Several payloads at once (importFromFiles): each URL or deep link on its own, the rest as one import. */
     fun importTexts(activity: FragmentActivity, payloads: List<String>, gid: Long = -1L) {
+        if (payloads.size == 1) { importText(activity, payloads.single(), gid); return }
+        if (gid <= 0) { ImportTargetActivity.start(activity, "batch", org.json.JSONArray(payloads).toString()); return }
         val batch = ArrayList<String>()
         for (payload in payloads.map { it.trim() }.filter { it.isNotEmpty() }) {
             val single = payload.startsWith("http://") || payload.startsWith("https://") ||
@@ -88,33 +92,12 @@ object SubscribeFlows {
     }
 
     /** Adds a subscription link (throne://addsub, clash://install-config, a pasted URL) without asking. */
-    fun addSubscription(activity: FragmentActivity, url: String, name: String) {
-        if (ProviderLinks.isEncrypted(url)) {
-            runOnDefaultDispatcher {
-                val decoded = runCatching { ProviderLinks.decodeChecked(url) }.getOrNull()
-                onMainDispatcher {
-                    if (activity.isFinishing || activity.isDestroyed) return@onMainDispatcher
-                    if (decoded == null) notify(activity, activity.getString(R.string.provider_crypto_import_error))
-                    else showSubscriptionPrompt(activity, url, name.ifBlank { decoded.name.ifBlank { hostOf(decoded.data) } })
-                }
-            }
-            return
+    fun addSubscription(activity: FragmentActivity, url: String, name: String, gid: Long = -1L) {
+        if (gid <= 0) {
+            ImportTargetActivity.start(activity, "text", url)
+        } else {
+            SubscriptionClient.importUrl(url, gid)
         }
-        showSubscriptionPrompt(activity, url, name)
-    }
-
-    private fun showSubscriptionPrompt(activity: FragmentActivity, url: String, name: String) {
-        val link = url.trim()
-        if (link.isEmpty()) {
-            MaterialAlertDialogBuilder(activity)
-                .setTitle(R.string.grp_add_subscription)
-                .setMessage(R.string.grp_no_subscription_url)
-                .setPositiveButton(android.R.string.ok, null)
-                .show()
-            return
-        }
-        // Added at once with auto update on; update and TLS options live in the subscription's settings.
-        subscribe(activity, link, name.trim().ifEmpty { hostOf(link) }, true, false)
     }
 
     /**
@@ -146,6 +129,7 @@ object SubscribeFlows {
     /** A file opened or shared from outside that is not a backup: its text is imported like pasted text (importFromFiles). */
     /** importFromFiles: a text file goes through [importUri]; a zip holds one document per entry (WireGuard / OpenVPN). */
     fun importFile(activity: FragmentActivity, uri: Uri, gid: Long = -1L) {
+        if (gid <= 0) { ImportTargetActivity.start(activity, "file", uri.toString()); return }
         val name = displayName(uri)
         if (isImage(uri, name)) { importQrImage(activity, uri, name, gid); return }
         if (!name.endsWith(".zip", true)) { importUri(activity, uri, gid); return }
@@ -226,7 +210,7 @@ object SubscribeFlows {
             RouteImports.isRouteLink(link) -> importRoute(activity, link)
             command.equals("addsub", ignoreCase = true) -> {
                 val sub = subscribeLink(link) ?: return
-                addSubscription(activity, sub.url, sub.name)
+                addSubscription(activity, sub.url, sub.name, gid)
             }
 
             else -> {
@@ -242,24 +226,6 @@ object SubscribeFlows {
             activity.importRouteLink(link)
         } else if (activity is AppCompatActivity) {
             RouteImports.importLink(activity, link) {}
-        }
-    }
-
-    private fun subscribe(activity: FragmentActivity, url: String, name: String, autoUpdate: Boolean, allowInsecureRequests: Boolean = false) {
-        (activity as? MainActivity)?.displayFragmentWithId(R.id.nav_mobile_home)
-        runOnDefaultDispatcher {
-            try {
-                if (SubscriptionClient.subscribeUrl(url, name, autoUpdate, allowInsecureRequests) <= 0) {
-                    onMainDispatcher { notify(activity, activity.getString(R.string.provider_crypto_import_error)) }
-                }
-            } catch (e: Exception) {
-                if (ProviderLinks.isEncrypted(url)) {
-                    onMainDispatcher { notify(activity, activity.getString(R.string.provider_crypto_fetch_error)) }
-                } else {
-                    Logs.w(e)
-                    onMainDispatcher { notify(activity, e.readableMessage) }
-                }
-            }
         }
     }
 

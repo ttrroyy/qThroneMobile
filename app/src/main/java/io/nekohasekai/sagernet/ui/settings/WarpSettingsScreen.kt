@@ -28,9 +28,13 @@ class WarpSettingsFragment : SettingsScreenFragment(R.xml.settings_warp) {
     override fun bind() {
         pref<SwitchPreference>(SettingsRegistry.ENABLE_WARP.key).setOnPreferenceChangeListener { _, newValue ->
             val enabled = newValue as Boolean
+            if (enabled && !WarpClient.isGenerated()) {
+                DataStore.enableWarp = false
+                toast(R.string.warp_not_generated)
+                return@setOnPreferenceChangeListener false
+            }
             DataStore.enableWarp = enabled
             if (DataStore.serviceState.started) SagerNet.reloadService()
-            if (enabled && !WarpClient.isGenerated()) toast(R.string.warp_not_generated)
             true
         }
 

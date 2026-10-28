@@ -169,7 +169,7 @@ abstract class BoxInstance(
      * live workers, so the watchdog never fires: after a wake, test the connection and reconnect when it stays dead.
      */
     fun checkAfterWake() {
-        if(!isInitialized() || config.carrierPlans.isEmpty() || wakeCheck?.isActive==true) return
+        if(!isInitialized() || (config.carrierPlans.isEmpty() && config.xrayConfig == null && config.xrayFullConfigs.isEmpty()) || wakeCheck?.isActive==true) return
         wakeCheck=CoroutineScope(Dispatchers.IO).launch {
             // As the original qWDTT: test only once the phone's own network is validated again, up to 20 s.
             delay(2_000)
@@ -184,7 +184,7 @@ abstract class BoxInstance(
             withContext(Dispatchers.Main) {
                 val service=DataStore.baseService
                 if(service!=null && service.data.proxy===this@BoxInstance && service.data.state==app.qthrone.mobile.bg.BaseService.State.Connected) {
-                    Logs.i("Native transport wake check: reconnecting");app.qthrone.mobile.SagerNet.reloadService()
+                    Logs.i("External transport wake check: reconnecting");app.qthrone.mobile.SagerNet.reloadService()
                 }
             }
         }

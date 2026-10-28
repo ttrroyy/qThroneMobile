@@ -366,6 +366,8 @@ class MainActivity : ThemedActivity(),
         animate: Boolean,
     ) {
         val showControls = fragment is ConfigurationFragment
+        // Hidden legacy controls must not intercept taps on the dashboard's bottom rows.
+        binding.stats.visibility = if (showControls) View.VISIBLE else View.INVISIBLE
         binding.stats.useExternalScrollDriver = fragment is ConfigurationFragment
         binding.stats.syncMainControls(
             showControls,
@@ -458,7 +460,7 @@ class MainActivity : ThemedActivity(),
     private fun showServiceError(message: String) {
         if (errorBar?.isShownOrQueued == true && errorShown == message) return
         errorShown = message
-        val bar = snackbar(message).setDuration(Snackbar.LENGTH_INDEFINITE)
+        val bar = snackbar(message).setDuration(Snackbar.LENGTH_LONG)
         if (DataStore.serviceErrorDns) {
             bar.setAction(R.string.settings_dns) {
                 openSettingsScreen(DnsSettingsFragment::class.java.name, getString(R.string.settings_dns))
@@ -474,7 +476,7 @@ class MainActivity : ThemedActivity(),
         }
         errorBar = bar.addCallback(object : Snackbar.Callback() {
             override fun onDismissed(transientBottomBar: Snackbar, event: Int) {
-                if (event == DISMISS_EVENT_SWIPE || event == DISMISS_EVENT_ACTION) {
+                if (event == DISMISS_EVENT_SWIPE || event == DISMISS_EVENT_ACTION || event == DISMISS_EVENT_TIMEOUT) {
                     DataStore.serviceError = ""
                     DataStore.serviceErrorDns = false
                     DataStore.serviceErrorGeo = false

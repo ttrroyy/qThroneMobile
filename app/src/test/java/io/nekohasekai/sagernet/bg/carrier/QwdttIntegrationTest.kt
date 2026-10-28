@@ -7,6 +7,21 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class QwdttIntegrationTest {
+    @Test fun directEndpointUsesRtpAeadAndKeepsServerAndLocalPortsSeparate() {
+        val link="qwdtt://config?peer=192.0.2.1%3A56002&pass=fixture&hashes=demo_hash_123456789&workers=18&port=9000"
+        val direct=Qwdtt().apply { assertTrue(parseFromLink(link)) }
+        assertTrue(direct.noDtls)
+        val config=direct.privateConfig(19001,19002,CarrierBridgeCredentials("user","pass"))
+        assertEquals("192.0.2.1:56002",config.string("peer"))
+        assertEquals("127.0.0.1:19002",config.string("listen"))
+        assertTrue(config.bool("no_dtls"))
+        assertTrue(Qwdtt().apply { assertTrue(parseFromLink(direct.exportToLink())) }.noDtls)
+        assertFalse(Qwdtt().apply { assertTrue(parseFromLink(link+"&no_dtls=0")) }.noDtls)
+        assertFalse(Qwdtt().apply { assertTrue(parseFromLink(link.replace("56002","56000"))) }.noDtls)
+        assertFalse(app.qthrone.mobile.outbound.types.Csqtt().apply {
+            assertTrue(parseFromJson(app.qthrone.mobile.outbound.json.jsonObjectOf("type" to "csqtt","server" to "192.0.2.1","server_port" to 56002,"password" to "fixture")))
+        }.noDtls)
+    }
     private fun profile()=Qwdtt().apply {
         assertTrue(parseFromLink("qwdtt://config?peer=192.0.2.1%3A56000&pass=a%2Bb&hashes=demo_hash_123456789&device_id=stable-test&mode=raw"))
     }

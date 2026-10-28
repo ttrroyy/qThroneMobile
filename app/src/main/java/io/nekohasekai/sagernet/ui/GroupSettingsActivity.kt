@@ -475,6 +475,7 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
                 .show()
             return
         }
+        var savedGroupId = 0L
         val result = withContext(Dispatchers.IO) {
             val group = if (editingId > 0) GroupRepo.get(editingId) ?: return@withContext SaveResult.GONE else ProxyGroup()
             val url = DataStore.subscriptionLink.trim()
@@ -495,6 +496,7 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
             group.frontProxyId = proxyId(KEY_FRONT)
             group.landingProxyId = proxyId(KEY_LANDING)
             if (editingId > 0) GroupRepo.save(group) else GroupRepo.add(group)
+            savedGroupId = group.id
             if (editingId > 0) when (group.subOptions.effectiveSortRule) {
                 ServerSortRule.PING -> GroupSort.sortProfiles(group.id, GroupSortAction(GroupSortMethod.BY_LATENCY))
                 ServerSortRule.NAME -> GroupSort.sortProfiles(group.id, GroupSortAction(GroupSortMethod.BY_NAME))
@@ -502,7 +504,10 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
             }
             SaveResult.OK
         }
-        if (result == SaveResult.OK) SubscriptionScheduler.schedule()
+        if (result == SaveResult.OK) {
+            setResult(Activity.RESULT_OK, Intent().putExtra(EXTRA_GROUP_ID, savedGroupId))
+            SubscriptionScheduler.schedule()
+        }
         when (result) {
             SaveResult.URL_REQUIRED -> Toast.makeText(this, R.string.group_url_required, Toast.LENGTH_SHORT).show()
             else -> finish()

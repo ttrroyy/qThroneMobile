@@ -15,6 +15,41 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class CarrierProcessTest {
+    @Test fun cancelledStartupReturnsBeforePoolOwnedVkCleanup(): Unit = runBlocking {
+        val root=Files.createTempDirectory("csqtt-cancel-start").toFile()
+        val created=kotlinx.coroutines.CompletableDeferred<CarrierProcess>()
+        val stoppedAt=java.util.concurrent.atomic.AtomicLong()
+        var running:CarrierProcess?=null
+        try {
+            for(name in listOf("libqwdtt.so","libcsqtt_transport.so")) File(root,name).apply { writeText("fixture");setExecutable(true) }
+            val job=launch {
+                CarrierProcess.start(CarrierKind.CSQTT,root,File(root,"configs"),35,"{}",12345,CarrierBridgeCredentials.fresh(),
+                    onCreated={ created.complete(it) }) {
+                    object:Process() {
+                        override fun getOutputStream()=object:java.io.OutputStream() {
+                            override fun write(value:Int) { if(value==10) stoppedAt.compareAndSet(0,System.nanoTime()) }
+                        }
+                        override fun getInputStream()=ByteArrayInputStream(byteArrayOf())
+                        override fun getErrorStream()=ByteArrayInputStream(byteArrayOf())
+                        override fun exitValue():Int {
+                            if(stoppedAt.get()!=0L && System.nanoTime()-stoppedAt.get()>=1_200_000_000L) return 0
+                            throw IllegalThreadStateException()
+                        }
+                        override fun waitFor()=0
+                        override fun destroy() { fail("VK cleanup must keep its grace period") }
+                    }
+                }
+            }
+            running=created.await()
+            val before=System.nanoTime()
+            job.cancel(); job.join()
+            assertTrue("A stopped startup must not await VK cleanup",System.nanoTime()-before<1_000_000_000L)
+            assertEquals("The pool still owns the live process",0L,stoppedAt.get())
+            running.close()
+            assertTrue(stoppedAt.get()>0)
+            assertTrue(File(root,"configs").listFiles().orEmpty().isEmpty())
+        } finally { running?.close();root.deleteRecursively() }
+    }
     @Test fun csqttConnectionAndLatencyProbeUseOnlyLegacyWithoutChangingCredentials(): Unit = runBlocking {
         for (interactive in listOf(false,true)) {
             val root=Files.createTempDirectory("csqtt-protocol-retry").toFile()

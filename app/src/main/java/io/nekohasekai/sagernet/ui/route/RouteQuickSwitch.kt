@@ -62,10 +62,9 @@ object RouteQuickSwitch {
 
     /** "Enable Warp" (mainwindow_setup.cpp:893-903): saves enable_warp and reloads a running service. */
     fun setWarpEnabled(fragment: Fragment, enabled: Boolean) {
-        DataStore.enableWarp = enabled
-        if (DataStore.serviceState.started) SagerNet.reloadService()
         val activity = fragment.activity as? MainActivity
         if (enabled && !WarpClient.isGenerated()) {
+            DataStore.enableWarp = false
             fragment.snackbar(fragment.getString(R.string.warp_not_generated)).apply {
                 if (activity != null) setAction(R.string.settings) {
                     val screen = WarpSettingsFragment::class.java.name
@@ -73,6 +72,8 @@ object RouteQuickSwitch {
                 }
             }.show()
         } else {
+            DataStore.enableWarp = enabled
+            if (DataStore.serviceState.started) SagerNet.reloadService()
             fragment.snackbar(fragment.getString(if (enabled) R.string.warp_enabled else R.string.warp_disabled)).show()
         }
     }

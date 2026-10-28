@@ -74,11 +74,11 @@ class ProfileImports(private val host: ConfigurationFragment) {
         if (text.isBlank()) {
             host.snackbar(R.string.clipboard_empty).show()
         } else {
-            SubscribeFlows.importText(host.requireActivity(), text, host.currentGroupId)
+            SubscribeFlows.importText(host.requireActivity(), text)
         }
     }
 
-    private fun importFile(uri: Uri) = SubscribeFlows.importFile(host.requireActivity(), uri, host.currentGroupId)
+    private fun importFile(uri: Uri) = SubscribeFlows.importFile(host.requireActivity(), uri)
 
     private fun editorFor(itemId: Int): Class<*>? = when (itemId) {
         R.id.action_new_auto_selector -> AutoSelectorSettingsActivity::class.java

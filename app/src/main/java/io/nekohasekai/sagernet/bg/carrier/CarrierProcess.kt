@@ -108,6 +108,7 @@ class CarrierProcess private constructor(private val process: Process, private v
             timeoutMs: Long = 60_000,
             allowInteractions: Boolean = true,
             onStatus: (NativeConnectionStage) -> Unit = {},
+            onCreated: ((CarrierProcess) -> Unit)? = null,
             launch: (ProcessBuilder) -> Process = { it.start() },
         ): CarrierProcess {
             val hashes=app.qthrone.mobile.outbound.json.JsonInput.parseObject(privateJson).array("hashes").size
@@ -127,7 +128,7 @@ class CarrierProcess private constructor(private val process: Process, private v
                     }
                     return startOnce(kind,nativeDirectory,privateDirectory,apiLevel,
                         launchJson,socksPort,bridgeCredentials,
-                        remaining,allowInteractions,onStatus,launch)
+                        remaining,allowInteractions,onStatus,onCreated,launch)
                 } catch(error:UnavailableCall) {
                     if(attempt==attempts-1) throw error
                     attempt++
@@ -151,6 +152,7 @@ class CarrierProcess private constructor(private val process: Process, private v
             timeoutMs: Long = 60_000,
             allowInteractions: Boolean = true,
             onStatus: (NativeConnectionStage) -> Unit,
+            onCreated: ((CarrierProcess) -> Unit)?,
             launch: (ProcessBuilder) -> Process = { it.start() },
         ): CarrierProcess {
             // withContext may discard a successful return when cancellation wins the
@@ -197,7 +199,8 @@ class CarrierProcess private constructor(private val process: Process, private v
                                     WdttPlusBootstrapPolicy.arguments(true,launchConfig.optBoolean("masque_server_bootstrap"),masqueConfig.exists(),bootstrap?.address)
                             } else emptyList()
                             listOf(executable.absolutePath) + flags + masque
-                        } else listOf(executable.absolutePath, kind.configFlag, config.absolutePath)
+                        } else listOf(executable.absolutePath, kind.configFlag, config.absolutePath) +
+                            if(kind==CarrierKind.QWDTT && app.qthrone.mobile.outbound.json.JsonInput.parseObject(privateJson).bool("no_dtls")) listOf("-notls") else emptyList()
                         val builder = ProcessBuilder(command)
                             .directory(if (launchConfig != null) sessionDirectory else nativeDirectory).redirectErrorStream(true)
                         if (launchConfig != null) builder.environment()["LD_LIBRARY_PATH"] = nativeDirectory.absolutePath
@@ -214,6 +217,7 @@ class CarrierProcess private constructor(private val process: Process, private v
                         val running = CarrierProcess(child, config,allowInteractions,kind,onStatus)
                         owner = running
                         running.wdttBootstrap=pendingBootstrap; pendingBootstrap=null
+                        onCreated?.invoke(running)
                         if (launchConfig != null) {
                             val start = android.util.Base64.encodeToString(launchConfig.getJSONObject("start").toString().toByteArray(Charsets.UTF_8),
                                 android.util.Base64.URL_SAFE or android.util.Base64.NO_PADDING or android.util.Base64.NO_WRAP)
@@ -271,6 +275,11 @@ class CarrierProcess private constructor(private val process: Process, private v
                         }
                         throw IllegalStateException("Transport client startup timed out")
                     } catch (error: Throwable) {
+                        // The pool closes a cancelled startup off the service thread, keeping its session reserved.
+                        if (error is kotlinx.coroutines.CancellationException && onCreated != null && owner != null) {
+                            owner = null
+                            throw error
+                        }
                         pendingBootstrap?.close(); pendingBootstrap=null
                         owner?.close()
                         config.parentFile?.deleteRecursively()
@@ -278,6 +287,10 @@ class CarrierProcess private constructor(private val process: Process, private v
                     }
                 }
             } catch (error: Throwable) {
+                if (error is kotlinx.coroutines.CancellationException && onCreated != null && owner != null) {
+                    owner = null
+                    throw error
+                }
                 pendingBootstrap?.close()
                 owner?.close()
                 throw error
