@@ -46,7 +46,7 @@ def publish(dist, notes, tag, target, title):
     with TemporaryDirectory(prefix="qthrone-release-") as directory:
         directory = Path(directory)
         body = directory / "notes.md"
-        body.write_text(release_notes(notes, manifest), encoding="utf-8")
+        body.write_text(release_notes(notes, manifest), encoding="utf-8", newline="\n")
         # Old updaters resolve APKs inside the release that holds their JSON.
         # shortcut: old clients scan 20 releases; retain this bridge while migrating them.
         bridge = manifest["versionName"] == "2.4.2"

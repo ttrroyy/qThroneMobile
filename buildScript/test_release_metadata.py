@@ -37,6 +37,29 @@ class ReleaseMetadataTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 validate_bridge(previous, current)
 
+    def test_beta_keeps_installable_metadata_and_prerelease_flags(self):
+        with tempfile.TemporaryDirectory() as temp:
+            directory = Path(temp)
+            manifest = dict(self.manifest(directory), versionName="3.0.0-beta.1", versionCode=89001)
+            (directory / "qthrone-update.json").write_text(json.dumps(manifest), encoding="utf-8")
+            calls = []
+
+            def gh(*args, **kwargs):
+                calls.append(args)
+                if args[:2] == ("release", "view"):
+                    return subprocess.CompletedProcess(args, 1, "", "release not found")
+                if "--notes-file" in args:
+                    body = Path(args[args.index("--notes-file") + 1]).read_bytes().decode("utf-8")
+                    self.assertIn("<!-- qthrone-update\n", body)
+                    self.assertEqual(embedded_manifest(body), manifest)
+                return subprocess.CompletedProcess(args, 0, "", "")
+
+            with patch("publish_release.gh", side_effect=gh):
+                publish(directory, "Beta notes", "v3.0.0-beta.1", "dev-commit", "3.0 beta 1")
+            self.assertEqual(calls[-1][:3], ("release", "edit", "v3.0.0-beta.1"))
+            self.assertIn("--prerelease", calls[-1])
+            self.assertIn("--latest=false", calls[-1])
+
     def test_only_apks_are_published_and_bridge_metadata_is_uploaded_last(self):
         with tempfile.TemporaryDirectory() as temp:
             directory = Path(temp)
@@ -52,7 +75,9 @@ class ReleaseMetadataTest(unittest.TestCase):
                 if args[:2] == ("release", "view"):
                     return subprocess.CompletedProcess(args, 1, "", "release not found")
                 if args[:2] == ("release", "edit"):
-                    self.assertEqual(embedded_manifest(Path(args[args.index("--notes-file") + 1]).read_text(encoding="utf-8")), manifest)
+                    body = Path(args[args.index("--notes-file") + 1]).read_bytes().decode("utf-8")
+                    self.assertNotIn("\r", body, "Installed updaters require LF metadata markers")
+                    self.assertEqual(embedded_manifest(body), manifest)
                 return subprocess.CompletedProcess(args, 0, "", "")
 
             with patch("publish_release.gh", side_effect=gh):
