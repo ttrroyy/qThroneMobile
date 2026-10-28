@@ -22,7 +22,8 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
 import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
 import app.qthrone.mobile.R
-import app.qthrone.mobile.ktx.getColorAttr
+import app.qthrone.mobile.database.DataStore
+import app.qthrone.mobile.utils.Theme
 import kotlin.math.roundToInt
 
 class ColorPickerPreference
@@ -46,7 +47,9 @@ class ColorPickerPreference
         if (!inited) {
             inited = true
 
-            val previewColor = app.qthrone.mobile.ui.MobilePalette.accent(context)
+            val previewColor = if (Theme.usingMonetTheme()) app.qthrone.mobile.ui.MobilePalette.accent(context)
+                else context.resources.getIntArray(R.array.material_colors).getOrNull(DataStore.appTheme - 1)
+                    ?: app.qthrone.mobile.ui.MobilePalette.accent(context)
             val preview = getNekoImageViewAtColor(previewColor, 48, 0)
             applyWhiteSwatchBorder(preview, previewColor)
             widgetFrame.addView(preview)

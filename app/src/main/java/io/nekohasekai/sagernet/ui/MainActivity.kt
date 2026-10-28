@@ -137,7 +137,10 @@ class MainActivity : ThemedActivity(),
                 supportFragmentManager.findFragmentById(R.id.fragment_holder) as? ToolbarFragment
         }
         onBackPressedDispatcher.addCallback {
-            if(supportFragmentManager.backStackEntryCount>0) {
+            val settings = supportFragmentManager.findFragmentById(R.id.fragment_holder) as? SettingsFragment
+            if (settings != null && settings.childFragmentManager.backStackEntryCount > 0) {
+                settings.childFragmentManager.popBackStack()
+            } else if(supportFragmentManager.backStackEntryCount>0) {
                 supportFragmentManager.popBackStack()
             } else if (supportFragmentManager.findFragmentById(R.id.fragment_holder) is MobileHomeFragment) {
                 moveTaskToBack(true)
@@ -299,7 +302,9 @@ class MainActivity : ThemedActivity(),
 
     /** Opens one settings sub-screen, e.g. Settings вЂє Routing, with the settings root below it. */
     fun openSettingsScreen(fragmentClass: String, title: CharSequence) {
-        displayFragment(SettingsFragment.forScreen(fragmentClass, title))
+        val settings = supportFragmentManager.findFragmentById(R.id.fragment_holder) as? SettingsFragment
+        if (settings != null) settings.openScreen(fragmentClass, title)
+        else displayFragment(SettingsFragment.forScreen(fragmentClass, title))
         navigation.menu.findItem(R.id.nav_settings).isChecked = true
     }
 

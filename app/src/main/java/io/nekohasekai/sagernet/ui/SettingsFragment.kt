@@ -72,7 +72,7 @@ class SettingsFragment : ToolbarFragment(R.layout.layout_config_settings),
         return true
     }
 
-    private fun openScreen(name: String, title: CharSequence?, extras: Bundle) {
+    internal fun openScreen(name: String, title: CharSequence?, extras: Bundle = Bundle()) {
         if (childFragmentManager.isStateSaved) return
         val fragment = childFragmentManager.fragmentFactory.instantiate(requireContext().classLoader, name)
         fragment.arguments = Bundle(extras).apply {

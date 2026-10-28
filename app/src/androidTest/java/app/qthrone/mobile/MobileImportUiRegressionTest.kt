@@ -2,15 +2,18 @@ package app.qthrone.mobile
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Rect
 import android.net.Uri
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.ContextThemeWrapper
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import app.qthrone.mobile.database.DataStore
 import app.qthrone.mobile.database.ProxyEntity
@@ -19,6 +22,13 @@ import app.qthrone.mobile.database.SagerDatabase
 import app.qthrone.mobile.outbound.types.Socks
 import app.qthrone.mobile.ui.ImportTargetActivity
 import app.qthrone.mobile.ui.MainActivity
+import app.qthrone.mobile.ui.MobileHomeFragment
+import app.qthrone.mobile.ui.MobilePalette
+import app.qthrone.mobile.ui.SettingsFragment
+import app.qthrone.mobile.ui.SettingsPreferenceFragment
+import app.qthrone.mobile.ui.settings.AppearanceSettingsFragment
+import app.qthrone.mobile.ui.settings.UpdateSettingsFragment
+import app.qthrone.mobile.utils.Theme
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
@@ -45,6 +55,77 @@ class MobileImportUiRegressionTest {
             Thread.sleep(50)
         }
         fail("Dashboard did not finish layout")
+    }
+
+    @Test fun whiteAndGreyAccentsMatchTheirSwatchesAndRemainReadable() {
+        val saved = listOf(DataStore.appTheme, DataStore.nightTheme)
+        val savedSystem = DataStore.useSystemTheme
+        val savedOled = DataStore.amoledTheme
+        try {
+            ui {
+                DataStore.useSystemTheme = false
+                val swatches = context.resources.getIntArray(R.array.material_colors)
+                assertEquals(0xFF9E9E9E.toInt(), swatches[Theme.GREY - 1])
+                assertEquals(0xFFFFFFFF.toInt(), swatches[Theme.WHITE - 1])
+                for (night in listOf(false, true)) for (oled in listOf(false, true)) {
+                    DataStore.nightTheme = if (night) 1 else 2
+                    DataStore.amoledTheme = oled
+                    val configuration = Configuration(context.resources.configuration).apply {
+                        uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or
+                            if (night) Configuration.UI_MODE_NIGHT_YES else Configuration.UI_MODE_NIGHT_NO
+                    }
+                    for (color in listOf(Theme.GREY, Theme.WHITE)) {
+                        DataStore.appTheme = color
+                        val themed = ContextThemeWrapper(context.createConfigurationContext(configuration), Theme.getTheme())
+                        Theme.apply(themed)
+                        val expected = if (color == Theme.GREY) {
+                            if (night) 0xFF9E9E9E.toInt() else 0xFF616161.toInt()
+                        } else if (night) 0xFFFFFFFF.toInt() else 0xFF424242.toInt()
+                        assertEquals(expected, MobilePalette.accent(themed))
+                        assertTrue(androidx.core.graphics.ColorUtils.calculateContrast(expected, MobilePalette.background) >= 4.5)
+                        Theme.applyDialog(themed)
+                        assertEquals(expected, MobilePalette.accent(themed))
+                    }
+                }
+            }
+        } finally {
+            DataStore.appTheme = saved[0]; DataStore.nightTheme = saved[1]
+            DataStore.useSystemTheme = savedSystem; DataStore.amoledTheme = savedOled
+        }
+    }
+
+    @Test fun settingsTileOpensDirectlyAndNestedBackSurvivesRecreation() {
+        val current = AtomicReference<MainActivity>()
+        ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)).use { scenario ->
+            scenario.onActivity { current.set(it) }
+            await { ui { descendants(current.get().window.decorView).any { it.contentDescription == context.getString(R.string.qmobile_settings) } } }
+            scenario.onActivity { activity ->
+                descendants(activity.window.decorView).first { it.contentDescription == context.getString(R.string.qmobile_settings) }.performClick()
+                activity.supportFragmentManager.executePendingTransactions()
+                val settings = activity.supportFragmentManager.findFragmentById(R.id.fragment_holder) as SettingsFragment
+                assertTrue(settings.childFragmentManager.findFragmentById(R.id.settings) is SettingsPreferenceFragment)
+                activity.openSettingsScreen(AppearanceSettingsFragment::class.java.name, "Appearance")
+                settings.childFragmentManager.executePendingTransactions()
+                activity.openSettingsScreen(UpdateSettingsFragment::class.java.name, "Updates")
+                settings.childFragmentManager.executePendingTransactions()
+                assertSame(settings, activity.supportFragmentManager.findFragmentById(R.id.fragment_holder))
+                assertEquals(2, settings.childFragmentManager.backStackEntryCount)
+            }
+            scenario.recreate()
+            scenario.onActivity { activity ->
+                val settings = activity.supportFragmentManager.findFragmentById(R.id.fragment_holder) as SettingsFragment
+                activity.onBackPressedDispatcher.onBackPressed()
+                settings.childFragmentManager.executePendingTransactions()
+                assertTrue(settings.childFragmentManager.findFragmentById(R.id.settings) is AppearanceSettingsFragment)
+                activity.onBackPressedDispatcher.onBackPressed()
+                settings.childFragmentManager.executePendingTransactions()
+                assertTrue(settings.childFragmentManager.findFragmentById(R.id.settings) is SettingsPreferenceFragment)
+                activity.onBackPressedDispatcher.onBackPressed()
+                activity.supportFragmentManager.executePendingTransactions()
+                assertTrue(activity.supportFragmentManager.findFragmentById(R.id.fragment_holder) is MobileHomeFragment)
+            }
+        }
     }
 
     @Test fun cancellingDestinationDoesNotCreateOrImportAnything() {

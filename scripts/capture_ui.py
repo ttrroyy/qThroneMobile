@@ -101,7 +101,7 @@ assert 'Configuration' not in screen_xml() and 'Sing-box dashboard' not in scree
 # An edge swipe can be Android's Back gesture on the home page; resume the app before checking its controls.
 shell('am','start','-n',activity);time.sleep(3)
 
-tap_text('Settings');tap_text('Settings')
+tap_text('Settings')
 capture('03-settings')
 for label,name in [('TUN settings','27-tun-settings'),('Core settings','28-core-settings')]:
     tap_text(label);capture(name)
@@ -255,19 +255,19 @@ assert 'Demo subscription' in screen_xml(),'Pinned subscription disappeared'
 subscription_more('Demo subscription');tap_text('Edit')
 assert 'http://127.0.0.1:8866/demo' in screen_xml(),'Editor did not open the selected subscription'
 capture('15-subscription-editor');shell('input','keyevent','4');time.sleep(2)
-tap_text('Settings');tap_text('Settings');tap_text('Appearance');capture('16-appearance-gray')
+tap_text('Settings');tap_text('Appearance');capture('16-appearance-gray')
 choose_accent('Purple');capture('22-settings-purple');choose_accent('Cyan')
 tap_text('Seasonal decoration');tap_text('Winter')
 time.sleep(3)
 shell('input','keyevent','4');time.sleep(.3);shell('input','keyevent','4');time.sleep(2)
 capture('17-home-newyear')
-tap_text('Settings');tap_text('Settings');tap_text('Appearance');tap_text('Theme');tap_text('Light')
+tap_text('Settings');tap_text('Appearance');tap_text('Theme');tap_text('Light')
 time.sleep(4);capture('18-settings-white')
 shell('input','keyevent','4');time.sleep(.3);shell('input','keyevent','4');time.sleep(2);capture('19-home-white')
-tap_text('Settings');tap_text('Settings');tap_text('Appearance');tap_text('Theme');tap_text('Dark')
+tap_text('Settings');tap_text('Appearance');tap_text('Theme');tap_text('Dark')
 time.sleep(4);tap_text('Theme');tap_text('OLED');time.sleep(4);capture('20-settings-oled')
 shell('input','keyevent','4');time.sleep(.3);shell('input','keyevent','4');time.sleep(2);capture('21-home-oled')
-tap_text('Settings');tap_text('Settings');tap_text('Appearance');tap_text('Theme');tap_text('Dark');time.sleep(3)
+tap_text('Settings');tap_text('Appearance');tap_text('Theme');tap_text('Dark');time.sleep(3)
 choose_accent('White');capture('23-settings-white-theme');choose_accent('Cyan')
 tap_text('Seasonal decoration');tap_text('Autumn');time.sleep(3)
 shell('input','keyevent','4');time.sleep(.3);shell('input','keyevent','4');time.sleep(2)
@@ -329,7 +329,7 @@ a,b,c,d=named_bounds(before,'ScrollTest-16')
 shell('input','tap',str((a+c)//2),str((b+d)//2));time.sleep(1)
 assert abs(named_bounds(screen_xml(),'ScrollTest-16')[1]-b)<=3,'Profile selection reset list scroll'
 capture('37-home-compact-scrolled')
-tap_text('Settings');tap_text('Settings');shell('input','keyevent','4');time.sleep(2)
+tap_text('Settings');shell('input','keyevent','4');time.sleep(2)
 assert abs(named_bounds(screen_xml(),'ScrollTest-16')[1]-b)<=3,'Return from settings reset list scroll'
 print('PASS: profile selection and settings return retain scrolled list position',flush=True)
 (out/'ui-actions-result.txt').write_text('PASS: confirmed group selection and named subscription creation; standalone profiles in Server list; URL, QR and JSON sharing; country flags; profile swipe reset in both directions; profile editor; subscription bottom sheet, pin and edit; gray, white, OLED and seasonal preferences.\n')

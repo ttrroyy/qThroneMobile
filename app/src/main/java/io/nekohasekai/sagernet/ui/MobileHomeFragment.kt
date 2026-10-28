@@ -368,7 +368,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     setImageResource(icon); imageTintList=android.content.res.ColorStateList.valueOf(foregroundColor); background = tile(); setPadding(dp(12),dp(12),dp(12),dp(12))
                     contentDescription = description; tooltipText = description; setOnClickListener { callback(it) }; MobileFeedback.apply(this)
                 }
-                header.addView(headerIcon(R.drawable.ic_mobile_settings, getString(R.string.qmobile_settings)) { settingsMenu(it) }, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginEnd=dp(8) })
+                header.addView(headerIcon(R.drawable.ic_mobile_settings, getString(R.string.qmobile_settings)) { host().displayFragmentWithId(R.id.nav_settings) }, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginEnd=dp(8) })
                 // the routing profile switch (global, Wi-Fi, mobile whitelist...) without a trip through the settings
                 header.addView(headerIcon(R.drawable.ic_mobile_route, getString(R.string.route_profile_quick_switch)) { routingMenu(it) }, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginEnd=dp(8) })
                 header.addView(headerIcon(R.drawable.ic_mobile_subscriptions, getString(R.string.qmobile_manage_groups)) { subscriptionsMenu(it) }, LinearLayout.LayoutParams(dp(48), dp(48)))
@@ -915,13 +915,6 @@ class MobileHomeFragment : ToolbarFragment() {
             if(group?.isSubscription==true) SubscriptionClient.refreshGroup(id,false)
         }
     }
-    private fun settingsMenu(anchor: View) {
-        val popup=androidx.appcompat.widget.PopupMenu(requireContext(),anchor)
-        popup.menu.add(R.string.settings).setOnMenuItemClickListener { host().displayFragmentWithId(R.id.nav_settings);true }
-        popup.menu.add(R.string.settings_dns).setOnMenuItemClickListener { host().openSettingsScreen(app.qthrone.mobile.ui.settings.DnsSettingsFragment::class.java.name,getString(R.string.settings_dns));true }
-        popup.menu.add(R.string.menu_log).setOnMenuItemClickListener { host().displayFragmentWithId(R.id.nav_logcat);true }
-        popup.show()
-    }
     private fun routingMenu(anchor: View) {
         viewLifecycleOwner.lifecycleScope.launch {
             val routes=withContext(Dispatchers.IO) { RouteManager.usable() }
@@ -954,7 +947,7 @@ class MobileHomeFragment : ToolbarFragment() {
         }
         popup.menu.add(R.string.qmobile_fold_all).setOnMenuItemClickListener { collapse(true);true }
         popup.menu.add(R.string.qmobile_expand_all).setOnMenuItemClickListener { collapse(false);true }
-        popup.menu.add(R.string.qmobile_refresh).setOnMenuItemClickListener {
+        popup.menu.add(R.string.update_all_subscription).setOnMenuItemClickListener {
             viewLifecycleOwner.lifecycleScope.launch { withContext(Dispatchers.IO) { GroupRepo.all().filter { it.isSubscription }.forEach { SubscriptionClient.refreshGroup(it.id,false) } } };true
         }
         popup.menu.add(R.string.qmobile_manage_groups).setOnMenuItemClickListener { host().displayFragmentWithId(R.id.nav_group);true }

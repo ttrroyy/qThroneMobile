@@ -126,7 +126,7 @@ wait_for('VPN-smoke')
 shell('am','start','-n',activity,'-a','android.intent.action.VIEW','-d','socks5://127.0.0.1:8868#VPN-queued')
 time.sleep(3);tap('Yes');confirm_import_group();wait_for('VPN-queued')
 # Keep the fixture stalled long enough to inspect two independently requested scopes.
-tap('Settings');tap('Settings');tap('Core settings');tap('Test timeout (ms)')
+tap('Settings');tap('Core settings');tap('Test timeout (ms)')
 edit=next(n for n in ET.fromstring(xml()).iter('node') if n.get('class')=='android.widget.EditText')
 a,b,c,d=map(int,re.findall(r'\d+',edit.attrib['bounds']))
 shell('input','tap',str((a+c)//2),str((b+d)//2));shell('input','keyevent','123')
@@ -179,7 +179,7 @@ for cycle in range(2):
         assert any(int(value.split()[0])>=250 for value in readings), 'Current probe did not measure the controlled delay'
         response_delay=0.0
         (out/'26-current-connection-ping.png').write_bytes(subprocess.check_output([adb,'exec-out','screencap','-p']))
-        tap('Settings');tap('Settings');tap('TUN settings');tap('MTU');tap('1500')
+        tap('Settings');tap('TUN settings');tap('MTU');tap('1500')
         (out/'36-themed-reload-panel.png').write_bytes(subprocess.check_output([adb,'exec-out','screencap','-p']))
         assert 'Apply' in xml(),'Reload action disappeared'
         shell('input','keyevent','4');time.sleep(.3);shell('input','keyevent','4');time.sleep(1)

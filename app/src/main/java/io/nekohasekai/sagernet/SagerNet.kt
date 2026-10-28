@@ -85,10 +85,10 @@ class SagerNet : Application(),
         }
 
         if (isMainProcess) {
-            if (!DataStore.configurationStore.getBoolean("mobile_gray_300_migrated", false)) {
-                DataStore.amoledTheme = false
-                DataStore.nightTheme = 1
-                DataStore.configurationStore.putBoolean("mobile_gray_300_migrated", true)
+            if (!DataStore.configurationStore.getBoolean("mobile_gray_300_color_migrated", false)) {
+                DataStore.appTheme = app.qthrone.mobile.utils.Theme.GREY
+                DataStore.useSystemTheme = false
+                DataStore.configurationStore.putBoolean("mobile_gray_300_color_migrated", true)
             }
             if(!DataStore.seasonalAuto151Migrated) {
                 DataStore.seasonalDecoration=SeasonalPolicy.migratedChoice(DataStore.seasonalDecoration,false)
