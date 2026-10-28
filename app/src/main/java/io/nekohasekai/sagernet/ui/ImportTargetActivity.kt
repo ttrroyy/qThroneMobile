@@ -30,6 +30,7 @@ class ImportTargetActivity : ThemedActivity() {
     private var kind = ""
     private var content = ""
     private var transferred = false
+    private var suggestedName = ""
     private val createGroup = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val id = result.data?.getLongExtra(GroupSettingsActivity.EXTRA_GROUP_ID, 0L) ?: 0L
@@ -45,6 +46,7 @@ class ImportTargetActivity : ThemedActivity() {
         val document = runCatching { JSONObject(payload.readText()) }.getOrNull()
         if (document == null) { finish(); return }
         kind = document.getString("kind"); content = document.getString("content")
+        suggestedName = document.optString("name")
         fun dp(n: Int) = (n * resources.displayMetrics.density).toInt()
         val body = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -72,9 +74,13 @@ class ImportTargetActivity : ThemedActivity() {
         }
         choice(R.string.qmobile_new_group) {
             createGroup.launch(Intent(this, SubscriptionEditorActivity::class.java).apply {
-                val subscription = if (kind == "text") SubscribeFlows.subscribeLink(content)?.url
-                    ?: content.takeIf { it.startsWith("https://") || it.startsWith("http://") } else null
+                val parsed = if (kind == "text") Uri.parse(content) else null
+                val link = if (kind == "text") SubscribeFlows.subscribeLink(content) else null
+                val subscription = link?.url ?: parsed?.takeIf { it.scheme in listOf("http", "https") && it.userInfo == null }
+                    ?.buildUpon()?.fragment(null)?.build()?.toString()
                 subscription?.let { putExtra(GroupSettingsActivity.EXTRA_GROUP_SUBSCRIPTION_LINK, it) }
+                val name = suggestedName.ifBlank { link?.name.orEmpty().ifBlank { parsed?.fragment.orEmpty() } }
+                if (name.isNotBlank()) putExtra(GroupSettingsActivity.EXTRA_GROUP_NAME, name)
             })
         }
         choice(R.string.qmobile_existing_group) { selectGroup() }
@@ -136,11 +142,15 @@ class ImportTargetActivity : ThemedActivity() {
                 val group = if (id > 0) GroupRepo.get(id) else null
                 if (group == null) return@runOnDefaultDispatcher
                 val content = document.getString("content")
+                val kind = document.getString("kind")
+                val uri = Uri.parse(content)
+                val subscriptionSource = kind == "text" && (SubscribeFlows.subscribeLink(content) != null ||
+                    (uri.scheme in listOf("http", "https") && uri.userInfo == null))
                 GroupRepo.setCurrent(id)
                 onMainDispatcher {
                     activity.displayFragmentWithId(R.id.nav_mobile_home)
-                    if (document.optBoolean("created") && group.isSubscription) SubscriptionClient.refreshGroup(id, false)
-                    else when (document.getString("kind")) {
+                    if (document.optBoolean("created") && group.isSubscription && subscriptionSource) SubscriptionClient.refreshGroup(id, false)
+                    else when (kind) {
                         "manual" -> activity.startActivity(Intent(activity, app.qthrone.mobile.ui.profile.settingsActivityFor(content))
                             .putExtra("qmobileProfileType", content).putExtra("qmobileGroupId", id))
                         "file" -> SubscribeFlows.importFile(activity, Uri.parse(content), id)
@@ -156,11 +166,11 @@ class ImportTargetActivity : ThemedActivity() {
             } finally { file.delete() }
         }
 
-        fun start(activity: FragmentActivity, kind: String, content: String) = runOnDefaultDispatcher {
+        fun start(activity: FragmentActivity, kind: String, content: String, name: String = "") = runOnDefaultDispatcher {
             val directory = File(activity.cacheDir, "import-target").apply { mkdirs() }
             val file = File(directory, "${UUID.randomUUID()}.json")
             try {
-                file.writeText(JSONObject().put("kind", kind).put("content", content).toString())
+                file.writeText(JSONObject().put("kind", kind).put("content", content).put("name", name).toString())
                 onMainDispatcher {
                     if (activity.isFinishing || activity.isDestroyed) file.delete()
                     else activity.startActivity(Intent(activity, ImportTargetActivity::class.java).putExtra("payload", file.name))

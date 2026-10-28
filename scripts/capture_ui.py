@@ -54,6 +54,25 @@ def tap_text(text):
             return
     raise RuntimeError(f'UI control missing: {text}')
 
+def confirm_import_group(new=False):
+    assert 'Add to an existing group' in screen_xml(), 'Import destination screen is missing'
+    capture('36-import-destination')
+    if not new:
+        tap_text('Add to an existing group')
+        nodes=[n for n in ET.fromstring(screen_xml()).iter('node') if n.get('class')=='android.widget.CheckedTextView']
+        if nodes:
+            target=next((n for n in nodes if n.get('text')=='Server list'),nodes[0])
+            tap_text(target.get('text'))
+            capture('37-import-confirmation')
+            tap_text('OK')
+            return
+        tap_text('Cancel')
+    tap_text('Create a group / subscription')
+    time.sleep(2)
+    capture('38-create-group')
+    tap_text('Apply')
+    time.sleep(2)
+
 def choose_accent(label):
     titles=[n for n in ET.fromstring(screen_xml()).iter('node') if n.get('text')=='Color']
     a,b,c,d=map(int,re.findall(r'\d+',titles[-1].attrib['bounds']))
@@ -78,7 +97,7 @@ assert 'Configuration' not in screen_xml() and 'Sing-box dashboard' not in scree
 # An edge swipe can be Android's Back gesture on the home page; resume the app before checking its controls.
 shell('am','start','-n',activity);time.sleep(3)
 
-tap_text('Settings')
+tap_text('Settings');tap_text('Settings')
 capture('03-settings')
 for label,name in [('TUN settings','27-tun-settings'),('Core settings','28-core-settings')]:
     tap_text(label);capture(name)
@@ -115,6 +134,7 @@ for label in ('Finland-demo', 'Sweden-demo', 'Germany-demo'):
     # Existing import flow asks for confirmation; retain a diagnostic screenshot if it differs.
     try:
         tap_text('Yes')
+        confirm_import_group()
         for attempt in range(12):
             if label in screen_xml() and 'Confirm you want' not in screen_xml():
                 break
@@ -161,7 +181,7 @@ threading.Thread(target=server.serve_forever,daemon=True).start()
 subprocess.check_call([adb,'reverse','tcp:8866','tcp:8866'])
 shell('am','start','-n',activity,'-a','android.intent.action.SEND','-t','text/plain','--es','android.intent.extra.TEXT','http://127.0.0.1:8866/demo#Demo%20subscription')
 time.sleep(2)
-assert 'URL detected' not in screen_xml(),'Subscription import opened the old group selection'
+confirm_import_group(new=True)
 for attempt in range(15):
     xml=screen_xml()
     if 'Subscription-Finland' in xml: break
@@ -179,6 +199,15 @@ def profile_bounds(label):
         if node.get('text')==label:
             return list(map(int,re.findall(r'\d+',node.attrib['bounds'])))
     raise RuntimeError('Swipe fixture profile missing')
+
+def edit_profile(label):
+    _,top,_,bottom=profile_bounds(label)
+    center=(top+bottom)//2
+    nodes=[n for n in ET.fromstring(screen_xml()).iter('node') if n.get('content-desc')=='Edit']
+    assert nodes, 'Profile edit action is missing'
+    node=min(nodes,key=lambda n:abs(sum(list(map(int,re.findall(r'\d+',n.attrib['bounds'])))[1::2])//2-center))
+    a,b,c,d=map(int,re.findall(r'\d+',node.attrib['bounds']))
+    shell('input','tap',str((a+c)//2),str((b+d)//2));time.sleep(2)
 
 def subscription_more(label):
     nodes=list(ET.fromstring(scroll_to_text(label)).iter('node'))
@@ -209,9 +238,9 @@ shell('input','tap',str((x1+x2)//2+200),str(y))
 time.sleep(1)
 assert profile_bounds('Finland-demo')==bounds,'Tap did not restore the profile after a right swipe'
 capture('12-profile-restored')
-shell('input','swipe',str((x1+x2)//2),str(y),str((x1+x2)//2),str(y),'900')
+edit_profile('Finland-demo')
 time.sleep(2)
-assert 'SocksSettingsActivity' in shell('dumpsys','activity','activities'),'Long press did not open the profile editor'
+assert 'SocksSettingsActivity' in shell('dumpsys','activity','activities'),'Edit action did not open the profile editor'
 capture('13-profile-editor');shell('input','keyevent','4');time.sleep(2)
 tap_text('Demo subscription')
 subscription_more('Demo subscription')
@@ -221,19 +250,19 @@ assert 'Demo subscription' in screen_xml(),'Pinned subscription disappeared'
 subscription_more('Demo subscription');tap_text('Edit')
 assert 'http://127.0.0.1:8866/demo' in screen_xml(),'Editor did not open the selected subscription'
 capture('15-subscription-editor');shell('input','keyevent','4');time.sleep(2)
-tap_text('Settings');tap_text('Appearance');capture('16-appearance-gray')
+tap_text('Settings');tap_text('Settings');tap_text('Appearance');capture('16-appearance-gray')
 choose_accent('Purple');capture('22-settings-purple');choose_accent('Cyan')
 tap_text('Seasonal decoration');tap_text('New Year')
 time.sleep(3)
 shell('input','keyevent','4');time.sleep(.3);shell('input','keyevent','4');time.sleep(2)
 capture('17-home-newyear')
-tap_text('Settings');tap_text('Appearance');tap_text('Theme');tap_text('Light')
+tap_text('Settings');tap_text('Settings');tap_text('Appearance');tap_text('Theme');tap_text('Light')
 time.sleep(4);capture('18-settings-white')
 shell('input','keyevent','4');time.sleep(.3);shell('input','keyevent','4');time.sleep(2);capture('19-home-white')
-tap_text('Settings');tap_text('Appearance');tap_text('Theme');tap_text('Dark')
+tap_text('Settings');tap_text('Settings');tap_text('Appearance');tap_text('Theme');tap_text('Dark')
 time.sleep(4);tap_text('Theme');tap_text('OLED');time.sleep(4);capture('20-settings-oled')
 shell('input','keyevent','4');time.sleep(.3);shell('input','keyevent','4');time.sleep(2);capture('21-home-oled')
-tap_text('Settings');tap_text('Appearance');tap_text('Theme');tap_text('Dark');time.sleep(3)
+tap_text('Settings');tap_text('Settings');tap_text('Appearance');tap_text('Theme');tap_text('Dark');time.sleep(3)
 choose_accent('White');capture('23-settings-white-theme');choose_accent('Cyan')
 tap_text('Seasonal decoration');tap_text('Halloween');time.sleep(3)
 shell('input','keyevent','4');time.sleep(.3);shell('input','keyevent','4');time.sleep(2)
@@ -256,9 +285,9 @@ native_links=[
 ]
 for index,(name,link,slots) in enumerate(native_links):
     shell('am','start','-n',activity,'-a','android.intent.action.VIEW','-d',shlex.quote(link))
-    time.sleep(3);tap_text('Yes')
+    time.sleep(3);tap_text('Yes');confirm_import_group()
     bounds=profile_bounds(name);a,b,c,d=bounds;y=(b+d)//2
-    shell('input','swipe',str((a+c)//2),str(y),str((a+c)//2),str(y),'900');time.sleep(2)
+    edit_profile(name);time.sleep(2)
     assert 'NativeTransportSettingsActivity' in shell('dumpsys','activity','activities')
     capture('33-native-editor-'+str(slots))
     for slot in range(1,slots+1):
@@ -280,6 +309,7 @@ for index,(name,link,slots) in enumerate(native_links):
 # A long controlled list must retain its position on selection and return from settings.
 shell('am','start','-n',activity,'-a','android.intent.action.SEND','-t','text/plain','--es','android.intent.extra.TEXT','http://127.0.0.1:8866/scroll#Scroll%20fixture')
 time.sleep(4)
+confirm_import_group(new=True)
 before=scroll_to_text('ScrollTest-16')
 def named_bounds(value,name):
     node=next(n for n in ET.fromstring(value).iter('node') if n.get('text')==name)
@@ -288,8 +318,8 @@ a,b,c,d=named_bounds(before,'ScrollTest-16')
 shell('input','tap',str((a+c)//2),str((b+d)//2));time.sleep(1)
 assert abs(named_bounds(screen_xml(),'ScrollTest-16')[1]-b)<=3,'Profile selection reset list scroll'
 capture('37-home-compact-scrolled')
-tap_text('Settings');shell('input','keyevent','4');time.sleep(2)
+tap_text('Settings');tap_text('Settings');shell('input','keyevent','4');time.sleep(2)
 assert abs(named_bounds(screen_xml(),'ScrollTest-16')[1]-b)<=3,'Return from settings reset list scroll'
 print('PASS: profile selection and settings return retain scrolled list position',flush=True)
-(out/'ui-actions-result.txt').write_text('PASS: named subscription import without group selection; standalone profiles in Server list; URL, QR and JSON sharing; country flags; profile swipe reset in both directions; long press editor; subscription bottom sheet, pin and edit; gray, white, OLED and seasonal preferences.\n')
+(out/'ui-actions-result.txt').write_text('PASS: confirmed group selection and named subscription creation; standalone profiles in Server list; URL, QR and JSON sharing; country flags; profile swipe reset in both directions; profile editor; subscription bottom sheet, pin and edit; gray, white, OLED and seasonal preferences.\n')
 server.shutdown()

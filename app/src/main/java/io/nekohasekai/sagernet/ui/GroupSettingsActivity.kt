@@ -63,6 +63,7 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
 
         /** A new group starts as a subscription with this URL. */
         const val EXTRA_GROUP_SUBSCRIPTION_LINK = "subscription_link"
+        const val EXTRA_GROUP_NAME = "group_name"
 
         /** Values of the "Type" menu (@array/group_types). */
         const val TYPE_BASIC = 0
@@ -185,6 +186,7 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
 
         val fresh = savedInstanceState == null
         val link = intent.getStringExtra(EXTRA_GROUP_SUBSCRIPTION_LINK)
+        val suggestedName = intent.getStringExtra(EXTRA_GROUP_NAME).orEmpty()
         lifecycleScope.launch {
             val found = withContext(Dispatchers.IO) {
                 val group = if (editingId > 0) GroupRepo.get(editingId) ?: return@withContext null else ProxyGroup()
@@ -197,7 +199,8 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
                         DataStore.groupType = TYPE_SUBSCRIPTION
                         DataStore.subscriptionLink = link!!.trim()
                     }
-                    DataStore.dirty = prefilled
+                    if (editingId == 0L && suggestedName.isNotBlank()) DataStore.groupName = suggestedName
+                    DataStore.dirty = prefilled || (editingId == 0L && suggestedName.isNotBlank())
                 } else originalSignature = savedInstanceState?.getString("originalSignature") ?: editSignature()
                 val identity = RequestIdentity.resolve(null)
                 defaultUserAgent = identity.userAgent

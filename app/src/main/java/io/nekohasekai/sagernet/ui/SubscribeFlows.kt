@@ -46,7 +46,6 @@ object SubscribeFlows {
         if (content.isEmpty()) return
         if (ProviderRouting.isLink(content)) { importRoute(activity, content); return }
         if (RouteImports.isRouteLink(content)) { importRoute(activity, content); return }
-        if (gid <= 0) { ImportTargetActivity.start(activity, "text", content); return }
         if (ProviderLinks.isProviderLink(content)) {
             // RSA key parsing and authenticated decryption must not stall the main thread.
             runOnDefaultDispatcher {
@@ -56,11 +55,13 @@ object SubscribeFlows {
                     if (decoded == null) notify(activity, activity.getString(R.string.provider_crypto_import_error))
                     else if (SubscriptionCrypto.isHttpUrl(decoded.data)) {
                         addSubscription(activity, content, decoded.name.ifBlank { hostOf(decoded.data) }, gid)
-                    } else importInto(activity, decoded.data, gid)
+                    } else if (gid <= 0) ImportTargetActivity.start(activity, "text", decoded.data)
+                    else importInto(activity, decoded.data, gid)
                 }
             }
             return
         }
+        if (gid <= 0) { ImportTargetActivity.start(activity, "text", content); return }
         if (content.startsWith("throne://")) {
             openDeepLink(activity, content, gid)
             return
@@ -94,7 +95,7 @@ object SubscribeFlows {
     /** Adds a subscription link (throne://addsub, clash://install-config, a pasted URL) without asking. */
     fun addSubscription(activity: FragmentActivity, url: String, name: String, gid: Long = -1L) {
         if (gid <= 0) {
-            ImportTargetActivity.start(activity, "text", url)
+            ImportTargetActivity.start(activity, "text", url, name)
         } else {
             SubscriptionClient.importUrl(url, gid)
         }
