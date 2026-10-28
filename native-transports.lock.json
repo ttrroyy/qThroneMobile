@@ -84,7 +84,7 @@
     ]
   },
   "sstp": {
-    "build_commit": "9409f474ec032e97c9fc3c90d03f15f1fada0b1d",
+    "build_commit": "2132ef5fdd0107a4715251cb4dfdf99007f4cd17",
     "inputs": {
       "carriers/sstp/LICENSE": "3baa1b9ee594939e30c64a5c353b37cacac35cd693982370951f68f6d55156db",
       "carriers/sstp/bridge.go": "dc0cd6e2457f5ce94c2adccdb4a48b5e1ce3e905adcb98342943cebf2d9b4e3d",
@@ -126,8 +126,10 @@
       "carriers/sstp/internal/vlog/texthandler.go": "60738787ebf2025258d87a2eb37ade96f3ee44d880f43a8a713a4a7899d7ef84",
       "carriers/sstp/internal/vlog/vlog.go": "2d94f256fc0ebe498edf30f4cd1c578d9b3daba8fa49cfc797d3417e6b9ef633",
       "carriers/sstp/internal/vlog/vlog_test.go": "1a5793127f184b89e9f4df81f5482e0c2746571f491272cf5b0848a90a189987",
-      "carriers/sstp/main.go": "75bd96c806cec92ee3a90b6b5965ada70bd49392f3085d709af485158fcc9130",
-      "carriers/sstp/socks5.go": "7b9d970fbb54f75b88446ef1b9b4c36d09a25e06fc0f55d36431cf135a32c56a",
+      "carriers/sstp/main.go": "51032bf8110338c64567a6546b1560a3688c0972e55033a128e2a6fda973a123",
+      "carriers/sstp/server_dns.go": "bec85a51c516582ea8892e931505c1d76d9caa907dc12502b23afb18114fe2bf",
+      "carriers/sstp/server_dns_test.go": "fb477e48aa1ed8bb047009f6ad4bb3c788e77be78df1c5ab3d4e49241749d5a7",
+      "carriers/sstp/socks5.go": "23ffac27ace595c60d549fddd2b4e9ad1b928b66ac742763dcaf93e5ef375843",
       "carriers/sstp/socks5_test.go": "6b2d97b4c1f8638d2a78cc542705901d318ab1f5aa12ba5407ad4d79ac33a578",
       "carriers/sstp/stack.go": "a199bdb851987e2d79aa0bd142276a81f7089c7b19a09e2845bfab753b7f349b",
       "carriers/sstp/tunnel/dialconn_test.go": "8d163590fc324797c098250af3e6a38dab4d333f3885aa3e464b04ee7be7e14f",
@@ -138,21 +140,24 @@
     "archives": [
       {
         "abi": "arm64-v8a",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-sstp-9409f474-arm64-v8a.tar.gz",
-        "sha256": "74d270dfe3e42b5eff33709d55015a270bebec99191608e7e89ab1274a3fbf0d",
-        "sources": "qThroneMobile SSTP 9409f474ec032e97c9fc3c90d03f15f1fada0b1d\nAndroid ABI arm64-v8a\n"
+        "name": "qthrone-sstp-2132ef5f-arm64-v8a.tar.gz",
+        "sha256": "7bd742e6239f997464f5d8dcfac11eeba5fabee7cf3a2659d0f0cc0fb84dca7c",
+        "sources": "qThroneMobile SSTP 2132ef5fdd0107a4715251cb4dfdf99007f4cd17\nAndroid ABI arm64-v8a\n",
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-sstp-2132ef5f-arm64-v8a.tar.gz"
       },
       {
         "abi": "armeabi-v7a",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-sstp-9409f474-armeabi-v7a.tar.gz",
-        "sha256": "f86ab19e26b086f1ab790c70e823008222a1bb96c9072f39e4ed0cae22103386",
-        "sources": "qThroneMobile SSTP 9409f474ec032e97c9fc3c90d03f15f1fada0b1d\nAndroid ABI armeabi-v7a\n"
+        "name": "qthrone-sstp-2132ef5f-armeabi-v7a.tar.gz",
+        "sha256": "581589b5dd45f0968e012c8333a99e922ad70268629d478c2668b69af186a067",
+        "sources": "qThroneMobile SSTP 2132ef5fdd0107a4715251cb4dfdf99007f4cd17\nAndroid ABI armeabi-v7a\n",
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-sstp-2132ef5f-armeabi-v7a.tar.gz"
       },
       {
         "abi": "x86_64",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-sstp-9409f474-x86_64.tar.gz",
-        "sha256": "b956fadf88b0e0445e8a2c1731709ddb42a001c3ec78b894ebf5d8ee7a5c71fb",
-        "sources": "qThroneMobile SSTP 9409f474ec032e97c9fc3c90d03f15f1fada0b1d\nAndroid ABI x86_64\n"
+        "name": "qthrone-sstp-2132ef5f-x86_64.tar.gz",
+        "sha256": "a7bf79e6b178ff5ea382d63cd0f42934c2e043bfc8a430cdc5942af36c0b8790",
+        "sources": "qThroneMobile SSTP 2132ef5fdd0107a4715251cb4dfdf99007f4cd17\nAndroid ABI x86_64\n",
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-sstp-2132ef5f-x86_64.tar.gz"
       }
     ]
   },

@@ -20,8 +20,7 @@ import app.qthrone.mobile.route.RuleType
  * compact with sorted keys, so a config matches the desktop's byte for byte wherever the inputs match.
  *
  * Not generated on Android (desktop-only or out of scope): raw route profiles, the `hijack` / `hijack-dns`
- * inbounds, route_exclude_address_set, TLS spoof, extra cores, auxiliary VPN endpoints and the OpenVPN /
- * OpenConnect tunnel DNS servers, the L3 bridge and Tailscale profiles.
+ * inbounds, route_exclude_address_set, TLS spoof, extra cores, auxiliary VPN endpoints, the L3 bridge and Tailscale profiles.
  */
 class ConfigGenerator @JvmOverloads constructor(
     private val profiles: ProfileProvider,
