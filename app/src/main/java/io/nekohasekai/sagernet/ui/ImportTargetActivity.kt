@@ -29,6 +29,7 @@ class ImportTargetActivity : ThemedActivity() {
     private lateinit var payload: File
     private var kind = ""
     private var content = ""
+    private var transferred = false
     private val createGroup = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val id = result.data?.getLongExtra(GroupSettingsActivity.EXTRA_GROUP_ID, 0L) ?: 0L
@@ -102,29 +103,59 @@ class ImportTargetActivity : ThemedActivity() {
 
     private fun importInto(id: Long, created: Boolean = false) {
         lifecycleScope.launch {
-            val group = withContext(Dispatchers.IO) { GroupRepo.get(id) } ?: return@launch
-            GroupRepo.setCurrent(id)
-            if (created && group.isSubscription) SubscriptionClient.refreshGroup(id, false)
-            else when (kind) {
-                "manual" -> startActivity(Intent(this@ImportTargetActivity, app.qthrone.mobile.ui.profile.settingsActivityFor(content))
-                    .putExtra("qmobileProfileType", content).putExtra("qmobileGroupId", id))
-                "file" -> SubscribeFlows.importFile(this@ImportTargetActivity, Uri.parse(content), id)
-                "batch" -> {
-                    val items = org.json.JSONArray(content)
-                    SubscribeFlows.importTexts(this@ImportTargetActivity, (0 until items.length()).map { items.getString(it) }, id)
+            val exists = withContext(Dispatchers.IO) {
+                if (GroupRepo.get(id) == null) false else {
+                    payload.writeText(JSONObject().put("kind", kind).put("content", content)
+                        .put("groupId", id).put("created", created).toString())
+                    true
                 }
-                else -> SubscribeFlows.importText(this@ImportTargetActivity, content, id)
             }
+            if (!exists) return@launch
+            // File/QR/provider parsing must outlive this destination screen.
+            transferred = true
+            startActivity(Intent(this@ImportTargetActivity, MainActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                .putExtra(MainActivity.EXTRA_IMPORT_TARGET, payload.name))
             finish()
         }
     }
 
     override fun onDestroy() {
-        if (isFinishing && ::payload.isInitialized) payload.delete()
+        if (isFinishing && !transferred && ::payload.isInitialized) payload.delete()
         super.onDestroy()
     }
 
     companion object {
+        fun consume(activity: MainActivity, name: String) = runOnDefaultDispatcher {
+            if (!name.matches(Regex("[0-9a-f-]{36}\\.json"))) return@runOnDefaultDispatcher
+            val file = File(activity.cacheDir, "import-target/$name")
+            try {
+                val document = JSONObject(file.readText())
+                val id = document.optLong("groupId")
+                // Only the private file written after confirmation may bypass the destination picker.
+                val group = if (id > 0) GroupRepo.get(id) else null
+                if (group == null) return@runOnDefaultDispatcher
+                val content = document.getString("content")
+                GroupRepo.setCurrent(id)
+                onMainDispatcher {
+                    activity.displayFragmentWithId(R.id.nav_mobile_home)
+                    if (document.optBoolean("created") && group.isSubscription) SubscriptionClient.refreshGroup(id, false)
+                    else when (document.getString("kind")) {
+                        "manual" -> activity.startActivity(Intent(activity, app.qthrone.mobile.ui.profile.settingsActivityFor(content))
+                            .putExtra("qmobileProfileType", content).putExtra("qmobileGroupId", id))
+                        "file" -> SubscribeFlows.importFile(activity, Uri.parse(content), id)
+                        "batch" -> {
+                            val items = org.json.JSONArray(content)
+                            SubscribeFlows.importTexts(activity, (0 until items.length()).map { items.getString(it) }, id)
+                        }
+                        else -> SubscribeFlows.importText(activity, content, id)
+                    }
+                }
+            } catch (error: Exception) {
+                onMainDispatcher { android.widget.Toast.makeText(activity, R.string.provider_crypto_import_error, android.widget.Toast.LENGTH_LONG).show() }
+            } finally { file.delete() }
+        }
+
         fun start(activity: FragmentActivity, kind: String, content: String) = runOnDefaultDispatcher {
             val directory = File(activity.cacheDir, "import-target").apply { mkdirs() }
             val file = File(directory, "${UUID.randomUUID()}.json")

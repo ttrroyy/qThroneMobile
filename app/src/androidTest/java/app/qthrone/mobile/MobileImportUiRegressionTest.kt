@@ -3,6 +3,7 @@ package app.qthrone.mobile
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
+import android.net.Uri
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
@@ -68,6 +69,28 @@ class MobileImportUiRegressionTest {
             assertEquals(profiles, SagerDatabase.proxyDao.getAll().map { it.id })
             assertFalse(payload.exists())
         } finally { ui { activity.finish() }; payload.delete() }
+    }
+
+    @Test fun confirmedFileImportOutlivesTheDestinationScreen() {
+        val group = ProxyGroup(name = "Confirmed file destination")
+        group.id = SagerDatabase.groupDao.insert(group)
+        val source = File(context.cacheDir, "${UUID.randomUUID()}.txt").apply { writeText("socks://192.0.2.1:1080#confirmed-file") }
+        val payload = File(context.cacheDir, "import-target/${UUID.randomUUID()}.json").apply {
+            parentFile!!.mkdirs()
+            writeText(JSONObject().put("kind", "file").put("content", Uri.fromFile(source).toString()).put("groupId", group.id).toString())
+        }
+        val activity = instrumentation.startActivitySync(Intent(context, MainActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)) as MainActivity
+        try {
+            ui { ImportTargetActivity.consume(activity, payload.name) }
+            await { SagerDatabase.proxyDao.getByGroup(group.id).size == 1 }
+            assertEquals("confirmed-file", SagerDatabase.proxyDao.getByGroup(group.id).single().displayName())
+            assertFalse(payload.exists())
+        } finally {
+            ui { activity.finish() }
+            SagerDatabase.groupDao.deleteById(group.id)
+            source.delete(); payload.delete()
+        }
     }
 
     @Test fun bottomServerReceivesWholeRowTouchWithLegacyControlsHidden() {

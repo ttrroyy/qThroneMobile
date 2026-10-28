@@ -71,6 +71,7 @@ class MainActivity : ThemedActivity(),
     companion object {
         /** Texts to import (the QR scanner): URLs and deep links one by one, the rest as one import. */
         const val EXTRA_IMPORT_TEXTS = "importTexts"
+        const val EXTRA_IMPORT_TARGET = "importTarget"
     }
 
     lateinit var binding: LayoutMainBinding
@@ -245,6 +246,11 @@ class MainActivity : ThemedActivity(),
 
     /** VIEW links and files, SEND streams and texts, and the texts of the QR scanner ([EXTRA_IMPORT_TEXTS]). */
     private fun handleImportIntent(intent: Intent) {
+        intent.getStringExtra(EXTRA_IMPORT_TARGET)?.let {
+            intent.removeExtra(EXTRA_IMPORT_TARGET)
+            ImportTargetActivity.consume(this, it)
+            return
+        }
         intent.getStringArrayListExtra(EXTRA_IMPORT_TEXTS)?.let {
             SubscribeFlows.importTexts(this, it)
             return
