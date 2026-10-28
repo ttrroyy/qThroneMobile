@@ -48,6 +48,12 @@ jobs:
           "$ADB" shell input keyevent 82
           "$ADB" install -r "$(find tested-apk -name '*x86_64*.apk' -print -quit)"
           "$ADB" install -r "$(find test-apk -name '*.apk' -print -quit)"
+          PACKAGE=$("$ADB" shell pm list packages | sed -n 's/^package:\(app.qthrone.mobile[^[:space:]]*\)/\1/p' | grep -v '\.test$' | tr -d '\r')
+          "$ADB" shell pm grant "$PACKAGE" android.permission.POST_NOTIFICATIONS
+          "$ADB" shell dumpsys deviceidle whitelist +"$PACKAGE"
+          "$ADB" shell settings put global window_animation_scale 0
+          "$ADB" shell settings put global transition_animation_scale 0
+          "$ADB" shell settings put global animator_duration_scale 0
       - name: Test command authorization and database preservation
         shell: bash
         run: |

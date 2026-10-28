@@ -67,7 +67,7 @@ class MobileImportUiRegressionTest {
             instrumentation.waitForIdleSync()
             assertEquals(groups, SagerDatabase.groupDao.allGroups().map { it.id })
             assertEquals(profiles, SagerDatabase.proxyDao.getAll().map { it.id })
-            assertFalse(payload.exists())
+            await { !payload.exists() }
         } finally { ui { activity.finish() }; payload.delete() }
     }
 
