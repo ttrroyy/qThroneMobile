@@ -462,12 +462,17 @@ class MainActivity : ThemedActivity(),
     private var errorBar: Snackbar? = null
     private var errorShown = ""
 
-    /** A failed start stays until the next start, its action or a swipe; the service keeps it for a later visit. */
+    /** Show a failed start briefly, with a direct action for known configuration errors. */
     private fun showServiceError(message: String) {
         if (errorBar?.isShownOrQueued == true && errorShown == message) return
         errorShown = message
-        val bar = snackbar(message).setDuration(Snackbar.LENGTH_LONG)
-        if (DataStore.serviceErrorDns) {
+        val warpTransportError = message.contains(app.qthrone.mobile.outbound.config.WarpHop.TCP_ONLY_ERROR)
+        val bar = snackbar(if (warpTransportError) getString(R.string.warp_tcp_only_error) else message).setDuration(Snackbar.LENGTH_LONG)
+        if (warpTransportError) {
+            bar.setAction(R.string.warp_settings) {
+                openSettingsScreen(app.qthrone.mobile.ui.settings.WarpSettingsFragment::class.java.name, getString(R.string.warp_settings))
+            }
+        } else if (DataStore.serviceErrorDns) {
             bar.setAction(R.string.settings_dns) {
                 openSettingsScreen(DnsSettingsFragment::class.java.name, getString(R.string.settings_dns))
             }

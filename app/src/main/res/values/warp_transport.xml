@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="warp_tcp_only_error">WireGuard WARP requires UDP, but this transport supports TCP only. Select MASQUE in WARP settings and generate its config.</string>
+</resources>

@@ -257,7 +257,7 @@ assert 'http://127.0.0.1:8866/demo' in screen_xml(),'Editor did not open the sel
 capture('15-subscription-editor');shell('input','keyevent','4');time.sleep(2)
 tap_text('Settings');tap_text('Settings');tap_text('Appearance');capture('16-appearance-gray')
 choose_accent('Purple');capture('22-settings-purple');choose_accent('Cyan')
-tap_text('Seasonal decoration');tap_text('New Year')
+tap_text('Seasonal decoration');tap_text('Winter')
 time.sleep(3)
 shell('input','keyevent','4');time.sleep(.3);shell('input','keyevent','4');time.sleep(2)
 capture('17-home-newyear')
@@ -269,7 +269,7 @@ time.sleep(4);tap_text('Theme');tap_text('OLED');time.sleep(4);capture('20-setti
 shell('input','keyevent','4');time.sleep(.3);shell('input','keyevent','4');time.sleep(2);capture('21-home-oled')
 tap_text('Settings');tap_text('Settings');tap_text('Appearance');tap_text('Theme');tap_text('Dark');time.sleep(3)
 choose_accent('White');capture('23-settings-white-theme');choose_accent('Cyan')
-tap_text('Seasonal decoration');tap_text('Halloween');time.sleep(3)
+tap_text('Seasonal decoration');tap_text('Autumn');time.sleep(3)
 shell('input','keyevent','4');time.sleep(.3);shell('input','keyevent','4');time.sleep(2)
 # Every group, including the last subscription, can be removed without confirmation.
 for attempt in range(10):
@@ -287,6 +287,7 @@ from urllib.parse import urlencode, quote
 native_links=[
     ('qwdtt-editor','qwdtt://config?'+urlencode({'peer':'192.0.2.1:56000','pass':'test-password','hashes':','.join('test_hash_123456789_'+str(i) for i in range(1,8)),'device_id':'ci-editor','name':'qwdtt-editor'}),4),
     ('csqtt-editor','csqtt://connect?v=2&host=192.0.2.1&peer=46000&password=test-password&name=csqtt-editor&hashes='+'+'.join('test_hash_123456789_'+str(i) for i in range(1,9)),6),
+    ('sstp-editor','sstp://fixture:fixture@192.0.2.1?use_server_dns=1#sstp-editor',0),
 ]
 for index,(name,link,slots) in enumerate(native_links):
     shell('am','start','-n',activity,'-a','android.intent.action.VIEW','-d',shlex.quote(link))
@@ -302,10 +303,15 @@ for index,(name,link,slots) in enumerate(native_links):
         assert 'OK' in dialog and 'Cancel' in dialog
         if slot==1: capture('34-hash-dialog-'+str(slots))
         tap_text('Cancel')
-    tap_text('Хэш VK 1')
-    node=next(n for n in ET.fromstring(screen_xml()).iter('node') if n.get('class')=='android.widget.EditText')
-    a,b,c,d=map(int,re.findall(r'\d+',node.attrib['bounds']))
-    shell('input','tap',str((a+c)//2),str((b+d)//2));shell('input','keyevent','123');shell('input','text','x');tap_text('OK')
+    if slots==0:
+        value=screen_xml()
+        assert 'Use VPN server DNS' in value and any(n.get('checked')=='true' for n in ET.fromstring(value).iter('node')), 'Imported SSTP server DNS checkbox is missing or unchecked'
+        tap_text('Use VPN server DNS')
+    else:
+        tap_text('Хэш VK 1')
+        node=next(n for n in ET.fromstring(screen_xml()).iter('node') if n.get('class')=='android.widget.EditText')
+        a,b,c,d=map(int,re.findall(r'\d+',node.attrib['bounds']))
+        shell('input','tap',str((a+c)//2),str((b+d)//2));shell('input','keyevent','123');shell('input','text','x');tap_text('OK')
     shell('input','keyevent','4');time.sleep(1)
     dialog=screen_xml()
     assert 'Save' in dialog and 'Discard' in dialog and 'Cancel' in dialog,'Unsaved dialog actions missing'

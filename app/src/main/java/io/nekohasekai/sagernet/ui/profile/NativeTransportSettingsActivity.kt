@@ -135,7 +135,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
         }
         write(document)
         val order = when(type) {
-            "qwdtt" -> listOf("name","server","server_port","mode","password","hash_source") + (1..4).map { "hash_$it" } + listOf("raw_port","workers","turn_tcp","vk_anon_path","captcha_mode","obfs","go_dns","device_id")
+            "qwdtt" -> listOf("name","server","server_port","mode","password","hash_source") + (1..4).map { "hash_$it" } + listOf("raw_port","workers","turn_tcp","no_dtls","vk_anon_path","captcha_mode","obfs","go_dns","device_id")
             "csqtt" -> listOf("name","server","server_port","password","hash_source","vk_access_token") + (1..6).map { "hash_$it" } + listOf("workers","turn_transport","srtp_mode","vk_anon_path","captcha_mode","obfs","fingerprint","client_ids","custom_turn_ips","device_id")
             "wdttplus" -> listOf("name","server","server_port","wg_port","local_port","password","hash_source") + (1..4).map { "hash_$it" } + listOf("workers","captcha_mode","tcp_only","turn_sni","rt_masque","rt_masque_server_bootstrap","device_id")
             "openflux" -> listOf("name","secret") + openFluxKinds.map { "transport_$it" } + listOf("context")
@@ -280,6 +280,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "keep_alive_interval" to "Keepalive QUIC, мс", "mkey" to "Ключ шифрования", "encryption" to "Шифрование",
             "discovery" to "Искать рабочие резолверы страны", "country" to "Страна сети",
             "use_server_dns" to getString(R.string.sstp_use_server_dns),
+            "no_dtls" to "Прямой режим RTP AEAD (без DTLS)",
             "backend_type" to "Сервис на сервере", "user" to "Логин", "username" to "Имя пользователя", "sni" to "SNI (Server Name)", "allow_insecure" to "Разрешить недоверенный сертификат", "pk" to "Приватный ключ SSH", "method" to "Метод шифрования",
             "endpoint" to "Адрес хранилища (endpoint)", "region" to "Регион", "bucket" to "Корзина (bucket)", "prefix" to "Префикс",
             "sessionsDir" to "Каталог сессий", "accessKey" to "Access Key", "secretKey" to "Secret Key",

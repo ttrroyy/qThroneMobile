@@ -26,7 +26,10 @@ enum class CarrierKind(val executable: String, val configFlag: String, val minim
     S3BYPASS("libs3bypass.so", "--qthrone-config", 24),
     SSTP("libsstp.so", "--qthrone-config", 24),
     // WDTT Plus takes flags and its secrets as START_CONFIG on stdin, as its own app starts it.
-    WDTTPLUS("libwdttplus.so", "", 24),
+    WDTTPLUS("libwdttplus.so", "", 24);
+
+    // SOCKS payload capability: TURN over TCP still carries inner UDP in qWDTT, CSQTT and WDTT Plus.
+    val tcpOnly: Boolean get() = this in listOf(OLCRTC, DNSTT, VAYDNS, SLIPSTREAM, MASTERDNS, COTTENDNS, SOAR)
 }
 
 /** Per-launch credentials, deliberately without a generated toString() containing secrets. */

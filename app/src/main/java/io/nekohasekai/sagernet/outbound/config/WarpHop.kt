@@ -17,6 +17,17 @@ object WarpHop {
     const val MISSING_ERROR =
         "Warp is enabled but its config has not been generated. Please generate the Warp config first in Routing Settings."
 
+    const val TCP_ONLY_ERROR =
+        "WireGuard WARP requires UDP, but this transport supports TCP only. Select MASQUE in WARP settings and generate its config."
+
+    /** Runtime copies only: a TCP carrier can carry MASQUE over HTTP/2, but cannot carry WireGuard UDP. */
+    internal fun adaptToTransport(warp: Outbound?, tcpOnly: Boolean): String {
+        if (!tcpOnly || warp == null) return ""
+        if (warp is WireGuard) return TCP_ONLY_ERROR
+        if (warp is Masque) { warp.http_version = 2; warp.disable_version_fallback = true }
+        return ""
+    }
+
     /** Whether the identity of the active warp_mode is incomplete (:559-567). */
     @JvmStatic
     fun missing(settings: GeneratorSettings): Boolean =

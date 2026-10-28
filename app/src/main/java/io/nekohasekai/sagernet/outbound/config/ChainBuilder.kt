@@ -258,6 +258,10 @@ internal class ChainBuilder(
             return ingressTag
         }
 
+        val warpError = WarpHop.adaptToTransport(hops.firstOrNull { it.id == WarpHop.PROFILE_ID }?.outbound,
+            hops.any { (profiles.get(it.id) as? app.qthrone.mobile.bg.carrier.NativeCarrier)?.carrierKind?.tcpOnly == true })
+        if (warpError.isNotEmpty()) { state.error = warpError; return ingressTag }
+
         val last = hops.lastOrNull()
         if (last != null && last.outbound.isXrayFullConfig()) {
             val custom = TypeAccess.asCustom(last.outbound)
@@ -381,6 +385,7 @@ internal class ChainBuilder(
             }
             val obj = result.json
             obj["tag"] = tag
+            if (state.carrierPlans[hop.id]?.kind?.tcpOnly == true) obj["network"] = "tcp"
             if (idx == 0 || (opts.warpWrap && idx == 1)) {
                 val tunnelDns = when (val outbound = hop.outbound) {
                     is app.qthrone.mobile.outbound.types.OpenConnect -> outbound.tunnel_dns

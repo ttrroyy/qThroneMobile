@@ -781,6 +781,8 @@ class ConfigGenerator @JvmOverloads constructor(
     /** buildWarpInFrontOfSelector (:1779-1792): the group holds warp-bypass, so WARP is `proxy` dialing through it. */
     private fun buildWarpInFrontOfSelector(state: BuildState) {
         val warp = WarpHop.outbound(settings)
+        val error = WarpHop.adaptToTransport(warp, state.carrierPlans.values.any { it.kind.tcpOnly })
+        if (error.isNotEmpty()) { state.error = error; return }
         val result = warp.build(buildContext)
         if (!result.ok) {
             state.error += result.error

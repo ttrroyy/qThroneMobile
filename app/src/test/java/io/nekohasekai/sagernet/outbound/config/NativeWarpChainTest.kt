@@ -23,8 +23,10 @@ class NativeWarpChainTest {
         val core=JsonInput.parseObject(result.coreConfig)
         val warp=core.array("endpoints").filterIsInstance<JsonObject>().single { it.string("tag")=="proxy" }
         assertEquals("warp-bypass",warp.string("detour"))
+        if(profile is OlcRtc) assertEquals(2,warp.int("http_version"))
         val bridge=core.array("outbounds").filterIsInstance<JsonObject>().single { it.string("tag")=="warp-bypass" }
         assertEquals("socks",bridge.string("type"))
+        assertEquals(if(profile is OlcRtc) "tcp" else "",bridge.string("network"))
         assertEquals("127.0.0.1",bridge.string("server"));assertEquals(plan.port,bridge.int("server_port"))
         assertEquals(plan.credentials.username,bridge.string("username"));assertEquals(plan.credentials.password,bridge.string("password"))
         assertFalse("The native loopback listener must be reached directly",bridge.contains("detour"))
@@ -47,6 +49,8 @@ class NativeWarpChainTest {
 
     @Test fun tcpOnlyOlcRtcCarriesMasqueHttp2() {
         val profile=OlcRtc().apply { assertTrue(parseFromJson(jsonObjectOf("type" to "olcrtc","room" to "https://meet.example.org/fixture","key" to "a".repeat(64)))) }
-        checkBridge(profile,settings.copy(warpMode="masque",warpMasqueHttpMode=2))
+        for(mode in listOf(0,1,2)) checkBridge(profile,settings.copy(warpMode="masque",warpMasqueHttpMode=mode))
+        val result=ConfigGenerator(ProfileProvider { if(it==1L) profile else null },settings.copy(warpMode="wireguard")).build(1)
+        assertEquals(WarpHop.TCP_ONLY_ERROR,result.error)
     }
 }
