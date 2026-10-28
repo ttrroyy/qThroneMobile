@@ -105,7 +105,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             }
         }
         if(type == "sstp") {
-            for((key,value) in mapOf("server" to "","server_port" to 443,"username" to "","password" to "","sni" to "","allow_insecure" to false))
+            for((key,value) in mapOf("server" to "","server_port" to 443,"username" to "","password" to "","sni" to "","allow_insecure" to false,"use_server_dns" to false))
                 if(!document.contains(key)) document[key]=value
         }
         if(type == "s3bypass") {
@@ -144,7 +144,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "slipstream" -> listOf("name","domain","cert","resolvers","authoritative","congestion_control","keep_alive_interval") + backendFields
             "masterdns","cottendns" -> listOf("name","domain","mkey","encryption","resolvers")
             "soar" -> listOf("name","domain","pubkey","resolvers","soar.discovery","soar.country")
-            "sstp" -> listOf("name","server","server_port","username","password","sni","allow_insecure")
+            "sstp" -> listOf("name","server","server_port","username","password","sni","allow_insecure","use_server_dns")
             "openfluxkey" -> listOf("name","transport","doc_url","key_token","e2e_encryption")
             "s3bypass" -> listOf("name") + listOf("endpoint","region","bucket","prefix","sessionsDir","accessKey","secretKey").map { "storage.$it" } +
                 listOf("pollIntervalMs","writeIntervalMs","idleTimeoutSec","maxFileSizeBytes").map { "tuning.$it" }
@@ -279,6 +279,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "authoritative" to "Резолвер — авторитетный сервер", "congestion_control" to "Управление перегрузкой",
             "keep_alive_interval" to "Keepalive QUIC, мс", "mkey" to "Ключ шифрования", "encryption" to "Шифрование",
             "discovery" to "Искать рабочие резолверы страны", "country" to "Страна сети",
+            "use_server_dns" to getString(R.string.sstp_use_server_dns),
             "backend_type" to "Сервис на сервере", "user" to "Логин", "username" to "Имя пользователя", "sni" to "SNI (Server Name)", "allow_insecure" to "Разрешить недоверенный сертификат", "pk" to "Приватный ключ SSH", "method" to "Метод шифрования",
             "endpoint" to "Адрес хранилища (endpoint)", "region" to "Регион", "bucket" to "Корзина (bucket)", "prefix" to "Префикс",
             "sessionsDir" to "Каталог сессий", "accessKey" to "Access Key", "secretKey" to "Secret Key",
@@ -356,6 +357,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             val preference: Preference = when {
                 value is Boolean && key!="turn_tcp" -> SwitchPreference(requireContext()).apply {
                     isPersistent = false
+                    if(key == "use_server_dns") summary = getString(R.string.sstp_use_server_dns_summary)
                     isChecked = DataStore.profileCacheStore.getString(cache(path)).toBoolean()
                     setOnPreferenceChangeListener { _, next -> DataStore.profileCacheStore.putString(cache(path), next.toString()); true }
                 }

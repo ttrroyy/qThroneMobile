@@ -12,6 +12,13 @@ probe_gate = threading.Event()
 probe_gate.set()
 def shell(*args):
     return subprocess.check_output([adb, 'shell', *args], text=True)
+def normalize_labels(value):
+    tree=ET.fromstring(value)
+    for node in tree.iter('node'):
+        for key in ('text','content-desc'):
+            if key in node.attrib: node.set(key,' '.join(node.get(key).split()))
+    return ET.tostring(tree,encoding='unicode')
+
 def xml():
     shell('uiautomator', 'dump', '/sdcard/vpn-smoke.xml')
     value=shell('cat', '/sdcard/vpn-smoke.xml')
@@ -23,8 +30,8 @@ def xml():
                 a,b,c,d=map(int,re.findall(r'\d+',node.attrib['bounds']))
                 shell('input','tap',str((a+c)//2),str((b+d)//2));time.sleep(3)
                 shell('uiautomator','dump','/sdcard/vpn-smoke.xml')
-                return shell('cat','/sdcard/vpn-smoke.xml')
-    return value
+                return normalize_labels(shell('cat','/sdcard/vpn-smoke.xml'))
+    return normalize_labels(value)
 def tap(label):
     nodes=list(ET.fromstring(xml()).iter('node'))
     # A revealed profile speedometer follows the group speedometer in the tree.

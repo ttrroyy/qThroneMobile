@@ -13,10 +13,11 @@ import (
 )
 
 type SOCKSProxy struct {
-	vn        *virtualNet
-	socksUser string
-	socksPass string
-	logf      func(string, ...any)
+	vn           *virtualNet
+	useServerDNS bool
+	socksUser    string
+	socksPass    string
+	logf         func(string, ...any)
 }
 
 func (p *SOCKSProxy) handleSOCKS(c net.Conn) {
@@ -118,6 +119,11 @@ func (p *SOCKSProxy) handleSOCKS(c net.Conn) {
 func (p *SOCKSProxy) socksConnect(c net.Conn, br *bufio.Reader, host string, port int) {
 	if p.vn == nil {
 		_, _ = c.Write(socksReply(0x01, nil, 0))
+		return
+	}
+	// This DNS alias exists only inside the authenticated SOCKS bridge, never on the host.
+	if p.useServerDNS && host == "127.0.0.53" && port == 53 {
+		p.serveServerDNS(c, br)
 		return
 	}
 	ip, err := p.vn.lookupIP(host)

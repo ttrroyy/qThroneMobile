@@ -816,14 +816,15 @@ class ConfigGenerator @JvmOverloads constructor(
         val headRules = JsonArray()
 
         if (!state.forTest) {
-            var remoteDnsObj = DnsServers.buildDnsObj(settings.remoteDns)
+            // The authenticated SSTP bridge resolves this alias using only negotiated VPN resolvers.
+            var remoteDnsObj = DnsServers.buildDnsObj(if (state.sstpDnsTag.isNotEmpty()) "tcp://127.0.0.53" else settings.remoteDns)
             // Xray resolves through this server's transport and cannot carry udp or quic (:882-885).
             if (state.proxyUsesXray && (remoteDnsObj.string("type") == "udp" || remoteDnsObj.string("type") == "quic")) {
                 remoteDnsObj = DnsServers.buildDnsObj(DnsServers.upgradeUdpDnsToDoH(remoteDnsObj.string("server")))
             }
             remoteDnsObj["tag"] = Tags.DNS_REMOTE
             remoteDnsObj["domain_resolver"] = Tags.DNS_LOCAL
-            remoteDnsObj["detour"] = Tags.PROXY
+            remoteDnsObj["detour"] = state.sstpDnsTag.ifEmpty { Tags.PROXY }
             servers.add(remoteDnsObj)
         }
 
@@ -865,6 +866,19 @@ class ConfigGenerator @JvmOverloads constructor(
             )
         }
 
+        var remoteDnsTag = Tags.DNS_REMOTE
+        if (!state.forTest) for ((endpoint, type) in state.vpnDnsEndpoints) {
+            val tag = "dns-vpn-$endpoint"
+            val server = jsonObjectOf("tag" to tag, "type" to type, "endpoint" to endpoint)
+            if (endpoint == state.vpnStrictDnsTag) {
+                server["accept_default_resolvers"] = true
+                server["accept_search_domain"] = true
+                remoteDnsTag = tag
+            }
+            servers.add(server)
+            headRules.add(jsonObjectOf("preferred_by" to JsonArray.of(tag), "action" to "route", "server" to tag))
+        }
+
         if (settings.fakeDns) {
             val fakeServer = jsonObjectOf("tag" to Tags.DNS_FAKE, "type" to "fakeip", "inet4_range" to "198.18.0.0/15")
             // No inet6_range makes the transport answer AAAA empty itself; the rule stays on both types.
@@ -881,18 +895,18 @@ class ConfigGenerator @JvmOverloads constructor(
         for ((server, conditions, selectors) in pre.conditionalDns) {
             if (state.forTest && server == Tags.DNS_REMOTE) continue
             val disableIPv6 = if (server == Tags.DNS_DIRECT) buildContext.directDnsDisableIpv6 else settings.remoteDnsDisableIpv6
-            appendDnsRoutingRules(rules, selectors, server, disableIPv6, conditions)
+            appendDnsRoutingRules(rules, selectors, if (server == Tags.DNS_REMOTE) remoteDnsTag else server, disableIPv6, conditions)
         }
         if (pre.needDirectDnsRules) appendDnsRoutingRules(rules, pre.directDns, Tags.DNS_DIRECT, buildContext.directDnsDisableIpv6)
 
         // A test box builds no dns-remote server at all, so its fall-through goes out direct.
         val useDirectFinalDns = state.forTest || settings.dnsFinalOut == Tags.DIRECT
         if (!state.forTest && pre.needProxyDnsRules && useDirectFinalDns) {
-            appendDnsRoutingRules(rules, pre.proxyDns, Tags.DNS_REMOTE, settings.remoteDnsDisableIpv6)
+            appendDnsRoutingRules(rules, pre.proxyDns, remoteDnsTag, settings.remoteDnsDisableIpv6)
         }
         appendDnsRoute(
             rules, JsonObject(),
-            if (useDirectFinalDns) Tags.DNS_DIRECT else Tags.DNS_REMOTE,
+            if (useDirectFinalDns) Tags.DNS_DIRECT else remoteDnsTag,
             if (useDirectFinalDns) buildContext.directDnsDisableIpv6 else settings.remoteDnsDisableIpv6,
         )
 

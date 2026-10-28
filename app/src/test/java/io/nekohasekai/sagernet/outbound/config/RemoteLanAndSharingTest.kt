@@ -13,6 +13,38 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class RemoteLanAndSharingTest {
+    @Test fun sstpServerDnsUsesItsAuthenticatedBridgeAndLeavesSavedDnsAlone() {
+        val profile=app.qthrone.mobile.outbound.types.Sstp().apply { server="vpn.example.org";username="user";password="secret" }
+        val settings=GeneratorSettings(vpnMode=true,remoteDns="https://cloudflare-dns.com/dns-query")
+        for(enabled in listOf(false,true)) {
+            profile.useServerDns=enabled
+            val result=ConfigGenerator(ProfileProvider { if(it==1L) profile else null },settings).build(1)
+            assertNull(result.error)
+            val remote=JsonInput.parseObject(result.coreConfig).obj("dns").array("servers").filterIsInstance<JsonObject>().first { it.string("tag")=="dns-remote" }
+            assertEquals(if(enabled) "tcp" else "https",remote.string("type"))
+            assertEquals(if(enabled) "127.0.0.53" else "cloudflare-dns.com",remote.string("server"))
+            assertEquals("proxy",remote.string("detour"))
+            assertEquals("https://cloudflare-dns.com/dns-query",settings.remoteDns)
+        }
+    }
+
+    @Test fun openConnectAndOpenVpnDnsModesReachTheirEndpoint() {
+        for(mode in listOf("none","prefer","strict")) for(type in listOf("openconnect","openvpn")) {
+            val profile=if(type=="openconnect") OpenConnect().apply { server="vpn.example.org";tunnel_dns=mode }
+                else app.qthrone.mobile.outbound.types.OpenVpn().apply { server="vpn.example.org";tunnel_dns=mode }
+            val result=ConfigGenerator(ProfileProvider { if(it==1L) profile else null },GeneratorSettings(vpnMode=true)).build(1)
+            assertNull(result.error)
+            val dns=JsonInput.parseObject(result.coreConfig).obj("dns")
+            val vpn=dns.array("servers").filterIsInstance<JsonObject>().firstOrNull { it.string("tag")=="dns-vpn-proxy" }
+            assertEquals(mode!="none",vpn!=null)
+            if(vpn!=null) {
+                assertEquals(type,vpn.string("type"));assertEquals("proxy",vpn.string("endpoint"))
+                assertEquals(mode=="strict",vpn.bool("accept_default_resolvers"))
+                assertTrue(dns.array("rules").filterIsInstance<JsonObject>().any { it.array("preferred_by").contains("dns-vpn-proxy") })
+            }
+            assertEquals(if(mode=="strict") "dns-vpn-proxy" else "dns-remote",(dns.array("rules").last() as JsonObject).string("server"))
+        }
+    }
     @Test fun lanControlsRemainIndependentWithServerRouteSelection() {
         for(remote in listOf(false,true)) for(bypass in listOf(false,true))
             for(sharing in listOf(false,true)) for(legacyLan in listOf(false,true)) {

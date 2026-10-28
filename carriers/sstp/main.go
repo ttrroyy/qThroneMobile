@@ -28,6 +28,7 @@ type profile struct {
 	Password      string `json:"password"`
 	SNI           string `json:"sni"`
 	AllowInsecure bool   `json:"allow_insecure"`
+	UseServerDNS  bool   `json:"use_server_dns"`
 
 	SOCKS     string `json:"socks"`
 	SOCKSUser string `json:"socks_user"`
@@ -151,6 +152,11 @@ func main() {
 	}
 
 	dnsServers := res.DNS
+	if p.UseServerDNS && len(dnsServers) == 0 {
+		_ = sess.Close()
+		fmt.Fprintln(os.Stderr, "FATAL_SSTP: server did not provide DNS; disable Use VPN server DNS or configure DNS manually")
+		os.Exit(1)
+	}
 	if len(dnsServers) == 0 {
 		if res.PeerIP != nil {
 			dnsServers = append(dnsServers, res.PeerIP)
@@ -179,9 +185,10 @@ func main() {
 	}
 
 	proxy := &SOCKSProxy{
-		vn:        vn,
-		socksUser: p.SOCKSUser,
-		socksPass: p.SOCKSPass,
+		vn:           vn,
+		useServerDNS: p.UseServerDNS,
+		socksUser:    p.SOCKSUser,
+		socksPass:    p.SOCKSPass,
 		logf: func(format string, args ...any) {
 			log.Printf("[SSTP] "+format, args...)
 		},

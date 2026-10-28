@@ -23,6 +23,7 @@ class Sstp : Outbound("sstp"), NativeCarrier {
     @JvmField var password: String = ""
     @JvmField var sni: String = ""
     @JvmField var allowInsecure: Boolean = false
+    @JvmField var useServerDns: Boolean = false
 
     init {
         type = "sstp"
@@ -48,6 +49,7 @@ class Sstp : Outbound("sstp"), NativeCarrier {
         password = obj.string("password")
         sni = obj.string("sni").trim()
         allowInsecure = if (obj.contains("allow_insecure")) obj.bool("allow_insecure") else false
+        useServerDns = obj.bool("use_server_dns")
         return isValid()
     }
 
@@ -87,6 +89,7 @@ class Sstp : Outbound("sstp"), NativeCarrier {
             val v = url.query.valueFully("insecure")
             v == "1" || v.equals("true", ignoreCase = true)
         } else false
+        useServerDns = url.query.value("use_server_dns") in listOf("1", "true")
         return isValid()
     }
 
@@ -100,6 +103,7 @@ class Sstp : Outbound("sstp"), NativeCarrier {
         obj["password"] = password
         if (sni.isNotEmpty()) obj["sni"] = sni
         if (allowInsecure) obj["allow_insecure"] = true
+        obj["use_server_dns"] = useServerDns
         return obj
     }
 
@@ -117,6 +121,7 @@ class Sstp : Outbound("sstp"), NativeCarrier {
         if (password.isNotEmpty()) url.setPassword(password)
         if (sni.isNotEmpty()) url.addQueryItem("sni", sni)
         if (allowInsecure) url.addQueryItem("insecure", "1")
+        if (useServerDns) url.addQueryItem("use_server_dns", "1")
         return url.build()
     }
 

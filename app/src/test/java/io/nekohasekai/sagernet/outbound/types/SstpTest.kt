@@ -9,6 +9,16 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class SstpTest {
+    @Test fun serverDnsIsOptInAndSurvivesLinksJsonAndPrivateConfig() {
+        val profile = Sstp().apply { assertTrue(parseFromLink("sstp://user:pass@vpn.example.org")) }
+        assertFalse(profile.useServerDns)
+        profile.useServerDns = true
+        val restored = Sstp().apply { assertTrue(parseFromLink(profile.exportToLink())) }
+        assertTrue(restored.useServerDns)
+        assertTrue(Sstp().apply { assertTrue(parseFromJson(restored.exportToJson())) }.useServerDns)
+        assertTrue(restored.privateConfig(19001,19002,CarrierBridgeCredentials("user","pass")).bool("use_server_dns"))
+        assertTrue(restored.exportIdentity().bool("use_server_dns"))
+    }
     @Test fun ipv6AndEmbeddedPortAreUnambiguousAndInvalidInputsAreRejected() {
         assertEquals("2001:db8::7" to null,Sstp.cleanServerAddress("2001:db8::7"))
         assertEquals("2001:db8::7" to 8443,Sstp.cleanServerAddress("https://[2001:db8::7]:8443/"))

@@ -371,6 +371,9 @@ internal class ChainBuilder(
             if (opts.warpWrap && idx == 1) tag = Tags.WARP_BYPASS
             if (opts.markIngress && idx == 0) state.singIngressTags.add(tag)
             val hop = hops[idx]
+            if (tag in listOf(Tags.PROXY, Tags.WARP_BYPASS) &&
+                (profiles.get(hop.id) as? app.qthrone.mobile.outbound.types.Sstp)?.useServerDns == true
+            ) state.sstpDnsTag = tag
             val result = hop.outbound.build(ctx)
             if (!result.ok) {
                 state.error += result.error
@@ -378,6 +381,18 @@ internal class ChainBuilder(
             }
             val obj = result.json
             obj["tag"] = tag
+            if (idx == 0 || (opts.warpWrap && idx == 1)) {
+                val tunnelDns = when (val outbound = hop.outbound) {
+                    is app.qthrone.mobile.outbound.types.OpenConnect -> outbound.tunnel_dns
+                    is app.qthrone.mobile.outbound.types.OpenVpn -> outbound.tunnel_dns
+                    else -> null
+                }
+                if (tunnelDns != null && tunnelDns != app.qthrone.mobile.outbound.types.TUNNEL_DNS_NONE) {
+                    state.vpnDnsEndpoints[tag] = hop.outbound.type
+                    if (tunnelDns == app.qthrone.mobile.outbound.types.TUNNEL_DNS_STRICT && tag in listOf(Tags.PROXY, Tags.WARP_BYPASS))
+                        state.vpnStrictDnsTag = tag
+                }
+            }
             state.collectEchQueryName(hop.outbound)
             // Realm reads its STUN resolver off this key only; without it the hosts go through DNS rules (:1356-1358).
             if (TypeAccess.realmActive(hop.outbound)) obj["domain_resolver"] = jsonObjectOf("server" to Tags.DNS_DIRECT)

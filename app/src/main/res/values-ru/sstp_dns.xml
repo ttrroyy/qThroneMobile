@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sstp_use_server_dns">Использовать DNS сервера VPN</string>
+    <string name="sstp_use_server_dns_summary">Использовать DNS, выданный этим VPN-сервером, для удалённых запросов. Остальные правила маршрутизации и сохранённые настройки DNS не меняются.</string>
+</resources>

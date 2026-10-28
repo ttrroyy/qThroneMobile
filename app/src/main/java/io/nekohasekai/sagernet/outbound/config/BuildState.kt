@@ -101,6 +101,9 @@ internal class BuildState(val forTest: Boolean) {
     var proxyUsesXray = false
     var remotePrivateNetworks = false
     var sstpRemoteLan = false
+    var sstpDnsTag = ""
+    val vpnDnsEndpoints = linkedMapOf<String, String>()
+    var vpnStrictDnsTag = ""
     val prerequisites = Prerequisites()
 
     var error = ""
