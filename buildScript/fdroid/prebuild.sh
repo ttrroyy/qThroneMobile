@@ -17,6 +17,8 @@ go install github.com/sagernet/gomobile/cmd/gomobile@v0.1.13
 go install github.com/sagernet/gomobile/cmd/gobind@v0.1.13
 export PATH="$(go env GOPATH)/bin:$PATH"
 
+python3 scripts/patch_mobile_warp.py "$THRONE_DIR/core"
+
 DEST="$PWD/app/libs"
 (cd "$THRONE_DIR" && DEST="$DEST" bash script/build_android.sh)
 

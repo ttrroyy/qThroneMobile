@@ -912,7 +912,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     }
                 }
             }
-            popup.setGroupDividerEnabled(true)
+            androidx.core.view.MenuCompat.setGroupDividerEnabled(popup.menu,true)
             popup.menu.add(2, android.view.Menu.NONE, android.view.Menu.NONE, R.string.warp_enable).apply {
                 isCheckable=true;isChecked=DataStore.enableWarp
                 setOnMenuItemClickListener { app.qthrone.mobile.ui.route.RouteQuickSwitch.setWarpEnabled(this@MobileHomeFragment,!isChecked);true }
