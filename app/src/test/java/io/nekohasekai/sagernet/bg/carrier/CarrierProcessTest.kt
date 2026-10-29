@@ -15,7 +15,7 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class CarrierProcessTest {
-    @Test fun directFlagIsPassedOnlyToTheQwdttClient(): Unit = runBlocking {
+    @Test fun legacyDirectFlagCannotChangeTheNativeWgHandshake(): Unit = runBlocking {
         val root=Files.createTempDirectory("native-direct-mode").toFile()
         try {
             for(name in listOf("libqwdtt.so","libcsqtt_transport.so")) File(root,name).apply { writeText("fixture");setExecutable(true) }
@@ -35,7 +35,7 @@ class CarrierProcessTest {
                     }
                 }.exceptionOrNull()
                 assertNotNull(failure)
-                assertEquals(kind==CarrierKind.QWDTT,"-notls" in command)
+                assertFalse("-notls" in command)
                 assertTrue(File(root,"configs").listFiles().orEmpty().isEmpty())
             }
         } finally { root.deleteRecursively() }

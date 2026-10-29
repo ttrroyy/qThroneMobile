@@ -22,7 +22,6 @@ open class Qwdtt : Outbound("qwdtt"), app.qthrone.mobile.bg.carrier.NativeCarrie
     var rawPort=56003
     var workers=9
     var turnTcp=true
-    var noDtls=false
     var obfs="audio"
     var goDns="yandex"
     var vkAnonPath="vkcalls"
@@ -57,8 +56,6 @@ open class Qwdtt : Outbound("qwdtt"), app.qthrone.mobile.bg.carrier.NativeCarrie
         workers=if(obj.contains("workers")) obj.int("workers") else if(obj.contains("workersPerHash")) obj.int("workersPerHash") else 9
         workers=workers.coerceIn(9,(if(hashSource == "auto") 4 else hashes.size.coerceIn(1,4))*27)/9*9
         turnTcp=if(obj.contains("turn_tcp")) obj.bool("turn_tcp") else true
-        // The original server reserves 56002 for RTP AEAD without DTLS; explicit settings win.
-        noDtls=if(obj.contains("no_dtls")) obj.bool("no_dtls") else type=="qwdtt" && serverPort==56002
         obfs=obj.string("obfs").ifEmpty { "audio" }
         goDns=obj.string("go_dns").ifEmpty { "yandex" }
         vkAnonPath=obj.string("vk_anon_path").ifEmpty { "vkcalls" }
@@ -85,7 +82,6 @@ open class Qwdtt : Outbound("qwdtt"), app.qthrone.mobile.bg.carrier.NativeCarrie
             if(q.has(key)) obj[key]=q.valueFormDecoded(key)
         for(key in listOf("raw_port","workers")) if(q.has(key)) obj[key]=q.value(key).toIntOrNull() ?: return false
         if(q.has("turn_tcp")) obj["turn_tcp"]=q.value(key="turn_tcp") in listOf("1","true")
-        if(q.has("no_dtls")) obj["no_dtls"]=q.value("no_dtls") in listOf("1","true")
         if(!q.has("name")) obj["name"]=url.fragment ?: ""
         if(q.has("dtls_port") || q.has("server_port")) {
             val peer=LinkParser.parse("udp://"+obj.string("peer"))
@@ -97,7 +93,7 @@ open class Qwdtt : Outbound("qwdtt"), app.qthrone.mobile.bg.carrier.NativeCarrie
     }
     override fun exportToJson()=jsonObjectOf("type" to type,"tag" to name,"server" to server,"server_port" to serverPort,
         "hash_source" to hashSource,"password" to password,"hashes" to JsonArray.of(*hashes.toTypedArray()),"mode" to mode,"raw_port" to rawPort,
-        "workers" to workers,"turn_tcp" to turnTcp,"no_dtls" to noDtls,"obfs" to obfs,"go_dns" to goDns,"device_id" to deviceId,
+        "workers" to workers,"turn_tcp" to turnTcp,"obfs" to obfs,"go_dns" to goDns,"device_id" to deviceId,
         "vk_anon_path" to vkAnonPath,"captcha_mode" to captchaMode).also { if(manualHashesOverride) it["manual_hashes_override"]=true }
     override fun exportIdentity()=exportToJson().also { it.remove("tag");it.remove("device_id");it.remove("hash_source");it.remove("manual_hashes_override") }
     override fun exportToLink():String {
@@ -106,7 +102,6 @@ open class Qwdtt : Outbound("qwdtt"), app.qthrone.mobile.bg.carrier.NativeCarrie
         url.addQueryItem("pass",password);url.addQueryItem("hashes",hashes.joinToString(","))
         for((key,value) in exportToJson()) if(key in listOf("mode","raw_port","workers","obfs","go_dns","device_id","vk_anon_path","captcha_mode")) url.addQueryItem(key,value.toString())
         url.addQueryItem("turn_tcp",if(turnTcp) "1" else "0");url.addQueryItem("name",name)
-        url.addQueryItem("no_dtls",if(noDtls) "1" else "0")
         return url.build()
     }
     override fun build(ctx:BuildContext)=BuildResult(JsonObject(),"qWDTT requires a prepared native transport bridge")

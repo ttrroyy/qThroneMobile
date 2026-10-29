@@ -17,7 +17,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.File
 
-/** Quiet automatic checks feed the home banner; a manual check uses the same serialized request and cache. */
+/** Quiet automatic checks feed the updates menu; a manual check uses the same serialized request and cache. */
 object UpdateDiscovery : OnPreferenceDataStoreChangeListener {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val mutex = Mutex()

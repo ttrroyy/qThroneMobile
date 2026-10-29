@@ -34,8 +34,8 @@
     <string name="layout_double_column">Double column</string>
     <!-- misc -->
     <string name="service_mode">Service mode</string>
-    <string name="service_mode_proxy">Proxy only</string>
-    <string name="service_mode_vpn" translatable="false">VPN</string>
+    <string name="service_mode_proxy">System proxy</string>
+    <string name="service_mode_vpn">TUN mode</string>
     <string name="port_proxy">Proxy port</string>
     <string name="disable_mixed_inbound">Disable mixed inbound</string>
     <string name="disable_mixed_inbound_sum">Pure TUN inbound; do not listen on the local proxy port</string>
@@ -1913,4 +1913,5 @@
     <string name="phobos_settings">Phobos</string>
     <string name="phobos_key">Phobos key</string>
     <string name="phobos_key_summary">For a Phobos server in SOCKS5 mode; empty for a plain SOCKS proxy</string>
+    <string name="qmobile_enable_adblock">Enable AdBlock</string>
 </resources>

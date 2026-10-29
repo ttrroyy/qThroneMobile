@@ -13,12 +13,15 @@ import app.qthrone.core.mobile.WarpRegisterRequest
 object WarpRegistration {
 
     /** Returns sorted-key JSON: {"device_id","endpoint","error","ipv4","ipv6","license","peer_public_key","private_key","reserved","token"}. */
-    fun register(tunnelType: String, proxy: String, apiHosts: Array<String>): String = try {
+    fun register(tunnelType: String, proxy: String, apiHosts: Array<String>, useCurrent: Boolean): String = try {
         val request = WarpRegisterRequest()
         request.tunnelType = tunnelType
         request.proxy = proxy
         for (host in apiHosts) request.addAPIHost(host)
-        val identity = Mobile.warpRegister(request)
+        val identity = if (useCurrent) {
+            val running = CoreRuntime.running ?: error("Active tunnel has stopped; reconnect before registering WARP")
+            running.instance.warpRegister(request)
+        } else Mobile.warpRegister(request)
         jsonObjectOf(
             "device_id" to identity.deviceID.orEmpty(),
             "endpoint" to identity.endpoint.orEmpty(),

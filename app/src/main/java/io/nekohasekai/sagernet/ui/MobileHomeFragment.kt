@@ -23,6 +23,8 @@ import app.qthrone.mobile.bg.test.TestSpec
 import app.qthrone.mobile.ui.test.TestSessionClient
 import androidx.room.InvalidationTracker
 import app.qthrone.mobile.R
+import app.qthrone.mobile.Key
+import app.qthrone.mobile.BuildConfig
 import app.qthrone.mobile.TrafficFormat
 import app.qthrone.mobile.SagerNet
 import app.qthrone.mobile.database.*
@@ -61,16 +63,6 @@ class MobileHomeFragment : ToolbarFragment() {
         foregroundColor=MobilePalette.text;toolbarColor=MobilePalette.toolbar;backgroundColor=MobilePalette.background
     }
     private var content: LinearLayout? = null
-    private var updateBanner: TextView? = null
-    private fun updateReleaseBanner() {
-        val offer = UpdateDiscovery.available.value
-        updateBanner?.apply {
-            visibility = if (offer == null) View.GONE else View.VISIBLE
-            text = if (offer == null) "" else getString(R.string.update_home_banner, offer.versionName)
-            contentDescription = if (offer == null) "" else getString(R.string.update_home_banner_description, offer.versionName)
-            setOnClickListener { offer?.let { UpdateActivity.start(requireContext(), it) } }
-        }
-    }
     private var power: TextView? = null
     private var currentCheck: TextView? = null
     private var geoBanner: LinearLayout? = null
@@ -237,7 +229,6 @@ class MobileHomeFragment : ToolbarFragment() {
         viewLifecycleOwner.lifecycleScope.launch { app.qthrone.mobile.route.ProviderGeoAssets.states.collect { updateGeoStatus() } }
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch { UpdateDiscovery.available.collect { updateReleaseBanner() } }
                 launch {
                     while (true) {
                         UpdateDiscovery.refresh()
@@ -286,7 +277,6 @@ class MobileHomeFragment : ToolbarFragment() {
         if(nativeReceiverRegistered) { requireContext().unregisterReceiver(nativeStatusReceiver);nativeReceiverRegistered=false }
         groupReorder?.cancel();groupReorder=null;profileReorders.values.forEach { it.cancel() };profileReorders.clear();reordering=false
         geoBanner = null; geoStatus = null; geoProgress = null; geoCheck = null
-        updateBanner = null
         GroupRepo.removeListener(groupListener)
         observer?.let { SagerDatabase.instance.invalidationTracker.removeObserver(it) }
         observer = null; load?.cancel(); content = null; powerPulse?.cancel();powerPulse=null;pulseTarget=null; power = null
@@ -368,37 +358,31 @@ class MobileHomeFragment : ToolbarFragment() {
                     setImageResource(icon); imageTintList=android.content.res.ColorStateList.valueOf(foregroundColor); background = tile(); setPadding(dp(12),dp(12),dp(12),dp(12))
                     contentDescription = description; tooltipText = description; setOnClickListener { callback(it) }; MobileFeedback.apply(this)
                 }
-                header.addView(headerIcon(R.drawable.ic_mobile_settings, getString(R.string.qmobile_settings)) { host().displayFragmentWithId(R.id.nav_settings) }, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginEnd=dp(8) })
-                // the routing profile switch (global, Wi-Fi, mobile whitelist...) without a trip through the settings
-                header.addView(headerIcon(R.drawable.ic_mobile_route, getString(R.string.route_profile_quick_switch)) { routingMenu(it) }, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginEnd=dp(8) })
-                header.addView(headerIcon(R.drawable.ic_mobile_subscriptions, getString(R.string.qmobile_manage_groups)) { subscriptionsMenu(it) }, LinearLayout.LayoutParams(dp(48), dp(48)))
-                updateBanner = text("", 12f, blue).apply {
-                    gravity = Gravity.CENTER
-                    minHeight = dp(48)
-                    maxLines = 1
-                    ellipsize = android.text.TextUtils.TruncateAt.END
-                    isFocusable = true
-                    // Compact artwork inside a full 48dp touch target, next to Settings.
-                    background = android.graphics.drawable.InsetDrawable(tile(selected = true), 0, dp(7), 0, dp(7))
-                    val icon = androidx.core.content.ContextCompat.getDrawable(requireContext(), R.drawable.ic_mobile_update)
-                    icon?.setBounds(0, 0, dp(18), dp(18))
-                    setCompoundDrawablesRelative(icon, null, null, null)
-                    compoundDrawablePadding = dp(5)
-                    androidx.core.widget.TextViewCompat.setCompoundDrawableTintList(this, android.content.res.ColorStateList.valueOf(blue))
-                    MobileFeedback.apply(this, radius = 5f)
-                    // Set this after the background, whose inset padding replaces view padding.
-                    setPadding(dp(12), dp(6), dp(12), dp(6))
+                val tiles = listOf(
+                    headerIcon(R.drawable.ic_mobile_settings, getString(R.string.qmobile_settings)) { host().displayFragmentWithId(R.id.nav_settings) },
+                    headerIcon(R.drawable.ic_mobile_tun, getString(R.string.service_mode)) { modeMenu(it) },
+                    headerIcon(R.drawable.ic_mobile_route, getString(R.string.route_profile_quick_switch)) { routingMenu(it) },
+                    headerIcon(R.drawable.ic_mobile_subscriptions, getString(R.string.qmobile_manage_groups)) { subscriptionsMenu(it) },
+                    headerIcon(R.drawable.ic_mobile_update, getString(R.string.qmobile_updates)) { updatesMenu(it) },
+                    headerIcon(R.drawable.ic_mobile_add, getString(R.string.qmobile_add)) { addMenu(it) },
+                )
+                tiles.forEachIndexed { index, button ->
+                    header.addView(button, LinearLayout.LayoutParams(0, dp(48), 1f).apply {
+                        if (index < tiles.lastIndex) marginEnd = dp(8)
+                    })
                 }
-                val updateSlot = FrameLayout(requireContext()).apply {
-                    addView(updateBanner, FrameLayout.LayoutParams(-2, dp(48), Gravity.START or Gravity.CENTER_VERTICAL))
+                header.gravity = Gravity.CENTER
+                header.addOnLayoutChangeListener { _, left, _, right, _, oldLeft, _, oldRight, _ ->
+                    if (right - left != oldRight - oldLeft) {
+                        val size = minOf(dp(48), ((right - left - dp(8) * (tiles.size - 1)) / tiles.size).coerceAtLeast(1))
+                        tiles.forEach { button ->
+                            button.layoutParams = (button.layoutParams as LinearLayout.LayoutParams).apply {
+                                width = size; height = size; weight = 0f
+                            }
+                        }
+                    }
                 }
-                header.addView(updateSlot, LinearLayout.LayoutParams(0, dp(48), 1f).apply {
-                    marginStart = dp(6)
-                    marginEnd = dp(6)
-                })
-                header.addView(headerIcon(R.drawable.ic_mobile_add, getString(R.string.qmobile_add)) { addMenu(it) }, LinearLayout.LayoutParams(dp(48), dp(48)))
-                side.addView(header)
-                updateReleaseBanner()
+                side.addView(header, LinearLayout.LayoutParams(-1, -2))
                 val centre = FrameLayout(requireContext())
                 power = action("") { host().toggleService() }.apply {
                     contentDescription = getString(R.string.qmobile_connect)
@@ -806,7 +790,7 @@ class MobileHomeFragment : ToolbarFragment() {
             if(busy) holder.addView(ProgressBar(requireContext()).apply {
                 indeterminateTintList=android.content.res.ColorStateList.valueOf(blue)
             },FrameLayout.LayoutParams(dp(20),dp(20),Gravity.CENTER))
-            else holder.addView(text(label,12f,if(unavailable) muted else Color.rgb(128,192,139)).apply {
+            else holder.addView(text(label,12f,if(unavailable) muted else ProxyEntity.latencyColor(latency)).apply {
                 gravity=Gravity.CENTER;setPadding(0,0,0,0)
                 if(previous=="busy") { alpha=0f;animate().alpha(1f).setDuration(180).start() }
             },FrameLayout.LayoutParams(-1,-1))
@@ -889,7 +873,6 @@ class MobileHomeFragment : ToolbarFragment() {
     }
     private fun addMenu(anchor: View) {
         val popup = androidx.appcompat.widget.PopupMenu(requireContext(), anchor)
-        popup.menu.add(getString(R.string.qmobile_new_group)).setOnMenuItemClickListener { addSubscription();true }
         popup.menu.add(getString(R.string.qmobile_clipboard)).setOnMenuItemClickListener { importClipboard(); true }
         popup.menu.add(getString(R.string.qmobile_qr)).setOnMenuItemClickListener { startActivity(Intent(requireContext(), ScannerActivity::class.java)); true }
         popup.menu.add(getString(R.string.qmobile_file)).setOnMenuItemClickListener { importFile.launch("*/*");true }
@@ -921,7 +904,7 @@ class MobileHomeFragment : ToolbarFragment() {
             if(!anchor.isAttachedToWindow) return@launch
             val popup=androidx.appcompat.widget.PopupMenu(requireContext(),anchor)
             routes.forEach { route ->
-                popup.menu.add(route.name).apply {
+                popup.menu.add(1, android.view.Menu.NONE, android.view.Menu.NONE, route.name).apply {
                     isCheckable=true;isChecked=route.id==DataStore.currentRouteId
                     setOnMenuItemClickListener {
                         app.qthrone.mobile.ui.route.RouteQuickSwitch.switchTo(route.id)
@@ -929,13 +912,60 @@ class MobileHomeFragment : ToolbarFragment() {
                     }
                 }
             }
-            popup.menu.add(R.string.warp_enable).apply {
+            popup.setGroupDividerEnabled(true)
+            popup.menu.add(2, android.view.Menu.NONE, android.view.Menu.NONE, R.string.warp_enable).apply {
                 isCheckable=true;isChecked=DataStore.enableWarp
                 setOnMenuItemClickListener { app.qthrone.mobile.ui.route.RouteQuickSwitch.setWarpEnabled(this@MobileHomeFragment,!isChecked);true }
             }
-            popup.menu.add(R.string.settings).setOnMenuItemClickListener { host().displayFragmentWithId(R.id.nav_route);true }
+            popup.menu.add(2, android.view.Menu.NONE, android.view.Menu.NONE, R.string.qmobile_enable_adblock).apply {
+                isCheckable=true;isChecked=DataStore.adblockEnable
+                setOnMenuItemClickListener {
+                    DataStore.adblockEnable = !isChecked
+                    if (DataStore.serviceState.started) SagerNet.reloadService()
+                    true
+                }
+            }
+            popup.menu.add(3, android.view.Menu.NONE, android.view.Menu.NONE, R.string.settings).setOnMenuItemClickListener { host().displayFragmentWithId(R.id.nav_route);true }
+            popup.menu.add(3, android.view.Menu.NONE, android.view.Menu.NONE, R.string.xray_geo_download_title).setOnMenuItemClickListener {
+                host().openSettingsScreen(app.qthrone.mobile.ui.settings.XrayGeoSettingsFragment::class.java.name, getString(R.string.xray_geo_download_title));true
+            }
             popup.show()
         }
+    }
+    private fun modeMenu(anchor: View) {
+        val popup=androidx.appcompat.widget.PopupMenu(requireContext(),anchor)
+        listOf(Key.MODE_VPN to R.string.service_mode_vpn, Key.MODE_PROXY to R.string.service_mode_proxy).forEach { (mode,label) ->
+            popup.menu.add(label).apply {
+                isCheckable=true;isChecked=DataStore.serviceMode==mode
+                setOnMenuItemClickListener {
+                    if (DataStore.serviceMode != mode) {
+                        if (DataStore.serviceState.started) SagerNet.stopService()
+                        DataStore.serviceMode=mode
+                    }
+                    true
+                }
+            }
+        }
+        popup.show()
+    }
+    private fun updatesMenu(anchor: View) {
+        val popup=androidx.appcompat.widget.PopupMenu(requireContext(),anchor)
+        popup.menu.add(R.string.allow_beta_update).apply {
+            isCheckable=true;isChecked=DataStore.allowBetaUpdate
+            setOnMenuItemClickListener { DataStore.allowBetaUpdate=!isChecked;UpdateDiscovery.refresh();true }
+        }
+        popup.menu.add(R.string.update_home_auto).apply {
+            isCheckable=true;isChecked=DataStore.updateCheckAuto
+            setOnMenuItemClickListener { DataStore.updateCheckAuto=!isChecked;UpdateDiscovery.refresh();true }
+        }
+        popup.menu.add(R.string.update_check).setOnMenuItemClickListener { UpdateActivity.start(requireContext());true }
+        popup.menu.add(getString(R.string.update_current_version,BuildConfig.VERSION_NAME)).isEnabled=false
+        UpdateDiscovery.available.value?.takeIf { DataStore.updateCheckAuto }?.let { offer ->
+            popup.menu.add(getString(R.string.update_home_banner,offer.versionName)).setOnMenuItemClickListener {
+                UpdateActivity.start(requireContext(),offer);true
+            }
+        }
+        popup.show()
     }
     private fun subscriptionsMenu(anchor: View) {
         val popup=androidx.appcompat.widget.PopupMenu(requireContext(),anchor)

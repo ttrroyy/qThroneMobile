@@ -202,8 +202,7 @@ class CarrierProcess private constructor(private val process: Process, private v
                                     WdttPlusBootstrapPolicy.arguments(true,launchConfig.optBoolean("masque_server_bootstrap"),masqueConfig.exists(),bootstrap?.address)
                             } else emptyList()
                             listOf(executable.absolutePath) + flags + masque
-                        } else listOf(executable.absolutePath, kind.configFlag, config.absolutePath) +
-                            if(kind==CarrierKind.QWDTT && app.qthrone.mobile.outbound.json.JsonInput.parseObject(privateJson).bool("no_dtls")) listOf("-notls") else emptyList()
+                        } else listOf(executable.absolutePath, kind.configFlag, config.absolutePath)
                         val builder = ProcessBuilder(command)
                             .directory(if (launchConfig != null) sessionDirectory else nativeDirectory).redirectErrorStream(true)
                         if (launchConfig != null) builder.environment()["LD_LIBRARY_PATH"] = nativeDirectory.absolutePath

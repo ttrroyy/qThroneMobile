@@ -217,14 +217,7 @@ data class ProxyEntity(
 
     /** Profile::DisplayLatencyColor; 0 = no colour (untested). */
     @ColorInt
-    fun latencyColor(): Int = when {
-        latency == LATENCY_CONNECT_ONLY -> COLOR_CONNECT_ONLY
-        latency < 0 -> COLOR_FAILED
-        latency == 0 -> 0
-        latency <= 100 -> COLOR_FAST
-        latency <= 300 -> COLOR_MEDIUM
-        else -> COLOR_SLOW
-    }
+    fun latencyColor(): Int = latencyColor(latency)
 
     companion object {
         const val TABLE = "profiles"
@@ -240,6 +233,16 @@ data class ProxyEntity(
         @ColorInt private const val COLOR_FAST = 0xFF43A047.toInt()
         @ColorInt private const val COLOR_MEDIUM = 0xFFF9A825.toInt()
         @ColorInt private const val COLOR_SLOW = 0xFFE53935.toInt()
+
+        @ColorInt
+        fun latencyColor(latency: Int): Int = when {
+            latency == LATENCY_CONNECT_ONLY -> COLOR_CONNECT_ONLY
+            latency < 0 -> COLOR_FAILED
+            latency == 0 -> 0
+            latency <= 100 -> COLOR_FAST
+            latency <= 300 -> COLOR_MEDIUM
+            else -> COLOR_SLOW
+        }
 
         /** Profile::IsWorking for a latency code: a measured latency or a connect-only tunnel. */
         @JvmStatic

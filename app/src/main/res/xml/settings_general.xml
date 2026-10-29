@@ -5,7 +5,7 @@
             app:defaultValue="vpn"
             app:entries="@array/service_modes"
             app:entryValues="@array/service_mode_values"
-            app:icon="@drawable/ic_device_developer_mode"
+            app:icon="@drawable/ic_mobile_tun"
             app:key="serviceMode"
             app:title="@string/service_mode"
             app:useSimpleSummaryProvider="true" />

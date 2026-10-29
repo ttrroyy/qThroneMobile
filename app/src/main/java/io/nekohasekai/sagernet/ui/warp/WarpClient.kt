@@ -103,10 +103,11 @@ object WarpClient {
 
     /** RegisterWarp (warp.cpp:28-54) through ICoreService.warpRegister; failures throw with the core's text. */
     suspend fun register(tunnelType: String): Identity = withContext(Dispatchers.IO) {
-        val proxy = proxy()
+        val useCurrent = DataStore.serviceState.connected
+        val proxy = if (useCurrent) "" else proxy()
         val hosts = DataStore.warpApiHosts.toTypedArray()
         val raw = try {
-            CoreServiceClient.call { it.warpRegister(tunnelType, proxy, hosts) }
+            CoreServiceClient.call { it.warpRegister(tunnelType, proxy, hosts, useCurrent) }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {

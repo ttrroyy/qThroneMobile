@@ -181,7 +181,7 @@
 <string name="local_dns_failed">Не удалось подключиться: DNS сети (%1$s) не ответил. Настройте рабочий прямой DNS.</string>
 <string name="local_dns_failed_system">Не удалось подключиться: DNS системы не ответил. Настройте рабочий прямой DNS.</string>
 <string name="service_mode">Сервисный режим</string>
-<string name="service_mode_proxy">Только прокси</string>
+<string name="service_mode_proxy">Системный прокси</string>
 <string name="service_proxy">Прокси-сервис</string>
 <string name="service_subscription">Служба обновления подписки</string>
 <string name="service_vpn">VPN-сервис</string>
@@ -1792,4 +1792,6 @@
     <string name="phobos_settings">Phobos</string>
     <string name="phobos_key">Ключ Phobos</string>
     <string name="phobos_key_summary">Для сервера Phobos в режиме SOCKS5; пусто для обычного SOCKS-прокси</string>
+    <string name="service_mode_vpn">Режим TUN</string>
+    <string name="qmobile_enable_adblock">Включить AdBlock</string>
 </resources>

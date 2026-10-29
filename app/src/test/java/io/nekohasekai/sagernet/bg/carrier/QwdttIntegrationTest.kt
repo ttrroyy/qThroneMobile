@@ -7,21 +7,27 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class QwdttIntegrationTest {
-    @Test fun directEndpointUsesRtpAeadAndKeepsServerAndLocalPortsSeparate() {
-        val link="qwdtt://config?peer=192.0.2.1%3A56002&pass=fixture&hashes=demo_hash_123456789&workers=18&port=9000"
-        val direct=Qwdtt().apply { assertTrue(parseFromLink(link)) }
-        assertTrue(direct.noDtls)
-        val config=direct.privateConfig(19001,19002,CarrierBridgeCredentials("user","pass"))
-        assertEquals("192.0.2.1:56002",config.string("peer"))
-        assertEquals("127.0.0.1:19002",config.string("listen"))
-        assertTrue(config.bool("no_dtls"))
-        assertTrue(Qwdtt().apply { assertTrue(parseFromLink(direct.exportToLink())) }.noDtls)
-        assertFalse(Qwdtt().apply { assertTrue(parseFromLink(link+"&no_dtls=0")) }.noDtls)
-        assertFalse(Qwdtt().apply { assertTrue(parseFromLink(link.replace("56002","56000"))) }.noDtls)
+    @Test fun wgDoesNotInferDirectTransportFromPortOrLegacyFlag() {
+        for (port in listOf(56000,56002,46000)) for (legacy in listOf("","&no_dtls=1")) {
+            val link="qwdtt://config?peer=192.0.2.1%3A$port&pass=fixture&hashes=demo_hash_123456789&workers=18&port=9000$legacy"
+            val profile=Qwdtt().apply { assertTrue(parseFromLink(link)) }
+            val saved=profile.exportToJson().also { it["no_dtls"]=true }
+            assertTrue(profile.parseFromJson(saved))
+            assertEquals("wg",profile.mode)
+            val config=profile.privateConfig(19001,19002,CarrierBridgeCredentials("user","pass"))
+            assertEquals("192.0.2.1:$port",config.string("peer"))
+            assertEquals("127.0.0.1:19002",config.string("listen"))
+            assertFalse(config.contains("no_dtls"))
+            assertFalse(profile.exportToLink().contains("no_dtls"))
+            val restored=Qwdtt().apply { assertTrue(parseFromLink(profile.exportToLink())) }
+            assertEquals("wg",restored.mode)
+            assertEquals(port,restored.serverPort)
+            profile.mode="raw"
+            assertEquals("192.0.2.1:56003",profile.privateConfig(19001,19002,CarrierBridgeCredentials("user","pass")).string("peer"))
+        }
         val csqtt=app.qthrone.mobile.outbound.types.Csqtt().apply {
             assertTrue(parseFromJson(app.qthrone.mobile.outbound.json.jsonObjectOf("type" to "csqtt","server" to "192.0.2.1","server_port" to 56002,"password" to "fixture")))
         }
-        assertFalse(csqtt.noDtls)
         assertFalse(csqtt.exportToJson().contains("no_dtls"))
     }
     private fun profile()=Qwdtt().apply {
