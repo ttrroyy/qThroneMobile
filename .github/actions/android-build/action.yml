@@ -66,4 +66,7 @@ runs:
         else
           unset SIGNING_KEYSTORE_B64 SIGNING_STORE_PASSWORD SIGNING_KEY_ALIAS SIGNING_KEY_PASSWORD
         fi
-        ./gradlew --stacktrace ${{ inputs.tasks }}
+        # Room variants export the same schema file; never run their KSP workers together.
+        for task in ${{ inputs.tasks }}; do
+          ./gradlew --stacktrace "$task"
+        done
