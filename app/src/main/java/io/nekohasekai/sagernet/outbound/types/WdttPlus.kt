@@ -18,7 +18,7 @@ class WdttPlus : Qwdtt() {
     var localPort = 9000
     var maxWorkers = 0
     var tcpOnly = false
-    var turnSni = ""
+    var turnSni = "ya.ru"
     var rtMasque = false
     var rtMasqueServerBootstrap = false
     var fingerprint = "firefox"
@@ -40,7 +40,7 @@ class WdttPlus : Qwdtt() {
         maxWorkers = if (obj.contains("max_workers")) obj.int("max_workers") else 0
         legacy = obj.bool("legacy")
         tcpOnly = obj.bool("tcp_only")
-        turnSni = normalizeTurnSni(obj.string("turn_sni")) ?: return false
+        turnSni = normalizeTurnSni(if (obj.contains("turn_sni")) obj.string("turn_sni") else "ya.ru") ?: return false
         rtMasque = obj.bool("rt_masque")
         rtMasqueServerBootstrap = obj.bool("rt_masque_server_bootstrap")
         fingerprint = obj.string("fingerprint").ifBlank { "firefox" }

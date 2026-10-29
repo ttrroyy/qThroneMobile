@@ -54,6 +54,7 @@ class WdttPlusLinkTest {
             assertTrue(flag, flag in args)
         assertEquals("18", args[args.indexOf("-n") + 1])
         assertEquals("socks5", args[args.indexOf("-mode") + 1])
+        assertEquals("ya.ru", args[args.indexOf("-turn-sni") + 1])
         assertEquals("pw", config.obj("start").string("socks_password"))
     }
 
@@ -71,6 +72,20 @@ class WdttPlusLinkTest {
         assertFalse(args.any { it == "p" || it == hash || it == "pw" })
         assertTrue(restored.privateConfig(1080,1081,app.qthrone.mobile.bg.carrier.CarrierBridgeCredentials("u","pw")).bool("masque_server_bootstrap"))
         assertEquals(profile.exportToJson().toCompact(),restored.exportToJson().toCompact())
+    }
+
+    @Test fun defaultTurnSniMatchesOriginalAndExplicitDisableSurvivesStorage() {
+        assertEquals("ya.ru", WdttPlus().turnSni)
+        val profile = WdttPlus().apply {
+            assertTrue(parseFromLink("wdtt://connect?v=1&host=192.0.2.5&dtls=56000&wg=56001&local=9000&password=p&hashes=$hash"))
+        }
+        val stored = profile.exportToJson()
+        stored.remove("turn_sni")
+        assertEquals("ya.ru", WdttPlus().apply { assertTrue(parseFromJson(stored)) }.turnSni)
+        stored["turn_sni"] = ""
+        val disabled = WdttPlus().apply { assertTrue(parseFromJson(stored)) }
+        assertEquals("", disabled.turnSni)
+        assertFalse("-turn-sni" in disabled.privateConfig(1080,1081,app.qthrone.mobile.bg.carrier.CarrierBridgeCredentials("u","pw")).array("args").strings())
     }
 
     @Test fun invalidExternalSniIsRejectedBeforeNativeLaunch() {
