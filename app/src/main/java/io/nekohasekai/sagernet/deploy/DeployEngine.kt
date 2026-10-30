@@ -133,7 +133,7 @@ object DeployEngine {
         val machine = exec(ssh,server,"uname -m",30_000).second.trim()
         if(server.kind == "wdttplus") { runWdttPlus(ssh,server,uninstall,removeData,machine);return }
         val source = if(server.kind == "qwdtt") Pair("https://github.com/makriq-org/qwdtt/releases/download/v1.4.4/qWDTT_v1.4.4.apk","ff5b2d1f265b0c4253cdf54ebf1f8a5d64afd1424086aa8b8be754b5c14df6a7")
-            else Pair("https://github.com/ttrroyy/csqtt-rebirth/releases/download/v2.5.0-legacy/CSQTT-universal.apk","bbc261eff2fce56b0ee774271416b0764b34ee16349e9e250ce3c8d45d660d0f")
+            else Pair("https://github.com/ttrroyy/csqttr/releases/download/v2.5.0-legacy/CSQTT-universal.apk","bbc261eff2fce56b0ee774271416b0764b34ee16349e9e250ce3c8d45d660d0f")
         update(5,"Загрузка официального установщика")
         val apk = artifact(source.first,source.second)
         val binaryName = if(server.kind == "qwdtt") {

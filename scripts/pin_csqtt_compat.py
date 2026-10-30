@@ -13,7 +13,9 @@ def main():
     root = Path(__file__).resolve().parent.parent
     lock_path = root / "native-transports.lock.json"
     lock = json.loads(lock_path.read_text(encoding="utf-8"))
-    component = dict(build_commit=os.environ["GITHUB_SHA"], core_commit=lock["core_commit"],
+    # The core the build used, as build_csqtt_compat.sh and stage_native_transports.py read it.
+    properties = dict(line.split("=", 1) for line in (root / "nb4a.properties").read_text(encoding="utf-8").splitlines() if "=" in line)
+    component = dict(build_commit=os.environ["GITHUB_SHA"], core_commit=properties["THRONE_CORE_REF"].strip(),
                      csqtt_commit=COMPAT_COMMIT, inputs=input_hashes(root))
     archives = list(Path(sys.argv[1]).rglob("qthrone-csqtt-compat-*.tar.gz"))
     if len(archives) != len(ABIS):
