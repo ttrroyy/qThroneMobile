@@ -548,12 +548,13 @@ object ProfileImport {
 
                     for (key in containerObj.keys()) {
                         val protoObj = containerObj[key] as? JsonObject ?: continue
+                        val lastObj = when (val lastConfig = protoObj["last_config"]) {
+                            is String -> JsonInput.parseObjectOrNull(lastConfig)
+                            is JsonObject -> lastConfig
+                            else -> null
+                        }
                         var conf = when (val lastConfig = protoObj["last_config"]) {
-                            is String -> {
-                                val inner = JsonInput.parseObjectOrNull(lastConfig)
-                                if (inner != null && inner.contains("config")) inner.string("config") else lastConfig
-                            }
-
+                            is String -> if (lastObj != null && lastObj.contains("config")) lastObj.string("config") else lastConfig
                             is JsonObject -> lastConfig.string("config")
                             else -> ""
                         }
@@ -563,6 +564,12 @@ object ProfileImport {
                             .replace("\$SECONDARY_DNS", doc.string("dns2").trim().ifEmpty { "1.0.0.1" })
 
                         val isWireGuard = hasWireGuardSections(conf)
+                        // The MTU sits beside the config (AmneziaVPN default 1376: AWG padding does not fit WireGuard's 1420).
+                        if (isWireGuard && !Regex("""(?im)^\s*MTU\s*=""").containsMatchIn(conf)) {
+                            val mtu = (lastObj?.get("mtu")?.let { if (it is String) it.trim() else app.qthrone.mobile.outbound.json.JsonValues.toInt(it).toString() })
+                                ?.takeIf { (it.toIntOrNull() ?: 0) in 576..65535 } ?: "1376"
+                            conf = conf.replaceFirst(Regex("""(?im)^\s*\[Interface\]\s*$"""), "[Interface]\nMTU = $mtu")
+                        }
                         if (isWireGuard) wgCount++
                         entries.add(VpnConfigEntry(conf, containerType, isWireGuard))
                     }

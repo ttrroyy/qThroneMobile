@@ -17,10 +17,17 @@ class AmneziaDnsImportTest {
         val profile = result.outbounds.single() as WireGuard
         assertEquals(listOf("172.29.172.254", "10.8.1.1"), profile.dns)
         assertEquals("172.29.172.254", profile.dnsServer())
+        assertEquals("AmneziaVPN default MTU when the export names none", 1376, profile.mtu)
     }
 
     @Test fun amneziaExportWithoutDnsFieldsTakesAmneziaDefaults() {
         val profile = ProfileImport.parse(link("""{"containers":[${container()}]}""")).outbounds.single() as WireGuard
         assertEquals(listOf("1.1.1.1", "1.0.0.1"), profile.dns)
+    }
+
+    @Test fun amneziaExportTakesTheMtuBesideTheConfig() {
+        val container = """{"container":"amnezia-awg","awg":{"last_config":{"config":${org.json.JSONObject.quote(conf)},"mtu":"1280"}}}"""
+        val profile = ProfileImport.parse(link("""{"containers":[$container]}""")).outbounds.single() as WireGuard
+        assertEquals(1280, profile.mtu)
     }
 }
