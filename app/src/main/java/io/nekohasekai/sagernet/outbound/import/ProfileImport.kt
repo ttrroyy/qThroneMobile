@@ -462,7 +462,7 @@ object ProfileImport {
             // Bot exports wrap qWDTT share links in Markdown code spans.
             if (line.length >= 2 && line.first() == '`' && line.last() == '`') {
                 val unwrapped = line.substring(1, line.length - 1).trim()
-                if (OutboundFactory.typeForScheme(unwrapped) == "qwdtt") line = unwrapped
+                if (OutboundFactory.typeForScheme(unwrapped) in listOf("qwdtt", "wdttplus")) line = unwrapped
             }
             if (line.startsWith("json://",ignoreCase=true) || line.startsWith("throne://add/",ignoreCase=true)) {
                 val payload=OutboundFactory.decodeJsonLink(line,line.startsWith("throne://add/",ignoreCase=true))

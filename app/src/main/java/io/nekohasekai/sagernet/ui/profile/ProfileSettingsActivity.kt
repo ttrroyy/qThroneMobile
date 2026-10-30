@@ -11,6 +11,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import app.qthrone.mobile.ktx.readableMessage
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AlertDialog
@@ -287,13 +288,23 @@ abstract class ProfileSettingsActivity<T : Outbound>(
     override fun onOptionsItemSelected(item: MenuItem) = child.onOptionsItemSelected(item)
 
     private val unsavedChangesCallback = object : OnBackPressedCallback(true) {
-        override fun handleOnBackPressed() {
-            finish()
+        override fun handleOnBackPressed() = closeSaving()
+    }
+
+    /** Leaving the editor keeps what was changed, as the apply check would; a profile that fails to save stays open. */
+    private fun closeSaving() {
+        if (!DataStore.dirty) return finish()
+        runOnDefaultDispatcher {
+            val error = runCatching { saveAndExit() }.exceptionOrNull()
+            onMainDispatcher {
+                if (error == null) finish()
+                else Toast.makeText(this@ProfileSettingsActivity, error.readableMessage, Toast.LENGTH_LONG).show()
+            }
         }
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        if (!super.onSupportNavigateUp()) finish()
+        closeSaving()
         return true
     }
 

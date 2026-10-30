@@ -105,16 +105,6 @@ internal object SubscriptionRefresh {
             if (failures.isNotEmpty()) SubscriptionQueue.error(gid,failures.values.joinToString("\n"))
             }
         }
-        if (fetched.subInfo.title.isNotBlank()) {
-            val latest = GroupRepo.get(gid)
-            // The provider's title names only a group the user did not rename: blank, the link's host, or the old title.
-            val host = runCatching { java.net.URI(latest?.url.orEmpty().trim()).host }.getOrNull().orEmpty()
-            val ownName = latest != null && latest.name.isNotBlank() && latest.name != group.subInfo.title && latest.name != host
-            if (latest != null && !ownName && latest.name != fetched.subInfo.title) {
-                latest.name = fetched.subInfo.title
-                SagerDatabase.groupDao.update(latest)
-            }
-        }
         SagerDatabase.groupDao.setSubscriptionInfo(gid, System.currentTimeMillis() / 1000, fetched.subInfo.toJsonString())
         // a new server period may change when the update worker has to wake
         if (DataStore.subServerInterval && fetched.subInfo.serverInterval != group.subInfo.serverInterval) SubscriptionScheduler.schedule()

@@ -168,25 +168,6 @@ abstract class SagerDatabase : RoomDatabase() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 insertDefaultGroup(db)
             }
-
-            override fun onOpen(db: SupportSQLiteDatabase) {
-                restoreLegacyWdtt(db)
-            }
-        }
-
-        /** 1.9.0 imported plain wdtt:// links as WDTT Plus, which lost the RAW/WG mode and could not connect: back to qWDTT. */
-        private fun restoreLegacyWdtt(db: SupportSQLiteDatabase) {
-            try {
-                db.query("SELECT `id`, `outbound_json` FROM `profiles` WHERE `type` = 'wdttplus'").use { c ->
-                    while (c.moveToNext()) {
-                        val profile = app.qthrone.mobile.outbound.types.WdttPlus.legacyToQwdtt(c.getString(1).orEmpty())
-                        if (profile != null) db.execSQL("UPDATE `profiles` SET `type` = 'qwdtt', `outbound_json` = ? WHERE `id` = ?",
-                            arrayOf<Any?>(profile.exportToJson().toCompact(), c.getLong(0)))
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "legacy WDTT restore failed", e)
-            }
         }
 
         private fun insertDefaultGroup(db: SupportSQLiteDatabase) {

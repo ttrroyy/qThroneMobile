@@ -22,31 +22,33 @@ class WdttPlusLinkTest {
         assertEquals(profile.exportToJson().also { it.remove("device_id") }.toCompact(), again.exportToJson().also { it.remove("device_id") }.toCompact())
     }
 
-    @Test fun plainWdttLinksAreQwdtt() {
-        val profile = ProfileImport.parse("wdtt://31.76.50.112:56000:56001:9000:secret:$hash").outbounds.single()
-        assertFalse(profile is WdttPlus)
-        profile as Qwdtt
-        assertEquals("WDTT (WG)", profile.displayType())
+    @Test fun plainWdttLinksRunOnWdttPlus() {
+        val profile = ProfileImport.parse("wdtt://31.76.50.112:56000:56001:9000:secret:$hash").outbounds.single() as WdttPlus
+        assertEquals("WDTT", profile.displayType())
         assertEquals("wdtt://31.76.50.112:56000:56001:9000:secret:$hash", profile.exportToLink())
-        assertTrue(Qwdtt().apply { assertTrue(parseFromJson(profile.exportToJson())) }.wdttLink)
+        assertTrue(WdttPlus().apply { assertTrue(parseFromJson(profile.exportToJson())) }.legacy)
         assertEquals("31.76.50.112", profile.server)
         assertEquals(56000, profile.serverPort)
         assertEquals("secret", profile.password)
         assertEquals(listOf(hash), profile.hashes)
+        val panel = ProfileImport.parse("wdtt://31.76.50.112:56000:56001:0:secret:$hash#NL").outbounds.single() as WdttPlus
+        assertEquals(9000, panel.localPort)
+        assertEquals("NL", panel.name)
     }
 
-    @Test fun profilesStoredAsLegacyWdttBecomeQwdttAgain() {
-        val stored = WdttPlus().apply { assertTrue(parseFromLink("wdtt://connect?v=1&host=192.0.2.6&dtls=56000&wg=56001&local=9000&password=secret&hashes=$hash")) }
-            .exportToJson().also { it["legacy"] = true; it["tag"] = "Home" }.toCompact()
-        val profile = WdttPlus.legacyToQwdtt(stored)!!
-        assertEquals("qwdtt", profile.type)
-        assertEquals("Home", profile.name)
-        assertEquals("192.0.2.6", profile.server)
-        assertEquals("wg", profile.mode)
+    @Test fun panelJsonSubscriptionsImportAsWdtt() {
+        val payload = """{"vpn":"VPN","name":"NL","ip":"192.0.2.7","dtls":56010,"raw":56013,"pass":"tg_1","hash":"$hash","did":"dev-1"}"""
+        val link = "wdtt://" + java.util.Base64.getEncoder().encodeToString(payload.toByteArray())
+        val profile = ProfileImport.parse(java.util.Base64.getEncoder().encodeToString(link.toByteArray())).outbounds.single() as WdttPlus
+        assertTrue(profile.legacy)
+        assertEquals("192.0.2.7", profile.server)
+        assertEquals(56010, profile.serverPort)
+        assertEquals(56011, profile.wgPort)
+        assertEquals(9000, profile.localPort)
+        assertEquals("tg_1", profile.password)
         assertEquals(listOf(hash), profile.hashes)
-        assertEquals("WDTT (WG)", profile.displayType())
-        assertEquals(9000, profile.wdttLocalPort)
-        assertNull(WdttPlus.legacyToQwdtt(stored.replace("\"legacy\":true", "\"legacy\":false")))
+        assertEquals("NL", profile.name)
+        assertEquals("dev-1", profile.deviceId)
     }
 
     @Test fun startsLikeTheOriginalApp() {

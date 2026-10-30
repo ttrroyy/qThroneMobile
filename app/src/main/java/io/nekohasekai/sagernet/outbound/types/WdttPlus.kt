@@ -53,14 +53,27 @@ class WdttPlus : Qwdtt() {
     }
 
     override fun parseFromLink(link: String): Boolean {
-        // wdtt://<server>:<dtls>:<wg>:<local>:<password>[:<hashes>] — the original WDTT form.
         if (!link.startsWith("wdtt://connect?", true)) {
             if (!link.startsWith("wdtt://", true)) return false
-            val value = link.substring(7); val parts = value.substringBefore('#').split(':')
+            val value = link.substring(7)
+            // wdtt://<base64 JSON> of the WDTT panel: ip|add, dtls, pass|id, hash, name|ps|vpn, did; WG listens on dtls+1.
+            if (':' !in value) {
+                val json = decodeBase64Safe(value.substringBefore('#'))?.let { JsonInput.parseObjectOrNull(String(it)) } ?: return false
+                fun text(vararg keys: String) = keys.map { json.string(it).trim() }.firstOrNull { it.isNotEmpty() }.orEmpty()
+                val dtls = if (json.contains("dtls")) json.int("dtls") else 56000
+                if (text("ip", "add").isEmpty() || dtls !in 1..65535) return false
+                return parseFromJson(jsonObjectOf("type" to "wdttplus", "legacy" to true, "peer" to Hosts.displayAddress(text("ip", "add"), dtls),
+                    "wg_port" to dtls + 1, "local_port" to 9000, "password" to text("pass", "id"), "hashes" to text("hash"),
+                    "tag" to text("name", "ps", "vpn")).also { if (text("did").isNotEmpty()) it["device_id"] = text("did") })
+            }
+            // wdtt://<server>:<dtls>:<wg>:<local>:<password>[:<hashes>] — the original WDTT form; 0 ports take the defaults.
+            val parts = value.substringBefore('#').split(':')
             if (parts.size !in 5..6) return false
             val dtls = parts[1].toIntOrNull() ?: return false
+            val wg = parts[2].toIntOrNull() ?: return false
+            val local = parts[3].toIntOrNull() ?: return false
             return parseFromJson(jsonObjectOf("type" to "wdttplus", "legacy" to true, "peer" to Hosts.displayAddress(parts[0], dtls),
-                "wg_port" to (parts[2].toIntOrNull() ?: return false), "local_port" to (parts[3].toIntOrNull() ?: return false),
+                "wg_port" to (if (wg == 0) dtls + 1 else wg), "local_port" to (if (local == 0) 9000 else local),
                 "password" to LinkCodec.decodeFully(parts[4]), "hashes" to if (parts.size == 6) LinkCodec.decodeFully(parts[5]) else "",
                 "tag" to if (value.contains('#')) LinkCodec.decodeFully(value.substringAfter('#')) else ""))
         }
@@ -150,16 +163,6 @@ class WdttPlus : Qwdtt() {
                     label.all { it in 'a'..'z' || it in '0'..'9' || it == '-' }
             } }
         }
-        /** A plain wdtt:// profile that 1.9.0 stored as WDTT Plus, back as the qWDTT profile it was before; null otherwise. */
-        fun legacyToQwdtt(json: String): Qwdtt? {
-            val obj = JsonInput.parseObjectOrNull(json) ?: return null
-            if (obj.string("type") != "wdttplus" || !obj.bool("legacy")) return null
-            val copy = obj.copy(); copy["type"] = "qwdtt"
-            // A plain wdtt:// profile stays WDTT: its ports and the legacy mark carry over.
-            for (key in listOf("max_workers", "workers")) copy.remove(key)
-            return Qwdtt().takeIf { it.parseFromJson(copy) }
-        }
-
         /** normalizeTunnelWorkerCount of WDTT Plus: groups of 9, up to 108 or the profile's own limit. */
         fun normalizeWorkers(requested: Int, profileMaxWorkers: Int): Int {
             val configured = profileMaxWorkers / 9 * 9

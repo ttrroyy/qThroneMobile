@@ -58,7 +58,8 @@ data class ProxyGroup(
     val subInfo: SubUserInfo
         get() = if (subMetadata.valid || info.isEmpty()) subMetadata else SubUserInfo.parseHeader(info)
 
-    fun displayName(): String = name.takeIf { it.isNotBlank() } ?: android.net.Uri.parse(url).host?.takeIf { it.isNotBlank() } ?: app.getString(R.string.qmobile_server_list)
+    /** The name the user gave, blank included: a group never borrows a profile's or the provider's name. */
+    fun displayName(): String = name
 
     companion object {
         const val TABLE = "groups"

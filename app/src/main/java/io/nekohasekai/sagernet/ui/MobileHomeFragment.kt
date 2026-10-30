@@ -996,7 +996,11 @@ class MobileHomeFragment : ToolbarFragment() {
         rows.addView(View(context).apply { setBackgroundColor(MobilePalette.outline) },
             LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,maxOf(1,dp(1)/2)).apply { setMargins(dp(16),dp(4),dp(16),dp(4)) })
         row(getString(R.string.update_current_version,BuildConfig.VERSION_NAME),enabled=false)
-        window.showAsDropDown(anchor)
+        // With the tiles at the bottom there is no room below: open upwards, as the PopupMenus there do.
+        if(tilesAtBottom()) {
+            rows.measure(View.MeasureSpec.makeMeasureSpec(window.width,View.MeasureSpec.EXACTLY),View.MeasureSpec.UNSPECIFIED)
+            window.showAsDropDown(anchor,0,-anchor.height-rows.measuredHeight)
+        } else window.showAsDropDown(anchor)
     }
     private fun subscriptionsMenu(anchor: View) {
         val popup=androidx.appcompat.widget.PopupMenu(requireContext(),anchor)

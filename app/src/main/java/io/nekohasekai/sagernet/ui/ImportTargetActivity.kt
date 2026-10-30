@@ -32,7 +32,6 @@ class ImportTargetActivity : ThemedActivity() {
     private var kind = ""
     private var content = ""
     private var transferred = false
-    private var suggestedName = ""
     private val createGroup = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val id = result.data?.getLongExtra(GroupSettingsActivity.EXTRA_GROUP_ID, 0L) ?: 0L
@@ -48,7 +47,6 @@ class ImportTargetActivity : ThemedActivity() {
         val document = runCatching { JSONObject(payload.readText()) }.getOrNull()
         if (document == null) { finish(); return }
         kind = document.getString("kind"); content = document.getString("content")
-        suggestedName = document.optString("name")
         fun dp(n: Int) = (n * resources.displayMetrics.density).toInt()
         val body = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -90,8 +88,6 @@ class ImportTargetActivity : ThemedActivity() {
                 val subscription = link?.url ?: parsed?.takeIf { it.scheme in listOf("http", "https") && it.userInfo == null }
                     ?.buildUpon()?.fragment(null)?.build()?.toString()
                 subscription?.let { putExtra(GroupSettingsActivity.EXTRA_GROUP_SUBSCRIPTION_LINK, it) }
-                val name = suggestedName.ifBlank { link?.name.orEmpty().ifBlank { parsed?.fragment.orEmpty() } }
-                if (name.isNotBlank()) putExtra(GroupSettingsActivity.EXTRA_GROUP_NAME, name)
             })
         }
         choice(R.string.qmobile_existing_group) { selectGroup() }
