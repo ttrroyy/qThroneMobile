@@ -79,7 +79,7 @@
         <activity android:name=".ui.VkRelayActivity" android:exported="false" />
         <activity android:name=".ui.VkHashesActivity" android:exported="false" />
         <activity android:name=".ui.ProviderRoutingActivity" android:exported="false" />
-        <activity android:name=".ui.ImportTargetActivity" android:exported="false" />
+        <activity android:name=".ui.ImportTargetActivity" android:exported="false" android:theme="@style/Theme.SagerNet.SubscriptionEditor" />
         <activity
             android:name="app.qthrone.mobile.ui.BlankActivity"
             android:configChanges="uiMode" />

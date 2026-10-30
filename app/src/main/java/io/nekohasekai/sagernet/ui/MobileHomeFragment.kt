@@ -46,7 +46,8 @@ class MobileHomeFragment : ToolbarFragment() {
     private val nativeStatusReceiver=object:android.content.BroadcastReceiver() {
         override fun onReceive(context:Context,intent:Intent) {
             val stage=runCatching { app.qthrone.mobile.bg.carrier.NativeConnectionStage.valueOf(intent.getStringExtra("stage").orEmpty()) }.getOrNull() ?: return
-            val snapshot=app.qthrone.mobile.bg.carrier.NativeConnectionStatus.Snapshot(intent.getLongExtra("profileId",0),stage)
+            val snapshot=app.qthrone.mobile.bg.carrier.NativeConnectionStatus.Snapshot(intent.getLongExtra("profileId",0),stage,
+                intent.getIntExtra("active",0),intent.getIntExtra("total",0))
             if(intent.getBooleanExtra("testing",false)) nativeTest=snapshot else nativeConnection=snapshot
             updateState()
         }
@@ -771,6 +772,8 @@ class MobileHomeFragment : ToolbarFragment() {
                 captionSize=fontSize
                 statusText=caption
                 elapsedText=String.format(java.util.Locale.ROOT,"%02d:%02d:%02d",seconds/3600,seconds/60%60,seconds%60)
+                // Running workers out of those started, as the original WDTT/qWDTT/CSQTT apps show them.
+                workersText=snapshot?.takeIf { it.total>0 && !testing }?.let { "${it.active}/${it.total}" }.orEmpty()
             }
         }
     }

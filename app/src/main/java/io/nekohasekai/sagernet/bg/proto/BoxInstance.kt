@@ -96,7 +96,7 @@ abstract class BoxInstance(
                 nativeStatus=NativeConnectionStatus.Writer(profile.id).also { it.update(NativeConnectionStage.PREPARING) }
             }
             for(plan in config.carrierPlans) {
-                carrierProcesses.add(CarrierPool.acquire(plan,onStatus={ nativeStatus?.update(it) }))
+                carrierProcesses.add(CarrierPool.acquire(plan,onStatus={ nativeStatus?.update(it) },onWorkers={ active,total -> nativeStatus?.updateWorkers(active,total) }))
             }
             nativeStatus?.update(NativeConnectionStage.CONNECTED)
             loadConfig()

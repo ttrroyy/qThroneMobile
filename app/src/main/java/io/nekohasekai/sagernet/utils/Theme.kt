@@ -49,7 +49,7 @@ object Theme {
         context.setTheme(getDialogTheme())
         applyAmoledOverlay(context)
         context.theme.applyStyle(R.style.MobileControls, true)
-        if(context is app.qthrone.mobile.ui.SubscriptionEditorActivity)
+        if(context is app.qthrone.mobile.ui.SubscriptionEditorActivity || context is app.qthrone.mobile.ui.ImportTargetActivity)
             context.theme.applyStyle(R.style.MobileSubscriptionEditorWindow, true)
     }
 

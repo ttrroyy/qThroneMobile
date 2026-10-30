@@ -59,6 +59,9 @@ internal class NativeTransportHealth(private val minimumRecoveryPeak: Int = 9, p
         return stage
     }
 
+    /** Workers the client last reported up, as its own app shows them; null before the first report. */
+    @Synchronized fun activeWorkers(): Int? = workers
+
     /** The original watchdog's verdict: three WRAP timeouts and no worker ever up after 30 s. */
     @Synchronized fun wrongPassword(captchaWaiting: Boolean): Boolean =
         !captchaWaiting && !everActive && wrapTimeouts >= 3 && clock() - startedAt > 30_000

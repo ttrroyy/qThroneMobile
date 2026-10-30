@@ -26,6 +26,8 @@ import java.util.UUID
 
 /** A private cache file keeps large imports below Android's Binder transaction limit. */
 class ImportTargetActivity : ThemedActivity() {
+    // A small card over the current screen, like the subscription editor's translucent window.
+    override val isDialog = true
     private lateinit var payload: File
     private var kind = ""
     private var content = ""
@@ -50,16 +52,24 @@ class ImportTargetActivity : ThemedActivity() {
         fun dp(n: Int) = (n * resources.displayMetrics.density).toInt()
         val body = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(MobilePalette.background)
+            setPadding(dp(20), dp(20), dp(20), dp(8))
+            isClickable = true
+            background = GradientDrawable().apply { setColor(MobilePalette.background); cornerRadius = dp(24).toFloat() }
         }
-        ViewCompat.setOnApplyWindowInsetsListener(body) { view, insets ->
+        val scrim = android.widget.FrameLayout(this).apply {
+            setBackgroundColor(0x99000000.toInt())
+            setOnClickListener { finish() }
+            val width = minOf(resources.displayMetrics.widthPixels - dp(48), dp(380))
+            addView(body, android.widget.FrameLayout.LayoutParams(width, -2, android.view.Gravity.CENTER))
+        }
+        ViewCompat.setOnApplyWindowInsetsListener(scrim) { view, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(dp(20) + bars.left, dp(16) + bars.top, dp(20) + bars.right, dp(16) + bars.bottom)
+            view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
             insets
         }
         body.addView(TextView(this).apply {
-            setText(R.string.qmobile_import_target); textSize = 22f; setTextColor(MobilePalette.text)
-            setPadding(0, dp(12), 0, dp(24))
+            setText(R.string.qmobile_import_target); textSize = 20f; setTextColor(MobilePalette.text)
+            setPadding(dp(4), 0, 0, dp(16))
         })
         fun choice(label: Int, click: () -> Unit) {
             body.addView(TextView(this).apply {
@@ -85,7 +95,7 @@ class ImportTargetActivity : ThemedActivity() {
         }
         choice(R.string.qmobile_existing_group) { selectGroup() }
         choice(android.R.string.cancel) { finish() }
-        setContentView(body)
+        setContentView(scrim)
     }
 
     private fun selectGroup() {

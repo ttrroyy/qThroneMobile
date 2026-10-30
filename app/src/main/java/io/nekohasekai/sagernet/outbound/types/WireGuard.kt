@@ -144,6 +144,8 @@ class WireGuard : Outbound("wireguard") {
     @JvmField var system: Boolean = false
     @JvmField var worker_count: Int = 0
     @JvmField var udp_timeout: String = ""
+    /** The INI `DNS =` resolvers; the official clients resolve through them, and some servers only forward what they resolved. */
+    @JvmField var dns: MutableList<String> = ArrayList()
 
     /** AmneziaWG: jc/jmin/jmax and s1-s4 are integers; h1-h4 (magic headers) and i1-i5 (signature packets) are strings. */
     @JvmField var enable_amnezia: Boolean = false
@@ -222,6 +224,7 @@ class WireGuard : Outbound("wireguard") {
         if (q.has("use_system_interface")) system = q.valueFully("use_system_interface") == "true"
         if (q.has("workers")) worker_count = QtStrings.toInt(q.valueFully("workers"))
         if (q.has("udp_timeout")) udp_timeout = q.valueFully("udp_timeout")
+        if (q.has("dns")) dns = QtStrings.splitSkipEmpty(q.valueFully("dns").replace(" ", ""), ",")
 
         if (q.valueFully("enable_amnezia") == "true") enable_amnezia = true
         fun intKey(key: String, set: (Int) -> Unit): Boolean {
@@ -314,6 +317,7 @@ class WireGuard : Outbound("wireguard") {
                 // WARP and Amnezia write IPv4 and IPv6 as separate Address lines.
                 "address" -> address = (address + QtStrings.splitSkipEmpty(value.replace(" ", ""), ",")).toMutableList()
                 "mtu" -> mtu = QtStrings.toInt(value)
+                "dns" -> dns = (dns + QtStrings.splitSkipEmpty(value.replace(" ", ""), ",")).toMutableList()
                 "publickey" -> peer.public_key = value
                 "presharedkey", "preshared_key", "psk" -> peer.pre_shared_key = value
                 "persistentkeepalive", "persistent_keepalive" -> peer.persistent_keepalive = value
@@ -417,6 +421,7 @@ class WireGuard : Outbound("wireguard") {
         if (obj.contains("system")) system = obj.bool("system")
         if (obj.contains("worker_count")) worker_count = obj.int("worker_count")
         if (obj.contains("udp_timeout")) udp_timeout = obj.string("udp_timeout")
+        if (obj.contains("dns")) dns = obj.array("dns").strings()
         if (obj.contains("amnezia_wg")) amneziaFromJson(obj.obj("amnezia_wg"))
         if (obj.contains("obfs")) obfsFromJson(obj.obj("obfs"))
         fixAddress()
@@ -441,6 +446,7 @@ class WireGuard : Outbound("wireguard") {
         if (system) url.addQueryItem("use_system_interface", "true")
         if (worker_count > 0) url.addQueryItem("workers", worker_count.toString())
         if (udp_timeout.isNotEmpty()) url.addQueryItem("udp_timeout", udp_timeout)
+        if (dns.isNotEmpty()) url.addQueryItem("dns", dns.joinToString(","))
 
         if (enable_amnezia) {
             url.addQueryItem("enable_amnezia", "true")
@@ -488,6 +494,7 @@ class WireGuard : Outbound("wireguard") {
         if (name.isNotEmpty()) obj["tag"] = name
         obj.merge(dial.exportToJson())
         writeFields(obj)
+        if (dns.isNotEmpty()) obj["dns"] = JsonValues.stringArray(dns)
         val peerObj = peer.exportToJson()
         if (peerObj.isNotEmpty()) obj["peers"] = JsonArray.of(peerObj)
         return obj
@@ -521,6 +528,9 @@ class WireGuard : Outbound("wireguard") {
         val obfs = obfsToJson()
         if (obfs.isNotEmpty()) obj["obfs"] = obfs
     }
+
+    /** The first IPv4 `DNS =` resolver, or "" (shortcut: IPv6-only DNS lines are ignored, add them if a server needs it). */
+    fun dnsServer(): String = dns.firstOrNull { Regex("^\\d{1,3}(\\.\\d{1,3}){3}$").matches(it) }.orEmpty()
 
     /** The obfuscator in use; the editor's "off" and anything unknown are plain WireGuard. */
     fun obfsType(): String = obfs_type.takeIf { it == "wg-obfuscator" || it == "wgobfs" }.orEmpty()

@@ -25,19 +25,19 @@ object CarrierPool {
         override fun close() { if(closed.compareAndSet(false,true)) release() }
     }
     suspend fun acquire(plan:CarrierPlan, interactive: Boolean=true,latencyProbe:Boolean=!interactive,
-        onStatus:(NativeConnectionStage)->Unit={}):Lease {
+        onStatus:(NativeConnectionStage)->Unit={},onWorkers:(Int,Int)->Unit={ _,_ -> }):Lease {
         if(!interactive && plan.kind in listOf(CarrierKind.QWDTT,CarrierKind.CSQTT,CarrierKind.WDTTPLUS) && activePlan(plan.key)==null) {
             // Do not publish a queued test entry: a user connection must not wait behind it.
             var lease:Lease?=null
             try {
-                return probeStartup.prepare { acquireNow(plan,interactive,latencyProbe,onStatus).also { lease=it } }
+                return probeStartup.prepare { acquireNow(plan,interactive,latencyProbe,onStatus,onWorkers).also { lease=it } }
             } catch(error:Throwable) {
                 // Timeout/cancellation can win after acquisition but before withTimeout returns.
                 lease?.close()
                 throw error
             }
         }
-        return acquireNow(plan,interactive,latencyProbe,onStatus)
+        return acquireNow(plan,interactive,latencyProbe,onStatus,onWorkers)
     }
     private suspend fun takeEntry(plan:CarrierPlan,interactive:Boolean,latencyProbe:Boolean):Acquisition {
         while(true) {
@@ -63,7 +63,7 @@ object CarrierPool {
             return choice
         }
     }
-    private suspend fun acquireNow(plan:CarrierPlan,interactive:Boolean,latencyProbe:Boolean,onStatus:(NativeConnectionStage)->Unit):Lease {
+    private suspend fun acquireNow(plan:CarrierPlan,interactive:Boolean,latencyProbe:Boolean,onStatus:(NativeConnectionStage)->Unit,onWorkers:(Int,Int)->Unit):Lease {
         val acquisition=takeEntry(plan,interactive,latencyProbe)
         val entry=acquisition.entry!!
         val owner=acquisition.owner
@@ -92,7 +92,7 @@ object CarrierPool {
                     val privateJson=NativeSessionPolicy.probeConfig(plan.kind,plan.privateJson,interactive,latencyProbe)
                     val started=CarrierProcess.start(plan.kind,java.io.File(context.applicationInfo.nativeLibraryDir),
                         java.io.File(context.cacheDir,"carriers"),android.os.Build.VERSION.SDK_INT,
-                        privateJson,plan.port,plan.credentials,allowInteractions=interactive,onStatus=onStatus,
+                        privateJson,plan.port,plan.credentials,allowInteractions=interactive,onStatus=onStatus,onWorkers=onWorkers,
                         onCreated={ process -> synchronized(entries) { entry.process=process } })
                     synchronized(entries) { entry.process=started }
                     entry.ready.complete(started)

@@ -84,7 +84,7 @@ class OpenFlux:Outbound("openflux"),NativeCarrier {
                 if(t.string("dial").isBlank() || !negotiate) return false
                 val u=runCatching { LinkParser.parse("tcp://"+t.string("dial").trim()) }.getOrNull() ?: return false
                 if(!u.isValid || u.host.isEmpty() || u.port !in 1..65535) return false
-            } else if(t.string("url").isBlank()) return false
+            } else if(type!="telemost" && t.string("url").isBlank()) return false // Telemost without a link starts a new conference
         }
         return true
     }

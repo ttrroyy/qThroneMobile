@@ -378,6 +378,7 @@ internal class ChainBuilder(
             if (tag in listOf(Tags.PROXY, Tags.WARP_BYPASS) &&
                 (profiles.get(hop.id) as? app.qthrone.mobile.outbound.types.Sstp)?.useServerDns == true
             ) state.sstpDnsTag = tag
+            if (tag == Tags.PROXY) (hop.outbound as? app.qthrone.mobile.outbound.types.WireGuard)?.dnsServer()?.takeIf { it.isNotEmpty() }?.let { state.wireGuardDns = it }
             val result = hop.outbound.build(ctx)
             if (!result.ok) {
                 state.error += result.error

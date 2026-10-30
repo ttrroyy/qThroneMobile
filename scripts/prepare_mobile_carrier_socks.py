@@ -52,6 +52,24 @@ def prepare(kind: str, folder: Path):
     else:
         raise ValueError("Expected qwdtt or wdttplus")
     path.write_text(source, encoding="utf-8", newline="\n")
+    # CUBIC and growing windows for the userspace TCP behind the SOCKS listener (netstack_tuning.go overlay).
+    tuning = {
+        "qwdtt": [
+            ("socks_wg.go", '\t\treturn nil, nil, fmt.Errorf("CreateNetTUN: %w", err)\n\t}\n', "\ttuneNetstack(tnet)\n"),
+            ("raw_netstack.go", "\t\treturn nil, nil, err\n\t}\n\treturn &rawPacketDevice{tun: dev}, network, nil\n", None),
+        ],
+        "wdttplus": [
+            ("socks_wg.go", '\t\treturn nil, nil, fmt.Errorf("создание userspace TUN: %w", err)\n\t}\n', "\ttuneNetstack(tunnelNetwork)\n"),
+        ],
+    }
+    for name, anchor, call in tuning[kind]:
+        target = folder / name
+        text = target.read_text(encoding="utf-8")
+        if call is None:
+            text = replace_once(text, anchor, anchor.replace("\treturn &raw", "\ttuneNetstack(network)\n\treturn &raw"))
+        else:
+            text = replace_once(text, anchor, anchor + call)
+        target.write_text(text, encoding="utf-8", newline="\n")
     if kind == "qwdtt":
         bridge = folder / "csqtt_bridge.go"
         source = bridge.read_text(encoding="utf-8")

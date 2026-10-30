@@ -29,6 +29,13 @@ class OpenFluxLinkTest {
         assertNotNull(read("openflux://v1/PY0xCwIxDEb_S2a94loQNydHN3Eod1EDvaSkaUWO---2HJox7328BTjMCB4exYoi7MA0cE6ilsHfFrBP6ngsKQtH4q4Uje31MkvZO0dsqJXwPXRp2CwXqeJ-lIn46U4qMh9DuzbeQtdf5UwYJ_CH9f5Hki5YsSUWCJ2sXw"))
     }
 
+    @Test fun telemostWithoutRoomIsAcceptedAndUnknownCarriersAreNot() {
+        // A user's export: Telemost without a link starts a conference; mtslink is not a carrier OpenFlux knows.
+        val telemost = read("openflux://v1/NY5LCsIwGISvIlkpWMhD08cB3HoAcZGkUyy0SUl_RZHe3b-iu-GbYWbeIroRohHnCfE03J-b1BWj6-NmSxgwppl2Yi9CahE45R2FG1omM0IGMdJWHW1n0Bpt4I2GqkOtnfQIZSU1DjX7JSpZKoadbWVX64OyXgZjAP9tj4TnWvYbLx6KMWUX5yllmkVzeQt6TevR_y0O3PPAgMWU-5R7eonGHpfr8gE")!!
+        assertEquals("", transports(telemost).single().string("url"))
+        assertNull(read("openflux://v1/LY7LbsMgEEV_JWLVSiXmYYPxB2TbD6i64DEoVm1AgKNYUf69uM1qNOeM7twHCnoFNKHPBOGybPdT9HjVczi9rbUsc_h5Rx_IRge2HRld7RVcIwVshtoQE3QQnoPjjIPhDKiyimliwMqRMOhV8xJGImmDXjjiFeupMMRyDmD-0kOF-xH2-o1vtOGadSgp5lrQ9PVAdU9Hz1er5re8tP1aaypT1637uSl8uHPeOhN1duV_dEzZ3go9YC-Exz1QiUfie-yEHJxx0jo5tMCU55jnuqOJEvL8fv4C"))
+    }
+
     @Test fun currentCarriersAreAccepted() {
         // share.NodeConfig: what the node wizard prints, a Volga document with direct as the backup.
         val node = read("openflux://v1/jM7BSsQwFIXhVwlnHZJ0OiJmJz6GuLgmVxvQJNzcypSh7y5lQHA328PPx7mi0jcjorbMsKj82bSQMqLKyhaDk7AigsxYSDib22Lah5lPJi0klJRlwCK1qnw54kW1j-h9bmm4jWrmi5PVcy7qs39-f4GFCtXRm-hAfL1Ct378-LnVsFjl606pS2lSdEOcQtjtn5WLcNJ_wUOwyIUO-RRmF9w0ze4xPp3PM_a3_XcA")!!

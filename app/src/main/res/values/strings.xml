@@ -236,7 +236,7 @@
     <string name="connection_test_timeout_error">Timeout</string>
     <string name="http_proxy_bypass">HTTP proxy bypass list</string>
     <string name="http_proxy_bypass_dialog_message">One per line. Lines starting with # are comments. Example: *zhihu.com</string>
-    <string name="group_basic">Basic</string>
+    <string name="group_basic">Group</string>
     <string name="subscription">Subscription</string>
     <string name="service_subscription">Subscription update service</string>
     <string name="subscription_import">Import subscription</string>

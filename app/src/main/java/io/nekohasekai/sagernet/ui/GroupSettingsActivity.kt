@@ -222,6 +222,8 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
             supportFragmentManager.beginTransaction()
                 .replace(R.id.settings, GroupPreferenceFragment())
                 .commitNowAllowingStateLoss()
+            // Defaults the form writes while it builds are not changes; a blank new group shows no apply mark.
+            if (fresh && !DataStore.dirty) originalSignature = editSignature()
             editorSheet?.doOnPreDraw { sheet ->
                 sheet.visibility = View.VISIBLE
                 if (fresh) {

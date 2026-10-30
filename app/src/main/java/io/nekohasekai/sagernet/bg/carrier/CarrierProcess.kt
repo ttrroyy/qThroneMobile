@@ -113,6 +113,7 @@ class CarrierProcess private constructor(private val process: Process, private v
             onStatus: (NativeConnectionStage) -> Unit = {},
             onCreated: ((CarrierProcess) -> Unit)? = null,
             launch: (ProcessBuilder) -> Process = { it.start() },
+            onWorkers: (Int, Int) -> Unit = { _, _ -> },
         ): CarrierProcess {
             val hashes=app.qthrone.mobile.outbound.json.JsonInput.parseObject(privateJson).array("hashes").size
             val attempts=if(kind==CarrierKind.QWDTT) hashes.coerceIn(1,4) else 1
@@ -131,7 +132,7 @@ class CarrierProcess private constructor(private val process: Process, private v
                     }
                     return startOnce(kind,nativeDirectory,privateDirectory,apiLevel,
                         launchJson,socksPort,bridgeCredentials,
-                        remaining,allowInteractions,onStatus,onCreated,launch)
+                        remaining,allowInteractions,onStatus,onCreated,launch,onWorkers)
                 } catch(error:UnavailableCall) {
                     if(attempt==attempts-1) throw error
                     attempt++
@@ -157,6 +158,7 @@ class CarrierProcess private constructor(private val process: Process, private v
             onStatus: (NativeConnectionStage) -> Unit,
             onCreated: ((CarrierProcess) -> Unit)?,
             launch: (ProcessBuilder) -> Process = { it.start() },
+            onWorkers: (Int, Int) -> Unit = { _, _ -> },
         ): CarrierProcess {
             // withContext may discard a successful return when cancellation wins the
             // dispatcher hand-off. Keep ownership outside it so that process is closed too.
@@ -233,10 +235,12 @@ class CarrierProcess private constructor(private val process: Process, private v
                         }
                         runCatching { onStatus(NativeConnectionStage.AUTHORIZING) }
                         val redactor = CarrierLogRedactor(privateJson, bridgeCredentials)
+                        val totalWorkers = configuredWorkers(kind, privateJson)
                         moe.matsuri.nb4a.utils.CoreLog.write("[Info] [${kind.name}] Starting native transport")
                         val outputReader=Thread({ runCatching { child.inputStream.bufferedReader().use { input ->
                             input.forEachLine { line ->
                                 runCatching { onStatus(running.health.accept(line)) }
+                                if (totalWorkers > 0) running.health.activeWorkers()?.let { runCatching { onWorkers(it.coerceAtMost(totalWorkers), totalWorkers) } }
                                 running.captcha.accept(line)
                                 if(NativeSessionPolicy.unavailableCall(line)) running.unavailableCall.set(true)
                                 NativeSessionPolicy.startupFailure(line)?.let { running.startupFailure.compareAndSet(null,it) }
@@ -298,6 +302,18 @@ class CarrierProcess private constructor(private val process: Process, private v
                 throw error
             }
         }
+
+        /** The worker count the client was started with: qWDTT/CSQTT "workers", WDTT Plus "-n"; 0 for other clients. */
+        internal fun configuredWorkers(kind: CarrierKind, privateJson: String): Int = runCatching {
+            val json = org.json.JSONObject(privateJson)
+            when (kind) {
+                CarrierKind.QWDTT, CarrierKind.CSQTT -> json.optInt("workers")
+                CarrierKind.WDTTPLUS -> json.getJSONArray("args").let { args ->
+                    (0 until args.length() - 1).firstOrNull { args.getString(it) == "-n" }?.let { args.getString(it + 1).toInt() } ?: 0
+                }
+                else -> 0
+            }
+        }.getOrDefault(0)
 
         internal fun socksReady(port: Int, credentials: CarrierBridgeCredentials): Boolean = runCatching {
             // A loopback address alone does not isolate this listener from other Android apps.

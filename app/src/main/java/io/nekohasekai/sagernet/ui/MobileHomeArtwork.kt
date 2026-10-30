@@ -37,6 +37,8 @@ class MobilePowerArtwork(private val accent: Int) : Drawable() {
         set(value) { if(field!=value) { field=value;invalidateSelf() } }
     var elapsedText = ""
         set(value) { if(field!=value) { field=value;invalidateSelf() } }
+    var workersText = ""
+        set(value) { if(field!=value) { field=value;invalidateSelf() } }
     var pressScale = 1f
         set(value) { field=value; invalidateSelf() }
     var captionSize = 0f
@@ -73,6 +75,11 @@ class MobilePowerArtwork(private val accent: Int) : Drawable() {
             paint.typeface=Typeface.DEFAULT_BOLD
             paint.color=MobilePalette.text
             if(connected) canvas.drawText(elapsedText,cx,cy+r*.39f,paint)
+            if(workersText.isNotEmpty()) {
+                paint.typeface=Typeface.DEFAULT
+                paint.color=MobilePalette.muted
+                canvas.drawText(workersText,cx,cy+(if(connected) r*.58f else r*.39f),paint)
+            }
         }
     }
     override fun setAlpha(alpha: Int) { }

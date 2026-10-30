@@ -102,6 +102,7 @@ internal class BuildState(val forTest: Boolean) {
     var remotePrivateNetworks = false
     var sstpRemoteLan = false
     var sstpDnsTag = ""
+    var wireGuardDns = ""
     val vpnDnsEndpoints = linkedMapOf<String, String>()
     var vpnStrictDnsTag = ""
     val prerequisites = Prerequisites()

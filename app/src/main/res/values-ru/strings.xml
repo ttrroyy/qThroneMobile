@@ -85,7 +85,7 @@
 <string name="generating">Создание…</string>
 <string name="github">Исходный код</string>
 <string name="global_allow_insecure">Всегда разрешать небезопасные</string>
-<string name="group_basic">Базовый</string>
+<string name="group_basic">Группа</string>
 <string name="group_update">Обновить</string>
 <string name="grpc_service_name">Имя службы gRPC</string>
 <string name="hop_interval">Интервал переключения портов(второй)</string>

@@ -28,6 +28,28 @@ class RemoteLanAndSharingTest {
         }
     }
 
+    @Test fun wireGuardDnsLineIsTheRemoteResolverThroughTheTunnel() {
+        val profile=app.qthrone.mobile.outbound.types.WireGuard()
+        assertTrue(profile.parseFromLink("[Interface]
+PrivateKey = wFNC2jmaWZaW3SrWi4FpXDQmVM8KPgtwlahJ8or8i1g=
+Address = 10.88.3.164/32
+DNS = 1.1.1.1
+
+" +
+            "[Peer]
+PublicKey = tjMSwMQMt0wGxNHzOQhYuY20//KhyQpAYPpcexim00s=
+Endpoint = wg.example.org:51111
+AllowedIPs = 0.0.0.0/0
+"))
+        val settings=GeneratorSettings(vpnMode=true,remoteDns="https://8.8.8.8/dns-query")
+        val config=JsonInput.parseObject(ConfigGenerator(ProfileProvider { if(it==1L) profile else null },settings).build(1).coreConfig)
+        val remote=config.obj("dns").array("servers").filterIsInstance<JsonObject>().first { it.string("tag")=="dns-remote" }
+        assertEquals("udp",remote.string("type"));assertEquals("1.1.1.1",remote.string("server"));assertEquals("proxy",remote.string("detour"))
+        // The core's endpoint has no DNS field; the line stays in the saved profile only.
+        assertFalse(config.array("endpoints").filterIsInstance<JsonObject>().any { it.contains("dns") })
+        assertEquals(listOf("1.1.1.1"),app.qthrone.mobile.outbound.types.WireGuard().apply { parseFromJson(profile.exportToJson()) }.dns)
+    }
+
     @Test fun openConnectAndOpenVpnDnsModesReachTheirEndpoint() {
         for(mode in listOf("none","prefer","strict")) for(type in listOf("openconnect","openvpn")) {
             val profile=if(type=="openconnect") OpenConnect().apply { server="vpn.example.org";tunnel_dns=mode }

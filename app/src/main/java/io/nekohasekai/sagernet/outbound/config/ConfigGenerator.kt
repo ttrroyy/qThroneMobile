@@ -818,7 +818,12 @@ class ConfigGenerator @JvmOverloads constructor(
 
         if (!state.forTest) {
             // The authenticated SSTP bridge resolves this alias using only negotiated VPN resolvers.
-            var remoteDnsObj = DnsServers.buildDnsObj(if (state.sstpDnsTag.isNotEmpty()) "tcp://127.0.0.53" else settings.remoteDns)
+            // A WireGuard exit resolves through its own DNS line, as the official clients do.
+            var remoteDnsObj = DnsServers.buildDnsObj(when {
+                state.sstpDnsTag.isNotEmpty() -> "tcp://127.0.0.53"
+                state.wireGuardDns.isNotEmpty() -> state.wireGuardDns
+                else -> settings.remoteDns
+            })
             // Xray resolves through this server's transport and cannot carry udp or quic (:882-885).
             if (state.proxyUsesXray && (remoteDnsObj.string("type") == "udp" || remoteDnsObj.string("type") == "quic")) {
                 remoteDnsObj = DnsServers.buildDnsObj(DnsServers.upgradeUdpDnsToDoH(remoteDnsObj.string("server")))
