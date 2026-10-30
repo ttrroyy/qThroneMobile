@@ -40,6 +40,8 @@ object UpdateDiscovery : OnPreferenceDataStoreChangeListener {
                 if (key == "allow_beta_update") { snapshot = null; initialized = false }
                 loadCache()
                 publishOffer()
+                // Turning on checks or betas looks right away instead of at the next interval.
+                if (BuildConfig.IN_APP_UPDATER && DataStore.updateCheckAuto && key != Key.UPDATE_SKIPPED_VERSION_CODE) performCheck()
             }
         }
     }
