@@ -58,6 +58,7 @@ import app.qthrone.mobile.utils.Theme
 import app.qthrone.mobile.utils.WifiStateAccess
 import app.qthrone.mobile.widget.bars
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -82,6 +83,16 @@ class MainActivity : ThemedActivity(),
         super.onCreate(savedInstanceState)
         captchaController=MobileCaptchaController(this)
         MessageStore.setCurrentActivity(this)
+        // Update discovery while the app is on screen: a look when it opens, then the policy's interval.
+        lifecycleScope.launch {
+            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+                app.qthrone.mobile.update.UpdateDiscovery.refresh(opened = true)
+                while (true) {
+                    kotlinx.coroutines.delay(30_000)
+                    app.qthrone.mobile.update.UpdateDiscovery.refresh()
+                }
+            }
+        }
         val animateInitialControls = savedInstanceState == null
 
         binding = LayoutMainBinding.inflate(layoutInflater)
