@@ -41,15 +41,21 @@ object UpdateScheduler {
     }
 
     class CheckTask(appContext: Context, params: WorkerParameters) : RemoteCoroutineWorker(appContext, params) {
-        override suspend fun doRemoteWork(): Result {
-            if (!BuildConfig.IN_APP_UPDATER || !DataStore.updateCheckAuto) return Result.success()
-            val offer = UpdateDiscovery.backgroundCheck() ?: return Result.success()
-            val key = offer.versionCode.takeIf { it > 0 }?.toString() ?: offer.versionName
-            if (DataStore.configurationStore.getString(NOTIFIED) != key) {
-                UpdateNotifications.available(applicationContext, offer)
-                DataStore.configurationStore.putString(NOTIFIED, key)
+        // Runs in the VPN service's process: nothing here may throw past this point, so the tunnel never notices it.
+        override suspend fun doRemoteWork(): Result = try {
+            if (BuildConfig.IN_APP_UPDATER && DataStore.updateCheckAuto) UpdateDiscovery.backgroundCheck()?.let { offer ->
+                val key = offer.versionCode.takeIf { it > 0 }?.toString() ?: offer.versionName
+                if (DataStore.configurationStore.getString(NOTIFIED) != key) {
+                    UpdateNotifications.available(applicationContext, offer)
+                    DataStore.configurationStore.putString(NOTIFIED, key)
+                }
             }
-            return Result.success()
+            Result.success()
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            Logs.w("Background update check failed", e)
+            Result.success()
         }
     }
 }
