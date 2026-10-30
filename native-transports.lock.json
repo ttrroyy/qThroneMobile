@@ -203,13 +203,13 @@
     ]
   },
   "csqtt_compat": {
-    "build_commit": "146a2d05f63de2ab8b2d7271255ef9b2d54670b8",
-    "core_commit": "93e4873c56c2285f647d0146a0df9c088f122910",
+    "build_commit": "4bf68a17e731b248b86db38a25a0f6088e9feeb9",
+    "core_commit": "e5c3c405f21cfb27a883038a0aec40bd9dcf8587",
     "csqtt_commit": "446293aa2e873ac5323ef6fd2316d9b81d966c11",
     "inputs": {
-      "scripts/build_csqtt_compat.sh": "0c0d65c075e331f7384522ffa3ad0fe0ea05c0ea5bbd084f4c612cde7a2a9a14",
+      "scripts/build_csqtt_compat.sh": "4a10a44d3682900eba714479d8c030d78193c23c6ddd61d6a97c52b554a203ba",
       "scripts/prepare_android_captcha.py": "b64ad3952201540d1dd24e314365c3d169d46be148e76f960c6050e6676eb674",
-      "scripts/prepare_mobile_carrier_socks.py": "23573edad45bc8bd875ab31998fe06c33b5077cd8fc07ec5048f770256c08b36",
+      "scripts/prepare_mobile_carrier_socks.py": "c1437afa13b26227bfd43619826f287eddc25ba8ec2206ff5cfe905e9cb57cc7",
       "scripts/prepare_csqtt_rebirth_bridge.py": "b5e54d9b49ba2d111dd77467d91c28ff012fe261303e24b3ad232e9a410e7336",
       "scripts/prepare_csqtt_compat_bridge.py": "d5e8efb6ae8f7daf9b96bf54c979541ff70a9e419db1ebc3ec9f4f63958521e2",
       "scripts/prepare_csqtt_compat.py": "f52948078de0b073462470f702550c3e5656cf77202ce828c52b81a7e5a47944",
@@ -221,26 +221,27 @@
       "core-patches/carrier-socks/qwdtt/mobile_csqtt_ipc_linux_test.go": "01fe064afab5de8f2bcd88f5c25871714099f4ad564f1d5d17d9f6b26af5f470",
       "core-patches/carrier-socks/qwdtt/mobile_csqtt_ipc_other.go": "e146d0bbddced21a41ad10b6ff047a4379a452449b69703077a81082bad77a57",
       "core-patches/carrier-socks/qwdtt/mobile_csqtt_rebirth_test.go": "094c9d0ef4e4b2df3833095e88a241a320cef109f0f7324a5c5b84e65e33aa53",
-      "core-patches/carrier-socks/qwdtt/mobile_source_port_test.go": "87c3c2b7e8b8674c658e8be9360cb87a304c6a940b9afde69eaad71c18a52ce8"
+      "core-patches/carrier-socks/qwdtt/mobile_source_port_test.go": "87c3c2b7e8b8674c658e8be9360cb87a304c6a940b9afde69eaad71c18a52ce8",
+      "core-patches/carrier-socks/qwdtt/netstack_tuning.go": "4484a8ab7a0ea8ffb3d8bd9104a569a72bdd415b48b68c4d4fd24e3bc5f1f210"
     },
     "archives": [
       {
         "abi": "arm64-v8a",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-csqtt-compat-146a2d05-arm64-v8a.tar.gz",
-        "sha256": "f7982f04ec09a013855b27228bb430e6e9e5c0744ab625210602e518a1366091",
-        "sources": "qThrone 93e4873c56c2285f647d0146a0df9c088f122910\nCSQTT compatibility 446293aa2e873ac5323ef6fd2316d9b81d966c11\nAndroid ABI arm64-v8a\nPrivate IPC 146a2d05f63de2ab8b2d7271255ef9b2d54670b8\n"
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-csqtt-compat-4bf68a17-arm64-v8a.tar.gz",
+        "sha256": "dd6483503dd21cd38a5590285daa3f63b6ec5ce300d44337a5f948790d415d56",
+        "sources": "qThrone e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nCSQTT compatibility 446293aa2e873ac5323ef6fd2316d9b81d966c11\nAndroid ABI arm64-v8a\nPrivate IPC 4bf68a17e731b248b86db38a25a0f6088e9feeb9\n"
       },
       {
         "abi": "armeabi-v7a",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-csqtt-compat-146a2d05-armeabi-v7a.tar.gz",
-        "sha256": "daee8419a38537ccf1d9c156d1af17bbf410ad3186aa1c33a05cd54a5218d2b9",
-        "sources": "qThrone 93e4873c56c2285f647d0146a0df9c088f122910\nCSQTT compatibility 446293aa2e873ac5323ef6fd2316d9b81d966c11\nAndroid ABI armeabi-v7a\nPrivate IPC 146a2d05f63de2ab8b2d7271255ef9b2d54670b8\n"
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-csqtt-compat-4bf68a17-armeabi-v7a.tar.gz",
+        "sha256": "8f184068866391d2eeb258fc83ceddcbc5ca95ddeef967a4abf8032947ca622c",
+        "sources": "qThrone e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nCSQTT compatibility 446293aa2e873ac5323ef6fd2316d9b81d966c11\nAndroid ABI armeabi-v7a\nPrivate IPC 4bf68a17e731b248b86db38a25a0f6088e9feeb9\n"
       },
       {
         "abi": "x86_64",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-csqtt-compat-146a2d05-x86_64.tar.gz",
-        "sha256": "7890698e2384d521c7fb77115b6fc0c29968b73594ed8d73196ed87e6f6c6fe5",
-        "sources": "qThrone 93e4873c56c2285f647d0146a0df9c088f122910\nCSQTT compatibility 446293aa2e873ac5323ef6fd2316d9b81d966c11\nAndroid ABI x86_64\nPrivate IPC 146a2d05f63de2ab8b2d7271255ef9b2d54670b8\n"
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-csqtt-compat-4bf68a17-x86_64.tar.gz",
+        "sha256": "7c5d1d020cf118fc9e44b6e824073c03865495a385562fb142a47c33a4a0aa31",
+        "sources": "qThrone e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nCSQTT compatibility 446293aa2e873ac5323ef6fd2316d9b81d966c11\nAndroid ABI x86_64\nPrivate IPC 4bf68a17e731b248b86db38a25a0f6088e9feeb9\n"
       }
     ]
   }
