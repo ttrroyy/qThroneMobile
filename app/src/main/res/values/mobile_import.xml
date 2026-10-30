@@ -10,7 +10,6 @@
     <string-array name="qmobile_tiles_positions"><item>Top</item><item>Bottom</item></string-array>
     <string-array name="qmobile_tiles_position_values" translatable="false"><item>top</item><item>bottom</item></string-array>
     <string name="qmobile_home_tiles">Home screen tiles</string>
-    <string name="qmobile_home_tiles_summary">Settings and Add are always shown</string>
-    <string-array name="qmobile_home_tiles_entries"><item>Service mode</item><item>Routing profile</item><item>Manage groups and subscriptions</item><item>Updates</item></string-array>
-    <string-array name="qmobile_home_tiles_values" translatable="false"><item>mode</item><item>route</item><item>groups</item><item>updates</item></string-array>
+    <string-array name="qmobile_home_tiles_entries"><item>Extended</item><item>Standard</item></string-array>
+    <string-array name="qmobile_home_tiles_values" translatable="false"><item>extended</item><item>standard</item></string-array>
 </resources>

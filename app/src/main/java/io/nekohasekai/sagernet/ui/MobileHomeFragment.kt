@@ -163,8 +163,8 @@ class MobileHomeFragment : ToolbarFragment() {
     /** Appearance: the tile bar above the power button ("top", default) or under the server list ("bottom"). */
     private fun tilesAtBottom()=(DataStore.configurationStore.getString("qmobileTilesPosition")
         ?: if(DataStore.configurationStore.getBoolean("qmobileTilesBottom",false)) "bottom" else "top")=="bottom"
-    /** Appearance: the optional home tiles; Settings and Add are always there. */
-    private fun shownTiles()=DataStore.configurationStore.getStringSet("qmobileHomeTiles")?.toSet() ?: setOf("mode","route","groups","updates")
+    /** Appearance: "extended" (default) shows every tile; "standard" only Settings and Add, in the corners. */
+    private fun extendedTiles()=DataStore.configurationStore.getString("qmobileHomeTilesMode")!="standard"
     private data class ProfileContent(val id: Long, val type: String, val name: String?, val json: String)
     private data class GroupContent(val group: ProxyGroup, val profiles: List<ProfileContent>, val collapsed: Boolean, val page: Int, val colors: List<Int>)
     private val groupViews = mutableMapOf<Long, Pair<GroupContent, View>>()
@@ -338,7 +338,7 @@ class MobileHomeFragment : ToolbarFragment() {
             val column = content ?: return@launch
             groups.forEach { (group, _) -> knownGroups.add(group.id) }
             val tilesBottom=tilesAtBottom()
-            val tilesKey="${shownTiles().sorted()}:$tilesBottom"
+            val tilesKey="${extendedTiles()}:$tilesBottom"
             // A moved tile bar rebuilds the screen even when the server list is the same.
             val unchanged=withContext(Dispatchers.Default) { previousStructure == structure } && chromeKey?.endsWith(":$tilesKey")!=false
             if (unchanged) {
@@ -372,20 +372,24 @@ class MobileHomeFragment : ToolbarFragment() {
                     setImageResource(icon); imageTintList=android.content.res.ColorStateList.valueOf(foregroundColor); background = tile(); setPadding(dp(12),dp(12),dp(12),dp(12))
                     contentDescription = description; tooltipText = description; setOnClickListener { callback(it) }; MobileFeedback.apply(this)
                 }
-                val shown=shownTiles()
+                val extended=extendedTiles()
                 updatesTile=null
-                val tiles = listOfNotNull(
-                    headerIcon(R.drawable.ic_mobile_settings, getString(R.string.qmobile_settings)) { host().displayFragmentWithId(R.id.nav_settings) },
-                    if("mode" in shown) headerIcon(R.drawable.ic_mobile_tun, getString(R.string.service_mode)) { modeMenu(it) } else null,
-                    if("route" in shown) headerIcon(R.drawable.ic_mobile_route, getString(R.string.route_profile_quick_switch)) { routingMenu(it) } else null,
-                    if("groups" in shown) headerIcon(R.drawable.ic_mobile_subscriptions, getString(R.string.qmobile_manage_groups)) { subscriptionsMenu(it) } else null,
-                    if("updates" in shown) headerIcon(R.drawable.ic_mobile_update, getString(R.string.qmobile_updates)) { updatesMenu(it) }.also { updatesTile=it;updateUpdatesBadge() } else null,
-                    headerIcon(R.drawable.ic_mobile_add, getString(R.string.qmobile_add)) { addMenu(it) },
-                )
+                val settingsTile=headerIcon(R.drawable.ic_mobile_settings, getString(R.string.qmobile_settings)) { host().displayFragmentWithId(R.id.nav_settings) }
+                val addTile=headerIcon(R.drawable.ic_mobile_add, getString(R.string.qmobile_add)) { addMenu(it) }
+                val tiles = if(extended) listOf(
+                    settingsTile,
+                    headerIcon(R.drawable.ic_mobile_tun, getString(R.string.service_mode)) { modeMenu(it) },
+                    headerIcon(R.drawable.ic_mobile_route, getString(R.string.route_profile_quick_switch)) { routingMenu(it) },
+                    headerIcon(R.drawable.ic_mobile_subscriptions, getString(R.string.qmobile_manage_groups)) { subscriptionsMenu(it) },
+                    headerIcon(R.drawable.ic_mobile_update, getString(R.string.qmobile_updates)) { updatesMenu(it) }.also { updatesTile=it;updateUpdatesBadge() },
+                    addTile,
+                ) else listOf(settingsTile, addTile)
                 tiles.forEachIndexed { index, button ->
                     header.addView(button, LinearLayout.LayoutParams(0, dp(48), 1f).apply {
                         if (index < tiles.lastIndex) marginEnd = dp(8)
                     })
+                    // Standard: the two tiles sit in the corners.
+                    if (!extended && index == 0) header.addView(View(requireContext()), LinearLayout.LayoutParams(0, 1, 1f))
                 }
                 header.gravity = Gravity.CENTER
                 header.addOnLayoutChangeListener { _, left, _, right, _, oldLeft, _, oldRight, _ ->
