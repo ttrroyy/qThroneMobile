@@ -1,0 +1,5 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false" android:state_checked="true" android:drawable="@drawable/mobile_checkbox_on" />
+    <item android:state_checked="true" android:drawable="@drawable/mobile_checkbox_on" />
+    <item android:drawable="@drawable/mobile_checkbox_off" />
+</selector>

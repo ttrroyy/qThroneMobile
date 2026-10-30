@@ -66,6 +66,22 @@ class MobileHomeFragment : ToolbarFragment() {
     private var content: LinearLayout? = null
     private var power: TextView? = null
     private var currentCheck: TextView? = null
+    private var updatesTile: ImageButton? = null
+    /** A dot in the accent colour on the updates tile while a newer version is offered. */
+    private fun updateUpdatesBadge() {
+        val tile=updatesTile ?: return
+        val offered=DataStore.updateCheckAuto && UpdateDiscovery.available.value!=null
+        tile.foreground=if(!offered) null else object:android.graphics.drawable.Drawable() {
+            private val paint=android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply { color=MobilePalette.accent(tile.context) }
+            override fun draw(canvas: android.graphics.Canvas) {
+                val r=dp(4).toFloat()
+                canvas.drawCircle(bounds.right-r-dp(5),bounds.top+r+dp(5),r,paint)
+            }
+            override fun setAlpha(alpha: Int) {}
+            override fun setColorFilter(colorFilter: android.graphics.ColorFilter?) {}
+            @Deprecated("Deprecated in Java") override fun getOpacity()=android.graphics.PixelFormat.TRANSLUCENT
+        }
+    }
     private var geoBanner: LinearLayout? = null
     private var geoStatus: TextView? = null
     private var geoProgress: ProgressBar? = null
@@ -228,6 +244,7 @@ class MobileHomeFragment : ToolbarFragment() {
         GroupRepo.addListener(groupListener)
         viewLifecycleOwner.lifecycleScope.launch { SubscriptionClient.states.collect { updateSubscriptionButtons() } }
         viewLifecycleOwner.lifecycleScope.launch { app.qthrone.mobile.route.ProviderGeoAssets.states.collect { updateGeoStatus() } }
+        viewLifecycleOwner.lifecycleScope.launch { UpdateDiscovery.available.collect { updateUpdatesBadge() } }
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
@@ -277,7 +294,7 @@ class MobileHomeFragment : ToolbarFragment() {
     override fun onDestroyView() {
         if(nativeReceiverRegistered) { requireContext().unregisterReceiver(nativeStatusReceiver);nativeReceiverRegistered=false }
         groupReorder?.cancel();groupReorder=null;profileReorders.values.forEach { it.cancel() };profileReorders.clear();reordering=false
-        geoBanner = null; geoStatus = null; geoProgress = null; geoCheck = null
+        geoBanner = null; updatesTile = null; geoStatus = null; geoProgress = null; geoCheck = null
         GroupRepo.removeListener(groupListener)
         observer?.let { SagerDatabase.instance.invalidationTracker.removeObserver(it) }
         observer = null; load?.cancel(); content = null; powerPulse?.cancel();powerPulse=null;pulseTarget=null; power = null
@@ -365,7 +382,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     headerIcon(R.drawable.ic_mobile_tun, getString(R.string.service_mode)) { modeMenu(it) },
                     headerIcon(R.drawable.ic_mobile_route, getString(R.string.route_profile_quick_switch)) { routingMenu(it) },
                     headerIcon(R.drawable.ic_mobile_subscriptions, getString(R.string.qmobile_manage_groups)) { subscriptionsMenu(it) },
-                    headerIcon(R.drawable.ic_mobile_update, getString(R.string.qmobile_updates)) { updatesMenu(it) },
+                    headerIcon(R.drawable.ic_mobile_update, getString(R.string.qmobile_updates)) { updatesMenu(it) }.also { updatesTile=it;updateUpdatesBadge() },
                     headerIcon(R.drawable.ic_mobile_add, getString(R.string.qmobile_add)) { addMenu(it) },
                 )
                 tiles.forEachIndexed { index, button ->
@@ -973,7 +990,6 @@ class MobileHomeFragment : ToolbarFragment() {
                 addView(text(title,15f,if(enabled) MobilePalette.text else MobilePalette.muted).apply { setPadding(0,0,dp(8),0) },LinearLayout.LayoutParams(0,ViewGroup.LayoutParams.WRAP_CONTENT,1f))
                 if(checked!=null) addView(android.widget.CheckBox(context).apply {
                     isChecked=checked;isClickable=false;isFocusable=false
-                    buttonTintList=android.content.res.ColorStateList.valueOf(MobilePalette.accent(context))
                 })
                 if(enabled) { isClickable=true;MobileFeedback.apply(this);setOnClickListener { window.dismiss();click() } }
             })

@@ -4,7 +4,7 @@
   <moe.matsuri.nb4a.ui.ColorPickerPreference app:defaultValue="19" app:title="@string/qmobile_color" app:key="appTheme" app:icon="@drawable/ic_mobile_palette" />
   <moe.matsuri.nb4a.ui.SimpleMenuPreference app:key="qmobileSurfaceTheme" app:icon="@drawable/ic_mobile_theme" app:title="@string/theme" app:persistent="false" app:entries="@array/qmobile_surface_themes" app:entryValues="@array/qmobile_surface_values" app:useSimpleSummaryProvider="true" />
   <moe.matsuri.nb4a.ui.SimpleMenuPreference app:key="seasonal_decoration" app:icon="@drawable/ic_mobile_pumpkin" app:title="@string/qmobile_seasonal" app:defaultValue="auto" app:entries="@array/qmobile_seasons" app:entryValues="@array/qmobile_season_values" app:useSimpleSummaryProvider="true" />
-  <SwitchPreference app:defaultValue="false" app:key="qmobileTilesBottom" app:icon="@drawable/ic_mobile_settings" app:title="@string/qmobile_tiles_bottom" app:summary="@string/qmobile_tiles_bottom_summary" />
+  <SwitchPreference app:defaultValue="false" app:key="qmobileTilesBottom" app:icon="@drawable/ic_mobile_dock_bottom" app:title="@string/qmobile_tiles_bottom" app:summary="@string/qmobile_tiles_bottom_summary" />
   <moe.matsuri.nb4a.ui.SimpleMenuPreference app:defaultValue="" app:entries="@array/language_entries" app:entryValues="@array/language_values" app:key="appLanguage" app:icon="@drawable/ic_mobile_language" app:title="@string/language" app:useSimpleSummaryProvider="true" />
  </PreferenceCategory>
  <PreferenceCategory app:title="@string/cag_notification">

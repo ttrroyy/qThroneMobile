@@ -32,7 +32,7 @@
         <EditTextPreference app:icon="@drawable/ic_maps_directions_boat" app:key="inbound_socks_port" app:title="@string/local_socks_port" app:useSimpleSummaryProvider="true" />
         <EditTextPreference app:icon="@drawable/ic_maps_directions_boat" app:key="inbound_http_port" app:title="@string/local_http_port" app:useSimpleSummaryProvider="true" />
         <Preference app:key="sharingInstructions" app:selectable="false" app:summary="@string/lan_sharing_help" />
-        <Preference app:key="sharingHotspot" app:title="@string/lan_sharing_hotspot" app:icon="@drawable/ic_mobile_settings" app:widgetLayout="@layout/qmobile_preference_arrow" />
+        <Preference app:key="sharingHotspot" app:title="@string/lan_sharing_hotspot" app:icon="@drawable/ic_mobile_hotspot" app:widgetLayout="@layout/qmobile_preference_arrow" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/cag_advanced">
         <EditTextPreference app:dialogMessage="@string/dns_in_port_dialog_message" app:icon="@drawable/ic_action_dns" app:key="core_dns_in_port" app:title="@string/dns_in_port" app:useSimpleSummaryProvider="true" />
