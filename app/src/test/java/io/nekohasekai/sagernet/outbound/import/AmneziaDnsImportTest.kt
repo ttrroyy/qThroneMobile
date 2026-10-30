@@ -31,10 +31,10 @@ class AmneziaDnsImportTest {
         assertEquals(1280, profile.mtu)
     }
 
-    @Test fun amneziaWgFileWithoutMtuTakesAmneziaDefaultWhilePlainWireGuardKeeps1420() {
+    @Test fun wireGuardFilesWithoutMtuRunAt1280LikeTheOfficialAndroidApps() {
         val awg = ProfileImport.parse(conf.replace("[Peer]", "Jc = 4\nS1 = 20\n[Peer]")).outbounds.single() as WireGuard
-        assertEquals(1376, awg.mtu)
+        assertEquals(1280, awg.mtu)
         val plain = ProfileImport.parse(conf.replace("DNS = \$PRIMARY_DNS, \$SECONDARY_DNS\n", "")).outbounds.single() as WireGuard
-        assertEquals(1420, plain.mtu)
+        assertEquals(1280, plain.mtu)
     }
 }
