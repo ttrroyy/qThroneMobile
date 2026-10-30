@@ -12,6 +12,9 @@ import androidx.recyclerview.widget.RecyclerView
 /** Shared palette for the settings root and every existing preference screen. */
 object MobileSettingsStyle {
     private val styledRoots=java.util.WeakHashMap<View,Boolean>()
+    /** A fixed colour would hide that a row is disabled (a dependency that is off); the framework sets the views' enabled state. */
+    private fun dimmedWhenDisabled(color: Int) = android.content.res.ColorStateList(arrayOf(intArrayOf(-android.R.attr.state_enabled), intArrayOf()),
+        intArrayOf(androidx.core.graphics.ColorUtils.setAlphaComponent(color, 0x61), color))
     fun apply(fragment: PreferenceFragmentCompat, root: View) {
         if(styledRoots.put(root,true)==true) return
         // Keep the old screen consistent until theme recreation replaces every row.
@@ -105,7 +108,7 @@ object MobileSettingsStyle {
                     widget?.addView(android.widget.ImageButton(list.context).apply {
                         tag="socks-copy";contentDescription=list.context.getString(app.qthrone.mobile.R.string.action_copy)
                         setImageResource(app.qthrone.mobile.R.drawable.ic_mobile_clipboard)
-                        imageTintList=if(preference?.key == "vkRelayAccount" && preference.icon is androidx.core.graphics.drawable.RoundedBitmapDrawable) null else android.content.res.ColorStateList.valueOf(accent)
+                        imageTintList=if(preference?.key == "vkRelayAccount" && preference.icon is androidx.core.graphics.drawable.RoundedBitmapDrawable) null else dimmedWhenDisabled(accent)
                         setBackgroundColor(Color.TRANSPARENT)
                         setOnClickListener {
                             val value=if(preference?.key=="inbound_user") app.qthrone.mobile.database.DataStore.inboundUser else app.qthrone.mobile.database.DataStore.inboundPass
@@ -131,12 +134,12 @@ object MobileSettingsStyle {
                 imageTintList=if(preference?.key == "vkRelayAccount" && preference.icon is androidx.core.graphics.drawable.RoundedBitmapDrawable) null else android.content.res.ColorStateList.valueOf(accent)
             }
             view.findViewById<TextView>(android.R.id.title)?.apply {
-                setTextColor(if(category) accent else textColor)
+                setTextColor(dimmedWhenDisabled(if(category) accent else textColor))
                 textSize=16f
                 setTypeface(null,if(category) Typeface.BOLD else Typeface.NORMAL)
                 isSingleLine=false;maxLines=Int.MAX_VALUE;ellipsize=null
             }
-            view.findViewById<TextView>(android.R.id.summary)?.apply { setTextColor(muted);textSize=13f }
+            view.findViewById<TextView>(android.R.id.summary)?.apply { setTextColor(dimmedWhenDisabled(muted));textSize=13f }
             if(preference?.key == "sharingAddresses") view.findViewById<TextView>(android.R.id.summary)?.apply {
                 minLines=2; maxLines=2; ellipsize=android.text.TextUtils.TruncateAt.END
             } else if(oldKey == "sharingAddresses") view.findViewById<TextView>(android.R.id.summary)?.apply {

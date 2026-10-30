@@ -260,8 +260,7 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         menu.findItem(R.id.action_delete)?.isVisible = false
-        // An existing group saves itself on close; only a new one is added explicitly.
-        menu.findItem(R.id.action_apply)?.isVisible = loaded && DataStore.dirty && editingId == 0L
+        menu.findItem(R.id.action_apply)?.isVisible = loaded && DataStore.dirty
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -281,18 +280,8 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
         return true
     }
 
-    private fun close() {
-        if (!loaded || !DataStore.dirty) {
-            finish()
-            return
-        }
-        if (editingId > 0) {
-            lifecycleScope.launch { save() }
-            return
-        }
-        // A new group is added only with the apply mark; closing the sheet drops it without asking.
-        finish()
-    }
+    /** Only the apply mark saves; closing leaves a group as it was and drops a new one. */
+    private fun close() = finish()
 
     @Suppress("DEPRECATION")
     private fun createEditorSheet() {

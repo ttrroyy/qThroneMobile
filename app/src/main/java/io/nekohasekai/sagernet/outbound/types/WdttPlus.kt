@@ -13,7 +13,7 @@ import java.util.TimeZone
  * stdin (START_CONFIG), the tunnel is offered as an authenticated SOCKS5 for this launch only.
  */
 class WdttPlus : Qwdtt() {
-    override val carrierKind get() = if (engine == "qwdtt") CarrierKind.QWDTT else CarrierKind.WDTTPLUS
+    override val carrierKind get() = if (legacy && engine == "qwdtt") CarrierKind.QWDTT else CarrierKind.WDTTPLUS
     var wgPort = 56001
     var localPort = 9000
     var maxWorkers = 0
@@ -27,7 +27,7 @@ class WdttPlus : Qwdtt() {
     /** Imported from a plain wdtt:// link: shown as WDTT and shared in the same form. */
     var legacy = false
     /** A plain WDTT link names no client: "wdttplus" (original WDTT protocol) or "qwdtt" for servers that speak its WRAP. */
-    var engine = "wdttplus"
+    var engine = "qwdtt"
     init { type = "wdttplus"; serverPort = 56000; workers = 18; mode = "wg" }
 
     override fun displayType() = when {
@@ -45,7 +45,7 @@ class WdttPlus : Qwdtt() {
         localPort = if (obj.contains("local_port")) obj.int("local_port") else 9000
         maxWorkers = if (obj.contains("max_workers")) obj.int("max_workers") else 0
         legacy = obj.bool("legacy")
-        engine = obj.string("engine").ifEmpty { "wdttplus" }
+        engine = obj.string("engine").ifEmpty { "qwdtt" }
         mode = if (obj.string("mode") == "raw") "raw" else "wg"
         rawPort = if (obj.contains("raw_port")) obj.int("raw_port") else 56003
         tcpOnly = obj.bool("tcp_only")
@@ -139,7 +139,7 @@ class WdttPlus : Qwdtt() {
     }
 
     override fun privateConfig(port: Int, udpPort: Int, credentials: CarrierBridgeCredentials): JsonObject {
-        if (engine == "qwdtt") return asQwdtt().privateConfig(port, udpPort, credentials)
+        if (legacy && engine == "qwdtt") return asQwdtt().privateConfig(port, udpPort, credentials)
         require(server.isNotBlank() && serverPort in 1..65535)
         require(password.isNotEmpty() && password.none { it == '\n' || it == '\r' })
         require(deviceId.isNotEmpty() && deviceId.none { it == '\n' || it == '\r' })

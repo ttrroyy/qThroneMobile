@@ -88,6 +88,9 @@ class ImportTargetActivity : ThemedActivity() {
                 val subscription = link?.url ?: parsed?.takeIf { it.scheme in listOf("http", "https") && it.userInfo == null }
                     ?.buildUpon()?.fragment(null)?.build()?.toString()
                 subscription?.let { putExtra(GroupSettingsActivity.EXTRA_GROUP_SUBSCRIPTION_LINK, it) }
+                // Only a subscription is named by its link; a plain group starts unnamed.
+                val name = link?.name.orEmpty().ifBlank { parsed?.fragment.orEmpty() }
+                if (subscription != null && name.isNotBlank()) putExtra(GroupSettingsActivity.EXTRA_GROUP_NAME, name)
             })
         }
         choice(R.string.qmobile_existing_group) { selectGroup() }

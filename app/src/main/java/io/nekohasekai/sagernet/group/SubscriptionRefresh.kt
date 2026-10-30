@@ -106,6 +106,11 @@ internal object SubscriptionRefresh {
             }
         }
         SagerDatabase.groupDao.setSubscriptionInfo(gid, System.currentTimeMillis() / 1000, fetched.subInfo.toJsonString())
+        // An unnamed subscription takes the provider's title, or the link's host; a name the user typed stays.
+        GroupRepo.get(gid)?.takeIf { it.name.isBlank() }?.let { latest ->
+            latest.name = fetched.subInfo.title.ifBlank { runCatching { java.net.URI(latest.url.trim()).host }.getOrNull().orEmpty() }
+            if (latest.name.isNotBlank()) SagerDatabase.groupDao.update(latest)
+        }
         // a new server period may change when the update worker has to wake
         if (DataStore.subServerInterval && fetched.subInfo.serverInterval != group.subInfo.serverInterval) SubscriptionScheduler.schedule()
         GroupRepo.postUpdate(gid)

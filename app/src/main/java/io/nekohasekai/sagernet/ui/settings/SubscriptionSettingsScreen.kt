@@ -20,6 +20,9 @@ import kotlin.math.abs
 class SubscriptionSettingsFragment : SettingsScreenFragment(R.xml.settings_subscriptions) {
 
     override fun bind() {
+        pref<Preference>("subManageGroups").setOnPreferenceClickListener {
+            (activity as? app.qthrone.mobile.ui.MainActivity)?.displayFragmentWithId(R.id.nav_group); true
+        }
         val userAgent = pref<EditTextPreference>(SettingsRegistry.USER_AGENT2.key)
         userAgent.summaryProvider = DefaultSummaryProvider(USER_AGENT)
         userAgent.setOnBindEditTextListener {

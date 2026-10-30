@@ -38,7 +38,9 @@ class WdttPlusLinkTest {
 
     @Test fun theQwdttEngineRunsAPlainWdttLinkOnQwdtt() {
         val profile = ProfileImport.parse("wdtt://31.76.50.112:56000:56001:9000:secret:$hash").outbounds.single() as WdttPlus
-        assertEquals(app.qthrone.mobile.bg.carrier.CarrierKind.WDTTPLUS, profile.carrierKind)
+        assertEquals(app.qthrone.mobile.bg.carrier.CarrierKind.QWDTT, profile.carrierKind)
+        profile.engine = "wdttplus"
+        assertEquals(app.qthrone.mobile.bg.carrier.CarrierKind.WDTTPLUS, WdttPlus().apply { assertTrue(parseFromJson(profile.exportToJson())) }.carrierKind)
         profile.engine = "qwdtt"; profile.mode = "raw"; profile.rawPort = 56013
         val stored = WdttPlus().apply { assertTrue(parseFromJson(profile.exportToJson())) }
         assertEquals("WDTT · qWDTT (RAW)", stored.displayType())

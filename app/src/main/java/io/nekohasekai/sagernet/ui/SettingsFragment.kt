@@ -24,9 +24,14 @@ class SettingsFragment : ToolbarFragment(R.layout.layout_config_settings),
 
     /** A sub-screen opened straight from a home tile goes back to the home screen, not to the settings root. */
     private fun back() {
-        if (arguments?.getString(ARG_SCREEN) != null && childFragmentManager.backStackEntryCount == 1)
-            (activity as? MainActivity)?.displayFragmentWithId(R.id.nav_mobile_home)
-        else childFragmentManager.popBackStack()
+        if (arguments?.getString(ARG_SCREEN) != null && childFragmentManager.backStackEntryCount == 1) {
+            val main = activity as? MainActivity ?: return
+            // The home screen is still alive under this one: popping reveals it without building a new one (no flash).
+            if (parentFragmentManager.backStackEntryCount > 0) {
+                parentFragmentManager.popBackStack()
+                main.navigation.menu.findItem(R.id.nav_mobile_home)?.isChecked = true
+            } else main.displayFragmentWithId(R.id.nav_mobile_home)
+        } else childFragmentManager.popBackStack()
     }
 
     private val backStackListener = FragmentManager.OnBackStackChangedListener { syncToolbar() }

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+    <Preference app:icon="@drawable/ic_mobile_subscriptions" app:key="subManageGroups" app:persistent="false"
+        app:title="@string/qmobile_manage_groups" />
     <PreferenceCategory app:title="@string/sub_settings_update">
         <SwitchPreference
             app:icon="@drawable/ic_baseline_update_24"

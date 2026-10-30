@@ -8,4 +8,7 @@
     <string name="qmobile_expand_all">Развернуть все группы</string>
     <string name="qmobile_tiles_position">Расположение плиток на главном экране</string>
     <string-array name="qmobile_tiles_positions"><item>Сверху</item><item>Снизу</item></string-array>
+    <string name="qmobile_home_tiles">Плитки на главном экране</string>
+    <string name="qmobile_home_tiles_summary">Настройки и добавление показываются всегда</string>
+    <string-array name="qmobile_home_tiles_entries"><item>Сервисный режим</item><item>Маршрутизирующий профиль</item><item>Управление группами и подписками</item><item>Обновления</item></string-array>
 </resources>

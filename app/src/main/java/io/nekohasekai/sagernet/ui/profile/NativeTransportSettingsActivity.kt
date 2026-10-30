@@ -365,7 +365,9 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
                 value is Boolean && key!="turn_tcp" -> SwitchPreference(requireContext()).apply {
                     isPersistent = false
                     if(key == "use_server_dns") summary = getString(R.string.sstp_use_server_dns_summary)
+                    // With a data store the framework re-reads a non-persistent switch on attach and finds only the default value.
                     isChecked = DataStore.profileCacheStore.getString(cache(path)).toBoolean()
+                    setDefaultValue(isChecked)
                     setOnPreferenceChangeListener { _, next -> DataStore.profileCacheStore.putString(cache(path), next.toString()); true }
                 }
                 choices.containsKey(key) || key=="workers" -> SimpleMenuPreference(requireContext()).apply {
