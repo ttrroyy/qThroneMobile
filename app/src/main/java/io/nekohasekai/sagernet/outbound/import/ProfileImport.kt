@@ -548,7 +548,7 @@ object ProfileImport {
 
                     for (key in containerObj.keys()) {
                         val protoObj = containerObj[key] as? JsonObject ?: continue
-                        val conf = when (val lastConfig = protoObj["last_config"]) {
+                        var conf = when (val lastConfig = protoObj["last_config"]) {
                             is String -> {
                                 val inner = JsonInput.parseObjectOrNull(lastConfig)
                                 if (inner != null && inner.contains("config")) inner.string("config") else lastConfig
@@ -558,6 +558,9 @@ object ProfileImport {
                             else -> ""
                         }
                         if (conf.isEmpty()) continue
+                        // AmneziaVPN fills "DNS = $PRIMARY_DNS, $SECONDARY_DNS" from the export's dns1/dns2 (its defaults when absent).
+                        conf = conf.replace("\$PRIMARY_DNS", doc.string("dns1").trim().ifEmpty { "1.1.1.1" })
+                            .replace("\$SECONDARY_DNS", doc.string("dns2").trim().ifEmpty { "1.0.0.1" })
 
                         val isWireGuard = hasWireGuardSections(conf)
                         if (isWireGuard) wgCount++
