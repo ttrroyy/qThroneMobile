@@ -296,7 +296,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "congestion_control" to listOf("bbr","dcubic"), "encryption" to listOf("0","1","2","3","4","5"),
             "method" to listOf("chacha20-ietf-poly1305","aes-256-gcm","aes-128-gcm"))
         val captions=mutableMapOf("backend_type" to listOf("SOCKS5","SSH","Shadowsocks"),"record_type" to app.qthrone.mobile.outbound.types.DnsTunnel.RECORD_TYPES.map { it.uppercase() },
-            "congestion_control" to listOf("BBR","DCUBIC"),"encryption" to listOf("Нет","XOR","ChaCha20","AES-128-GCM","AES-192-GCM","AES-256-GCM"),"hash_source" to listOf("Вручную","Авто"),"mode" to listOf("RAW","WG"),"turn_tcp" to listOf("UDP","TCP"),
+            "congestion_control" to listOf("BBR","DCUBIC"),"encryption" to listOf("Нет","XOR","ChaCha20","AES-128-GCM","AES-192-GCM","AES-256-GCM"),"hash_source" to listOf("Вручную","Созданные в клиенте"),"mode" to listOf("RAW","WG"),"turn_tcp" to listOf("UDP","TCP"),
             "vk_anon_path" to listOf("Звонок VK","Капча"),"captcha_mode" to listOf("Автоматически, с переходом в браузер","Окно браузера","Автоматически"),
             "provider" to listOf("Jitsi","Телемост","WBStream"),"obfs" to listOf("Аудио","Видео"))
         if(editingOutbound.type=="openfluxkey") {
@@ -305,7 +305,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
         }
         if(editingOutbound.type=="csqtt") {
             choices["hash_source"]=listOf("manual","auto","auto_js")
-            captions["hash_source"]=listOf("Вручную","Auto API","Auto JS")
+            captions["hash_source"]=listOf("Вручную","Созданные в клиенте","Auto JS")
             choices["vk_anon_path"]=listOf("vkcalls","legacy","auto_js")
             captions["vk_anon_path"]=listOf("Звонок VK","Капча","Auto JS")
             choices["obfs"]=listOf("unified","audio","video")

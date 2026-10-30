@@ -30,17 +30,9 @@ class RemoteLanAndSharingTest {
 
     @Test fun wireGuardDnsLineIsTheRemoteResolverThroughTheTunnel() {
         val profile=app.qthrone.mobile.outbound.types.WireGuard()
-        assertTrue(profile.parseFromLink("[Interface]
-PrivateKey = wFNC2jmaWZaW3SrWi4FpXDQmVM8KPgtwlahJ8or8i1g=
-Address = 10.88.3.164/32
-DNS = 1.1.1.1
-
-" +
-            "[Peer]
-PublicKey = tjMSwMQMt0wGxNHzOQhYuY20//KhyQpAYPpcexim00s=
-Endpoint = wg.example.org:51111
-AllowedIPs = 0.0.0.0/0
-"))
+        assertTrue(profile.parseFromLink(listOf("[Interface]", "PrivateKey = wFNC2jmaWZaW3SrWi4FpXDQmVM8KPgtwlahJ8or8i1g=",
+            "Address = 10.88.3.164/32", "DNS = 1.1.1.1", "", "[Peer]", "PublicKey = tjMSwMQMt0wGxNHzOQhYuY20//KhyQpAYPpcexim00s=",
+            "Endpoint = wg.example.org:51111", "AllowedIPs = 0.0.0.0/0").joinToString("\n")))
         val settings=GeneratorSettings(vpnMode=true,remoteDns="https://8.8.8.8/dns-query")
         val config=JsonInput.parseObject(ConfigGenerator(ProfileProvider { if(it==1L) profile else null },settings).build(1).coreConfig)
         val remote=config.obj("dns").array("servers").filterIsInstance<JsonObject>().first { it.string("tag")=="dns-remote" }
