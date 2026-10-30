@@ -112,8 +112,8 @@ class CarrierProcess private constructor(private val process: Process, private v
             allowInteractions: Boolean = true,
             onStatus: (NativeConnectionStage) -> Unit = {},
             onCreated: ((CarrierProcess) -> Unit)? = null,
-            launch: (ProcessBuilder) -> Process = { it.start() },
             onWorkers: (Int, Int) -> Unit = { _, _ -> },
+            launch: (ProcessBuilder) -> Process = { it.start() },
         ): CarrierProcess {
             val hashes=app.qthrone.mobile.outbound.json.JsonInput.parseObject(privateJson).array("hashes").size
             val attempts=if(kind==CarrierKind.QWDTT) hashes.coerceIn(1,4) else 1
@@ -132,7 +132,7 @@ class CarrierProcess private constructor(private val process: Process, private v
                     }
                     return startOnce(kind,nativeDirectory,privateDirectory,apiLevel,
                         launchJson,socksPort,bridgeCredentials,
-                        remaining,allowInteractions,onStatus,onCreated,launch,onWorkers)
+                        remaining,allowInteractions,onStatus,onCreated,onWorkers,launch)
                 } catch(error:UnavailableCall) {
                     if(attempt==attempts-1) throw error
                     attempt++
@@ -157,8 +157,8 @@ class CarrierProcess private constructor(private val process: Process, private v
             allowInteractions: Boolean = true,
             onStatus: (NativeConnectionStage) -> Unit,
             onCreated: ((CarrierProcess) -> Unit)?,
-            launch: (ProcessBuilder) -> Process = { it.start() },
             onWorkers: (Int, Int) -> Unit = { _, _ -> },
+            launch: (ProcessBuilder) -> Process = { it.start() },
         ): CarrierProcess {
             // withContext may discard a successful return when cancellation wins the
             // dispatcher hand-off. Keep ownership outside it so that process is closed too.
