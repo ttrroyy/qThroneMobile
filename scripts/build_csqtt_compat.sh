@@ -14,7 +14,7 @@ fetch_source() {
   test "$(git -C "$1" rev-parse HEAD)" = "$3"
 }
 fetch_source "$SOURCE/qThrone" https://github.com/ttrroyy/qThrone.git "$REF"
-fetch_source "$SOURCE/compat" https://github.com/amurcanov/csqtt.git "$COMPAT"
+fetch_source "$SOURCE/compat" https://github.com/ttrroyy/csqttr.git "$COMPAT"
 python3 scripts/prepare_android_captcha.py "$SOURCE/qThrone/qwdtt"
 python3 scripts/prepare_mobile_carrier_socks.py qwdtt "$SOURCE/qThrone/qwdtt"
 python3 scripts/prepare_csqtt_rebirth_bridge.py "$SOURCE/qThrone/qwdtt"
