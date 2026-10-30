@@ -22,9 +22,9 @@ class WdttPlusLinkTest {
         assertEquals(profile.exportToJson().also { it.remove("device_id") }.toCompact(), again.exportToJson().also { it.remove("device_id") }.toCompact())
     }
 
-    @Test fun plainWdttLinksRunOnWdttPlus() {
+    @Test fun plainWdttLinksRunOnQwdttByDefault() {
         val profile = ProfileImport.parse("wdtt://31.76.50.112:56000:56001:9000:secret:$hash").outbounds.single() as WdttPlus
-        assertEquals("WDTT", profile.displayType())
+        assertEquals("WDTT · qWDTT (WG)", profile.displayType())
         assertEquals("wdtt://31.76.50.112:56000:56001:9000:secret:$hash", profile.exportToLink())
         assertTrue(WdttPlus().apply { assertTrue(parseFromJson(profile.exportToJson())) }.legacy)
         assertEquals("31.76.50.112", profile.server)
