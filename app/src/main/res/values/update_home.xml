@@ -1,6 +1,6 @@
 <resources>
     <string name="update_home_auto">Show available updates</string>
-    <string name="update_home_auto_summary">Check every 15 minutes, both while the app is open and in the background. A new version is announced by notification.</string>
+    <string name="update_home_auto_summary">Check when the app opens and every 15 minutes, both while it is open and in the background. A new version is announced by notification.</string>
     <string name="update_home_banner">Update to %1$s</string>
     <string name="update_home_banner_description">New version: %1$s. Open the update dialog.</string>
 </resources>

@@ -86,9 +86,10 @@ class MainActivity : ThemedActivity(),
         // Update discovery while the app is on screen; the 15-minute interval decides when a request is sent.
         lifecycleScope.launch {
             repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+                app.qthrone.mobile.update.UpdateDiscovery.refresh(opened = true)
                 while (true) {
-                    app.qthrone.mobile.update.UpdateDiscovery.refresh()
                     kotlinx.coroutines.delay(60_000)
+                    app.qthrone.mobile.update.UpdateDiscovery.refresh()
                 }
             }
         }

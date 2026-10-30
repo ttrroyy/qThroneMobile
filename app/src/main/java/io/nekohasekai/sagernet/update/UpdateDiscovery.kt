@@ -25,6 +25,7 @@ object UpdateDiscovery : OnPreferenceDataStoreChangeListener {
     val available: StateFlow<UpdateChecker.Offer?> get() = _available
     private var snapshot: UpdateOfferCache.Snapshot? = null
     private var initialized = false
+    private var lastOpenedCheck = 0L
 
     fun onAppStart(context: Context) {
         DataStore.configurationStore.registerChangeListener(this)
@@ -47,8 +48,11 @@ object UpdateDiscovery : OnPreferenceDataStoreChangeListener {
         }
     }
 
-    /** Called while the app is on screen; it checks when the 15-minute interval is due and never opens a dialog. */
-    fun refresh() {
+    /**
+     * Called while the app is on screen; it checks when the 15-minute interval is due and never opens a dialog.
+     * [opened] (the window came up) checks at once, but at most once a minute, so switching apps sends nothing extra.
+     */
+    fun refresh(opened: Boolean = false) {
         if (!BuildConfig.IN_APP_UPDATER) return
         scope.launch {
             mutex.withLock {
@@ -56,7 +60,10 @@ object UpdateDiscovery : OnPreferenceDataStoreChangeListener {
                 publishOffer()
                 if (!DataStore.updateCheckAuto) return@withLock
                 val cached = snapshot
-                if (UpdateDiscoveryPolicy.shouldCheck(System.currentTimeMillis(), cached?.lastAttempt ?: 0L, cached?.lastSucceeded ?: false)) {
+                val now = System.currentTimeMillis()
+                val openedCheck = opened && now - lastOpenedCheck >= 60_000
+                if (openedCheck || UpdateDiscoveryPolicy.shouldCheck(now, cached?.lastAttempt ?: 0L, cached?.lastSucceeded ?: false)) {
+                    if (opened) lastOpenedCheck = now
                     performCheck()
                 }
             }
