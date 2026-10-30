@@ -260,7 +260,8 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         menu.findItem(R.id.action_delete)?.isVisible = false
-        menu.findItem(R.id.action_apply)?.isVisible = loaded && DataStore.dirty
+        // A new group can be added as it is, even unnamed and untouched.
+        menu.findItem(R.id.action_apply)?.isVisible = loaded && (DataStore.dirty || editingId == 0L)
         return super.onPrepareOptionsMenu(menu)
     }
 
