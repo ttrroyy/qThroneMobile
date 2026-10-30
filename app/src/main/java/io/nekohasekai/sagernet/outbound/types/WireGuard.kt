@@ -372,6 +372,8 @@ class WireGuard : Outbound("wireguard") {
             server = peer.address
             serverPort = peer.port
         }
+        // AmneziaVPN runs an AmneziaWG config without an MTU line at 1376: its padding does not fit WireGuard's 1420.
+        if (enable_amnezia && !Regex("""(?im)^\s*MTU\s*=""").containsMatchIn(text)) mtu = 1376
         fixAddress()
         return private_key.isNotEmpty() && peer.public_key.isNotEmpty() && (obfs_type.isEmpty() || obfs_key.isNotEmpty())
     }
