@@ -2,9 +2,8 @@ package app.qthrone.mobile.update
 
 /** Foreground release discovery: avoid repeated requests, but retry a temporary network failure soon. */
 object UpdateDiscoveryPolicy {
-    // The release list is requested with its ETag: an unchanged list is an empty 304 that GitHub does not count
-    // against the rate limit, so a short interval costs next to nothing while home is open.
-    const val CHECK_INTERVAL_MS = 2 * 60 * 1000L
+    // One interval everywhere: the open app and the background worker both look every 15 minutes.
+    const val CHECK_INTERVAL_MS = 15 * 60 * 1000L
     const val RETRY_INTERVAL_MS = 5 * 60 * 1000L
 
     fun shouldCheck(now: Long, lastAttempt: Long, lastSucceeded: Boolean): Boolean =

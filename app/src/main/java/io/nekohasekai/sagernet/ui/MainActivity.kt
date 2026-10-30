@@ -83,13 +83,12 @@ class MainActivity : ThemedActivity(),
         super.onCreate(savedInstanceState)
         captchaController=MobileCaptchaController(this)
         MessageStore.setCurrentActivity(this)
-        // Update discovery while the app is on screen: a look when it opens, then the policy's interval.
+        // Update discovery while the app is on screen; the 15-minute interval decides when a request is sent.
         lifecycleScope.launch {
             repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
-                app.qthrone.mobile.update.UpdateDiscovery.refresh(opened = true)
                 while (true) {
-                    kotlinx.coroutines.delay(30_000)
                     app.qthrone.mobile.update.UpdateDiscovery.refresh()
+                    kotlinx.coroutines.delay(60_000)
                 }
             }
         }
