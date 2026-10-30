@@ -4,7 +4,6 @@ import android.content.Intent
 import androidx.preference.Preference
 import app.qthrone.mobile.R
 import app.qthrone.mobile.update.UpdateActivity
-import app.qthrone.mobile.update.UpdateManager
 import app.qthrone.mobile.BuildConfig
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -15,11 +14,16 @@ class UpdateSettingsFragment : SettingsScreenFragment(R.xml.settings_updates) {
     override fun bind() {
         val currentVersion=pref<Preference>("updateCurrentVersion")
         currentVersion.summary=getString(R.string.update_current_version,BuildConfig.VERSION_NAME)
+        // A found version sits right under the check; the installed one stays below a line.
+        val available=pref<Preference>("updateAvailable")
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                UpdateManager.state.collect { state ->
-                    currentVersion.isVisible=state is UpdateManager.State.Idle || state is UpdateManager.State.Checking ||
-                        state is UpdateManager.State.UpToDate || state is UpdateManager.State.Failed && state.offer==null
+                app.qthrone.mobile.update.UpdateDiscovery.available.collect { offer ->
+                    available.isVisible=offer!=null
+                    if(offer!=null) {
+                        available.title=getString(R.string.update_home_banner,offer.versionName)
+                        available.setOnPreferenceClickListener { UpdateActivity.start(requireContext(),offer);true }
+                    }
                 }
             }
         }

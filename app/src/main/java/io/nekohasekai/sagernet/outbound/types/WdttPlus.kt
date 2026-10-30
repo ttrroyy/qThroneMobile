@@ -155,7 +155,8 @@ class WdttPlus : Qwdtt() {
             val obj = JsonInput.parseObjectOrNull(json) ?: return null
             if (obj.string("type") != "wdttplus" || !obj.bool("legacy")) return null
             val copy = obj.copy(); copy["type"] = "qwdtt"
-            for (key in listOf("legacy", "wg_port", "local_port", "max_workers", "workers")) copy.remove(key)
+            // A plain wdtt:// profile stays WDTT: its ports and the legacy mark carry over.
+            for (key in listOf("max_workers", "workers")) copy.remove(key)
             return Qwdtt().takeIf { it.parseFromJson(copy) }
         }
 

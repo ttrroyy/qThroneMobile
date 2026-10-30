@@ -339,7 +339,8 @@ class MobileHomeFragment : ToolbarFragment() {
             }
             val hasServers = groups.any { it.second.isNotEmpty() || it.first.isSubscription }
             val hwid = app.qthrone.mobile.group.RequestIdentity.applyCustomHwidParams(app.qthrone.mobile.group.DeviceDetails.get(),DataStore.subCustomHwidParams).hwid
-            val nextChromeKey="$surface:$blue:$hasServers:$hwid"
+            val tilesBottom=DataStore.configurationStore.getBoolean("qmobileTilesBottom",false)
+            val nextChromeKey="$surface:$blue:$hasServers:$hwid:$tilesBottom"
             if(chromeKey != nextChromeKey) {
                 chromeKey=nextChromeKey
                 groupReorder=null;nextProfileReorders.clear()
@@ -383,7 +384,7 @@ class MobileHomeFragment : ToolbarFragment() {
                         }
                     }
                 }
-                side.addView(header, LinearLayout.LayoutParams(-1, -2))
+                if(!tilesBottom) side.addView(header, LinearLayout.LayoutParams(-1, -2))
                 val centre = FrameLayout(requireContext())
                 power = action("") { host().toggleService() }.apply {
                     contentDescription = getString(R.string.qmobile_connect)
@@ -471,6 +472,11 @@ class MobileHomeFragment : ToolbarFragment() {
                     body.addView(identity,LinearLayout.LayoutParams(-1,-2))
                     body.addView(text(getString(R.string.qmobile_empty),14f).apply { gravity=Gravity.CENTER; setPadding(dp(16),dp(16),dp(16),dp(12)) })
                     body.addView(imports,LinearLayout.LayoutParams(-1,dp(48)))
+                }
+                // Appearance: the tile bar at the very bottom, under the server list.
+                if(tilesBottom) {
+                    if(landscape) side.addView(View(requireContext()),LinearLayout.LayoutParams(-1,0,1f))
+                    side.addView(header, LinearLayout.LayoutParams(-1, -2).apply { topMargin=dp(10) })
                 }
             }
             val serverColumn=serverRows ?: return@launch
@@ -951,24 +957,38 @@ class MobileHomeFragment : ToolbarFragment() {
         }
         popup.show()
     }
+    /** Its own popup: PopupMenu cuts long rows at half the screen, these wrap instead. */
     private fun updatesMenu(anchor: View) {
-        val popup=androidx.appcompat.widget.PopupMenu(requireContext(),anchor)
-        popup.menu.add(R.string.allow_beta_update).apply {
-            isCheckable=true;isChecked=DataStore.allowBetaUpdate
-            setOnMenuItemClickListener { DataStore.allowBetaUpdate=!isChecked;UpdateDiscovery.refresh();true }
+        val context=requireContext()
+        val rows=LinearLayout(context).apply { orientation=LinearLayout.VERTICAL;setPadding(0,dp(6),0,dp(6)) }
+        val window=android.widget.PopupWindow(rows,minOf(resources.displayMetrics.widthPixels-dp(32),dp(340)),ViewGroup.LayoutParams.WRAP_CONTENT,true).apply {
+            setBackgroundDrawable(androidx.core.content.ContextCompat.getDrawable(context,R.drawable.bg_popup_menu))
+            animationStyle=R.style.PopupMenuAnimation
+            elevation=dp(8).toFloat()
         }
-        popup.menu.add(R.string.update_home_auto).apply {
-            isCheckable=true;isChecked=DataStore.updateCheckAuto
-            setOnMenuItemClickListener { DataStore.updateCheckAuto=!isChecked;UpdateDiscovery.refresh();true }
+        fun row(title: String, checked: Boolean? = null, enabled: Boolean = true, click: () -> Unit = {}) {
+            rows.addView(LinearLayout(context).apply {
+                orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
+                minimumHeight=dp(48);setPadding(dp(16),dp(8),dp(12),dp(8))
+                addView(text(title,15f,if(enabled) MobilePalette.text else MobilePalette.muted).apply { setPadding(0,0,dp(8),0) },LinearLayout.LayoutParams(0,ViewGroup.LayoutParams.WRAP_CONTENT,1f))
+                if(checked!=null) addView(android.widget.CheckBox(context).apply {
+                    isChecked=checked;isClickable=false;isFocusable=false
+                    buttonTintList=android.content.res.ColorStateList.valueOf(MobilePalette.accent(context))
+                })
+                if(enabled) { isClickable=true;MobileFeedback.apply(this);setOnClickListener { window.dismiss();click() } }
+            })
         }
-        popup.menu.add(R.string.update_check).setOnMenuItemClickListener { UpdateActivity.start(requireContext());true }
-        popup.menu.add(getString(R.string.update_current_version,BuildConfig.VERSION_NAME)).isEnabled=false
+        row(getString(R.string.allow_beta_update),DataStore.allowBetaUpdate) { DataStore.allowBetaUpdate=!DataStore.allowBetaUpdate;UpdateDiscovery.refresh() }
+        row(getString(R.string.update_home_auto),DataStore.updateCheckAuto) { DataStore.updateCheckAuto=!DataStore.updateCheckAuto;UpdateDiscovery.refresh() }
+        row(getString(R.string.update_check)) { UpdateActivity.start(context) }
+        // A found version sits right under the check, the installed one below a line.
         UpdateDiscovery.available.value?.takeIf { DataStore.updateCheckAuto }?.let { offer ->
-            popup.menu.add(getString(R.string.update_home_banner,offer.versionName)).setOnMenuItemClickListener {
-                UpdateActivity.start(requireContext(),offer);true
-            }
+            row(getString(R.string.update_home_banner,offer.versionName)) { UpdateActivity.start(context,offer) }
         }
-        popup.show()
+        rows.addView(View(context).apply { setBackgroundColor(MobilePalette.outline) },
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,maxOf(1,dp(1)/2)).apply { setMargins(dp(16),dp(4),dp(16),dp(4)) })
+        row(getString(R.string.update_current_version,BuildConfig.VERSION_NAME),enabled=false)
+        window.showAsDropDown(anchor)
     }
     private fun subscriptionsMenu(anchor: View) {
         val popup=androidx.appcompat.widget.PopupMenu(requireContext(),anchor)

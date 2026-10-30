@@ -3,8 +3,6 @@ package moe.matsuri.nb4a.ui
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.InsetDrawable
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
@@ -13,7 +11,6 @@ import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.content.res.TypedArrayUtils
 import androidx.core.graphics.drawable.DrawableCompat
@@ -51,27 +48,9 @@ class ColorPickerPreference
                 else context.resources.getIntArray(R.array.material_colors).getOrNull(DataStore.appTheme - 1)
                     ?: app.qthrone.mobile.ui.MobilePalette.accent(context)
             val preview = getNekoImageViewAtColor(previewColor, 48, 0)
-            applyWhiteSwatchBorder(preview, previewColor)
             widgetFrame.addView(preview)
             widgetFrame.visibility = View.VISIBLE
         }
-    }
-
-    private fun applyWhiteSwatchBorder(view: ImageView, color: Int) {
-        // A white swatch is invisible on white: add a dashed outline
-        if (color != ContextCompat.getColor(context, R.color.color_white_theme)) return
-        val factor = view.resources.displayMetrics.density
-        val ring = GradientDrawable().apply {
-            shape = GradientDrawable.OVAL
-            setColor(color)
-            setStroke(
-                (2 * factor).roundToInt(), 0xFF9E9E9E.toInt(),
-                4 * factor, 3 * factor
-            )
-        }
-        // The icon's inner circle spans 2/3 of the viewport: inset by 1/6 so the dashes hug the swatch
-        val inset = (view.layoutParams.width ?: 0) / 6
-        view.background = InsetDrawable(ring, inset, inset, inset, inset)
     }
 
     fun getNekoImageViewAtColor(color: Int, sizeDp: Int, paddingDp: Int): ImageView {
@@ -115,7 +94,6 @@ class ColorPickerPreference
                 val themeId = i
                 val view = getNekoImageViewAtColor(color, 64, 0).apply {
                     contentDescription=names.getOrElse(themeId-1) { title.toString() }
-                    applyWhiteSwatchBorder(this, color)
                     setOnClickListener {
                         persistInt(themeId)
                         dialog.dismiss()

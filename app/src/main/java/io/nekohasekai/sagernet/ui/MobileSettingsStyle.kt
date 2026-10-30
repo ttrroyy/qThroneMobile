@@ -49,6 +49,8 @@ object MobileSettingsStyle {
                     preference.setIcon(icon)
                 }
                 preference.isIconSpaceReserved = preference !is PreferenceCategory && preference.icon != null
+                // Preference rebinds a long title to one line; every settings row wraps instead.
+                preference.isSingleLineTitle = false
                 if (preference is androidx.preference.PreferenceGroup) compact(preference)
             }
         }
@@ -116,6 +118,11 @@ object MobileSettingsStyle {
                 setColor(if(category || warning) background else surface)
                 cornerRadius=5*density
                 if(!category && !warning) setStroke(1,MobilePalette.outline)
+            }
+            // The installed version is set apart from the update actions by a line above it.
+            if(preference?.key == "updateCurrentVersion") view.background=android.graphics.drawable.LayerDrawable(arrayOf(view.background,
+                android.graphics.drawable.ColorDrawable(MobilePalette.outline))).apply {
+                setLayerHeight(1,maxOf(1,(density/2).toInt()));setLayerGravity(1,android.view.Gravity.TOP)
             }
             if(!category && !warning) MobileFeedback.apply(view)
             styledBackgrounds[view] = view.background

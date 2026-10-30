@@ -28,13 +28,17 @@ open class Qwdtt : Outbound("qwdtt"), app.qthrone.mobile.bg.carrier.NativeCarrie
     var captchaMode="auto"
     var deviceId=UUID.randomUUID().toString()
     var deviceIdProvided=false
+    /** Imported from a plain wdtt://host:dtls:wg:local:pass link: shown as WDTT and shared in that form. */
+    var wdttLink=false
+    var wdttWgPort=56001
+    var wdttLocalPort=9000
     /** Same remote endpoint as privateConfig/CarrierPool, including RAW's separate port. */
     /** The VK calls this profile joins; null with automatic hashes, which come from the account per launch. */
     internal fun vkCallKey()=hashes.sorted().takeIf { hashSource!="auto" && hashSource!="auto_js" && it.isNotEmpty() }
     internal fun probeSessionKey()=listOf(type,server,
         (if(carrierKind==CarrierKind.QWDTT && mode=="raw") rawPort else serverPort).toString(),
         if(carrierKind==CarrierKind.CSQTT) password else deviceId)
-    override fun displayType()=if(mode == "wg") "qWDTT (WG)" else "qWDTT (RAW)"
+    override fun displayType()=(if(wdttLink) "WDTT" else "qWDTT")+if(mode == "wg") " (WG)" else " (RAW)"
     override fun parseFromJson(obj:JsonObject):Boolean {
         if(obj.string("type") !in listOf("qwdtt","wdtt")) return false
         super.parseFromJson(obj)
@@ -62,6 +66,10 @@ open class Qwdtt : Outbound("qwdtt"), app.qthrone.mobile.bg.carrier.NativeCarrie
         captchaMode=obj.string("captcha_mode").ifEmpty { "auto" }
         deviceIdProvided=obj.string("device_id").isNotEmpty()
         if(deviceIdProvided) deviceId=obj.string("device_id")
+        wdttLink=obj.bool("legacy")
+        wdttWgPort=if(obj.contains("wg_port")) obj.int("wg_port") else 56001
+        wdttLocalPort=if(obj.contains("local_port")) obj.int("local_port") else 9000
+        if(wdttWgPort !in 1..65535 || wdttLocalPort !in 1..65535) return false
         return server.isNotEmpty() && serverPort in 1..65535 && rawPort in 1..65535 && mode in listOf("raw","wg")
     }
     override fun parseFromLink(link:String):Boolean {
@@ -69,7 +77,9 @@ open class Qwdtt : Outbound("qwdtt"), app.qthrone.mobile.bg.carrier.NativeCarrie
             val value=link.substring(7);val parts=value.substringBefore('#').split(':')
             if(parts.size !in 5..6) return false
             val port=parts[1].toIntOrNull() ?: return false
-            return parseFromJson(jsonObjectOf("type" to "qwdtt","peer" to Hosts.displayAddress(parts[0],port),
+            val wg=parts[2].toIntOrNull()?.takeIf { it in 1..65535 } ?: return false
+            val local=parts[3].toIntOrNull()?.takeIf { it in 1..65535 } ?: return false
+            return parseFromJson(jsonObjectOf("type" to "qwdtt","legacy" to true,"wg_port" to wg,"local_port" to local,"peer" to Hosts.displayAddress(parts[0],port),
                 "password" to LinkCodec.decodeFully(parts[4]),"hashes" to if(parts.size==6) LinkCodec.decodeFully(parts[5]) else "",
                 "tag" to if(value.contains('#')) LinkCodec.decodeFully(value.substringAfter('#')) else ""))
         }
@@ -94,9 +104,14 @@ open class Qwdtt : Outbound("qwdtt"), app.qthrone.mobile.bg.carrier.NativeCarrie
     override fun exportToJson()=jsonObjectOf("type" to type,"tag" to name,"server" to server,"server_port" to serverPort,
         "hash_source" to hashSource,"password" to password,"hashes" to JsonArray.of(*hashes.toTypedArray()),"mode" to mode,"raw_port" to rawPort,
         "workers" to workers,"turn_tcp" to turnTcp,"obfs" to obfs,"go_dns" to goDns,"device_id" to deviceId,
-        "vk_anon_path" to vkAnonPath,"captcha_mode" to captchaMode).also { if(manualHashesOverride) it["manual_hashes_override"]=true }
+        "vk_anon_path" to vkAnonPath,"captcha_mode" to captchaMode).also {
+            if(manualHashesOverride) it["manual_hashes_override"]=true
+            if(wdttLink) { it["legacy"]=true;it["wg_port"]=wdttWgPort;it["local_port"]=wdttLocalPort }
+        }
     override fun exportIdentity()=exportToJson().also { it.remove("tag");it.remove("device_id");it.remove("hash_source");it.remove("manual_hashes_override") }
     override fun exportToLink():String {
+        if(wdttLink) return "wdtt://$server:$serverPort:$wdttWgPort:$wdttLocalPort:"+LinkCodec.percentEncodeAll(password)+":"+hashes.joinToString(",")+
+            if(name.isNotBlank()) "#"+LinkCodec.percentEncodeAll(name) else ""
         val url=LinkBuilder("qwdtt");url.host="config";url.plusAsEscape=true
         url.addQueryItem("peer",Hosts.displayAddress(server,serverPort))
         url.addQueryItem("pass",password);url.addQueryItem("hashes",hashes.joinToString(","))

@@ -6,4 +6,6 @@
     <string name="qmobile_manage_groups">Управление группами и подписками</string>
     <string name="qmobile_fold_all">Свернуть все группы</string>
     <string name="qmobile_expand_all">Развернуть все группы</string>
+    <string name="qmobile_tiles_bottom">Плитки снизу</string>
+    <string name="qmobile_tiles_bottom_summary">Перенести панель плиток главного экрана под список серверов</string>
 </resources>

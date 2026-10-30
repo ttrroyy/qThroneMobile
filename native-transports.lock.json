@@ -41,14 +41,14 @@
     "carriers/s3bypass/main.go": "57955f59a8d240cde2d63eeafaa1458b4c8f4f3ce1361a8fed627cf207fb1e49"
   },
   "secure_socks": {
-    "build_commit": "f2f72870a98f7852e5d32161cf780e309b74f332",
-    "core_commit": "93e4873c56c2285f647d0146a0df9c088f122910",
+    "build_commit": "3ce6a692db29f10e37414340b3cd1ba785e331ed",
+    "core_commit": "e5c3c405f21cfb27a883038a0aec40bd9dcf8587",
     "wdtt_commit": "f706ccd373685bbde20cae33b2b7f400e8335ecc",
     "csqtt_commit": "2066156119a5afe7d63e104aefdc8e0849999d03",
     "inputs": {
       "scripts/build_secure_carriers.sh": "aa7dd63a6f4e5413feacc855562b4cbe1574e70ac5f36144b8e08c94db9c7d30",
       "scripts/prepare_android_captcha.py": "b64ad3952201540d1dd24e314365c3d169d46be148e76f960c6050e6676eb674",
-      "scripts/prepare_mobile_carrier_socks.py": "23573edad45bc8bd875ab31998fe06c33b5077cd8fc07ec5048f770256c08b36",
+      "scripts/prepare_mobile_carrier_socks.py": "c1437afa13b26227bfd43619826f287eddc25ba8ec2206ff5cfe905e9cb57cc7",
       "scripts/prepare_private_csqtt.py": "475a90ed087356041821b1dfe7e827806909874762e1ac07fb0440f5e45425d2",
       "scripts/prepare_csqtt_rebirth.py": "7a9cc30d1cef83e81efc285ed53026aff41de14b9b9943089dec5b51771bfa4d",
       "scripts/prepare_csqtt_rebirth_bridge.py": "b5e54d9b49ba2d111dd77467d91c28ff012fe261303e24b3ad232e9a410e7336",
@@ -57,29 +57,31 @@
       "core-patches/carrier-socks/qwdtt/mobile_csqtt_ipc_other.go": "e146d0bbddced21a41ad10b6ff047a4379a452449b69703077a81082bad77a57",
       "core-patches/carrier-socks/qwdtt/mobile_csqtt_rebirth_test.go": "094c9d0ef4e4b2df3833095e88a241a320cef109f0f7324a5c5b84e65e33aa53",
       "core-patches/carrier-socks/qwdtt/mobile_source_port_test.go": "87c3c2b7e8b8674c658e8be9360cb87a304c6a940b9afde69eaad71c18a52ce8",
-      "core-patches/carrier-socks/wdttplus/mobile_source_port_test.go": "727d2ef5ee67f0591848cdf79f26cb097d7059b7c42ddf09649c42953b7825c6"
+      "core-patches/carrier-socks/qwdtt/netstack_tuning.go": "4484a8ab7a0ea8ffb3d8bd9104a569a72bdd415b48b68c4d4fd24e3bc5f1f210",
+      "core-patches/carrier-socks/wdttplus/mobile_source_port_test.go": "727d2ef5ee67f0591848cdf79f26cb097d7059b7c42ddf09649c42953b7825c6",
+      "core-patches/carrier-socks/wdttplus/netstack_tuning.go": "4484a8ab7a0ea8ffb3d8bd9104a569a72bdd415b48b68c4d4fd24e3bc5f1f210"
     },
     "archives": [
       {
         "abi": "arm64-v8a",
-        "name": "qthrone-secure-socks-f2f72870-arm64-v8a.tar.gz",
-        "sha256": "44167c29f14b16468c489abb3bc26f6284efa9ba02eb91367e39503cc54badec",
-        "sources": "qThrone 93e4873c56c2285f647d0146a0df9c088f122910\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nCSQTT 2066156119a5afe7d63e104aefdc8e0849999d03\nAndroid ABI arm64-v8a\nLocal IPC hardening f2f72870a98f7852e5d32161cf780e309b74f332\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-secure-socks-f2f72870-arm64-v8a.tar.gz"
+        "name": "qthrone-secure-socks-3ce6a692-arm64-v8a.tar.gz",
+        "sha256": "438d9a98f8efdb569308fba2be8ecef6e3ed14fed7b52ac0639f70de2e7e50ee",
+        "sources": "qThrone e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nCSQTT 2066156119a5afe7d63e104aefdc8e0849999d03\nAndroid ABI arm64-v8a\nLocal IPC hardening 3ce6a692db29f10e37414340b3cd1ba785e331ed\n",
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-secure-socks-3ce6a692-arm64-v8a.tar.gz"
       },
       {
         "abi": "armeabi-v7a",
-        "name": "qthrone-secure-socks-f2f72870-armeabi-v7a.tar.gz",
-        "sha256": "f19572cc00280d53f5e6d099b90343fddb2ce675fa6f3b88a6f9a1facc1bfd50",
-        "sources": "qThrone 93e4873c56c2285f647d0146a0df9c088f122910\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nCSQTT 2066156119a5afe7d63e104aefdc8e0849999d03\nAndroid ABI armeabi-v7a\nLocal IPC hardening f2f72870a98f7852e5d32161cf780e309b74f332\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-secure-socks-f2f72870-armeabi-v7a.tar.gz"
+        "name": "qthrone-secure-socks-3ce6a692-armeabi-v7a.tar.gz",
+        "sha256": "bbcb22daec8390eb86014dd89941c60f7231b3e50078642dcabc8fb13f0bfffc",
+        "sources": "qThrone e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nCSQTT 2066156119a5afe7d63e104aefdc8e0849999d03\nAndroid ABI armeabi-v7a\nLocal IPC hardening 3ce6a692db29f10e37414340b3cd1ba785e331ed\n",
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-secure-socks-3ce6a692-armeabi-v7a.tar.gz"
       },
       {
         "abi": "x86_64",
-        "name": "qthrone-secure-socks-f2f72870-x86_64.tar.gz",
-        "sha256": "7fbfd8f2a8fdb037e94a4fe569ea4d5ded18c0ea2a51d01d9dffc0f5a7e86d34",
-        "sources": "qThrone 93e4873c56c2285f647d0146a0df9c088f122910\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nCSQTT 2066156119a5afe7d63e104aefdc8e0849999d03\nAndroid ABI x86_64\nLocal IPC hardening f2f72870a98f7852e5d32161cf780e309b74f332\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-secure-socks-f2f72870-x86_64.tar.gz"
+        "name": "qthrone-secure-socks-3ce6a692-x86_64.tar.gz",
+        "sha256": "c27b53c878f7be13b846bef4b4a4ab070929f1f6b57937139757455746bb6387",
+        "sources": "qThrone e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nCSQTT 2066156119a5afe7d63e104aefdc8e0849999d03\nAndroid ABI x86_64\nLocal IPC hardening 3ce6a692db29f10e37414340b3cd1ba785e331ed\n",
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-secure-socks-3ce6a692-x86_64.tar.gz"
       }
     ]
   },

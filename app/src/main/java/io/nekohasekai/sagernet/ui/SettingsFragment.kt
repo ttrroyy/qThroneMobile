@@ -19,9 +19,14 @@ class SettingsFragment : ToolbarFragment(R.layout.layout_config_settings),
     PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
     private val backCallback = object : OnBackPressedCallback(false) {
-        override fun handleOnBackPressed() {
-            childFragmentManager.popBackStack()
-        }
+        override fun handleOnBackPressed() = back()
+    }
+
+    /** A sub-screen opened straight from a home tile goes back to the home screen, not to the settings root. */
+    private fun back() {
+        if (arguments?.getString(ARG_SCREEN) != null && childFragmentManager.backStackEntryCount == 1)
+            (activity as? MainActivity)?.displayFragmentWithId(R.id.nav_mobile_home)
+        else childFragmentManager.popBackStack()
     }
 
     private val backStackListener = FragmentManager.OnBackStackChangedListener { syncToolbar() }
@@ -116,7 +121,7 @@ class SettingsFragment : ToolbarFragment(R.layout.layout_config_settings),
         if (nested) {
             toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_24)
             toolbar.setNavigationContentDescription(R.string.navigation_back)
-            toolbar.setNavigationOnClickListener { childFragmentManager.popBackStack() }
+            toolbar.setNavigationOnClickListener { back() }
         } else {
             toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_24)
             toolbar.setNavigationContentDescription(R.string.navigation_back)
