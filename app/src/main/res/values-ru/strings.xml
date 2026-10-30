@@ -1375,7 +1375,7 @@
     <string name="update_installing_hint">Подтвердите установку в системном диалоге.</string>
     <string name="update_new_version">Новая версия: %s</string>
     <string name="update_new_version_pre">Новая версия: %s (предварительная)</string>
-    <string name="update_notification_available">Доступен Throne %s</string>
+    <string name="update_notification_available">Доступен qThrone %s</string>
     <string name="update_notification_available_text">Нажмите, чтобы просмотреть обновление</string>
     <string name="update_notification_channel">Обновления приложения</string>
     <string name="update_notification_ready">Обновление готово</string>

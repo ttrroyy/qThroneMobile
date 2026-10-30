@@ -1721,7 +1721,7 @@
     <string name="update_permission_title">Allow installing updates</string>
     <string name="update_permission_message">To update itself, Throne needs the permission to install apps. Enable it for Throne on the next screen, then come back.</string>
     <string name="update_notification_channel">App updates</string>
-    <string name="update_notification_available">Throne %s is available</string>
+    <string name="update_notification_available">qThrone %s is available</string>
     <string name="update_notification_available_text">Tap to see the update</string>
     <string name="update_notification_ready">The update is ready</string>
     <string name="update_notification_tap_install">Tap to install</string>

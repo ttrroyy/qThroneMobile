@@ -20,7 +20,6 @@ import app.qthrone.mobile.database.SettingsRegistry
 import app.qthrone.mobile.ktx.needReload
 import app.qthrone.mobile.ktx.remove
 import app.qthrone.mobile.ui.MainActivity
-import app.qthrone.mobile.update.UpdateScheduler
 import app.qthrone.mobile.utils.AlwaysOnVpn
 import app.qthrone.mobile.utils.AppLocale
 import app.qthrone.mobile.utils.BatteryOptimizations

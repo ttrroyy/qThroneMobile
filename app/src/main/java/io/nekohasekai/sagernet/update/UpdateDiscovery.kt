@@ -29,13 +29,14 @@ object UpdateDiscovery : OnPreferenceDataStoreChangeListener {
 
     fun onAppStart(context: Context) {
         DataStore.configurationStore.registerChangeListener(this)
-        // Versions before 1.9 used a daily notification worker, including work persisted by Android.
-        UpdateScheduler.cancelLegacyCheck()
+        // The app is open now: its own discovery takes over from the background notification.
+        UpdateScheduler.sync()
         UpdateNotifications.cancelAvailable(context)
     }
 
     override fun onPreferenceDataStoreChanged(store: PreferenceDataStore, key: String) {
         if (key != Key.UPDATE_CHECK_AUTO && key != "allow_beta_update" && key != Key.UPDATE_SKIPPED_VERSION_CODE) return
+        if (key == Key.UPDATE_CHECK_AUTO) UpdateScheduler.sync()
         scope.launch {
             mutex.withLock {
                 if (key == "allow_beta_update") { snapshot = null; initialized = false }
@@ -67,6 +68,13 @@ object UpdateDiscovery : OnPreferenceDataStoreChangeListener {
                 }
             }
         }
+    }
+
+    /** The background worker's check: the version the updates menu would offer, or null. */
+    suspend fun backgroundCheck(): UpdateChecker.Offer? = mutex.withLock {
+        loadCache()
+        performCheck()
+        _available.value
     }
 
     /** The update dialog explicitly requests a fresh result, even while automatic checks are disabled. */
