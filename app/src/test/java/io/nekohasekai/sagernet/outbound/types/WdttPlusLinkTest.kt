@@ -36,6 +36,32 @@ class WdttPlusLinkTest {
         assertEquals("NL", panel.name)
     }
 
+    @Test fun theQwdttEngineRunsAPlainWdttLinkOnQwdtt() {
+        val profile = ProfileImport.parse("wdtt://31.76.50.112:56000:56001:9000:secret:$hash").outbounds.single() as WdttPlus
+        assertEquals(app.qthrone.mobile.bg.carrier.CarrierKind.WDTTPLUS, profile.carrierKind)
+        profile.engine = "qwdtt"; profile.mode = "raw"; profile.rawPort = 56013
+        val stored = WdttPlus().apply { assertTrue(parseFromJson(profile.exportToJson())) }
+        assertEquals("WDTT · qWDTT (RAW)", stored.displayType())
+        assertEquals(app.qthrone.mobile.bg.carrier.CarrierKind.QWDTT, stored.carrierKind)
+        val config = stored.privateConfig(1080, 1081, app.qthrone.mobile.bg.carrier.CarrierBridgeCredentials("u", "pw"))
+        assertEquals("raw", config.string("mode"))
+        assertEquals("31.76.50.112:56013", config.string("peer"))
+        assertEquals("secret", config.string("password"))
+        // The engine is the user's choice and never travels in the link.
+        assertEquals("wdtt://31.76.50.112:56000:56001:9000:secret:$hash", stored.exportToLink())
+    }
+
+    @Test fun csqttVersionPicksTheClient() {
+        val profile = Csqtt().apply { assertTrue(parseFromLink("csqtt://connect?v=2&host=203.0.113.7&peer=46000&password=s&hashes=$hash")) }
+        assertEquals("2.5.0", profile.version)
+        assertEquals("legacy", profile.privateConfig(1080, 1081, app.qthrone.mobile.bg.carrier.CarrierBridgeCredentials("u", "pw")).string("protocol_variant"))
+        profile.version = "2.1.9"
+        val stored = Csqtt().apply { assertTrue(parseFromJson(profile.exportToJson())) }
+        assertEquals("CSQTT 2.1.9 (UDP)", stored.displayType())
+        assertEquals("compat", stored.privateConfig(1080, 1081, app.qthrone.mobile.bg.carrier.CarrierBridgeCredentials("u", "pw")).string("protocol_variant"))
+        assertFalse(Csqtt().parseFromJson(profile.exportToJson().also { it["csqtt_version"] = "3.0" }))
+    }
+
     @Test fun panelJsonSubscriptionsImportAsWdtt() {
         val payload = """{"vpn":"VPN","name":"NL","ip":"192.0.2.7","dtls":56010,"raw":56013,"pass":"tg_1","hash":"$hash","did":"dev-1"}"""
         val link = "wdtt://" + java.util.Base64.getEncoder().encodeToString(payload.toByteArray())

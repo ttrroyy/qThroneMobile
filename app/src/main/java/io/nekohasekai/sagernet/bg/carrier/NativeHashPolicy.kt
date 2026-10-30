@@ -76,7 +76,7 @@ object NativeHashPolicy {
             if(incoming is Csqtt && it is Csqtt) {
                 incoming.turnTransport=it.turnTransport;incoming.srtpMode=it.srtpMode;incoming.obfs=it.obfs
                 incoming.vkAnonPath=it.vkAnonPath;incoming.fingerprint=it.fingerprint;incoming.clientIds=it.clientIds
-                incoming.customTurnIps=it.customTurnIps
+                incoming.customTurnIps=it.customTurnIps;incoming.version=it.version
                 // An updated token in the subscription wins; a locally entered one survives an absent one.
                 if(incoming.vkAccessToken.isBlank()) incoming.vkAccessToken=it.vkAccessToken
             }
@@ -84,6 +84,7 @@ object NativeHashPolicy {
                 incoming.tcpOnly=it.tcpOnly;incoming.turnSni=it.turnSni;incoming.rtMasque=it.rtMasque
                 incoming.rtMasqueServerBootstrap=it.rtMasqueServerBootstrap;incoming.fingerprint=it.fingerprint
                 incoming.clientIds=it.clientIds;incoming.vkCallsPreflight=it.vkCallsPreflight
+                incoming.engine=it.engine;incoming.rawPort=it.rawPort
             }
             incoming.workers=when(incoming) {
                 is Csqtt -> Csqtt.normalizeWorkers(it.workers)

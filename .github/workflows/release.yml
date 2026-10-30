@@ -77,8 +77,8 @@ jobs:
         run: |
           python3 buildScript/test_release_tag.py
           python3 buildScript/test_release_metadata.py
-      - name: Require pinned CSQTT 2.5.0 Legacy
-        run: python3 -c "import json; assert json.load(open('native-transports.lock.json'))['secure_socks']['csqtt_commit'] == '2066156119a5afe7d63e104aefdc8e0849999d03', 'CSQTT 2.5.0 Legacy transport pin changed'"
+      - name: Require pinned compatibility transport
+        run: python3 -c "import json; assert 'csqtt_compat' in json.load(open('native-transports.lock.json')), 'Build and pin CSQTT compatibility before releasing'"
       # Public tags use three version components and always increase.
       - name: Version
         id: version

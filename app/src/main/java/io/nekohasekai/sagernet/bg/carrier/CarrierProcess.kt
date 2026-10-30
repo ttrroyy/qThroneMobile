@@ -173,6 +173,9 @@ class CarrierProcess private constructor(private val process: Process, private v
                     check(executable.isFile && executable.canExecute()) { "Transport client is not installed" }
                     if (kind == CarrierKind.CSQTT) {
                         check(File(nativeDirectory, "libcsqtt_transport.so").canExecute()) { "CSQTT transport client is not installed" }
+                        // The profile picks the client: 2.5.0+ (legacy) or the original device-bound 2.1.9 (compat).
+                        val compatible=app.qthrone.mobile.outbound.json.JsonInput.parseObject(privateJson).string("protocol_variant")=="compat"
+                        check(!compatible || File(nativeDirectory,"libcsqtt_compat.so").canExecute()) { "CSQTT 2.1.9 transport is not installed" }
                     }
                     if (kind == CarrierKind.SLIPSTREAM) {
                         check(File(nativeDirectory, "libslipstream.so").canExecute()) { "Slipstream transport client is not installed" }

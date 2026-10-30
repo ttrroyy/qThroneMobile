@@ -7,6 +7,7 @@ import tarfile
 import tempfile
 import urllib.request
 from pathlib import Path
+from csqtt_compat_archive import input_hashes, inspect_archive
 
 root = Path(__file__).resolve().parent.parent
 lock = json.loads((root / 'native-transports.lock.json').read_text())
@@ -91,11 +92,24 @@ if secure:
         (license_dir / 'SOCKS-SOURCES.txt').write_bytes(files['SOURCES.txt'])
         print('Verified secure SOCKS transports:', item['abi'])
 
-# Remove stale compatibility files when reusing a local staging directory.
-for item in lock['archives']:
-    (root / 'deployment/carriers' / item['abi'] / 'libcsqtt_compat.so').unlink(missing_ok=True)
-    for name in ('CSQTT-Compat-LICENSE', 'CSQTT-Compat-SOURCES.txt'):
-        (root / 'app/src/main/assets/carrier-licenses' / item['abi'] / name).unlink(missing_ok=True)
+compat = lock.get('csqtt_compat')
+if compat:
+    assert compat['core_commit'] == properties['THRONE_CORE_REF'], 'CSQTT compatibility core pin mismatch'
+    assert compat['inputs'] == input_hashes(root), 'Rebuild CSQTT compatibility after changing its inputs'
+    assert {item['abi'] for item in compat['archives']} == {item['abi'] for item in lock['archives']}
+    for item in compat['archives']:
+        with urllib.request.urlopen(item['url'], timeout=60) as response:
+            archive = response.read()
+        assert hashlib.sha256(archive).hexdigest() == item['sha256'], 'CSQTT compatibility archive checksum mismatch'
+        expected = {key: compat[key] for key in ('build_commit', 'core_commit', 'csqtt_commit', 'inputs')}
+        files = inspect_archive(archive, dict(expected, abi=item['abi']))
+        assert files['SOURCES.txt'].decode() == item['sources']
+        for name in ('libqwdtt.so', 'libcsqtt_compat.so'):
+            (root / 'deployment/carriers' / item['abi'] / name).write_bytes(files[name])
+        license_dir = root / 'app/src/main/assets/carrier-licenses' / item['abi']
+        (license_dir / 'CSQTT-Compat-LICENSE').write_bytes(files['CSQTT-Compat-LICENSE'])
+        (license_dir / 'CSQTT-Compat-SOURCES.txt').write_bytes(files['SOURCES.txt'])
+        print('Verified CSQTT compatibility transport:', item['abi'])
 
 assert 'sstp' in lock, 'Build and pin SSTP before packaging this version'
 sstp = lock['sstp']

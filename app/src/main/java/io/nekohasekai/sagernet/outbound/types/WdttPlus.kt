@@ -13,7 +13,7 @@ import java.util.TimeZone
  * stdin (START_CONFIG), the tunnel is offered as an authenticated SOCKS5 for this launch only.
  */
 class WdttPlus : Qwdtt() {
-    override val carrierKind get() = CarrierKind.WDTTPLUS
+    override val carrierKind get() = if (engine == "qwdtt") CarrierKind.QWDTT else CarrierKind.WDTTPLUS
     var wgPort = 56001
     var localPort = 9000
     var maxWorkers = 0
@@ -26,9 +26,15 @@ class WdttPlus : Qwdtt() {
     var vkCallsPreflight = true
     /** Imported from a plain wdtt:// link: shown as WDTT and shared in the same form. */
     var legacy = false
+    /** A plain WDTT link names no client: "wdttplus" (original WDTT protocol) or "qwdtt" for servers that speak its WRAP. */
+    var engine = "wdttplus"
     init { type = "wdttplus"; serverPort = 56000; workers = 18; mode = "wg" }
 
-    override fun displayType() = if (legacy) "WDTT" else "WDTT Plus"
+    override fun displayType() = when {
+        !legacy -> "WDTT Plus"
+        engine == "qwdtt" -> "WDTT · qWDTT (" + (if (mode == "raw") "RAW" else "WG") + ")"
+        else -> "WDTT"
+    }
 
     override fun parseFromJson(obj: JsonObject): Boolean {
         if (obj.string("type") != "wdttplus") return false
@@ -39,6 +45,9 @@ class WdttPlus : Qwdtt() {
         localPort = if (obj.contains("local_port")) obj.int("local_port") else 9000
         maxWorkers = if (obj.contains("max_workers")) obj.int("max_workers") else 0
         legacy = obj.bool("legacy")
+        engine = obj.string("engine").ifEmpty { "wdttplus" }
+        mode = if (obj.string("mode") == "raw") "raw" else "wg"
+        rawPort = if (obj.contains("raw_port")) obj.int("raw_port") else 56003
         tcpOnly = obj.bool("tcp_only")
         turnSni = normalizeTurnSni(if (obj.contains("turn_sni")) obj.string("turn_sni") else "ya.ru") ?: return false
         rtMasque = obj.bool("rt_masque")
@@ -47,7 +56,7 @@ class WdttPlus : Qwdtt() {
         clientIds = obj.string("client_ids").ifBlank { "6287487,8202606" }
         vkCallsPreflight = !obj.contains("vkcalls_preflight") || obj.bool("vkcalls_preflight")
         workers = normalizeWorkers(requestedWorkers, maxWorkers)
-        return wgPort in 1..65535 && localPort in 1..65535 && captchaMode in listOf("auto", "wv", "rjs") &&
+        return wgPort in 1..65535 && localPort in 1..65535 && rawPort in 1..65535 && engine in listOf("wdttplus", "qwdtt") && captchaMode in listOf("auto", "wv", "rjs") &&
             fingerprint in listOf("firefox", "chrome", "safari", "ios", "android", "random") &&
             clientIds.matches(Regex("[0-9]+(?:,[0-9]+){0,15}"))
     }
@@ -106,7 +115,7 @@ class WdttPlus : Qwdtt() {
         it["rt_masque_server_bootstrap"] = rtMasqueServerBootstrap
         it["fingerprint"] = fingerprint; it["client_ids"] = clientIds; it["vkcalls_preflight"] = vkCallsPreflight
         if (maxWorkers > 0) it["max_workers"] = maxWorkers
-        if (legacy) it["legacy"] = true
+        if (legacy) { it["legacy"] = true; it["engine"] = engine; it["mode"] = mode; it["raw_port"] = rawPort }
     }
 
     /** The link WDTT Plus shares: wdtt://connect?v=1, as its TransferCodec builds it. */
@@ -122,7 +131,15 @@ class WdttPlus : Qwdtt() {
         return url.build()
     }
 
+    /** The same server, password and hashes as a qWDTT profile, for the qWDTT engine. */
+    fun asQwdtt() = Qwdtt().also { profile ->
+        val json = exportToJson(); json["type"] = "qwdtt"; json["tag"] = name
+        json["peer"] = Hosts.displayAddress(server, serverPort); json["wg_port"] = wgPort; json["local_port"] = localPort
+        check(profile.parseFromJson(json)) { "Неверные настройки движка qWDTT" }
+    }
+
     override fun privateConfig(port: Int, udpPort: Int, credentials: CarrierBridgeCredentials): JsonObject {
+        if (engine == "qwdtt") return asQwdtt().privateConfig(port, udpPort, credentials)
         require(server.isNotBlank() && serverPort in 1..65535)
         require(password.isNotEmpty() && password.none { it == '\n' || it == '\r' })
         require(deviceId.isNotEmpty() && deviceId.none { it == '\n' || it == '\r' })

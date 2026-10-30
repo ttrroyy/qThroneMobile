@@ -1,0 +1,75 @@
+name: CSQTT compatibility transports
+on:
+  workflow_dispatch:
+  push:
+    branches: [dev]
+    paths: [.github/workflows/csqtt-compat.yml]
+permissions:
+  contents: read
+jobs:
+  clients:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        abi: [arm64-v8a, armeabi-v7a, x86_64]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27.2'
+          cache: false
+      - uses: actions/cache@v6
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: csqtt-compat-${{ runner.os }}-${{ matrix.abi }}-${{ hashFiles('scripts/prepare_csqtt_compat.py') }}
+      - name: Install native build prerequisites
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends pkg-config cmake ninja-build perl
+      - name: Install NDK
+        run: |
+          echo y | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install 'ndk;28.2.13676358'
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/28.2.13676358" >> "$GITHUB_ENV"
+      - name: Test and build compatibility transport
+        env:
+          RUST_TEST_THREADS: '1'
+        run: |
+          python3 scripts/test_csqtt_compat_archive.py
+          bash scripts/build_csqtt_compat.sh '${{ matrix.abi }}'
+      - uses: actions/upload-artifact@v7
+        with:
+          name: csqtt-compat-${{ matrix.abi }}
+          path: qthrone-csqtt-compat-*.tar.gz
+          if-no-files-found: error
+  publish:
+    name: Pin transports on dev
+    needs: clients
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Require unchanged development head
+        run: |
+          test "$(git ls-remote origin refs/heads/dev | cut -f1)" = "$GITHUB_SHA"
+      - name: Download all three native builds
+        run: gh run download "$GITHUB_RUN_ID" --pattern 'csqtt-compat-*' --dir native-artifacts
+      - name: Verify and pin immutable native archives
+        run: python3 scripts/pin_csqtt_compat.py native-artifacts
+      - name: Commit the pin to dev
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add native-transports.lock.json
+          git commit -m "Pin CSQTT 2.1.9 transports"
+          git push origin HEAD:dev

@@ -13,8 +13,10 @@ class Csqtt:Qwdtt() {
     var fingerprint = "firefox"
     var clientIds = "8202606,6287487"
     var customTurnIps = ""
+    /** The client the server speaks: "2.5.0" (2.5.0 and newer) or "2.1.9", the original device-bound protocol. */
+    var version = "2.5.0"
     init { type="csqtt";serverPort=46000;workers=10;turnTcp=false;obfs="unified" }
-    override fun displayType()="CSQTT (${turnTransport.uppercase()})"
+    override fun displayType()=(if(version=="2.1.9") "CSQTT 2.1.9 (" else "CSQTT (")+turnTransport.uppercase()+")"
     override fun parseFromJson(obj:JsonObject):Boolean {
         if(obj.string("type")!="csqtt") return false
         val copy=obj.copy();copy["type"]="qwdtt"
@@ -36,12 +38,13 @@ class Csqtt:Qwdtt() {
         fingerprint = obj.string("fingerprint").ifEmpty { "firefox" }
         clientIds = obj.string("client_ids").ifEmpty { "8202606,6287487" }
         customTurnIps = obj.string("custom_turn_ips")
+        version = obj.string("csqtt_version").ifEmpty { "2.5.0" }
         obfs = obj.string("obfs").ifEmpty { "unified" }
         hashes=obj.array("hashes").strings().take(6).map(VkCallHash::strip).filter { it.isNotEmpty() }
         workers=normalizeWorkers(if(obj.contains("workers")) obj.int("workers") else 18)
         return obfs in listOf("audio","video","unified") && vkAnonPath in listOf("vkcalls","legacy","auto_js") &&
             captchaMode in listOf("auto","wv","rjs") && turnTransport in listOf("udp","tcp","tcp_tls") &&
-            srtpMode in listOf("auto","wrap","dtls") && vkAccessToken.length <= 4096 && vkAccessToken.none(Char::isWhitespace)
+            srtpMode in listOf("auto","wrap","dtls") && version in listOf("2.5.0","2.1.9") && vkAccessToken.length <= 4096 && vkAccessToken.none(Char::isWhitespace)
     }
     override fun parseFromLink(link:String):Boolean {
         parseCsqttLink(link)?.let { decoded ->
@@ -77,7 +80,7 @@ class Csqtt:Qwdtt() {
         for(key in listOf("mode","raw_port","go_dns")) it.remove(key)
         it["turn_transport"]=turnTransport;it["srtp_mode"]=srtpMode;it["fingerprint"]=fingerprint
         it["client_ids"]=clientIds;it["custom_turn_ips"]=customTurnIps
-        it["vk_access_token"]=vkAccessToken
+        it["vk_access_token"]=vkAccessToken;it["csqtt_version"]=version
     }
     override fun exportToLink():String {
         return formatCsqttLink(server,serverPort,password,if(hashSource=="auto_js") emptyList() else hashes,
@@ -95,6 +98,7 @@ class Csqtt:Qwdtt() {
             // Like TunnelService in 2.5.0: every launch owns a new server session.
             it["generation"]=generation.updateAndGet { previous -> maxOf(previous+1,System.currentTimeMillis()/1000) }
             it["salt"]=java.util.UUID.randomUUID().toString().replace("-", "")
+            it["protocol_variant"]=if(version=="2.1.9") "compat" else "legacy"
             it["backend"]="csqtt";it["peer"]=Hosts.displayAddress(server,serverPort)
             it["listen"]=Hosts.displayAddress("127.0.0.1",udpPort);it["socks"]=Hosts.displayAddress("127.0.0.1",port)
             it["socks_user"]=credentials.username;it["socks_pass"]=credentials.password

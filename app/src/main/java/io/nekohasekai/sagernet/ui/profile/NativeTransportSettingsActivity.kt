@@ -136,8 +136,8 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
         write(document)
         val order = when(type) {
             "qwdtt" -> listOf("name","server","server_port","mode","password","hash_source") + (1..4).map { "hash_$it" } + listOf("raw_port","workers","turn_tcp","vk_anon_path","captcha_mode","obfs","go_dns","device_id")
-            "csqtt" -> listOf("name","server","server_port","password","hash_source","vk_access_token") + (1..6).map { "hash_$it" } + listOf("workers","turn_transport","srtp_mode","vk_anon_path","captcha_mode","obfs","fingerprint","client_ids","custom_turn_ips","device_id")
-            "wdttplus" -> listOf("name","server","server_port","wg_port","local_port","password","hash_source") + (1..4).map { "hash_$it" } + listOf("workers","captcha_mode","tcp_only","turn_sni","rt_masque","rt_masque_server_bootstrap","device_id")
+            "csqtt" -> listOf("name","server","server_port","csqtt_version","password","hash_source","vk_access_token") + (1..6).map { "hash_$it" } + listOf("workers","turn_transport","srtp_mode","vk_anon_path","captcha_mode","obfs","fingerprint","client_ids","custom_turn_ips","device_id")
+            "wdttplus" -> listOf("name","server","server_port","engine","mode","raw_port","wg_port","local_port","password","hash_source") + (1..4).map { "hash_$it" } + listOf("workers","captcha_mode","tcp_only","turn_sni","rt_masque","rt_masque_server_bootstrap","device_id")
             "openflux" -> listOf("name","secret") + openFluxKinds.map { "transport_$it" } + listOf("context")
             "dnstt" -> listOf("name","domain","pubkey","resolvers") + backendFields
             "vaydns" -> listOf("name","domain","pubkey","resolvers","record_type","dnstt_compat","clientid_size","idle_timeout","keepalive") + backendFields
@@ -262,7 +262,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "hash_source" to "Источник хешей", "workers" to "Воркеры", "turn_tcp" to "Транспорт TURN", "mode" to "Режим",
             "turn_transport" to "Транспорт TURN", "srtp_mode" to "Режим SRTP", "fingerprint" to "TLS-профиль VK",
             "client_ids" to "Client ID VK", "custom_turn_ips" to "Серверы TURN", "vk_access_token" to "VK access token",
-            "raw_port" to "Порт RAW", "wg_port" to "Порт WG", "local_port" to "Локальный порт", "obfs" to "Маскировка", "go_dns" to "DNS VK",
+            "raw_port" to "Порт RAW", "engine" to "Движок", "csqtt_version" to "Версия CSQTT", "wg_port" to "Порт WG", "local_port" to "Локальный порт", "obfs" to "Маскировка", "go_dns" to "DNS VK",
             "device_id" to "Идентификатор устройства", "vk_anon_path" to "Авторизация VK", "captcha_mode" to "Режим капчи",
             "tcp_only" to "TCP/TLS", "turn_sni" to "Внешний SNI", "rt_masque" to "Резерв MASQUE",
             "secret" to "Секрет", "context" to "Контекст", "codec" to "Кодек",
@@ -294,11 +294,13 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "video-qr-recovery" to listOf("low","medium","high","highest"),
             "backend_type" to listOf("socks","ssh","shadowsocks"), "record_type" to app.qthrone.mobile.outbound.types.DnsTunnel.RECORD_TYPES,
             "congestion_control" to listOf("bbr","dcubic"), "encryption" to listOf("0","1","2","3","4","5"),
-            "method" to listOf("chacha20-ietf-poly1305","aes-256-gcm","aes-128-gcm"))
+            "method" to listOf("chacha20-ietf-poly1305","aes-256-gcm","aes-128-gcm"),
+            "engine" to listOf("wdttplus","qwdtt"), "csqtt_version" to listOf("2.5.0","2.1.9"))
         val captions=mutableMapOf("backend_type" to listOf("SOCKS5","SSH","Shadowsocks"),"record_type" to app.qthrone.mobile.outbound.types.DnsTunnel.RECORD_TYPES.map { it.uppercase() },
             "congestion_control" to listOf("BBR","DCUBIC"),"encryption" to listOf("Нет","XOR","ChaCha20","AES-128-GCM","AES-192-GCM","AES-256-GCM"),"hash_source" to listOf("Вручную","Созданные в клиенте"),"mode" to listOf("RAW","WG"),"turn_tcp" to listOf("UDP","TCP"),
             "vk_anon_path" to listOf("Звонок VK","Капча"),"captcha_mode" to listOf("Автоматически, с переходом в браузер","Окно браузера","Автоматически"),
-            "provider" to listOf("Jitsi","Телемост","WBStream"),"obfs" to listOf("Аудио","Видео"))
+            "provider" to listOf("Jitsi","Телемост","WBStream"),"obfs" to listOf("Аудио","Видео"),
+            "engine" to listOf("WDTT Plus","qWDTT"),"csqtt_version" to listOf("2.5.0 и новее","2.1.9"))
         if(editingOutbound.type=="openfluxkey") {
             choices["transport"]=app.qthrone.mobile.outbound.types.OpenFluxKey.TRANSPORTS
             captions["transport"]=listOf("Яндекс Документы","Яндекс Волга","MAX","Яндекс Доски","Mail.ru","МТС Линк","Телемост","Cups.online","Авито","Яндекс Документы, несколько")
@@ -330,6 +332,11 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             checkButton.isVisible=!automatic
             checkButton.isEnabled=hashCheck!=null || fields.keys.any { it.startsWith("hash_") && it!="hash_source" && !DataStore.profileCacheStore.getString(cache(it)).isNullOrBlank() }
             editors["raw_port"]?.isEnabled=DataStore.profileCacheStore.getString(cache("mode"))!="wg"
+            // A plain WDTT link: qWDTT's mode and RAW port matter only on the qWDTT engine.
+            if(editingOutbound.type=="wdttplus") {
+                val qwdttEngine=DataStore.profileCacheStore.getString(cache("engine"))=="qwdtt"
+                editors["mode"]?.isVisible=qwdttEngine;editors["raw_port"]?.isVisible=qwdttEngine
+            }
             if(editingOutbound.type in listOf("qwdtt","csqtt","wdttplus")) {
                 val count=editors.keys.filter { it.startsWith("hash_") && it != "hash_source" }.map { DataStore.profileCacheStore.getString(cache(it))?.trim().orEmpty() }.filter { it.isNotEmpty() }.distinct().size.coerceAtLeast(1)
                 val csqtt=editingOutbound.type=="csqtt"
