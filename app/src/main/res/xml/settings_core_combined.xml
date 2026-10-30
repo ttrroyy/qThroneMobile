@@ -5,12 +5,12 @@
             app:key="test_url"
             app:title="@string/connection_test_url"
             app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_link_24"
             app:dialogMessage="@string/direct_test_url_sum"
             app:key="direct_test_url"
             app:title="@string/direct_test_url" />
-        <EditTextPreference app:persistent="false" app:key="test_concurrent" app:title="@string/test_concurrency" app:useSimpleSummaryProvider="true" />
-        <EditTextPreference app:persistent="false" app:key="url_test_timeout_ms" app:title="@string/connection_test_timeout" app:useSimpleSummaryProvider="true" />
+        <EditTextPreference app:icon="@drawable/ic_baseline_cast_connected_24" app:persistent="false" app:key="test_concurrent" app:title="@string/test_concurrency" app:useSimpleSummaryProvider="true" />
+        <EditTextPreference app:icon="@drawable/ic_baseline_timelapse_24" app:persistent="false" app:key="url_test_timeout_ms" app:title="@string/connection_test_timeout" app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/cag_exit_country">
@@ -19,7 +19,7 @@
             app:key="exit_country_lookup"
             app:summary="@string/exit_country_lookup_sum"
             app:title="@string/exit_country_lookup" />
-        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference app:icon="@drawable/baseline_public_24"
             app:dependency="exit_country_lookup"
             app:entries="@array/exit_lookup_provider_entries"
             app:entryValues="@array/exit_lookup_provider_values"
@@ -36,7 +36,7 @@
             app:key="log_level"
             app:title="@string/log_level"
             app:useSimpleSummaryProvider="true" />
-        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference app:icon="@drawable/ic_baseline_bug_report_24"
             app:entries="@array/xray_log_level"
             app:entryValues="@array/xray_log_level"
             app:key="xray_log_level"
@@ -56,7 +56,7 @@
             app:key="enable_stats"
             app:summary="@string/enable_stats_sum"
             app:title="@string/enable_stats" />
-        <SwitchPreference
+        <SwitchPreference app:icon="@drawable/ic_baseline_multiline_chart_24"
             app:key="disable_traffic_stats"
             app:summary="@string/disable_traffic_stats_sum"
             app:title="@string/disable_traffic_stats" />
@@ -69,15 +69,15 @@
             app:persistent="false"
             app:summary="@string/enable_clash_api_summary"
             app:title="@string/enable_clash_api" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_maps_directions_boat"
             app:key="coreClashApiPort"
             app:persistent="false"
             app:title="@string/listen_port" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/baseline_construction_24"
             app:key="core_box_clash_listen_addr"
             app:title="@string/listen_address"
             app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_timelapse_24"
             app:key="core_box_clash_api_secret"
             app:title="@string/clash_api_secret" />
     </PreferenceCategory>
@@ -89,18 +89,18 @@
             app:persistent="false"
             app:summary="@string/api_dashboard_enable_sum"
             app:title="@string/api_dashboard_enable" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_maps_directions_boat"
             app:key="coreApiDashboardPort"
             app:persistent="false"
             app:title="@string/listen_port" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_timelapse_24"
             app:dialogMessage="@string/api_dashboard_secret_hint"
             app:key="core_box_api_secret"
             app:title="@string/clash_api_secret" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/cag_xray">
-        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference app:icon="@drawable/ic_baseline_layers_24"
             app:entries="@array/xray_vless_preference_entries"
             app:entryValues="@array/int_array_3"
             app:key="xray_vless_preference"
@@ -131,18 +131,18 @@
             app:key="enable_ntp"
             app:summary="@string/enable_ntp_sum"
             app:title="@string/enable_ntp" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_domain_24"
             app:key="ntp_server_address"
             app:title="@string/ntp_server_address"
             app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_maps_directions_boat"
             app:key="ntp_server_port"
             app:title="@string/ntp_server_port" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_timelapse_24"
             app:dialogMessage="@string/duration_dialog_message"
             app:key="ntp_interval"
             app:title="@string/ntp_interval" />
-        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference app:icon="@drawable/ic_baseline_alarm_24"
             app:entries="@array/ntp_outbound_values"
             app:entryValues="@array/ntp_outbound_values"
             app:key="ntp_outbound"

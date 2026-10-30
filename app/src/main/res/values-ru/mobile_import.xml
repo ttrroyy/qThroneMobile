@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="qmobile_import_target">Куда добавить?</string>
-    <string name="qmobile_new_group">Создать группу / подписку</string>
+    <string name="qmobile_new_group">Создать группу</string>
     <string name="qmobile_existing_group">Добавить в существующую группу</string>
     <string name="qmobile_manage_groups">Управление группами и подписками</string>
     <string name="qmobile_fold_all">Свернуть все группы</string>
     <string name="qmobile_expand_all">Развернуть все группы</string>
-    <string name="qmobile_tiles_bottom">Плитки снизу</string>
-    <string name="qmobile_tiles_bottom_summary">Перенести панель плиток главного экрана под список серверов</string>
+    <string name="qmobile_tiles_position">Расположение плиток на главном экране</string>
+    <string-array name="qmobile_tiles_positions"><item>Сверху</item><item>Снизу</item></string-array>
 </resources>

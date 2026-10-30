@@ -6,7 +6,7 @@
             app:key="test_url"
             app:title="@string/connection_test_url"
             app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_link_24"
             app:dialogMessage="@string/direct_test_url_sum"
             app:key="direct_test_url"
             app:title="@string/direct_test_url" />

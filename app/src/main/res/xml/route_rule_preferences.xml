@@ -81,116 +81,116 @@
     <PreferenceCategory
         app:isPreferenceVisible="false"
         app:key="advancedCategory">
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_domain_24"
             app:dialogMessage="@string/route_rule_lines_hint"
             app:key="domain_keyword"
             app:title="@string/route_rule_domain_keyword" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_domain_24"
             app:dialogMessage="@string/route_rule_regex_hint"
             app:key="domain_regex"
             app:title="@string/route_rule_domain_regex" />
-        <SwitchPreference
+        <SwitchPreference app:icon="@drawable/ic_baseline_nat_24"
             app:key="ip_is_private"
             app:summary="@string/route_rule_ip_is_private_sum"
             app:title="@string/route_rule_ip_is_private" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_grid_3x3_24"
             app:dialogMessage="@string/route_rule_ip_cidr_hint"
             app:key="source_ip_cidr"
             app:title="@string/route_rule_source_ip_cidr" />
-        <SwitchPreference
+        <SwitchPreference app:icon="@drawable/ic_baseline_nat_24"
             app:key="source_ip_is_private"
             app:title="@string/route_rule_source_ip_is_private" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_maps_directions_boat"
             app:dialogMessage="@string/route_rule_port_hint"
             app:key="port"
             app:title="@string/route_rule_port" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_maps_directions_boat"
             app:dialogMessage="@string/route_rule_port_range_hint"
             app:key="port_range"
             app:title="@string/route_rule_port_range" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_maps_directions_boat"
             app:dialogMessage="@string/route_rule_port_hint"
             app:key="source_port"
             app:title="@string/route_rule_source_port" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_maps_directions_boat"
             app:dialogMessage="@string/route_rule_port_range_hint"
             app:key="source_port_range"
             app:title="@string/route_rule_source_port_range" />
-        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference app:icon="@drawable/ic_baseline_nat_24"
             app:entries="@array/route_rule_network_entries"
             app:entryValues="@array/route_rule_network_values"
             app:key="network"
             app:title="@string/route_rule_network"
             app:useSimpleSummaryProvider="true" />
-        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference app:icon="@drawable/ic_baseline_http_24"
             app:entries="@array/route_rule_protocol_entries"
             app:entryValues="@array/route_rule_protocol_values"
             app:key="protocol"
             app:title="@string/route_rule_protocol"
             app:useSimpleSummaryProvider="true" />
-        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference app:icon="@drawable/ic_image_looks_6"
             app:entries="@array/route_rule_ip_version_entries"
             app:entryValues="@array/route_rule_ip_version_values"
             app:key="ip_version"
             app:title="@string/route_rule_ip_version"
             app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_input_24"
             app:dialogMessage="@string/route_rule_inbound_hint"
             app:key="inbound"
             app:title="@string/route_rule_inbound" />
-        <SwitchPreference
+        <SwitchPreference app:icon="@drawable/ic_baseline_compare_arrows_24"
             app:key="invert"
             app:summary="@string/route_rule_invert_sum"
             app:title="@string/route_rule_invert" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_domain_24"
             app:key="override_address"
             app:title="@string/route_rule_override_address"
             app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_maps_directions_boat"
             app:key="override_port"
             app:title="@string/route_rule_override_port"
             app:useSimpleSummaryProvider="true" />
-        <SwitchPreference
+        <SwitchPreference app:icon="@drawable/ic_baseline_shuffle_24"
             app:key="tls_fragment"
             app:summary="@string/route_rule_tls_fragment_sum"
             app:title="@string/route_rule_tls_fragment" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_timelapse_24"
             app:key="tls_fragment_fallback_delay"
             app:title="@string/route_rule_tls_fragment_fallback_delay"
             app:useSimpleSummaryProvider="true" />
-        <SwitchPreference
+        <SwitchPreference app:icon="@drawable/ic_baseline_shuffle_24"
             app:key="tls_record_fragment"
             app:summary="@string/route_rule_tls_record_fragment_sum"
             app:title="@string/route_rule_tls_record_fragment" />
-        <SwitchPreference
+        <SwitchPreference app:icon="@drawable/ic_baseline_block_24"
             app:key="no_drop"
             app:summary="@string/route_rule_no_drop_sum"
             app:title="@string/route_rule_no_drop" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_navigation_apps"
             app:dialogMessage="@string/route_rule_package_name_regex_hint"
             app:key="package_name_regex"
             app:title="@string/route_rule_package_name_regex" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_navigation_apps"
             app:dialogMessage="@string/route_rule_lines_hint"
             app:key="process_name"
             app:title="@string/route_rule_process_name" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_navigation_apps"
             app:dialogMessage="@string/route_rule_lines_hint"
             app:key="process_path"
             app:title="@string/route_rule_process_path" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_navigation_apps"
             app:dialogMessage="@string/route_rule_regex_hint"
             app:key="process_path_regex"
             app:title="@string/route_rule_process_path_regex" />
-        <SwitchPreference
+        <SwitchPreference app:icon="@drawable/ic_device_data_usage"
             app:key="network_is_expensive"
             app:summary="@string/route_rule_network_is_expensive_sum"
             app:title="@string/route_rule_network_is_expensive" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_mobile_hotspot"
             app:dialogMessage="@string/route_rule_lines_hint"
             app:key="wifi_ssid"
             app:title="@string/route_rule_wifi_ssid" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_mobile_hotspot"
             app:dialogMessage="@string/route_rule_lines_hint"
             app:key="wifi_bssid"
             app:title="@string/route_rule_wifi_bssid" />

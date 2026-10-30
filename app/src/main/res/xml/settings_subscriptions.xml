@@ -6,34 +6,34 @@
             app:key="subAutoUpdateEnabled"
             app:persistent="false"
             app:title="@string/grp_sub_auto_update" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_timelapse_24"
             app:key="subAutoUpdateInterval"
             app:persistent="false"
             app:title="@string/grp_sub_auto_update_interval" />
-        <SwitchPreference app:key="sub_server_interval" app:title="@string/sub_server_interval"
+        <SwitchPreference app:icon="@drawable/ic_baseline_timelapse_24" app:key="sub_server_interval" app:title="@string/sub_server_interval"
             app:summary="@string/sub_server_interval_sum" />
-        <SwitchPreference app:key="sub_notify_update" app:title="@string/sub_settings_notify"
+        <SwitchPreference app:icon="@drawable/ic_baseline_info_24" app:key="sub_notify_update" app:title="@string/sub_settings_notify"
             app:summary="@string/sub_settings_notify_summary" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/sub_settings_startup">
-        <SwitchPreference app:key="sub_update_on_open" app:title="@string/sub_settings_update_open"
+        <SwitchPreference app:icon="@drawable/ic_baseline_update_24" app:key="sub_update_on_open" app:title="@string/sub_settings_update_open"
             app:summary="@string/sub_settings_startup_summary" />
-        <SwitchPreference app:key="sub_ping_on_open" app:title="@string/sub_settings_ping_open" />
-        <SwitchPreference app:key="sub_connect_on_open" app:title="@string/sub_settings_connect_open" />
-        <moe.matsuri.nb4a.ui.SimpleMenuPreference app:key="sub_connect_target"
+        <SwitchPreference app:icon="@drawable/ic_baseline_speed_24" app:key="sub_ping_on_open" app:title="@string/sub_settings_ping_open" />
+        <SwitchPreference app:icon="@drawable/ic_communication_phonelink_ring" app:key="sub_connect_on_open" app:title="@string/sub_settings_connect_open" />
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference app:icon="@drawable/ic_hardware_router" app:key="sub_connect_target"
             app:dependency="sub_connect_on_open" app:title="@string/sub_settings_connect_target"
             app:entries="@array/sub_settings_connect_targets" app:entryValues="@array/sub_settings_connect_values"
             app:defaultValue="last" app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/sub_settings_request">
-        <EditTextPreference app:key="sub_request_timeout_seconds" app:title="@string/sub_settings_timeout" />
+        <EditTextPreference app:icon="@drawable/ic_baseline_timelapse_24" app:key="sub_request_timeout_seconds" app:title="@string/sub_settings_timeout" />
         <EditTextPreference app:icon="@drawable/ic_baseline_http_24"
             app:key="user_agent2" app:title="@string/grp_settings_user_agent" />
         <SwitchPreference
             app:icon="@drawable/baseline_delete_sweep_24"
             app:key="sub_clear"
             app:title="@string/grp_sub_clear" />
-        <SwitchPreference
+        <SwitchPreference app:icon="@drawable/ic_baseline_info_24"
             app:key="sub_show_change_popup"
             app:summary="@string/grp_sub_show_change_popup_tip"
             app:title="@string/grp_sub_show_change_popup" />
@@ -42,19 +42,19 @@
             app:key="sub_send_hwid"
             app:defaultValue="true"
             app:title="@string/grp_sub_send_hwid" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_fingerprint_24"
             app:dialogMessage="@string/grp_sub_custom_hwid_params_tip"
             app:key="sub_custom_hwid_params"
             app:title="@string/grp_sub_custom_hwid_params" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/grp_settings_subscription">
-        <SwitchPreference
+        <SwitchPreference app:icon="@drawable/ic_baseline_block_24"
             app:key="allow_stopping_active_profile"
             app:summary="@string/grp_allow_stopping_active_profile_tip"
             app:title="@string/grp_allow_stopping_active_profile" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/cag_app_requests">
-        <SwitchPreference
+        <SwitchPreference app:icon="@drawable/ic_hardware_router"
             app:key="net_use_proxy"
             app:summary="@string/net_use_proxy_sum"
             app:title="@string/net_use_proxy" />
@@ -63,7 +63,7 @@
             app:key="net_insecure"
             app:summary="@string/net_insecure_sum"
             app:title="@string/net_insecure" />
-        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference app:icon="@drawable/ic_baseline_nfc_24"
             app:defaultValue="1.2"
             app:entries="@array/app_tls_version"
             app:entryValues="@array/app_tls_version"

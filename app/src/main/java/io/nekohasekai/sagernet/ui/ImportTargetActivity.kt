@@ -37,7 +37,7 @@ class ImportTargetActivity : ThemedActivity() {
         if (result.resultCode == Activity.RESULT_OK) {
             val id = result.data?.getLongExtra(GroupSettingsActivity.EXTRA_GROUP_ID, 0L) ?: 0L
             if (id > 0) importInto(id, created = true)
-        }
+        } else finish() // a closed editor goes back to the home screen, not to this choice
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,9 +52,9 @@ class ImportTargetActivity : ThemedActivity() {
         fun dp(n: Int) = (n * resources.displayMetrics.density).toInt()
         val body = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(20), dp(20), dp(20), dp(8))
+            setPadding(dp(16), dp(18), dp(16), dp(10))
             isClickable = true
-            background = GradientDrawable().apply { setColor(MobilePalette.background); cornerRadius = dp(24).toFloat() }
+            background = GradientDrawable().apply { setColor(MobilePalette.background); cornerRadius = dp(16).toFloat(); setStroke(1, MobilePalette.outline) }
         }
         val scrim = android.widget.FrameLayout(this).apply {
             setBackgroundColor(0x99000000.toInt())
@@ -73,14 +73,15 @@ class ImportTargetActivity : ThemedActivity() {
         })
         fun choice(label: Int, click: () -> Unit) {
             body.addView(TextView(this).apply {
-                setText(label); textSize = 17f; setTextColor(MobilePalette.text)
+                setText(label); textSize = 16f; setTextColor(MobilePalette.text)
                 gravity = android.view.Gravity.CENTER_VERTICAL
-                minHeight = dp(56); setPadding(dp(16), dp(12), dp(16), dp(12)); isFocusable = true
+                minHeight = dp(52); setPadding(dp(14), dp(10), dp(14), dp(10)); isFocusable = true
+                // The home tiles' shape: surface, 5dp corners, hairline outline.
                 background = GradientDrawable().apply {
-                    setColor(MobilePalette.surface); cornerRadius = dp(16).toFloat(); setStroke(1, MobilePalette.outline)
+                    setColor(MobilePalette.surface); cornerRadius = dp(5).toFloat(); setStroke(1, MobilePalette.outline)
                 }
                 MobileFeedback.apply(this); setOnClickListener { click() }
-            }, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(12) })
+            }, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(8) })
         }
         choice(R.string.qmobile_new_group) {
             createGroup.launch(Intent(this, SubscriptionEditorActivity::class.java).apply {
@@ -94,7 +95,6 @@ class ImportTargetActivity : ThemedActivity() {
             })
         }
         choice(R.string.qmobile_existing_group) { selectGroup() }
-        choice(android.R.string.cancel) { finish() }
         setContentView(scrim)
     }
 

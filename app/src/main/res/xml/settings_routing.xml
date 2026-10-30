@@ -49,7 +49,7 @@
             app:key="routeAutoUpdateEnabled"
             app:persistent="false"
             app:title="@string/route_auto_update" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_timelapse_24"
             app:key="routeAutoUpdateInterval"
             app:persistent="false"
             app:title="@string/auto_update_interval" />
@@ -64,8 +64,8 @@
             app:title="@string/warp_settings" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/apps">
-        <SwitchPreference app:key="proxyApps" app:title="@string/proxied_apps" app:summary="@string/proxied_apps_summary" />
-        <Preference app:key="routingApplications" app:title="@string/apps" app:widgetLayout="@layout/qmobile_preference_arrow" />
+        <SwitchPreference app:icon="@drawable/ic_navigation_apps" app:key="proxyApps" app:title="@string/proxied_apps" app:summary="@string/proxied_apps_summary" />
+        <Preference app:icon="@drawable/ic_navigation_apps" app:key="routingApplications" app:title="@string/apps" app:widgetLayout="@layout/qmobile_preference_arrow" />
     </PreferenceCategory>
     <Preference app:fragment="app.qthrone.mobile.ui.settings.XrayGeoSettingsFragment"
         app:title="@string/xray_geo_download_title" app:widgetLayout="@layout/qmobile_preference_arrow" />

@@ -4,38 +4,38 @@
         <EditTextPreference app:icon="@drawable/ic_social_emoji_symbols" app:key="groupName" app:title="@string/grp_name" app:useSimpleSummaryProvider="true" />
         <moe.matsuri.nb4a.ui.SimpleMenuPreference app:defaultValue="0" app:entries="@array/group_types" app:entryValues="@array/int_array_2" app:icon="@drawable/ic_baseline_layers_24" app:key="groupType" app:title="@string/grp_type" app:useSimpleSummaryProvider="true" />
         <app.qthrone.mobile.widget.LinkOrContentPreference app:icon="@drawable/ic_baseline_link_24" app:key="subscriptionLink" app:title="@string/grp_url" app:useSimpleSummaryProvider="true" />
-        <moe.matsuri.nb4a.ui.SimpleMenuPreference app:key="groupServerSortRule" app:title="@string/sub_settings_sort_rule" app:entries="@array/sub_settings_sort_rules" app:entryValues="@array/int_array_3" app:defaultValue="0" app:useSimpleSummaryProvider="true" />
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference app:icon="@drawable/baseline_wrap_text_24" app:key="groupServerSortRule" app:title="@string/sub_settings_sort_rule" app:entries="@array/sub_settings_sort_rules" app:entryValues="@array/int_array_3" app:defaultValue="0" app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
     <PreferenceCategory app:key="groupEditOptions" app:title="@string/group_edit_options">
-        <SwitchPreference app:key="groupSubHideServerSettings" app:title="@string/sub_settings_hide_servers" app:summary="@string/sub_settings_hide_servers_summary" />
-        <SwitchPreference app:key="groupEncryptedSubscription" app:title="@string/provider_crypto_subscription" app:summary="@string/provider_crypto_summary" app:persistent="false" app:enabled="false" />
-        <SwitchPreference app:key="groupSubInsecureRequests" app:title="@string/sub_settings_insecure_requests" app:summary="@string/sub_settings_insecure_requests_summary" />
-        <SwitchPreference app:key="groupSubHwidCookie" app:title="@string/sub_settings_hwid_cookie" app:summary="@string/sub_settings_hwid_cookie_summary" />
+        <SwitchPreference app:icon="@drawable/ic_baseline_visibility_off_24" app:key="groupSubHideServerSettings" app:title="@string/sub_settings_hide_servers" app:summary="@string/sub_settings_hide_servers_summary" />
+        <SwitchPreference app:icon="@drawable/ic_notification_enhanced_encryption" app:key="groupEncryptedSubscription" app:title="@string/provider_crypto_subscription" app:summary="@string/provider_crypto_summary" app:persistent="false" app:enabled="false" />
+        <SwitchPreference app:icon="@drawable/ic_action_lock_open" app:key="groupSubInsecureRequests" app:title="@string/sub_settings_insecure_requests" app:summary="@string/sub_settings_insecure_requests_summary" />
+        <SwitchPreference app:icon="@drawable/ic_baseline_fingerprint_24" app:key="groupSubHwidCookie" app:title="@string/sub_settings_hwid_cookie" app:summary="@string/sub_settings_hwid_cookie_summary" />
     </PreferenceCategory>
     <!-- One untitled section, most used first: the chain through front and landing proxies, then updates. -->
     <PreferenceCategory app:key="groupSubscription">
         <Preference app:icon="@drawable/ic_hardware_router" app:key="groupFrontProxyId" app:persistent="false" app:title="@string/grp_front_proxy" />
         <Preference app:icon="@drawable/baseline_public_24" app:key="groupLandingProxyId" app:persistent="false" app:title="@string/grp_landing_proxy" />
         <SwitchPreference app:icon="@drawable/ic_baseline_update_24" app:key="groupSkipAutoUpdate" app:title="@string/grp_skip_auto_update" />
-        <EditTextPreference app:key="groupSubAutoUpdateMinutes" app:title="@string/grp_auto_update_interval" />
+        <EditTextPreference app:icon="@drawable/ic_baseline_timelapse_24" app:key="groupSubAutoUpdateMinutes" app:title="@string/grp_auto_update_interval" />
         <SwitchPreference app:defaultValue="true" app:icon="@drawable/ic_device_data_usage" app:key="groupSubShowInfoCard" app:summary="@string/grp_show_info_card_tip" app:title="@string/grp_show_info_card" />
-        <SwitchPreference app:key="groupSubAllowCollapse" app:defaultValue="true" app:title="@string/sub_settings_allow_collapse" />
-        <SwitchPreference app:key="groupSubKeepWorking" app:summary="@string/grp_keep_working_tip" app:title="@string/grp_keep_working" />
-        <SwitchPreference app:key="groupSubRemoveDuplicates" app:title="@string/grp_remove_duplicates" />
-        <SwitchPreference app:key="groupSubRemoveInvalid" app:summary="@string/grp_remove_invalid_tip" app:title="@string/grp_remove_invalid" />
-        <SwitchPreference app:key="groupSubRemoveInsecure" app:title="@string/grp_remove_insecure" />
-        <SwitchPreference app:key="groupSubUrlTest" app:summary="@string/grp_url_test_tip" app:title="@string/grp_url_test" />
-        <SwitchPreference app:dependency="groupSubUrlTest" app:key="groupSubRemoveUnavailable" app:summary="@string/grp_url_test_only" app:title="@string/grp_remove_unavailable" />
+        <SwitchPreference app:icon="@drawable/ic_baseline_expand_more_24" app:key="groupSubAllowCollapse" app:defaultValue="true" app:title="@string/sub_settings_allow_collapse" />
+        <SwitchPreference app:icon="@drawable/ic_baseline_refresh_24" app:key="groupSubKeepWorking" app:summary="@string/grp_keep_working_tip" app:title="@string/grp_keep_working" />
+        <SwitchPreference app:icon="@drawable/ic_baseline_layers_24" app:key="groupSubRemoveDuplicates" app:title="@string/grp_remove_duplicates" />
+        <SwitchPreference app:icon="@drawable/ic_baseline_warning_24" app:key="groupSubRemoveInvalid" app:summary="@string/grp_remove_invalid_tip" app:title="@string/grp_remove_invalid" />
+        <SwitchPreference app:icon="@drawable/ic_action_lock_open" app:key="groupSubRemoveInsecure" app:title="@string/grp_remove_insecure" />
+        <SwitchPreference app:icon="@drawable/ic_baseline_cast_connected_24" app:key="groupSubUrlTest" app:summary="@string/grp_url_test_tip" app:title="@string/grp_url_test" />
+        <SwitchPreference app:icon="@drawable/ic_baseline_block_24" app:dependency="groupSubUrlTest" app:key="groupSubRemoveUnavailable" app:summary="@string/grp_url_test_only" app:title="@string/grp_remove_unavailable" />
         <SwitchPreference app:icon="@drawable/baseline_delete_sweep_24" app:key="groupAutoClearUnavailable" app:title="@string/grp_auto_clear_unavailable" />
-        <SwitchPreference app:key="groupSubIgnoreNameFilters" app:title="@string/sub_settings_ignore_filters" app:summary="@string/sub_settings_ignore_filters_summary" />
+        <SwitchPreference app:icon="@drawable/ic_baseline_filter_list_24" app:key="groupSubIgnoreNameFilters" app:title="@string/sub_settings_ignore_filters" app:summary="@string/sub_settings_ignore_filters_summary" />
         <EditTextPreference app:dialogMessage="@string/grp_filter_include_tip" app:icon="@drawable/ic_baseline_filter_list_24" app:key="groupSubNameInclude" app:title="@string/grp_filter_include" />
         <EditTextPreference app:dialogMessage="@string/grp_filter_exclude_tip" app:icon="@drawable/ic_baseline_block_24" app:key="groupSubNameExclude" app:title="@string/grp_filter_exclude" />
-        <EditTextPreference app:key="groupSubRequestTimeout" app:title="@string/sub_settings_timeout" />
+        <EditTextPreference app:icon="@drawable/ic_baseline_timelapse_24" app:key="groupSubRequestTimeout" app:title="@string/sub_settings_timeout" />
         <EditTextPreference app:dialogMessage="@string/grp_user_agent_tip" app:icon="@drawable/ic_baseline_http_24" app:key="groupSubUserAgent" app:title="@string/grp_user_agent" />
         <moe.matsuri.nb4a.ui.SimpleMenuPreference app:defaultValue="0" app:entryValues="@array/int_array_3" app:icon="@drawable/ic_baseline_fingerprint_24" app:key="groupSubSendHwid" app:title="@string/grp_send_hwid" />
-        <EditTextPreference app:key="groupSubHwid" app:title="@string/grp_hwid" />
-        <EditTextPreference app:key="groupSubHwidOs" app:title="@string/grp_os" />
-        <EditTextPreference app:key="groupSubHwidOsVersion" app:title="@string/grp_os_version" />
-        <EditTextPreference app:key="groupSubHwidModel" app:title="@string/grp_device_model" />
+        <EditTextPreference app:icon="@drawable/ic_baseline_fingerprint_24" app:key="groupSubHwid" app:title="@string/grp_hwid" />
+        <EditTextPreference app:icon="@drawable/baseline_developer_board_24" app:key="groupSubHwidOs" app:title="@string/grp_os" />
+        <EditTextPreference app:icon="@drawable/ic_baseline_nfc_24" app:key="groupSubHwidOsVersion" app:title="@string/grp_os_version" />
+        <EditTextPreference app:icon="@drawable/ic_communication_phonelink_ring" app:key="groupSubHwidModel" app:title="@string/grp_device_model" />
     </PreferenceCategory>
 </PreferenceScreen>

@@ -15,7 +15,7 @@
             app:key="remote_dns"
             app:title="@string/remote_dns"
             app:useSimpleSummaryProvider="true" />
-        <SwitchPreference
+        <SwitchPreference app:icon="@drawable/ic_image_looks_6"
             app:key="remote_dns_disable_ipv6"
             app:summary="@string/dns_disable_ipv6_sum"
             app:title="@string/remote_dns_disable_ipv6" />
@@ -25,16 +25,16 @@
             app:key="direct_dns"
             app:title="@string/direct_dns"
             app:useSimpleSummaryProvider="true" />
-        <SwitchPreference
+        <SwitchPreference app:icon="@drawable/ic_image_looks_6"
             app:key="direct_dns_disable_ipv6"
             app:summary="@string/dns_disable_ipv6_sum"
             app:title="@string/direct_dns_disable_ipv6" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_action_dns"
             app:dialogMessage="@string/underlying_dns_sum"
             app:key="core_box_underlying_dns"
             app:title="@string/underlying_dns"
             app:useSimpleSummaryProvider="true" />
-        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference app:icon="@drawable/ic_hardware_router"
             app:entries="@array/dns_final_out_entries"
             app:entryValues="@array/dns_final_out_values"
             app:key="dns_final_out"
@@ -55,11 +55,11 @@
             app:key="fakedns"
             app:summary="@string/fakedns_message"
             app:title="@string/enable_fakedns" />
-        <SwitchPreference
+        <SwitchPreference app:icon="@drawable/ic_image_looks_6"
             app:key="fakeip_disable_ipv6"
             app:summary="@string/fakeip_disable_ipv6_sum"
             app:title="@string/fakeip_disable_ipv6" />
-        <SwitchPreference
+        <SwitchPreference app:icon="@drawable/ic_baseline_domain_24"
             app:key="dns_use_hosts"
             app:summary="@string/dns_use_hosts_sum"
             app:title="@string/dns_use_hosts" />
@@ -67,7 +67,7 @@
             app:icon="@drawable/ic_baseline_transform_24"
             app:key="dns_predefined_enable"
             app:title="@string/dns_predefined_enable" />
-        <app.qthrone.mobile.ui.settings.StringListPreference
+        <app.qthrone.mobile.ui.settings.StringListPreference app:icon="@drawable/ic_action_dns"
             app:dialogMessage="@string/dns_predefined_rules_dialog_message"
             app:key="dns_predefined_rules"
             app:title="@string/dns_predefined_rules" />
@@ -80,7 +80,7 @@
             app:key="dnsAdvanced"
             app:summary="@string/dns_advanced_sum"
             app:title="@string/dns_advanced" />
-        <SwitchPreference
+        <SwitchPreference app:icon="@drawable/ic_baseline_layers_24"
             app:key="use_dns_object"
             app:summary="@string/use_dns_object_sum"
             app:title="@string/use_dns_object" />

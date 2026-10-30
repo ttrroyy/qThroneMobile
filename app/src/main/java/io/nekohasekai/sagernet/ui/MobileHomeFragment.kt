@@ -162,6 +162,9 @@ class MobileHomeFragment : ToolbarFragment() {
     private var subscriptionTop: View? = null
     private var serverRows: LinearLayout? = null
     private var chromeKey: String? = null
+    /** Appearance: the tile bar above the power button ("top", default) or under the server list ("bottom"). */
+    private fun tilesAtBottom()=(DataStore.configurationStore.getString("qmobileTilesPosition")
+        ?: if(DataStore.configurationStore.getBoolean("qmobileTilesBottom",false)) "bottom" else "top")=="bottom"
     private data class ProfileContent(val id: Long, val type: String, val name: String?, val json: String)
     private data class GroupContent(val group: ProxyGroup, val profiles: List<ProfileContent>, val collapsed: Boolean, val page: Int, val colors: List<Int>)
     private val groupViews = mutableMapOf<Long, Pair<GroupContent, View>>()
@@ -344,7 +347,9 @@ class MobileHomeFragment : ToolbarFragment() {
             if(reordering) return@launch
             val column = content ?: return@launch
             groups.forEach { (group, _) -> knownGroups.add(group.id) }
-            val unchanged=withContext(Dispatchers.Default) { previousStructure == structure }
+            val tilesBottom=tilesAtBottom()
+            // A moved tile bar rebuilds the screen even when the server list is the same.
+            val unchanged=withContext(Dispatchers.Default) { previousStructure == structure } && chromeKey?.endsWith(":$tilesBottom")!=false
             if (unchanged) {
                 groups.forEach { (_, profiles) -> profiles.forEach { profile ->
                     nextLatencyViews[profile.id]?.tag = profile.latency
@@ -356,7 +361,6 @@ class MobileHomeFragment : ToolbarFragment() {
             }
             val hasServers = groups.any { it.second.isNotEmpty() || it.first.isSubscription }
             val hwid = app.qthrone.mobile.group.RequestIdentity.applyCustomHwidParams(app.qthrone.mobile.group.DeviceDetails.get(),DataStore.subCustomHwidParams).hwid
-            val tilesBottom=DataStore.configurationStore.getBoolean("qmobileTilesBottom",false)
             val nextChromeKey="$surface:$blue:$hasServers:$hwid:$tilesBottom"
             if(chromeKey != nextChromeKey) {
                 chromeKey=nextChromeKey

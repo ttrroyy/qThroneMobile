@@ -56,27 +56,27 @@
         app:key="autoselMembership"
         app:title="@string/autosel_cat_membership">
 
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/baseline_public_24"
             app:dialogMessage="@string/autosel_country_filter_tip"
             app:key="countryFilter"
             app:title="@string/autosel_country_filter" />
 
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_tune_24"
             app:dialogMessage="@string/autosel_build_limit_tip"
             app:key="buildLimit"
             app:title="@string/autosel_build_limit" />
 
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_tune_24"
             app:dialogMessage="@string/autosel_pool_cap_tip"
             app:key="poolCap"
             app:title="@string/autosel_pool_cap" />
 
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_timelapse_24"
             app:dialogMessage="@string/autosel_result_validity_tip"
             app:key="resultValidityMins"
             app:title="@string/autosel_result_validity" />
 
-        <SwitchPreference
+        <SwitchPreference app:icon="@drawable/ic_baseline_block_24"
             app:key="excludeUnavailable"
             app:summary="@string/autosel_exclude_unavailable_tip"
             app:title="@string/autosel_exclude_unavailable" />
@@ -88,32 +88,32 @@
         app:key="autoselHealth"
         app:title="@string/autosel_cat_health">
 
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_speed_24"
             app:dialogMessage="@string/autosel_expected_tip"
             app:key="expected"
             app:title="@string/autosel_expected" />
 
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_tune_24"
             app:dialogMessage="@string/autosel_active_size_tip"
             app:key="activeSize"
             app:title="@string/autosel_active_size" />
 
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_timelapse_24"
             app:dialogMessage="@string/autosel_interval_tip"
             app:key="intervalSec"
             app:title="@string/autosel_interval" />
 
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_timelapse_24"
             app:dialogMessage="@string/autosel_bench_interval_tip"
             app:key="benchIntervalSec"
             app:title="@string/autosel_bench_interval" />
 
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_timelapse_24"
             app:dialogMessage="@string/autosel_watch_interval_tip"
             app:key="watchIntervalSec"
             app:title="@string/autosel_watch_interval" />
 
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_tune_24"
             app:dialogMessage="@string/autosel_sampling_tip"
             app:key="sampling"
             app:title="@string/autosel_sampling" />
@@ -125,22 +125,22 @@
         app:key="autoselSwitching"
         app:title="@string/autosel_cat_switching">
 
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_tune_24"
             app:dialogMessage="@string/autosel_tolerance_tip"
             app:key="toleranceMs"
             app:title="@string/autosel_tolerance" />
 
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_speed_24"
             app:dialogMessage="@string/autosel_max_rtt_tip"
             app:key="maxRTTms"
             app:title="@string/autosel_max_rtt" />
 
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_refresh_24"
             app:dialogMessage="@string/autosel_dial_retries_tip"
             app:key="dialRetries"
             app:title="@string/autosel_dial_retries" />
 
-        <SwitchPreference
+        <SwitchPreference app:icon="@drawable/ic_baseline_compare_arrows_24"
             app:key="interruptOnSwitch"
             app:summary="@string/autosel_interrupt_tip"
             app:title="@string/autosel_interrupt" />
@@ -152,19 +152,19 @@
         app:key="autoselBalancing"
         app:title="@string/autosel_cat_balance">
 
-        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference app:icon="@drawable/ic_baseline_shuffle_24"
             app:entries="@array/autosel_balance_modes"
             app:entryValues="@array/autosel_balance_mode_values"
             app:key="balanceMode"
             app:title="@string/autosel_balance_mode"
             app:useSimpleSummaryProvider="true" />
 
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_shuffle_24"
             app:dialogMessage="@string/autosel_balance_interval_tip"
             app:key="balanceIntervalSec"
             app:title="@string/autosel_balance_interval" />
 
-        <Preference
+        <Preference app:icon="@drawable/ic_baseline_shuffle_24"
             app:key="autoselBalanceHint"
             app:persistent="false"
             app:selectable="false" />
@@ -176,12 +176,12 @@
         app:key="autoselEndpoints"
         app:title="@string/autosel_cat_endpoints">
 
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_link_24"
             app:dialogMessage="@string/autosel_test_url_tip"
             app:key="testURL"
             app:title="@string/autosel_test_url" />
 
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_link_24"
             app:dialogMessage="@string/autosel_connectivity_url_tip"
             app:key="connectivityURL"
             app:title="@string/autosel_connectivity_url" />

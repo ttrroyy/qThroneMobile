@@ -6,18 +6,18 @@
         <SwitchPreference app:defaultValue="true" app:icon="@drawable/ic_baseline_legend_toggle_24" app:key="block_quic" app:summary="@string/block_quic_sum" app:title="@string/block_quic" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/cag_private_range_bypass">
-        <SwitchPreference app:key="tunBypassPrivateRanges" app:persistent="false" app:summary="@string/bypass_private_ranges_sum" app:title="@string/bypass_private_ranges" />
-        <app.qthrone.mobile.ui.settings.StringListPreference app:dialogMessage="@string/private_ranges_dialog_message" app:key="vpn_private_ranges" app:title="@string/private_ranges" />
-        <Preference app:key="tunRestoreRanges" app:title="@string/restore_default_ranges" />
+        <SwitchPreference app:icon="@drawable/ic_baseline_nat_24" app:key="tunBypassPrivateRanges" app:persistent="false" app:summary="@string/bypass_private_ranges_sum" app:title="@string/bypass_private_ranges" />
+        <app.qthrone.mobile.ui.settings.StringListPreference app:icon="@drawable/ic_baseline_grid_3x3_24" app:dialogMessage="@string/private_ranges_dialog_message" app:key="vpn_private_ranges" app:title="@string/private_ranges" />
+        <Preference app:icon="@drawable/baseline_undo_24" app:key="tunRestoreRanges" app:title="@string/restore_default_ranges" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/cag_tun_address">
-        <EditTextPreference app:key="vpn_tun_ipv4_cidr" app:title="@string/tun_ipv4_cidr" app:useSimpleSummaryProvider="true" />
-        <EditTextPreference app:key="vpn_tun_ipv6_cidr" app:title="@string/tun_ipv6_cidr" app:useSimpleSummaryProvider="true" />
-        <Preference app:key="tunRestoreAddresses" app:title="@string/restore_default_addresses" />
+        <EditTextPreference app:icon="@drawable/ic_baseline_grid_3x3_24" app:key="vpn_tun_ipv4_cidr" app:title="@string/tun_ipv4_cidr" app:useSimpleSummaryProvider="true" />
+        <EditTextPreference app:icon="@drawable/ic_image_looks_6" app:key="vpn_tun_ipv6_cidr" app:title="@string/tun_ipv6_cidr" app:useSimpleSummaryProvider="true" />
+        <Preference app:icon="@drawable/baseline_undo_24" app:key="tunRestoreAddresses" app:title="@string/restore_default_addresses" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/cag_mixed_inbound">
         <SwitchPreference app:icon="@drawable/ic_baseline_block_24" app:key="disable_mixed_inbound" app:summary="@string/disable_mixed_inbound_sum" app:title="@string/disable_mixed_inbound" />
-        <SwitchPreference app:key="random_inbound_port" app:summary="@string/random_inbound_port_sum" app:title="@string/random_inbound_port" />
+        <SwitchPreference app:icon="@drawable/ic_baseline_shuffle_24" app:key="random_inbound_port" app:summary="@string/random_inbound_port_sum" app:title="@string/random_inbound_port" />
         <SwitchPreference app:icon="@drawable/ic_baseline_nat_24" app:key="inboundAllowLan" app:persistent="false" app:summary="@string/allow_access_sum" app:title="@string/allow_access" />
         <SwitchPreference app:icon="@drawable/ic_baseline_http_24" app:key="appendHttpProxy" app:summary="@string/append_http_proxy_sum" app:title="@string/append_http_proxy" />
         <EditTextPreference app:dialogMessage="@string/http_proxy_bypass_dialog_message" app:icon="@drawable/ic_baseline_domain_24" app:key="httpProxyBypass" app:title="@string/http_proxy_bypass" />
@@ -25,9 +25,9 @@
     <PreferenceCategory app:title="@string/cag_authentication">
         <SwitchPreference app:icon="@drawable/ic_baseline_lock_24" app:key="inbound_auth" app:summary="@string/inbound_auth_sum" app:title="@string/qmobile_socks_auth" />
         <SwitchPreference app:key="lan_sharing_enabled" app:defaultValue="false" app:title="@string/allow_access" app:summary="@string/lan_sharing_summary" app:icon="@drawable/ic_mobile_globe" />
-        <EditTextPreference app:key="inbound_user" app:title="@string/qmobile_socks_user" app:useSimpleSummaryProvider="true" />
-        <EditTextPreference app:key="inbound_pass" app:title="@string/qmobile_socks_pass" />
-        <Preference app:key="qmobileResetSocks" app:title="@string/qmobile_socks_reset" />
+        <EditTextPreference app:icon="@drawable/ic_baseline_input_24" app:key="inbound_user" app:title="@string/qmobile_socks_user" app:useSimpleSummaryProvider="true" />
+        <EditTextPreference app:icon="@drawable/ic_baseline_input_24" app:key="inbound_pass" app:title="@string/qmobile_socks_pass" />
+        <Preference app:icon="@drawable/baseline_undo_24" app:key="qmobileResetSocks" app:title="@string/qmobile_socks_reset" />
         <Preference app:key="sharingAddresses" app:title="@string/lan_sharing_address" app:icon="@drawable/ic_mobile_globe" />
         <EditTextPreference app:icon="@drawable/ic_maps_directions_boat" app:key="inbound_socks_port" app:title="@string/local_socks_port" app:useSimpleSummaryProvider="true" />
         <EditTextPreference app:icon="@drawable/ic_maps_directions_boat" app:key="inbound_http_port" app:title="@string/local_http_port" app:useSimpleSummaryProvider="true" />

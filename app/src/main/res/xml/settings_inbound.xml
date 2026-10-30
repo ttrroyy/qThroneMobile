@@ -11,8 +11,8 @@
             app:key="inbound_socks_port"
             app:title="@string/port_proxy"
             app:useSimpleSummaryProvider="true" />
-        <EditTextPreference app:key="inbound_http_port" app:title="@string/local_http_port" app:useSimpleSummaryProvider="true" />
-        <SwitchPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_input_24" app:key="inbound_http_port" app:title="@string/local_http_port" app:useSimpleSummaryProvider="true" />
+        <SwitchPreference app:icon="@drawable/ic_baseline_shuffle_24"
             app:key="random_inbound_port"
             app:summary="@string/random_inbound_port_sum"
             app:title="@string/random_inbound_port" />
@@ -40,14 +40,14 @@
             app:key="inbound_auth"
             app:summary="@string/inbound_auth_sum"
             app:title="@string/qmobile_socks_auth" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_input_24"
             app:key="inbound_user"
             app:title="@string/qmobile_socks_user"
             app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
+        <EditTextPreference app:icon="@drawable/ic_baseline_input_24"
             app:key="inbound_pass"
             app:title="@string/qmobile_socks_pass" />
-        <Preference app:key="qmobileResetSocks" app:title="@string/qmobile_socks_reset" />
+        <Preference app:icon="@drawable/baseline_undo_24" app:key="qmobileResetSocks" app:title="@string/qmobile_socks_reset" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/cag_advanced">

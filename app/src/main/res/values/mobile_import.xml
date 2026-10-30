@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="qmobile_import_target">Where should this be added?</string>
-    <string name="qmobile_new_group">Create a group / subscription</string>
+    <string name="qmobile_new_group">Create a group</string>
     <string name="qmobile_existing_group">Add to an existing group</string>
     <string name="qmobile_manage_groups">Manage groups and subscriptions</string>
     <string name="qmobile_fold_all">Collapse all groups</string>
     <string name="qmobile_expand_all">Expand all groups</string>
-    <string name="qmobile_tiles_bottom">Tiles at the bottom</string>
-    <string name="qmobile_tiles_bottom_summary">Move the home screen tile bar under the server list</string>
+    <string name="qmobile_tiles_position">Home screen tiles position</string>
+    <string-array name="qmobile_tiles_positions"><item>Top</item><item>Bottom</item></string-array>
+    <string-array name="qmobile_tiles_position_values" translatable="false"><item>top</item><item>bottom</item></string-array>
 </resources>

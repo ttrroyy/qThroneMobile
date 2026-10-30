@@ -290,12 +290,8 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
             lifecycleScope.launch { save() }
             return
         }
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.unsaved_changes_prompt)
-            .setPositiveButton(R.string.save) { _, _ -> lifecycleScope.launch { save() } }
-            .setNegativeButton(R.string.discard) { _, _ -> finish() }
-            .setNeutralButton(android.R.string.cancel, null)
-            .show()
+        // A new group is added only with the apply mark; closing the sheet drops it without asking.
+        finish()
     }
 
     @Suppress("DEPRECATION")
