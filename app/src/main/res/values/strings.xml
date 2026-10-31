@@ -929,6 +929,7 @@
     <string name="rule_set_add_url_invalid">Enter an http(s) URL of an .srs file</string>
     <string name="rule_set_url_source">.srs URL · %s</string>
     <string name="rule_set_unknown">Unknown: not in the rule-set list</string>
+    <string name="rule_set_geo_file">Category from the profile\'s %s.dat</string>
     <string name="rule_set_catalog_empty">The rule-set list is not available. Use \"Refresh repository list\" on the Routing screen, or add .srs URLs.</string>
 
     <!-- groups and profiles: data layer -->

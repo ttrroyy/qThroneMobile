@@ -44,18 +44,21 @@ class RuleSetPickerActivity : ThemedActivity() {
 
     companion object {
         const val EXTRA_RULE_SETS = "ruleSets"
+        /** The profile is a Happ or Incy one, whose geosite:/geoip: categories come from its own geo files. */
+        const val EXTRA_GEO_FILES = "geoFiles"
         private const val STATE_SELECTED = "selected"
     }
 
-    class Contract : ActivityResultContract<List<String>, List<String>?>() {
+    class Contract(private val geoFiles: () -> Boolean = { false }) : ActivityResultContract<List<String>, List<String>?>() {
         override fun createIntent(context: Context, input: List<String>) =
             Intent(context, RuleSetPickerActivity::class.java).putStringArrayListExtra(EXTRA_RULE_SETS, ArrayList(input))
+                .putExtra(EXTRA_GEO_FILES, geoFiles())
 
         override fun parseResult(resultCode: Int, intent: Intent?): List<String>? =
             if (resultCode == RESULT_OK) intent?.getStringArrayListExtra(EXTRA_RULE_SETS) else null
     }
 
-    private enum class Kind { KNOWN, URL, UNKNOWN }
+    private enum class Kind { KNOWN, URL, GEO, UNKNOWN }
 
     private class Row(val entry: String, val source: String, val kind: Kind)
 
@@ -108,6 +111,8 @@ class RuleSetPickerActivity : ThemedActivity() {
     private fun rowOf(entry: String): Row {
         catalog.urlOf(entry)?.let { return Row(entry, RuleSetLabels.source(it), Kind.KNOWN) }
         if (RuleSets.isUrl(entry)) return Row(entry, RuleSetLabels.source(entry), Kind.URL)
+        val geo = entry.substringBefore(':', "")
+        if (intent.getBooleanExtra(EXTRA_GEO_FILES, false) && (geo == "geosite" || geo == "geoip")) return Row(entry, geo, Kind.GEO)
         return Row(entry, "", Kind.UNKNOWN)
     }
 
@@ -224,6 +229,7 @@ class RuleSetPickerActivity : ThemedActivity() {
             binding.source.text = when (row.kind) {
                 Kind.KNOWN -> row.source
                 Kind.URL -> getString(R.string.rule_set_url_source, row.source)
+                Kind.GEO -> getString(R.string.rule_set_geo_file, row.source)
                 Kind.UNKNOWN -> getString(R.string.rule_set_unknown)
             }
             if (row.kind == Kind.UNKNOWN) {

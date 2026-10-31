@@ -99,7 +99,7 @@ class RouteRuleActivity : ThemedActivity(R.layout.layout_config_settings), OnPre
 
     private val fragment get() = supportFragmentManager.findFragmentById(R.id.settings) as? RuleFragment
 
-    private val ruleSetPicker = registerForActivityResult(RuleSetPickerActivity.Contract()) { list ->
+    private val ruleSetPicker = registerForActivityResult(RuleSetPickerActivity.Contract { intent.getBooleanExtra(RuleSetPickerActivity.EXTRA_GEO_FILES, false) }) { list ->
         if (list != null) setListValue("rule_set", list)
     }
 

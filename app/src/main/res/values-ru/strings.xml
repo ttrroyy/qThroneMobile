@@ -1153,6 +1153,7 @@
     <string name="rule_set_picker_title">Наборы правил</string>
     <string name="rule_set_search">Поиск наборов правил…</string>
     <string name="rule_set_unknown">Неизвестно: нет в списке наборов правил</string>
+    <string name="rule_set_geo_file">Категория из %s.dat профиля</string>
     <string name="rule_set_url_source">URL .srs · %s</string>
     <string name="ruleset_mirror">Зеркало удалённых наборов правил</string>
     <string name="save_fallback_message">На этом устройстве нет выбора документов, файл будет сохранён как:\n%1$s</string>

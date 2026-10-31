@@ -372,15 +372,18 @@ class RouteProfileActivity : ThemedActivity(R.layout.layout_route_profile) {
         ruleEditor.launch(Intent(this, RouteRuleActivity::class.java).apply {
             putExtra(RouteRuleActivity.EXTRA_RULE, RouteJson.ruleToJson(rule))
             putExtra(RouteRuleActivity.EXTRA_INDEX, -1)
+            putExtra(RuleSetPickerActivity.EXTRA_GEO_FILES, app.qthrone.mobile.route.ProviderRouting.stored(p) != null)
         })
     }
 
     private fun editRule(index: Int) {
-        val rule = model.profile?.rules?.getOrNull(index) ?: return
+        val p = model.profile ?: return
+        val rule = p.rules.getOrNull(index) ?: return
         undoManager.flush()
         ruleEditor.launch(Intent(this, RouteRuleActivity::class.java).apply {
             putExtra(RouteRuleActivity.EXTRA_RULE, RouteJson.ruleToJson(rule))
             putExtra(RouteRuleActivity.EXTRA_INDEX, index)
+            putExtra(RuleSetPickerActivity.EXTRA_GEO_FILES, app.qthrone.mobile.route.ProviderRouting.stored(p) != null)
         })
     }
 
