@@ -59,4 +59,4 @@ if __name__ == "__main__":
             if previous is not None:
                 validate_release_code(code, version, previous, release["tag_name"])
     with open(os.environ["GITHUB_OUTPUT"], "a") as output:
-        output.write(f"tag={tag}\nname={version}\nbuild={build}\n")
+        output.write(f"tag={tag}\nname=qThroneMobile {version}\nbuild={build}\n")
