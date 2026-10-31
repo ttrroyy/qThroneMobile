@@ -156,18 +156,9 @@ open class DeployEditorFragment : Fragment() {
         }
         val editor=TextInputEditText(box.context).apply {
             minimumWidth=0;textSize=16f;setTextColor(MobilePalette.text);setSingleLine(true)
-            highlightColor=androidx.core.graphics.ColorUtils.setAlphaComponent(MobilePalette.accent(requireContext()),80)
             inputType=if(secret) InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD else if(number) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_CLASS_TEXT
             setText(s[key]);minimumHeight=dp(48);setPadding(dp(12),dp(12),dp(12),dp(12))
-            fun tintCursor() {
-                if(android.os.Build.VERSION.SDK_INT>=29) {
-                    val accent=MobilePalette.accent(requireContext())
-                    textCursorDrawable=android.graphics.drawable.GradientDrawable().apply { setColor(accent);setTint(accent);setSize(dp(2),dp(22)) }
-                    textSelectHandle?.mutate()?.apply { setTint(accent) }?.let { setTextSelectHandle(it) }
-                    textSelectHandleLeft?.mutate()?.apply { setTint(accent) }?.let { setTextSelectHandleLeft(it) }
-                    textSelectHandleRight?.mutate()?.apply { setTint(accent) }?.let { setTextSelectHandleRight(it) }
-                }
-            }
+            fun tintCursor() = MobilePalette.tintCursor(this)
             tintCursor()
             setOnFocusChangeListener { _,focused -> if(focused) post { tintCursor() } }
             addTextChangedListener(object: TextWatcher {

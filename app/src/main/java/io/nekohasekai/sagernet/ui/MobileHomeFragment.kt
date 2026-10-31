@@ -65,6 +65,17 @@ class MobileHomeFragment : ToolbarFragment() {
     private var power: TextView? = null
     private var currentCheck: TextView? = null
     private var updatesTile: ImageButton? = null
+    /** Standard tiles have no updates tile: a found version shows as a button between Settings and Add, one tap to update. */
+    private var updateBanner: TextView? = null
+    private fun updateReleaseBanner() {
+        val offer = UpdateDiscovery.available.value?.takeIf { DataStore.updateCheckAuto }
+        updateBanner?.apply {
+            visibility = if (offer == null) View.GONE else View.VISIBLE
+            text = if (offer == null) "" else getString(R.string.update_home_banner, offer.versionName)
+            contentDescription = if (offer == null) "" else getString(R.string.update_home_banner_description, offer.versionName)
+            setOnClickListener { offer?.let { UpdateActivity.start(requireContext(), it) } }
+        }
+    }
     /** A dot in the accent colour on the updates tile while a newer version is offered. */
     private fun updateUpdatesBadge() {
         val tile=updatesTile ?: return
@@ -250,7 +261,7 @@ class MobileHomeFragment : ToolbarFragment() {
         GroupRepo.addListener(groupListener)
         viewLifecycleOwner.lifecycleScope.launch { SubscriptionClient.states.collect { updateSubscriptionButtons() } }
         viewLifecycleOwner.lifecycleScope.launch { app.qthrone.mobile.route.ProviderGeoAssets.states.collect { updateGeoStatus() } }
-        viewLifecycleOwner.lifecycleScope.launch { UpdateDiscovery.available.collect { updateUpdatesBadge() } }
+        viewLifecycleOwner.lifecycleScope.launch { UpdateDiscovery.available.collect { updateUpdatesBadge();updateReleaseBanner() } }
         viewLifecycleOwner.lifecycleScope.launch { TestSessionClient.queuedProfiles.collect { updateLatencies() } }
         viewLifecycleOwner.lifecycleScope.launch { TestSessionClient.state.collect {
             updateLatencies()
@@ -290,7 +301,7 @@ class MobileHomeFragment : ToolbarFragment() {
     override fun onDestroyView() {
         if(nativeReceiverRegistered) { requireContext().unregisterReceiver(nativeStatusReceiver);nativeReceiverRegistered=false }
         groupReorder?.cancel();groupReorder=null;profileReorders.values.forEach { it.cancel() };profileReorders.clear();reordering=false
-        geoBanner = null; updatesTile = null; geoStatus = null; geoProgress = null; geoCheck = null
+        geoBanner = null; updatesTile = null; updateBanner = null; geoStatus = null; geoProgress = null; geoCheck = null
         GroupRepo.removeListener(groupListener)
         observer?.let { SagerDatabase.instance.invalidationTracker.removeObserver(it) }
         observer = null; load?.cancel(); content = null; powerPulse?.cancel();powerPulse=null;pulseTarget=null; power = null
@@ -376,7 +387,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     contentDescription = description; tooltipText = description; setOnClickListener { callback(it) }; MobileFeedback.apply(this)
                 }
                 val extended=extendedTiles()
-                updatesTile=null
+                updatesTile=null;updateBanner=null
                 val settingsTile=headerIcon(R.drawable.ic_mobile_settings, getString(R.string.qmobile_settings)) { host().displayFragmentWithId(R.id.nav_settings) }
                 val addTile=headerIcon(R.drawable.ic_mobile_add, getString(R.string.qmobile_add)) { addMenu(it) }
                 val tiles = if(extended) listOf(
@@ -392,7 +403,27 @@ class MobileHomeFragment : ToolbarFragment() {
                         if (index < tiles.lastIndex) marginEnd = dp(8)
                     })
                     // Standard: the two tiles sit in the corners.
-                    if (!extended && index == 0) header.addView(View(requireContext()), LinearLayout.LayoutParams(0, 1, 1f))
+                    if (!extended && index == 0) header.addView(FrameLayout(requireContext()).apply {
+                        updateBanner = text("", 12f, blue).apply {
+                            gravity = Gravity.CENTER
+                            minHeight = dp(48)
+                            maxLines = 1
+                            ellipsize = android.text.TextUtils.TruncateAt.END
+                            isFocusable = true
+                            // Compact artwork inside a full 48dp touch target.
+                            background = android.graphics.drawable.InsetDrawable(tile(selected = true), 0, dp(7), 0, dp(7))
+                            val icon = androidx.core.content.ContextCompat.getDrawable(requireContext(), R.drawable.ic_mobile_update)
+                            icon?.setBounds(0, 0, dp(18), dp(18))
+                            setCompoundDrawablesRelative(icon, null, null, null)
+                            compoundDrawablePadding = dp(5)
+                            androidx.core.widget.TextViewCompat.setCompoundDrawableTintList(this, android.content.res.ColorStateList.valueOf(blue))
+                            MobileFeedback.apply(this, radius = 5f)
+                            // Set this after the background, whose inset padding replaces view padding.
+                            setPadding(dp(12), dp(6), dp(12), dp(6))
+                        }
+                        addView(updateBanner, FrameLayout.LayoutParams(-2, dp(48), Gravity.CENTER))
+                        updateReleaseBanner()
+                    }, LinearLayout.LayoutParams(0, dp(48), 1f).apply { marginStart = dp(6); marginEnd = dp(6) })
                 }
                 header.gravity = Gravity.CENTER
                 header.addOnLayoutChangeListener { _, left, _, right, _, oldLeft, _, oldRight, _ ->

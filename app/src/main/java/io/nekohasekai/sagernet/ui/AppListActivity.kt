@@ -77,6 +77,14 @@ class AppListActivity : ThemedActivity() {
 
         init {
             binding.root.setOnClickListener(this)
+            binding.root.setCardBackgroundColor(MobilePalette.surface)
+            binding.root.strokeWidth = 0
+            binding.root.radius = 20 * resources.displayMetrics.density
+            binding.title.setTextColor(MobilePalette.text)
+            binding.title.setTypeface(null, android.graphics.Typeface.BOLD)
+            binding.title.textSize = 16f
+            binding.desc.setTextColor(MobilePalette.muted)
+            MobilePalette.tintSwitch(binding.itemcheck)
         }
 
         fun bind(app: AppItem) {
@@ -212,6 +220,12 @@ class AppListActivity : ThemedActivity() {
 
         binding = LayoutAppListBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.setBackgroundColor(MobilePalette.background)
+        binding.toolbar.setBackgroundColor(MobilePalette.toolbar)
+        binding.toolbar.setTitleTextColor(MobilePalette.text)
+        binding.searchCard.setCardBackgroundColor(MobilePalette.surface)
+        binding.searchCard.strokeWidth = 0
+        binding.searchCard.radius = 20 * resources.displayMetrics.density
 
         binding.appPlaceholder.openSettings.setOnClickListener {
             try {
@@ -245,6 +259,9 @@ class AppListActivity : ThemedActivity() {
 
         binding.search.addTextChangedListener { refilter() }
 
+        MobilePalette.tintSwitch(binding.showSystemApps)
+        MobilePalette.tintCursor(binding.search)
+        binding.search.setOnFocusChangeListener { _, focused -> if (focused) binding.search.post { MobilePalette.tintCursor(binding.search) } }
         binding.showSystemApps.isChecked = sysApps
         binding.showSystemApps.setOnCheckedChangeListener { _, isChecked ->
             sysApps = isChecked

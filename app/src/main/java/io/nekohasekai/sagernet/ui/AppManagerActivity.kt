@@ -48,8 +48,8 @@ import moe.matsuri.nb4a.utils.NGUtil
 import kotlin.coroutines.coroutineContext
 
 /**
- * Per-app proxy. Installed apps are selected by uid; stored packages the list cannot show (hidden, without INTERNET,
- * not installed, restored from a backup) are kept as rows of their own and written back untouched.
+ * Per-app proxy. Installed apps are selected by uid; stored packages the list cannot show (hidden, not installed,
+ * restored from a backup) are kept as rows of their own and written back untouched.
  */
 class AppManagerActivity : ThemedActivity() {
     companion object {
@@ -90,10 +90,7 @@ class AppManagerActivity : ThemedActivity() {
             binding.title.setTypeface(null, android.graphics.Typeface.BOLD)
             binding.title.textSize = 16f
             binding.desc.setTextColor(MobilePalette.muted)
-            binding.itemcheck.thumbTintList = android.content.res.ColorStateList(
-                arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
-                intArrayOf(MobilePalette.accent(this@AppManagerActivity), MobilePalette.muted),
-            )
+            MobilePalette.tintSwitch(binding.itemcheck)
         }
 
         fun bind(app: ProxiedApp) {
@@ -315,6 +312,9 @@ class AppManagerActivity : ThemedActivity() {
             appsAdapter.filter.filter(it?.toString() ?: "")
         }
 
+        MobilePalette.tintSwitch(binding.showSystemApps)
+        MobilePalette.tintCursor(binding.search)
+        binding.search.setOnFocusChangeListener { _, focused -> if (focused) binding.search.post { MobilePalette.tintCursor(binding.search) } }
         binding.showSystemApps.isChecked = sysApps
         binding.showSystemApps.setOnCheckedChangeListener { _, isChecked ->
             sysApps = isChecked

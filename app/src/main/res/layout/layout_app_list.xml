@@ -34,9 +34,10 @@
                     android:orientation="vertical">
 
                     <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/searchCard"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_margin="4dp">
+                        android:layout_margin="16dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -44,12 +45,13 @@
                             android:orientation="vertical"
                             android:padding="8dp">
 
-                            <com.google.android.material.chip.Chip
+                            <com.google.android.material.switchmaterial.SwitchMaterial
                                 android:id="@+id/show_system_apps"
-                                style="@style/Widget.MaterialComponents.Chip.Filter"
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginBottom="4dp"
+                                android:minHeight="48dp"
+                                android:paddingHorizontal="4dp"
+                                android:textSize="15sp"
                                 android:text="@string/show_system_apps" />
 
                             <com.google.android.material.textfield.TextInputLayout

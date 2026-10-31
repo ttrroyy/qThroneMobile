@@ -1,6 +1,5 @@
 package app.qthrone.mobile.utils
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
@@ -67,12 +66,8 @@ object PackageCache {
             PackageManager.MATCH_UNINSTALLED_PACKAGES or PackageManager.GET_PERMISSIONS
         )
 
-        val installedPackages = rawPackageInfo.filter {
-            when (it.packageName) {
-                "android" -> true
-                else -> it.requestedPermissions?.contains(Manifest.permission.INTERNET) == true
-            }
-        }.associateBy { it.packageName }
+        // Every app, INTERNET or not: Gemini, for one, requests none and goes online through the Google app.
+        val installedPackages = rawPackageInfo.associateBy { it.packageName }
 
         val installed = app.packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
         val fresh = Snapshot(
