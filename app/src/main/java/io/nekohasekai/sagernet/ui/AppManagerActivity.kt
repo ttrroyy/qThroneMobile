@@ -3,7 +3,6 @@ package app.qthrone.mobile.ui
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.TextUtils
@@ -65,11 +64,12 @@ class AppManagerActivity : ThemedActivity() {
 
     /** [byName] rows stand for stored packages outside [cachedApps]: they are selected by name, not by uid. */
     private class ProxiedApp(
-        private val pm: PackageManager, private val appInfo: ApplicationInfo?,
+        cache: PackageCache.Snapshot, private val appInfo: ApplicationInfo?,
         val packageName: String, val byName: Boolean = false,
     ) {
-        val name: CharSequence = appInfo?.loadLabel(pm) ?: packageName    // cached for sorting
-        val icon: Drawable get() = appInfo?.loadIcon(pm) ?: pm.defaultActivityIcon
+        // The listing caches labels, so reopening the screen does not load them all again.
+        val name: CharSequence = if (appInfo != null) cache.loadLabel(packageName) else packageName
+        val icon: Drawable get() = appInfo?.loadIcon(app.packageManager) ?: app.packageManager.defaultActivityIcon
         val uid get() = appInfo?.uid ?: -1
         val sys get() = appInfo != null && (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
         val installed get() = appInfo != null
@@ -90,7 +90,6 @@ class AppManagerActivity : ThemedActivity() {
             binding.title.setTypeface(null, android.graphics.Typeface.BOLD)
             binding.title.textSize = 16f
             binding.desc.setTextColor(MobilePalette.muted)
-            MobilePalette.tintSwitch(binding.itemcheck)
         }
 
         fun bind(app: ProxiedApp) {
@@ -115,7 +114,7 @@ class AppManagerActivity : ThemedActivity() {
                 isProxiedApp(item) -> proxiedUids.delete(item.uid)
                 else -> proxiedUids[item.uid] = true
             }
-            saveSelection()
+            selectionChanged()
 
             appsAdapter.notifyItemRangeChanged(0, appsAdapter.itemCount, SWITCH)
         }
@@ -127,18 +126,19 @@ class AppManagerActivity : ThemedActivity() {
         var filteredApps = apps
 
         suspend fun reload() {
-            val cache = PackageCache.reload()
+            // The listing package broadcasts keep current; a fresh query of every package only delayed the list.
+            val cache = PackageCache.snapshot()
             if (!selectionLoaded) {
-                initProxiedUids(cache)
+                initProxiedUids(cache, restoredSelection ?: DataStore.individual)
                 selectionLoaded = true
             }
             val cached = cachedApps(cache)
             val list = cached.mapNotNull { (packageName, packageInfo) ->
                 coroutineContext[Job]!!.ensureActive()
-                packageInfo.applicationInfo?.let { ProxiedApp(packageManager, it, packageName) }
+                packageInfo.applicationInfo?.let { ProxiedApp(cache, it, packageName) }
             }.toMutableList()
             for (packageName in extraSelected) {
-                list.add(ProxiedApp(packageManager, cache.installedApps[packageName], packageName, byName = true))
+                list.add(ProxiedApp(cache, cache.installedApps[packageName], packageName, byName = true))
             }
             apps = sorted(list)
         }
@@ -210,10 +210,29 @@ class AppManagerActivity : ThemedActivity() {
     private fun isProxiedApp(app: ProxiedApp) =
         if (app.byName) app.packageName in extraSelected else proxiedUids[app.uid]
 
+    /** 0: every app, 1: only the selected, 2: all but the selected. Saved only by the apply mark. */
+    private var mode = 0
+    private var storedMode = 0
+    /** The stored selection as this screen lists it, known once the list has loaded. */
+    private var storedSelection: String? = null
+    /** An unsaved selection carried over a recreation of the screen. */
+    private var restoredSelection: String? = null
+
     /** Selected listed apps, then the selected rows the list only knows by name. */
-    private fun saveSelection() {
+    private fun selectionText(): String {
         val listed = apps.filter { !it.byName && isProxiedApp(it) }.map { it.packageName }
-        DataStore.individual = (listed + extraSelected).distinct().joinToString("\n")
+        return (listed + extraSelected).distinct().joinToString("\n")
+    }
+
+    private fun dirty() = mode != storedMode || storedSelection.let { it != null && it != selectionText() }
+
+    private fun selectionChanged() = invalidateOptionsMenu()
+
+    private fun save() {
+        DataStore.proxyApps = mode != 0
+        if (mode != 0) DataStore.bypass = mode == 2
+        DataStore.individual = selectionText()
+        finish()
     }
 
     private fun sorted(list: List<ProxiedApp>) =
@@ -228,6 +247,8 @@ class AppManagerActivity : ThemedActivity() {
             loading.crossFadeFrom(binding.list)
             val adapter = binding.list.adapter as AppsAdapter
             withContext(Dispatchers.IO) { adapter.reload() }
+            if (storedSelection == null) storedSelection = selectionText()
+            invalidateOptionsMenu()
             refilter()
             if (apps.isEmpty()) {
                 binding.list.visibility = View.GONE
@@ -266,25 +287,24 @@ class AppManagerActivity : ThemedActivity() {
             setHomeAsUpIndicator(R.drawable.ic_navigation_close)
         }
 
-        binding.bypassGroup.check(if (!DataStore.proxyApps) R.id.appProxyModeDisable else if (DataStore.bypass) R.id.appProxyModeBypass else R.id.appProxyModeOn)
+        storedMode = if (!DataStore.proxyApps) 0 else if (DataStore.bypass) 2 else 1
+        mode = savedInstanceState?.getInt("mode", storedMode) ?: storedMode
+        restoredSelection = savedInstanceState?.getString("selection")
+        storedSelection = savedInstanceState?.getString("storedSelection")
+        val modeIds = listOf(R.id.appProxyModeDisable, R.id.appProxyModeOn, R.id.appProxyModeBypass)
         fun updateModeDescription() {
-            binding.appModeSummary.setText(when {
-                !DataStore.proxyApps -> R.string.qmobile_apps_all_summary
-                DataStore.bypass -> R.string.qmobile_apps_except_summary
+            binding.appModeSummary.setText(when (mode) {
+                0 -> R.string.qmobile_apps_all_summary
+                2 -> R.string.qmobile_apps_except_summary
                 else -> R.string.qmobile_apps_only_summary
             })
         }
+        binding.bypassGroup.check(modeIds[mode])
         updateModeDescription()
         binding.bypassGroup.setOnCheckedChangeListener { _, checkedId ->
-            when (checkedId) {
-                R.id.appProxyModeDisable -> {
-                    DataStore.proxyApps = false
-                }
-
-                R.id.appProxyModeOn -> { DataStore.proxyApps = true; DataStore.bypass = false }
-                R.id.appProxyModeBypass -> { DataStore.proxyApps = true; DataStore.bypass = true }
-            }
+            mode = modeIds.indexOf(checkedId).coerceAtLeast(0)
             updateModeDescription()
+            invalidateOptionsMenu()
         }
         binding.appModeSummary.setTextColor(MobilePalette.muted)
         binding.appModeCard.setCardBackgroundColor(MobilePalette.surface)
@@ -292,12 +312,8 @@ class AppManagerActivity : ThemedActivity() {
         binding.appModeCard.radius = 20 * resources.displayMetrics.density
         listOf(binding.appProxyModeDisable, binding.appProxyModeOn, binding.appProxyModeBypass).forEach {
             it.setTextColor(MobilePalette.text)
-            it.isCheckedIconVisible = false
-            it.chipStrokeWidth = 0f
-            it.chipCornerRadius = 12 * resources.displayMetrics.density
-            it.chipBackgroundColor = android.content.res.ColorStateList(
-                arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
-                intArrayOf(androidx.core.graphics.ColorUtils.blendARGB(MobilePalette.surface, MobilePalette.accent(this), .25f), MobilePalette.surface))
+            it.buttonTintList = android.content.res.ColorStateList(
+                arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()), intArrayOf(MobilePalette.accent(this), MobilePalette.muted))
         }
 
 
@@ -312,7 +328,7 @@ class AppManagerActivity : ThemedActivity() {
             appsAdapter.filter.filter(it?.toString() ?: "")
         }
 
-        MobilePalette.tintSwitch(binding.showSystemApps)
+        binding.showSystemApps.setTextColor(MobilePalette.text)
         MobilePalette.tintCursor(binding.search)
         binding.search.setOnFocusChangeListener { _, focused -> if (focused) binding.search.post { MobilePalette.tintCursor(binding.search) } }
         binding.showSystemApps.isChecked = sysApps
@@ -332,8 +348,25 @@ class AppManagerActivity : ThemedActivity() {
         return true
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        menu.findItem(R.id.action_apply)?.isVisible = dirty()
+        return super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("mode", mode)
+        if (selectionLoaded) outState.putString("selection", selectionText())
+        storedSelection?.let { outState.putString("storedSelection", it) }
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.action_apply -> {
+                save()
+                return true
+            }
+
             R.id.action_invert_selections -> {
                 runOnDefaultDispatcher {
                     val proxiedUidsOld = proxiedUids.clone()
@@ -345,9 +378,9 @@ class AppManagerActivity : ThemedActivity() {
                             proxiedUids[app.uid] = true
                         }
                     }
-                    saveSelection()
                     apps = sorted(apps)
                     onMainDispatcher {
+                        selectionChanged()
                         refilter()
                     }
                 }
@@ -356,14 +389,10 @@ class AppManagerActivity : ThemedActivity() {
             }
 
             R.id.action_clear_selections -> {
-                runOnDefaultDispatcher {
-                    proxiedUids.clear()
-                    extraSelected.clear()
-                    DataStore.individual = ""
-                    onMainDispatcher {
-                        loadApps()
-                    }
-                }
+                proxiedUids.clear()
+                extraSelected.clear()
+                selectionChanged()
+                loadApps()
                 return true
             }
 
@@ -373,8 +402,8 @@ class AppManagerActivity : ThemedActivity() {
             }
 
             R.id.action_export_clipboard -> {
-                val success =
-                    SagerNet.trySetPrimaryClip("${DataStore.bypass}\n${DataStore.individual}")
+                // What the screen shows, saved or not: the bypass flag, then the packages.
+                val success = SagerNet.trySetPrimaryClip("${mode == 2}\n${selectionText()}")
                 Snackbar.make(
                     binding.list,
                     if (success) R.string.action_export_msg else R.string.action_export_err,
@@ -386,24 +415,15 @@ class AppManagerActivity : ThemedActivity() {
             R.id.action_import_clipboard -> {
                 val proxiedAppString =
                     SagerNet.clipboard.primaryClip?.getItemAt(0)?.text?.toString()
-                if (!proxiedAppString.isNullOrEmpty()) {
-                    val i = proxiedAppString.indexOf('\n')
-                    try {
-                        val (enabled, apps) = if (i < 0) {
-                            proxiedAppString to ""
-                        } else proxiedAppString.substring(
-                            0, i
-                        ) to proxiedAppString.substring(i + 1)
-                        binding.bypassGroup.check(if (enabled.toBoolean()) R.id.appProxyModeBypass else R.id.appProxyModeOn)
-                        DataStore.individual = apps
-                        Snackbar.make(
-                            binding.list, R.string.action_import_msg, Snackbar.LENGTH_LONG
-                        ).show()
-                        selectionLoaded = false
-                        loadApps()
-                        return true
-                    } catch (_: IllegalArgumentException) {
-                    }
+                if (!proxiedAppString.isNullOrBlank()) {
+                    // The export's first line is the bypass flag; a bare package list keeps the chosen mode.
+                    val flag = proxiedAppString.substringBefore('\n').trim().toBooleanStrictOrNull()
+                    if (flag != null) binding.bypassGroup.check(if (flag) R.id.appProxyModeBypass else R.id.appProxyModeOn)
+                    initProxiedUids(PackageCache.snapshot(), if (flag != null) proxiedAppString.substringAfter('\n', "") else proxiedAppString)
+                    Snackbar.make(binding.list, R.string.action_import_msg, Snackbar.LENGTH_LONG).show()
+                    selectionChanged()
+                    loadApps()
+                    return true
                 }
                 Snackbar.make(binding.list, R.string.action_import_err, Snackbar.LENGTH_LONG).show()
             }
@@ -418,7 +438,7 @@ class AppManagerActivity : ThemedActivity() {
             val uid = listed[name]?.applicationInfo?.uid
             if (uid != null) proxiedUids[uid] = true else extraSelected.add(name)
         }
-        saveSelection()
+        selectionChanged()
         loadApps()
     }
 
@@ -430,7 +450,7 @@ class AppManagerActivity : ThemedActivity() {
         ) {
             try {
                 val needProxyAppsList = getAutoProxyApps("")
-                val bypass = DataStore.bypass
+                val bypass = mode == 2
                 proxiedUids.clear()
                 for (app in cachedApps()) {
                     val needProxy =
@@ -450,7 +470,7 @@ class AppManagerActivity : ThemedActivity() {
                         }
                     }
                 }
-                saveSelection()
+                selectionChanged()
                 apps = sorted(apps)
                 refilter()
             } catch (e: Exception) {

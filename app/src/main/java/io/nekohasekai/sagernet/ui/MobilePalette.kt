@@ -18,25 +18,14 @@ object MobilePalette {
     fun accent(context: Context) = if (!DataStore.useSystemTheme && DataStore.appTheme == Theme.CYAN) Color.rgb(87,190,229)
         else MaterialColors.getColor(context, androidx.appcompat.R.attr.colorAccent, Color.rgb(87,190,229))
 
-    /** The caret and selection handles in the accent: the defaults vanish on the OLED theme. Re-run on focus. */
+    /** The system caret and selection handles, recoloured to the accent: the defaults vanish on the OLED theme. */
     fun tintCursor(edit: android.widget.EditText) {
         val accent = accent(edit.context)
         edit.highlightColor = androidx.core.graphics.ColorUtils.setAlphaComponent(accent, 80)
         if (android.os.Build.VERSION.SDK_INT < 29) return
-        val density = edit.resources.displayMetrics.density
-        edit.textCursorDrawable = android.graphics.drawable.GradientDrawable().apply { setColor(accent); setSize((2 * density).toInt(), (22 * density).toInt()) }
+        edit.textCursorDrawable?.mutate()?.apply { setTint(accent) }?.let { edit.textCursorDrawable = it }
         edit.textSelectHandle?.mutate()?.apply { setTint(accent) }?.let { edit.setTextSelectHandle(it) }
         edit.textSelectHandleLeft?.mutate()?.apply { setTint(accent) }?.let { edit.setTextSelectHandleLeft(it) }
         edit.textSelectHandleRight?.mutate()?.apply { setTint(accent) }?.let { edit.setTextSelectHandleRight(it) }
-    }
-
-    /** An on switch in the accent, an off one muted, as in the settings screens. */
-    fun tintSwitch(switch: androidx.appcompat.widget.SwitchCompat) {
-        val states = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf())
-        val accent = accent(switch.context)
-        switch.thumbTintList = android.content.res.ColorStateList(states, intArrayOf(accent, muted))
-        switch.trackTintList = android.content.res.ColorStateList(states,
-            intArrayOf(androidx.core.graphics.ColorUtils.setAlphaComponent(accent, 110), outline))
-        switch.setTextColor(text)
     }
 }

@@ -84,7 +84,6 @@ class AppListActivity : ThemedActivity() {
             binding.title.setTypeface(null, android.graphics.Typeface.BOLD)
             binding.title.textSize = 16f
             binding.desc.setTextColor(MobilePalette.muted)
-            MobilePalette.tintSwitch(binding.itemcheck)
         }
 
         fun bind(app: AppItem) {
@@ -121,7 +120,7 @@ class AppListActivity : ThemedActivity() {
         var filteredApps = apps
 
         suspend fun reload() {
-            val cache = PackageCache.reload()
+            val cache = PackageCache.snapshot()
             val installed = cache.installedPackages.filterKeys { it != BuildConfig.APPLICATION_ID }
             val list = installed.mapNotNull { (packageName, packageInfo) ->
                 coroutineContext[Job]!!.ensureActive()
@@ -259,7 +258,7 @@ class AppListActivity : ThemedActivity() {
 
         binding.search.addTextChangedListener { refilter() }
 
-        MobilePalette.tintSwitch(binding.showSystemApps)
+        binding.showSystemApps.setTextColor(MobilePalette.text)
         MobilePalette.tintCursor(binding.search)
         binding.search.setOnFocusChangeListener { _, focused -> if (focused) binding.search.post { MobilePalette.tintCursor(binding.search) } }
         binding.showSystemApps.isChecked = sysApps

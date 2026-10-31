@@ -41,38 +41,41 @@
                         android:orientation="vertical"
                         android:padding="12dp">
 
-                        <com.google.android.material.chip.ChipGroup
+                        <RadioGroup
                             android:id="@+id/bypassGroup"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            app:selectionRequired="true"
-                            app:singleLine="false"
-                            app:singleSelection="true">
+                            android:orientation="vertical">
 
-                            <com.google.android.material.chip.Chip
+                            <com.google.android.material.radiobutton.MaterialRadioButton
                                 android:id="@+id/appProxyModeDisable"
-                                android:checkable="true"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:minHeight="48dp"
+                                android:paddingHorizontal="8dp"
+                                android:textSize="16sp"
                                 android:text="@string/qmobile_apps_all" />
 
-                            <com.google.android.material.chip.Chip
+                            <com.google.android.material.radiobutton.MaterialRadioButton
                                 android:id="@+id/appProxyModeOn"
-                                android:checkable="true"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:minHeight="48dp"
+                                android:paddingHorizontal="8dp"
+                                android:textSize="16sp"
                                 android:text="@string/qmobile_apps_only" />
 
-                            <com.google.android.material.chip.Chip
+                            <com.google.android.material.radiobutton.MaterialRadioButton
                                 android:id="@+id/appProxyModeBypass"
-                                android:checkable="true"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:checked="true"
+                                android:minHeight="48dp"
+                                android:paddingHorizontal="8dp"
+                                android:textSize="16sp"
                                 android:text="@string/qmobile_apps_except" />
 
-                        </com.google.android.material.chip.ChipGroup>
+                        </RadioGroup>
                         <TextView android:id="@+id/appModeSummary" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:textSize="13sp" />
 
                         <LinearLayout

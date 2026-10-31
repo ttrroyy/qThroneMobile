@@ -63,7 +63,7 @@ object PackageCache {
     fun reload(): Snapshot {
         val generation = generations.incrementAndGet()
         val rawPackageInfo = app.packageManager.getInstalledPackages(
-            PackageManager.MATCH_UNINSTALLED_PACKAGES or PackageManager.GET_PERMISSIONS
+            PackageManager.MATCH_UNINSTALLED_PACKAGES
         )
 
         // Every app, INTERNET or not: Gemini, for one, requests none and goes online through the Google app.
