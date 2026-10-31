@@ -143,7 +143,7 @@ class XrayVless : Outbound("xrayvless") {
     }
 
     /** xrayVless.h:26-28. */
-    override fun displayType(): String = "VLESS (Xray)"
+    override fun displayType(): String = "VLESS"
 
     /** xrayVless.cpp:126-133. */
     override fun security(): SecurityInfo {
