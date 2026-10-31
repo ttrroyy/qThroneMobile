@@ -76,7 +76,9 @@ APK собирает CI: [`.github/workflows/ci.yml`](.github/workflows/ci.yml),
 - Обфускация WireGuard: [wg-obfuscator](https://github.com/ClusterM/wg-obfuscator), [Phobos](https://github.com/Ground-Zerro/Phobos), [xt_wgobfs](https://github.com/infinet/xt_wgobfs), [rs-wgobfs](https://github.com/infinet/rs-wgobfs)
 - Прочее: [routeprofiles](https://github.com/throneproj/routeprofiles), [sing-box-dashboard](https://github.com/SagerNet/sing-box-dashboard), [flag-icons](https://github.com/lipis/flag-icons)
 
-## Поддержать проект
+## Обсуждение и поддержка
+
+[Группа в Telegram](https://t.me/raw_comm)
 
 Понравилось - ставь ⭐ репозиторию: это помогает другим найти проект.
 
