@@ -12,7 +12,7 @@ class JsonEgressTest {
         val body="""{"outbounds":[{"type":"selector","tag":"select","outbounds":["v","h"],"default":"h"},{"type":"vless","tag":"v","server":"192.0.2.1","server_port":443},{"type":"hysteria2","tag":"h","server":"192.0.2.2","server_port":443}],"route":{"final":"select","rules":[{"domain":["example.org"],"outbound":"v"}]}}"""
         // Added by hand as a custom config: imports split such configs like the desktop.
         val imported=Custom().apply { subtype=Custom.CUSTOM_FULL_CONFIG;config=body }
-        assertEquals("Hysteria",imported.displayType())
+        assertEquals("Hysteria 2",imported.displayType())
         val result=ConfigGenerator(ProfileProvider { imported },GeneratorSettings(vpnMode=true)).build(1)
         assertNull(result.error)
         val config=JsonInput.parseObject(result.coreConfig)

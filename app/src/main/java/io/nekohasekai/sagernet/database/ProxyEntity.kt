@@ -110,6 +110,8 @@ data class ProxyEntity(
 
     fun displayType(): String = outbound.displayType().ifEmpty { type }
 
+    fun displayProtocol(): String = outbound.displayProtocol().ifEmpty { type }
+
     /** The share link of the profile, "" for the types that have none. */
     fun exportLink(): String = outbound.exportToLink().takeIf { it.contains("://") } ?: ""
 

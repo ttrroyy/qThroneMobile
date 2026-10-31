@@ -11,7 +11,7 @@ class HappHysteriaImportTest {
         assertEquals(result.messages.toString(),1,result.outbounds.size)
         val imported = result.outbounds.single() as Custom
         assertEquals(Custom.CUSTOM_XRAY_FULL_CONFIG,imported.subtype)
-        assertEquals("Hysteria",imported.displayType())
+        assertEquals("Hysteria 2",imported.displayType())
         val outbound = imported.configObject().array("outbounds")[0] as app.qthrone.mobile.outbound.json.JsonObject
         assertEquals("hysteria",outbound.string("protocol"))
         assertEquals(2,outbound.obj("streamSettings").obj("hysteriaSettings").int("version"))

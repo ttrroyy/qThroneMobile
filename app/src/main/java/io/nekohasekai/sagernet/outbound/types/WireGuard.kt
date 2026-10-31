@@ -599,7 +599,17 @@ class WireGuard : Outbound("wireguard") {
     override fun displayAddress(): String = Hosts.displayAddress(peer.address, peer.port)
 
     /** wireguard.cpp:379-381. */
-    override fun displayType(): String = "WireGuard"
+    override fun displayType(): String = if (enable_amnezia) "AWG " + amneziaVersion() else "WireGuard"
+
+    /** The AmneziaWG generation the parameters belong to, by the markers the AmneziaVPN client itself checks. */
+    fun amneziaVersion(): String = when {
+        random_trailers || disable_cookies -> "3.1"
+        listOf(header_protection_key, content_padding_addition, rekey_after_time, rekey_timeout, reject_after_time,
+            keepalive_timeout, max_handshake_attempts).any { it.isNotBlank() } -> "3.0"
+        s3 > 0 || s4 > 0 || listOf(h1, h2, h3, h4).any { '-' in it } -> "2.0"
+        listOf(i1, i2, i3, i4, i5).any { it.isNotBlank() } -> "1.5"
+        else -> "1.0"
+    }
 
     /** wireguard.cpp:383-385. */
     override fun security(): SecurityInfo = SecurityInfo("Encrypted", when {

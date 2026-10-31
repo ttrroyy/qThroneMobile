@@ -108,9 +108,12 @@ class MobileHomeFragment : ToolbarFragment() {
     private var pulseTarget: View?=null
     private var load: Job? = null
     private var refreshPending = false
+    private val refreshSoon = Runnable { refresh() }
+    /** A new subscription's first update writes its group and profiles many times in a row; one rebuild instead of a flicker. */
+    private fun scheduleRefresh() { activity?.runOnUiThread { view?.run { removeCallbacks(refreshSoon); postDelayed(refreshSoon, 150) } } }
     /** An import writes from the service process, which Room's invalidation does not always report here. */
     private val groupListener = object : GroupRepo.Listener {
-        private fun changed() { activity?.runOnUiThread { refresh() } }
+        private fun changed() = scheduleRefresh()
         override suspend fun groupAdd(group: ProxyGroup) = changed()
         override suspend fun groupUpdated(group: ProxyGroup) = changed()
         override suspend fun groupRemoved(groupId: Long) = changed()
@@ -242,7 +245,7 @@ class MobileHomeFragment : ToolbarFragment() {
         state?.getLongArray("knownGroups")?.let { knownGroups.addAll(it.toList()) }
         state?.let { saved -> saved.getLongArray("pageGroups")?.zip(saved.getIntArray("profilePages")?.toList().orEmpty())?.let { profilePages.putAll(it) } }
         observer = object : InvalidationTracker.Observer("groups", "profiles") {
-            override fun onInvalidated(tables: Set<String>) { activity?.runOnUiThread { refresh() } }
+            override fun onInvalidated(tables: Set<String>) = scheduleRefresh()
         }.also { SagerDatabase.instance.invalidationTracker.addObserver(it) }
         GroupRepo.addListener(groupListener)
         viewLifecycleOwner.lifecycleScope.launch { SubscriptionClient.states.collect { updateSubscriptionButtons() } }
@@ -329,7 +332,7 @@ class MobileHomeFragment : ToolbarFragment() {
                 if(previousStructure != keys) groups.forEach { (group,profiles) ->
                     if(!group.subOptions.allowCollapse || group.id !in collapsedSnapshot) {
                         val window=windows.getValue(group.id)
-                        profiles.subList(window.start,window.end).forEach { it.displayName();it.displayType() }
+                        profiles.subList(window.start,window.end).forEach { it.displayName();it.displayProtocol() }
                     }
                 }
                 Triple(groups,keys,windows)
@@ -646,7 +649,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     row.addView(badge,LinearLayout.LayoutParams(dp(28),dp(28)).apply { marginStart=dp(10) })
                     val labels = LinearLayout(requireContext()).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(10), dp(6), dp(6), dp(6)) }
                     labels.addView(text(if(hasFlag) displayName.substring(flagLength).trimStart() else displayName, 15f).apply { setTypeface(null,Typeface.BOLD); setPadding(0,0,0,dp(2)); maxLines = 1; ellipsize = android.text.TextUtils.TruncateAt.END })
-                    labels.addView(text(profile.displayType(), 12f, muted).apply { setPadding(0,0,0,0); maxLines=1 })
+                    labels.addView(text(profile.displayProtocol(), 12f, muted).apply { setPadding(0,0,0,0); maxLines=1 })
                     row.addView(labels, LinearLayout.LayoutParams(0, -2, 1f))
                     val latency=FrameLayout(requireContext()).apply { tag=profile.latency }
                     nextLatencyViews[profile.id]=latency

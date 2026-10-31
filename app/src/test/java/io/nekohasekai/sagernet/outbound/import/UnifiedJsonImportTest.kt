@@ -66,7 +66,7 @@ class UnifiedJsonImportTest {
         for(input in wrapped(body)) {
             val result=ProfileImport.parse(input)
             assertEquals(result.messages.toString(),1,result.outbounds.size)
-            assertEquals("Hysteria",result.outbounds.single().displayType())
+            assertEquals("Hysteria 2",result.outbounds.single().displayType())
             val custom=result.outbounds.single() as app.qthrone.mobile.outbound.types.Custom
             assertTrue(custom.configObject().obj("routing").contains("balancers"))
             assertEquals(2,(custom.configObject().array("outbounds")[0] as app.qthrone.mobile.outbound.json.JsonObject).obj("settings").int("version"))

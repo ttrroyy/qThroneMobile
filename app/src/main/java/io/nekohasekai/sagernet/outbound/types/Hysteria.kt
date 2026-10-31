@@ -398,7 +398,7 @@ class Hysteria : Outbound("hysteria") {
     }
 
     /** hysteria.cpp:453-456. */
-    override fun displayType(): String = "Hysteria"
+    override fun displayType(): String = if (protocol_version == "2") "Hysteria 2" else "Hysteria"
 
     /** hysteria.cpp:458-461. */
     override fun security(): SecurityInfo = securityFromTls("QUIC")

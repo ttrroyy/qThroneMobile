@@ -96,6 +96,19 @@ abstract class Outbound(@JvmField var type: String) {
 
     fun displayTypeAndName(): String = "[${displayType()}] ${displayName()}"
 
+    /** Whether the profile rides a stream transport (VLESS, VMess, Trojan), so the list names transport and security. */
+    open fun streamProtocol(): Boolean = hasTransport() || isXray()
+
+    /** The profile list label: "VLESS / XHTTP / Reality", "Trojan / TCP / TLS"; other protocols show [displayType] alone. */
+    fun displayProtocol(): String {
+        val type = displayType()
+        if (!streamProtocol()) return type
+        val info = security()
+        val parts = mutableListOf(type, info.transport.ifEmpty { "TCP" })
+        if (info.label.isNotEmpty() && info.label != "Raw") parts += info.label
+        return parts.joinToString(" / ")
+    }
+
     /** GetSecurity (Outbound.cpp:72-92): what the profile's own settings give; consumers want [effectiveSecurity]. */
     open fun security(): SecurityInfo {
         if (isXray()) {

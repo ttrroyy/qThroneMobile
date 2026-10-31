@@ -91,6 +91,16 @@ class Custom : Outbound("custom") {
         else -> subtype
     }
 
+    override fun streamProtocol(): Boolean = egressProtocol() in setOf("vless", "vmess", "trojan")
+
+    private fun egressProtocol(): String = when (subtype) {
+        CUSTOM_OUTBOUND -> configObject().string("type")
+        CUSTOM_FULL_CONFIG -> singBoxFullConfigEgress(configObject()).string("type")
+        CUSTOM_XRAY_OUTBOUND -> configObject().string("protocol")
+        CUSTOM_XRAY_FULL_CONFIG -> xrayFullConfigEgress(configObject()).string("protocol")
+        else -> ""
+    }.lowercase()
+
     private fun protocolLabel(protocol: String, xray: Boolean): String? {
         val type = when (protocol.lowercase()) {
             "hy2", "hysteria2" -> "hysteria"
@@ -102,6 +112,8 @@ class Custom : Outbound("custom") {
                 "hysteria", "tuic", "juicity", "trusttunnel", "anytls", "mieru", "snell", "shadowtls",
                 "wireguard", "masque", "openvpn", "openconnect", "ssh", "naive")) return null
         val outbound = OutboundFactory.newByType(type)
+        // Xray's hysteria is always version 2; sing-box spells it hysteria2.
+        if (outbound is Hysteria && (xray || protocol.lowercase() != "hysteria")) outbound.protocol_version = "2"
         return if (outbound.invalid) null else outbound.displayType()
     }
 

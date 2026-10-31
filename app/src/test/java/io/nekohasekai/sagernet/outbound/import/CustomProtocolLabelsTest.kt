@@ -21,7 +21,9 @@ class CustomProtocolLabelsTest {
                             if(full) Custom.CUSTOM_XRAY_FULL_CONFIG else Custom.CUSTOM_XRAY_OUTBOUND
                         } else if(full) Custom.CUSTOM_FULL_CONFIG else Custom.CUSTOM_OUTBOUND
                     }
-                    val expected=OutboundFactory.newByType(if(xray && type=="vless") "xrayvless" else type).displayType()
+                    // Xray's hysteria and sing-box's hysteria2 are both version 2.
+                    val expected=if(type=="hysteria2" || xray && type=="hysteria") "Hysteria 2"
+                        else OutboundFactory.newByType(if(xray && type=="vless") "xrayvless" else type).displayType()
                     assertEquals("$type xray=$xray full=$full",expected,profile.displayType())
                     assertEquals(config,profile.config)
                 }

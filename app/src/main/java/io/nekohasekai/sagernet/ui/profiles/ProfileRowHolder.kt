@@ -243,7 +243,7 @@ internal class ProfileRowHolder(view: View, private val adapter: ProfileListAdap
         this.profile = profile
         val context = itemView.context
         name.text = profile.displayName()
-        type.text = profile.displayType()
+        type.text = profile.displayProtocol()
         type.setTextColor(context.getProtocolColor(profile.type))
         bindContent()
         bindState()
