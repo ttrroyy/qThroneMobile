@@ -18,14 +18,24 @@ object MobilePalette {
     fun accent(context: Context) = if (!DataStore.useSystemTheme && DataStore.appTheme == Theme.CYAN) Color.rgb(87,190,229)
         else MaterialColors.getColor(context, androidx.appcompat.R.attr.colorAccent, Color.rgb(87,190,229))
 
-    /** The system caret and selection handles, recoloured to the accent: the defaults vanish on the OLED theme. */
+    /** The caret and selection handles in the accent: the theme draws them black, which vanishes on the dark themes. */
     fun tintCursor(edit: android.widget.EditText) {
         val accent = accent(edit.context)
         edit.highlightColor = androidx.core.graphics.ColorUtils.setAlphaComponent(accent, 80)
         if (android.os.Build.VERSION.SDK_INT < 29) return
-        edit.textCursorDrawable?.mutate()?.apply { setTint(accent) }?.let { edit.textCursorDrawable = it }
-        edit.textSelectHandle?.mutate()?.apply { setTint(accent) }?.let { edit.setTextSelectHandle(it) }
-        edit.textSelectHandleLeft?.mutate()?.apply { setTint(accent) }?.let { edit.setTextSelectHandleLeft(it) }
-        edit.textSelectHandleRight?.mutate()?.apply { setTint(accent) }?.let { edit.setTextSelectHandleRight(it) }
+        // The theme has no caret drawable to recolour, so the caret is drawn here: 2dp wide, the line's height.
+        edit.textCursorDrawable = android.graphics.drawable.GradientDrawable().apply {
+            setColor(accent); setSize((2 * edit.resources.displayMetrics.density).toInt(), 0)
+        }
+        // A handle the view has not loaded yet comes from the platform theme.
+        fun handle(current: android.graphics.drawable.Drawable?, attr: Int) = (current ?: run {
+            val styled = edit.context.obtainStyledAttributes(intArrayOf(attr))
+            val res = styled.getResourceId(0, 0)
+            styled.recycle()
+            if (res == 0) null else androidx.core.content.ContextCompat.getDrawable(edit.context, res)
+        })?.mutate()?.apply { setTint(accent) }
+        handle(edit.textSelectHandle, android.R.attr.textSelectHandle)?.let { edit.setTextSelectHandle(it) }
+        handle(edit.textSelectHandleLeft, android.R.attr.textSelectHandleLeft)?.let { edit.setTextSelectHandleLeft(it) }
+        handle(edit.textSelectHandleRight, android.R.attr.textSelectHandleRight)?.let { edit.setTextSelectHandleRight(it) }
     }
 }
