@@ -3,6 +3,8 @@
     <string name="qmobile_import_target">Where should this be added?</string>
     <string name="qmobile_advanced_import">Advanced profile import</string>
     <string name="qmobile_advanced_import_sum">Ask where to add a profile or subscription. When off, profiles go to the server list and subscriptions are added as separate subscriptions</string>
+    <string name="qmobile_url_detected">Link detected</string>
+    <string-array name="qmobile_url_import"><item>Add the link's profiles to the server list</item><item>Create a subscription</item><item>Add as an HTTP(S) proxy</item></string-array>
     <string name="qmobile_default_group">Default group</string>
     <string name="qmobile_new_group">Create a group</string>
     <string name="qmobile_existing_group">Add to an existing group</string>

@@ -183,15 +183,35 @@ class ImportTargetActivity : ThemedActivity() {
         fun start(activity: FragmentActivity, kind: String, content: String, name: String = "") = runOnDefaultDispatcher {
             val direct = !DataStore.advancedImport
             if (direct && kind == "text") {
-                // Without the choice a subscription becomes its own group, as before the choice existed.
                 val link = SubscribeFlows.subscribeLink(content)
                 val uri = Uri.parse(content)
-                val url = link?.url ?: uri.takeIf { it.scheme in listOf("http", "https") && !SubscribeFlows.proxyUrl(it) }
-                    ?.buildUpon()?.fragment(null)?.build()?.toString()
-                if (url != null) {
+                val subscribe: suspend (String) -> Unit = { url ->
                     val gid = SubscriptionClient.subscribeUrl(url, name.ifBlank { link?.name.orEmpty().ifBlank { uri.fragment.orEmpty() } }, true)
                     if (gid > 0) GroupRepo.setCurrent(gid)
                     onMainDispatcher { (activity as? MainActivity)?.displayFragmentWithId(R.id.nav_mobile_home) }
+                }
+                // A subscription link (provider, addsub, clash) is a subscription, as on the desktop.
+                if (link != null) { subscribe(link.url); return@runOnDefaultDispatcher }
+                if (uri.scheme in listOf("http", "https")) {
+                    // A bare URL may be a subscription or a proxy: the desktop's "url detected" choice (import_text).
+                    onMainDispatcher {
+                        if (activity.isFinishing || activity.isDestroyed) return@onMainDispatcher
+                        MobileAlertDialogBuilder(activity).setTitle(R.string.qmobile_url_detected)
+                            .setItems(activity.resources.getStringArray(R.array.qmobile_url_import)) { _, which ->
+                                runOnDefaultDispatcher {
+                                    val list = GroupRepo.serverListId()
+                                    when (which) {
+                                        0 -> { SubscriptionClient.importUrl(content, list); GroupRepo.setCurrent(list) }
+                                        1 -> subscribe(uri.buildUpon().fragment(null).build().toString())
+                                        else -> {
+                                            val count = SubscriptionClient.importText(content, list)
+                                            GroupRepo.setCurrent(list)
+                                            onMainDispatcher { android.widget.Toast.makeText(activity, activity.getString(R.string.grp_imported_count, count), android.widget.Toast.LENGTH_SHORT).show() }
+                                        }
+                                    }
+                                }
+                            }.setNegativeButton(android.R.string.cancel, null).show()
+                    }
                     return@runOnDefaultDispatcher
                 }
             }
