@@ -40,6 +40,27 @@ class HttpFetchResult(val body: String, private val headers: Headers) {
 /** user_agent2, or the app's own user agent while it is empty (SettingsRepo::GetUserAgent). */
 fun appUserAgent(): String = DataStore.userAgent2.ifBlank { USER_AGENT }
 
+/**
+ * The mixed inbound as the app's HTTP proxy. sing-box closes a connection without credentials instead of answering 407,
+ * so they go with the first request: for https through the CONNECT (OkHttp's preemptive proxy authentication), for
+ * plain http on the request itself, which only the proxy reads.
+ */
+fun useAppHttpProxy(builder: OkHttpClient.Builder) {
+    builder.proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(appProxyHost(), DataStore.inboundHttpPort)))
+    if (!DataStore.effectiveInboundAuth) return
+    val credential = Credentials.basic(DataStore.listenerUser, DataStore.listenerPass)
+    builder.proxyAuthenticator(object : okhttp3.Authenticator {
+        override fun authenticate(route: Route?, response: Response): Request? {
+            if (response.request.header("Proxy-Authorization") != null) return null
+            return response.request.newBuilder().header("Proxy-Authorization", credential).build()
+        }
+    })
+    builder.addInterceptor { chain ->
+        val request = chain.request()
+        chain.proceed(if (request.isHttps) request else request.newBuilder().header("Proxy-Authorization", credential).build())
+    }
+}
+
 /** The mixed inbound as the app reaches it: TUN mode always listens on loopback (ConfigGenerator.buildInboundSection). */
 fun appProxyHost(): String =
     if (DataStore.serviceMode == Key.MODE_VPN) LOCALHOST else DataStore.inboundAddress.let { if (it == "::") LOCALHOST else it }
@@ -148,17 +169,7 @@ fun httpGet(url: String, options: HttpGetOptions = HttpGetOptions()): HttpGetRes
         return HttpGetResponse(ByteArray(0), null, app.getString(R.string.subs_request_proxy_no_profile))
     }
     if (connected) {
-        val address = appProxyHost()
-        builder.proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(address, DataStore.inboundHttpPort)))
-        if (DataStore.effectiveInboundAuth) {
-            val credential = Credentials.basic(DataStore.listenerUser, DataStore.listenerPass)
-            builder.proxyAuthenticator(object : okhttp3.Authenticator {
-                override fun authenticate(route: Route?, response: Response): Request? {
-                    if (response.request.header("Proxy-Authorization") != null) return null
-                    return response.request.newBuilder().header("Proxy-Authorization", credential).build()
-                }
-            })
-        }
+        useAppHttpProxy(builder)
     }
     if (options.restrictTls13) {
         builder.connectionSpecs(
@@ -240,17 +251,7 @@ fun appHttpClient(viaProxy: Boolean, timeoutSeconds: Long = 30): OkHttpClient {
         .readTimeout(timeoutSeconds, TimeUnit.SECONDS)
         .writeTimeout(timeoutSeconds, TimeUnit.SECONDS)
     if (viaProxy) {
-        val address = appProxyHost()
-        builder.proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(address, DataStore.inboundHttpPort)))
-        if (DataStore.effectiveInboundAuth) {
-            val credential = Credentials.basic(DataStore.listenerUser, DataStore.listenerPass)
-            builder.proxyAuthenticator(object : okhttp3.Authenticator {
-                override fun authenticate(route: Route?, response: Response): Request? {
-                    if (response.request.header("Proxy-Authorization") != null) return null
-                    return response.request.newBuilder().header("Proxy-Authorization", credential).build()
-                }
-            })
-        }
+        useAppHttpProxy(builder)
     }
     if (DataStore.appTLSVersion == "1.3") {
         builder.connectionSpecs(
