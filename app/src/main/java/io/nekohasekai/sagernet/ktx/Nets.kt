@@ -40,8 +40,9 @@ class HttpFetchResult(val body: String, private val headers: Headers) {
 /** user_agent2, or the app's own user agent while it is empty (SettingsRepo::GetUserAgent). */
 fun appUserAgent(): String = DataStore.userAgent2.ifBlank { USER_AGENT }
 
-/** App requests use the mixed inbound with net_use_proxy or in proxy service mode (HTTPRequestHelper.cpp:26). */
-fun appRequestsViaProxy(): Boolean = DataStore.netUseProxy || DataStore.serviceMode == Key.MODE_PROXY
+/** The mixed inbound as the app reaches it: TUN mode always listens on loopback (ConfigGenerator.buildInboundSection). */
+fun appProxyHost(): String =
+    if (DataStore.serviceMode == Key.MODE_VPN) LOCALHOST else DataStore.inboundAddress.let { if (it == "::") LOCALHOST else it }
 
 /**
  * Whether an app request that would use the proxy fails while no profile runs: only with net_use_proxy (or a
@@ -50,7 +51,7 @@ fun appRequestsViaProxy(): Boolean = DataStore.netUseProxy || DataStore.serviceM
 fun appRequestsNeedProxy(useProxy: Boolean = false): Boolean = useProxy || DataStore.netUseProxy
 
 // App-internal HTTP (subscriptions, update check): through the mixed inbound when [viaProxy] and the service is
-// connected and that inbound exists, direct otherwise. The main process never loads the core.
+// connected, direct otherwise. The main process never loads the core.
 fun newHttpClient(
     viaProxy: Boolean = true,
     allowInsecure: Boolean = false,
@@ -66,7 +67,7 @@ fun newHttpClient(
         .connectTimeout(timeoutSeconds, TimeUnit.SECONDS)
         .readTimeout(timeoutSeconds, TimeUnit.SECONDS)
         .writeTimeout(timeoutSeconds, TimeUnit.SECONDS)
-    if (viaProxy && DataStore.serviceState.connected && !DataStore.mixedInboundDisabled) {
+    if (viaProxy && DataStore.serviceState.connected) {
         builder.proxy(Proxy(Proxy.Type.SOCKS, InetSocketAddress(LOCALHOST, DataStore.inboundSocksPort)))
         if (DataStore.effectiveInboundAuth) SocksAuthenticator.install()
     }
@@ -93,7 +94,7 @@ fun newHttpClient(
 fun fetchText(
     url: String,
     userAgent: String = appUserAgent(),
-    viaProxy: Boolean = appRequestsViaProxy(),
+    viaProxy: Boolean = true,
     allowInsecure: Boolean = DataStore.netInsecure,
     restrictTls13: Boolean = false,
 ): HttpFetchResult {
@@ -130,9 +131,9 @@ private const val MAX_REDIRECTS = 20
 /**
  * NetworkRequestHelper::HttpGet (HTTPRequestHelper.cpp:25-91): 10 s connect/inactivity timeouts, redirects followed
  * except from https to http, net_insecure, the user agent (options or user_agent2 / the app default), a body cap.
- * With net_use_proxy, the proxy service mode or [HttpGetOptions.useProxy] the request goes through the mixed inbound
- * as an HTTP proxy; a VPN without the mixed inbound tunnels the request instead. While no profile runs it fails
- * with net_use_proxy or useProxy, and goes direct in the proxy service mode ([appRequestsNeedProxy]).
+ * While a profile runs the request goes through the mixed inbound as an HTTP proxy in either service mode, as the
+ * desktop's requests reach its tunnel (the app is outside its own TUN, the desktop GUI inside). While none runs it
+ * fails with net_use_proxy or useProxy and goes direct otherwise ([appRequestsNeedProxy]).
  * Blocking: call it off the main thread.
  */
 fun httpGet(url: String, options: HttpGetOptions = HttpGetOptions()): HttpGetResponse {
@@ -146,19 +147,17 @@ fun httpGet(url: String, options: HttpGetOptions = HttpGetOptions()): HttpGetRes
     if (!connected && appRequestsNeedProxy(options.useProxy)) {
         return HttpGetResponse(ByteArray(0), null, app.getString(R.string.subs_request_proxy_no_profile))
     }
-    if (connected && (options.useProxy || appRequestsViaProxy())) {
-        if (!DataStore.mixedInboundDisabled) {
-            val address = DataStore.inboundAddress.let { if (it == "::") LOCALHOST else it }
-            builder.proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(address, DataStore.inboundHttpPort)))
-            if (DataStore.effectiveInboundAuth) {
-                val credential = Credentials.basic(DataStore.inboundUser, DataStore.inboundPass)
-                builder.proxyAuthenticator(object : okhttp3.Authenticator {
-                    override fun authenticate(route: Route?, response: Response): Request? {
-                        if (response.request.header("Proxy-Authorization") != null) return null
-                        return response.request.newBuilder().header("Proxy-Authorization", credential).build()
-                    }
-                })
-            }
+    if (connected) {
+        val address = appProxyHost()
+        builder.proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(address, DataStore.inboundHttpPort)))
+        if (DataStore.effectiveInboundAuth) {
+            val credential = Credentials.basic(DataStore.inboundUser, DataStore.inboundPass)
+            builder.proxyAuthenticator(object : okhttp3.Authenticator {
+                override fun authenticate(route: Route?, response: Response): Request? {
+                    if (response.request.header("Proxy-Authorization") != null) return null
+                    return response.request.newBuilder().header("Proxy-Authorization", credential).build()
+                }
+            })
         }
     }
     if (options.restrictTls13) {
@@ -240,8 +239,8 @@ fun appHttpClient(viaProxy: Boolean, timeoutSeconds: Long = 30): OkHttpClient {
         .connectTimeout(timeoutSeconds, TimeUnit.SECONDS)
         .readTimeout(timeoutSeconds, TimeUnit.SECONDS)
         .writeTimeout(timeoutSeconds, TimeUnit.SECONDS)
-    if (viaProxy && !DataStore.mixedInboundDisabled) {
-        val address = DataStore.inboundAddress.let { if (it == "::") LOCALHOST else it }
+    if (viaProxy) {
+        val address = appProxyHost()
         builder.proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(address, DataStore.inboundHttpPort)))
         if (DataStore.effectiveInboundAuth) {
             val credential = Credentials.basic(DataStore.inboundUser, DataStore.inboundPass)

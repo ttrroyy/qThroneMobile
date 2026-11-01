@@ -642,7 +642,7 @@
     <string name="direct_test_url_empty">system network state</string>
     <string name="speed_test_mode_country">Only country</string>
     <string name="net_use_proxy">Use proxy</string>
-    <string name="net_use_proxy_sum">Send subscription and update requests through the local proxy</string>
+    <string name="net_use_proxy_sum">While connected, requests always go through the tunnel. With this on, they fail instead of going direct when no profile runs</string>
     <string name="net_insecure">Ignore TLS errors</string>
     <string name="net_insecure_sum">Disable certificate checking for subscription and update requests</string>
     <string name="xray_log_level">Xray log level</string>

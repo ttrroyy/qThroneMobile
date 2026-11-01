@@ -851,7 +851,7 @@
     <string name="net_insecure">Игнорировать ошибки TLS</string>
     <string name="net_insecure_sum">Отключить проверку сертификатов для запросов подписок и обновлений</string>
     <string name="net_use_proxy">Использовать прокси</string>
-    <string name="net_use_proxy_sum">Отправлять запросы подписок и обновлений через локальный прокси</string>
+    <string name="net_use_proxy_sum">При подключении запросы и так идут через туннель. С этой настройкой без подключения они не уходят напрямую, а завершаются ошибкой</string>
     <string name="not_now">Не сейчас</string>
     <string name="notification_actions">Кнопки уведомлений</string>
     <string name="notification_actions_too_many">Выберите не более 3 кнопок</string>

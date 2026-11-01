@@ -50,7 +50,6 @@ object SettingsMapper {
 
     /** The DNS fields come from [dns], the routing profile's own DNS (RouteDns::Current), when given. */
     fun generatorSettings(dns: RouteDns? = null): GeneratorSettings {
-        val mixedEnabled = !DataStore.mixedInboundDisabled
         val clashApi = DataStore.coreBoxClashApi
         val routeDns = dns ?: RouteDnsSettings.global()
         return GeneratorSettings(
@@ -62,7 +61,6 @@ object SettingsMapper {
             ntpOutbound = DataStore.ntpOutbound,
             useMozillaCerts = DataStore.useMozillaCerts,
             dnsInPort = DataStore.coreDnsInPort,
-            mixedInboundEnabled = mixedEnabled,
             inboundAddress = DataStore.inboundAddress.ifBlank { SettingsRegistry.LOOPBACK_ADDRESS },
             mixedPort = DataStore.inboundSocksPort,
             httpPort = DataStore.inboundHttpPort,
@@ -79,7 +77,7 @@ object SettingsMapper {
             ipv6Enabled = DataStore.vpnIpv6,
             bypassLan = !DataStore.disablePrivateRangeBypass,
             lanSharingEnabled = DataStore.lanSharingEnabled,
-            appProxyEnabled = DataStore.netUseProxy,
+            appProxyEnabled = true,
             privateRanges = DataStore.vpnPrivateRanges,
             localLanCidrs = localLanCidrs(),
             perAppEnabled = DataStore.proxyApps,

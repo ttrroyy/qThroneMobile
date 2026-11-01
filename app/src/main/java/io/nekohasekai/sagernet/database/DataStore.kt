@@ -150,10 +150,6 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var inboundPass by SettingsRegistry.INBOUND_PASS
     var customInbound by SettingsRegistry.CUSTOM_INBOUND
 
-    /** VPN mode has a mixed inbound only for LAN sharing or the app's own requests (net_use_proxy). */
-    val mixedInboundDisabled: Boolean
-        get() = serviceMode == Key.MODE_VPN && !lanSharingEnabled && !netUseProxy
-
     /** inbound_address is anything but a loopback address (the desktop's "Allow other devices to connect"). */
     val allowLanAccess: Boolean
         get() = !SettingsRegistry.isLoopbackAddress(inboundAddress)

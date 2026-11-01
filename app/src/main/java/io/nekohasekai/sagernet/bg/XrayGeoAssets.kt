@@ -9,7 +9,6 @@ import app.qthrone.mobile.database.SettingsRegistry
 import app.qthrone.mobile.ktx.Logs
 import app.qthrone.mobile.ktx.app
 import app.qthrone.mobile.ktx.appHttpClient
-import app.qthrone.mobile.ktx.appRequestsViaProxy
 import app.qthrone.mobile.ktx.appUserAgent
 import app.qthrone.mobile.ktx.readableMessage
 import app.qthrone.mobile.ktx.serviceConnected
@@ -224,7 +223,7 @@ object XrayGeoAssets {
         // Per process: the settings screen and :bg may fetch the same file at once, each renames a complete copy.
         val temp = File(target.parentFile, "$name.${Process.myPid()}.tmp")
         sweepStaleTemps(name, temp)
-        val client = appHttpClient(viaProxy = appRequestsViaProxy() && serviceConnected(), timeoutSeconds = TIMEOUT_SECONDS)
+        val client = appHttpClient(viaProxy = serviceConnected(), timeoutSeconds = TIMEOUT_SECONDS)
         val call = client.newCall(Request.Builder().url(url).header("User-Agent", appUserAgent()).build())
         // A blocking read ignores coroutine cancellation; cancelling the call ends it.
         val watcher = launch(start = CoroutineStart.UNDISPATCHED) {

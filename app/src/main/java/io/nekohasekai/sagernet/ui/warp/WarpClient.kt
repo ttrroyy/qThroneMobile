@@ -3,11 +3,10 @@ package app.qthrone.mobile.ui.warp
 import app.qthrone.mobile.R
 import app.qthrone.mobile.bg.CoreServiceClient
 import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.ktx.LOCALHOST
+import app.qthrone.mobile.ktx.appProxyHost
 import app.qthrone.mobile.ktx.Logs
 import app.qthrone.mobile.ktx.app
 import app.qthrone.mobile.ktx.appRequestsNeedProxy
-import app.qthrone.mobile.ktx.appRequestsViaProxy
 import app.qthrone.mobile.outbound.json.JsonInput
 import app.qthrone.mobile.outbound.link.LinkCodec
 import kotlinx.coroutines.CancellationException
@@ -78,19 +77,16 @@ object WarpClient {
     }
 
     /**
-     * warpProxy (warp.cpp:10-25) with the Android app-request rule of ktx/Nets.kt httpGet: when app requests use the
-     * proxy they need a running profile (D22) and go through the mixed inbound, which speaks HTTP; without that
-     * inbound a VPN tunnels the request. "" is a direct request.
+     * warpProxy (warp.cpp:10-25) with the Android app-request rule of ktx/Nets.kt httpGet: while a profile runs the
+     * request goes through the mixed inbound, which speaks HTTP. "" is a direct request.
      */
     fun proxy(): String {
-        if (!appRequestsViaProxy()) return ""
         if (!DataStore.serviceState.connected) {
             // only net_use_proxy needs a running profile; the proxy service mode goes direct like httpGet
             if (appRequestsNeedProxy()) error(app.getString(R.string.warp_proxy_not_started))
             return ""
         }
-        if (DataStore.mixedInboundDisabled) return ""
-        var host = DataStore.inboundAddress.let { if (it == "::") LOCALHOST else it }
+        var host = appProxyHost()
         if (host.contains(':')) host = "[$host]"
         val credentials = if (DataStore.effectiveInboundAuth) {
             val user = LinkCodec.percentEncodeAll(DataStore.inboundUser)

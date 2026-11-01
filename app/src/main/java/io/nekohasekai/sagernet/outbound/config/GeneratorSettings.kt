@@ -56,7 +56,7 @@ data class GeneratorSettings(
     /** !disable_private_range_bypass (SettingsRepo.h:238). */
     val bypassLan: Boolean = true,
     val lanSharingEnabled: Boolean = false,
-    /** VPN mode: a loopback mixed inbound for the app's own requests (net_use_proxy); the app is outside its tun. */
+    /** VPN mode: a loopback mixed inbound that carries the app's own requests, since the app is outside its tun. */
     val appProxyEnabled: Boolean = false,
     /** vpn_private_ranges (SettingsRepo.h:239, defaultTunPrivateRanges); a range a non-direct rule targets stays in the tun. */
     val privateRanges: List<String> = DEFAULT_PRIVATE_RANGES,

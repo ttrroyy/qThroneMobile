@@ -32,8 +32,6 @@ class SubscriptionSettingsFragment : SettingsScreenFragment(R.xml.settings_subsc
         checkText(userAgent.key, R.string.invalid_value, reload = false) { true }
 
         bindAutoUpdate()
-        // VPN mode opens its loopback proxy for the app's requests only with this switch on.
-        reloadOn(SettingsRegistry.NET_USE_PROXY.key)
         pref<EditTextPreference>(SettingsRegistry.SUB_REQUEST_TIMEOUT.key).apply {
             summaryProvider = Preference.SummaryProvider<EditTextPreference> {
                 getString(R.string.sub_settings_timeout_summary, DataStore.subRequestTimeoutSeconds)

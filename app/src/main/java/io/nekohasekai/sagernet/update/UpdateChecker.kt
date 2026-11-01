@@ -7,7 +7,6 @@ import app.qthrone.mobile.R
 import app.qthrone.mobile.database.DataStore
 import app.qthrone.mobile.ktx.Logs
 import app.qthrone.mobile.ktx.USER_AGENT
-import app.qthrone.mobile.ktx.appRequestsViaProxy
 import app.qthrone.mobile.ktx.newHttpClient
 import app.qthrone.mobile.ktx.readableMessage
 import okhttp3.OkHttpClient
@@ -71,7 +70,7 @@ object UpdateChecker {
 
     // Always verified TLS, unlike net_insecure: the downloaded APK is trusted on this channel's word.
     fun httpClient(timeoutSeconds: Long = 30): OkHttpClient =
-        newHttpClient(viaProxy = appRequestsViaProxy(), allowInsecure = false, timeoutSeconds = timeoutSeconds)
+        newHttpClient(viaProxy = true, allowInsecure = false, timeoutSeconds = timeoutSeconds)
 
     fun check(context: Context): Result = try {
         find(context)

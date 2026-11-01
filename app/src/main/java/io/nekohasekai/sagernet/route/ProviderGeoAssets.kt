@@ -80,7 +80,7 @@ object ProviderGeoAssets {
         val temp = File(source.parentFile, "${source.name}.${android.os.Process.myPid()}.${System.nanoTime()}.download")
         status(gid, Status(file = kind))
         try {
-            val client = appHttpClient(appRequestsViaProxy() && serviceConnected(), 30).newBuilder().callTimeout(180, java.util.concurrent.TimeUnit.SECONDS).build()
+            val client = appHttpClient(serviceConnected(), 30).newBuilder().callTimeout(180, java.util.concurrent.TimeUnit.SECONDS).build()
             client.newCall(okhttp3.Request.Builder().url(address).build()).execute().use { response ->
                 check(response.isSuccessful) { "HTTP ${response.code}" }
                 val body = response.body ?: error("Empty geo file")
