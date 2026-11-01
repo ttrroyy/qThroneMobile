@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="qmobile_import_target">Куда добавить?</string>
+    <string name="qmobile_default_group">Стандартная группа</string>
     <string name="qmobile_new_group">Создать группу</string>
     <string name="qmobile_existing_group">Добавить в существующую группу</string>
     <string name="qmobile_manage_groups">Управление группами и подписками</string>

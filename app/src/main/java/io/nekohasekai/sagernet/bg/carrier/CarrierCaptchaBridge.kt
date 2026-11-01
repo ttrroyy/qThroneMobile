@@ -55,7 +55,10 @@ class CarrierCaptchaBridge(private val process: Process, private val onlyIfUiIdl
         }
         ContextCompat.registerReceiver(app,callback,IntentFilter(app.packageName+".CAPTCHA_RESULT"),app.packageName+".SERVICE",null,ContextCompat.RECEIVER_NOT_EXPORTED)
         receiver=callback
-        if(automatic) {
+        if(automatic && client in HeadlessCaptcha.clients) {
+            // The originals solve their hidden attempt inside the tunnel process; no screen of the app has to be open.
+            HeadlessCaptcha.solve(target,client) { result -> respond(id,result) }
+        } else if(automatic) {
             // Several profiles can ask at once; one hidden WebView runs at a time. The client
             // waits 10 s for an automatic attempt (as in the original app), so a queued attempt
             // gets the rest of those 10 s and the answer is "timeout" once they are spent.

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="qmobile_import_target">Where should this be added?</string>
+    <string name="qmobile_default_group">Default group</string>
     <string name="qmobile_new_group">Create a group</string>
     <string name="qmobile_existing_group">Add to an existing group</string>
     <string name="qmobile_manage_groups">Manage groups and subscriptions</string>

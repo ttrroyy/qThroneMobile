@@ -25,6 +25,9 @@ import androidx.recyclerview.widget.RecyclerView
 import app.qthrone.mobile.R
 import app.qthrone.mobile.SagerNet
 import app.qthrone.mobile.bg.carrier.VkRelayAccount
+import app.qthrone.mobile.database.ProfileManager
+import app.qthrone.mobile.database.SagerDatabase
+import app.qthrone.mobile.outbound.types.Qwdtt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -53,6 +56,7 @@ class VkHashesActivity : ThemedActivity() {
                     MENU_ADD -> add()
                     MENU_SELECT_ALL -> { checked.addAll(hashes); render() }
                     MENU_DELETE -> remove(hashes.filter { it in checked })
+                    MENU_APPLY -> apply(hashes.filter { it in checked })
                 }
                 true
             }
@@ -88,6 +92,7 @@ class VkHashesActivity : ThemedActivity() {
             setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_ALWAYS)
         }
         if (selecting) {
+            item(MENU_APPLY, "Применить к профилям", R.drawable.ic_mobile_apply)
             item(MENU_SELECT_ALL, "Выбрать все", R.drawable.ic_baseline_check_circle_24)
             item(MENU_DELETE, "Удалить", R.drawable.ic_mobile_delete)
         } else if (hashes.size < VkRelayAccount.MAX_HASHES) item(MENU_ADD, "Создать хеши", R.drawable.ic_mobile_add)
@@ -119,6 +124,42 @@ class VkHashesActivity : ThemedActivity() {
                 reload(result.exceptionOrNull()?.let { it.message ?: "Не удалось создать хеши" } ?: "Хеши созданы")
             }
         }.show()
+    }
+
+    /** Puts the selected hashes into chosen qWDTT, CSQTT and WDTT Plus profiles as their own (manual) hashes. */
+    private fun apply(selected: List<String>) {
+        if (busy || selected.isEmpty()) return
+        lifecycleScope.launch {
+            val profiles = withContext(Dispatchers.IO) {
+                SagerDatabase.proxyDao.getAll().filter { it.outbound is Qwdtt }.sortedBy { it.displayName().lowercase() }
+            }
+            if (profiles.isEmpty()) {
+                Toast.makeText(this@VkHashesActivity, "Нет профилей qWDTT, CSQTT или WDTT Plus", Toast.LENGTH_LONG).show(); return@launch
+            }
+            val picked = BooleanArray(profiles.size)
+            MobileAlertDialogBuilder(this@VkHashesActivity).setTitle("Применить к профилям")
+                .setMultiChoiceItems(profiles.map { "${it.displayName()} · ${it.displayType()}" }.toTypedArray(), picked) { _, index, on -> picked[index] = on }
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton("Применить") { _, _ ->
+                    val targets = profiles.filterIndexed { index, _ -> picked[index] }
+                    if (targets.isEmpty()) return@setPositiveButton
+                    lifecycleScope.launch {
+                        withContext(Dispatchers.IO) {
+                            ProfileManager.updateProfile(targets.map { profile ->
+                                val outbound = profile.outbound as Qwdtt
+                                // The profile editors' slots: CSQTT has six, the others four.
+                                outbound.hashes = selected.take(if (outbound.type == "csqtt") 6 else 4)
+                                outbound.hashSource = "manual"; outbound.hashSourceChosen = true
+                                // A subscription refresh keeps hashes the user set.
+                                outbound.manualHashesOverride = true
+                                profile.putOutbound(outbound)
+                            })
+                        }
+                        Toast.makeText(this@VkHashesActivity, "Хеши применены к профилям: ${targets.size}", Toast.LENGTH_LONG).show()
+                        checked.clear(); render()
+                    }
+                }.show()
+        }
     }
 
     private fun remove(drop: List<String>) {
@@ -201,5 +242,6 @@ class VkHashesActivity : ThemedActivity() {
         const val MENU_ADD = 1
         const val MENU_SELECT_ALL = 2
         const val MENU_DELETE = 3
+        const val MENU_APPLY = 4
     }
 }

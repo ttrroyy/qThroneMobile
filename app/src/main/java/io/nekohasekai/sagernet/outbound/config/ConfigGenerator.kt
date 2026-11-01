@@ -503,12 +503,12 @@ class ConfigGenerator @JvmOverloads constructor(
         // Android apps share loopback across UIDs. VPN uses the core's native TUN,
         // so exposing a second proxy/DNS listener would bypass per-app VPN selection.
         if (!settings.vpnMode) inbounds.add(jsonObjectOf("tag" to Tags.DNS_IN, "type" to "direct", "listen" to "127.0.0.1", "listen_port" to settings.dnsInPort))
-        if ((settings.mixedInboundEnabled && !settings.vpnMode) || (settings.vpnMode && settings.lanSharingEnabled)) {
+        if ((settings.mixedInboundEnabled && !settings.vpnMode) || (settings.vpnMode && (settings.lanSharingEnabled || settings.appProxyEnabled))) {
             require(settings.mixedPort != settings.httpPort) { "SOCKS5 and HTTP ports must differ" }
             val mixed = jsonObjectOf(
                 "tag" to Tags.MIXED_IN,
                 "type" to "socks",
-                "listen" to if (settings.vpnMode) "0.0.0.0" else settings.mixedListen,
+                "listen" to if (!settings.vpnMode) settings.mixedListen else if (settings.lanSharingEnabled) "0.0.0.0" else "127.0.0.1",
                 "listen_port" to settings.mixedPort,
             )
             if (settings.mixedAuth || settings.vpnMode) {

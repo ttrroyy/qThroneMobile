@@ -81,6 +81,10 @@ class ImportTargetActivity : ThemedActivity() {
                 MobileFeedback.apply(this); setOnClickListener { click() }
             }, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(8) })
         }
+        // «Список серверов», the group plain imports used before the destination choice existed.
+        choice(R.string.qmobile_default_group) {
+            lifecycleScope.launch { importInto(withContext(Dispatchers.IO) { GroupRepo.serverListId() }) }
+        }
         choice(R.string.qmobile_new_group) {
             createGroup.launch(Intent(this, SubscriptionEditorActivity::class.java).apply {
                 val parsed = if (kind == "text") Uri.parse(content) else null

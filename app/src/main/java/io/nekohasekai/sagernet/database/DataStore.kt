@@ -145,14 +145,14 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var randomInboundPort by SettingsRegistry.RANDOM_INBOUND_PORT
     var inboundAuth by SettingsRegistry.INBOUND_AUTH
     val effectiveInboundAuth: Boolean
-        get() = inboundAuth || (serviceMode == Key.MODE_VPN && lanSharingEnabled)
+        get() = inboundAuth || serviceMode == Key.MODE_VPN
     var inboundUser by SettingsRegistry.INBOUND_USER
     var inboundPass by SettingsRegistry.INBOUND_PASS
     var customInbound by SettingsRegistry.CUSTOM_INBOUND
 
-    /** disable_mixed_inbound only applies in VPN mode: the proxy-only service mode needs the mixed inbound. */
+    /** VPN mode has a mixed inbound only for LAN sharing or the app's own requests (net_use_proxy). */
     val mixedInboundDisabled: Boolean
-        get() = serviceMode == Key.MODE_VPN && !lanSharingEnabled
+        get() = serviceMode == Key.MODE_VPN && !lanSharingEnabled && !netUseProxy
 
     /** inbound_address is anything but a loopback address (the desktop's "Allow other devices to connect"). */
     val allowLanAccess: Boolean
