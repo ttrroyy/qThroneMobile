@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="qmobile_import_target">Where should this be added?</string>
+    <string name="qmobile_advanced_import">Advanced profile import</string>
+    <string name="qmobile_advanced_import_sum">Ask where to add a profile or subscription. When off, profiles go to the server list and subscriptions are added as separate subscriptions</string>
     <string name="qmobile_default_group">Default group</string>
     <string name="qmobile_new_group">Create a group</string>
     <string name="qmobile_existing_group">Add to an existing group</string>

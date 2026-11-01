@@ -13,6 +13,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import app.qthrone.mobile.R
+import app.qthrone.mobile.database.DataStore
 import app.qthrone.mobile.database.GroupRepo
 import app.qthrone.mobile.group.SubscriptionClient
 import app.qthrone.mobile.ktx.onMainDispatcher
@@ -89,7 +90,7 @@ class ImportTargetActivity : ThemedActivity() {
             createGroup.launch(Intent(this, SubscriptionEditorActivity::class.java).apply {
                 val parsed = if (kind == "text") Uri.parse(content) else null
                 val link = if (kind == "text") SubscribeFlows.subscribeLink(content) else null
-                val subscription = link?.url ?: parsed?.takeIf { it.scheme in listOf("http", "https") && it.userInfo == null }
+                val subscription = link?.url ?: parsed?.takeIf { it.scheme in listOf("http", "https") && !SubscribeFlows.proxyUrl(it) }
                     ?.buildUpon()?.fragment(null)?.build()?.toString()
                 subscription?.let { putExtra(GroupSettingsActivity.EXTRA_GROUP_SUBSCRIPTION_LINK, it) }
                 // Only a subscription is named by its link; a plain group starts unnamed.
@@ -158,7 +159,7 @@ class ImportTargetActivity : ThemedActivity() {
                 val kind = document.getString("kind")
                 val uri = Uri.parse(content)
                 val subscriptionSource = kind == "text" && (SubscribeFlows.subscribeLink(content) != null ||
-                    (uri.scheme in listOf("http", "https") && uri.userInfo == null))
+                    (uri.scheme in listOf("http", "https") && !SubscribeFlows.proxyUrl(uri)))
                 GroupRepo.setCurrent(id)
                 onMainDispatcher {
                     activity.displayFragmentWithId(R.id.nav_mobile_home)
@@ -180,12 +181,32 @@ class ImportTargetActivity : ThemedActivity() {
         }
 
         fun start(activity: FragmentActivity, kind: String, content: String, name: String = "") = runOnDefaultDispatcher {
+            val direct = !DataStore.advancedImport
+            if (direct && kind == "text") {
+                // Without the choice a subscription becomes its own group, as before the choice existed.
+                val link = SubscribeFlows.subscribeLink(content)
+                val uri = Uri.parse(content)
+                val url = link?.url ?: uri.takeIf { it.scheme in listOf("http", "https") && !SubscribeFlows.proxyUrl(it) }
+                    ?.buildUpon()?.fragment(null)?.build()?.toString()
+                if (url != null) {
+                    val gid = SubscriptionClient.subscribeUrl(url, name.ifBlank { link?.name.orEmpty().ifBlank { uri.fragment.orEmpty() } }, true)
+                    if (gid > 0) GroupRepo.setCurrent(gid)
+                    onMainDispatcher { (activity as? MainActivity)?.displayFragmentWithId(R.id.nav_mobile_home) }
+                    return@runOnDefaultDispatcher
+                }
+            }
             val directory = File(activity.cacheDir, "import-target").apply { mkdirs() }
             val file = File(directory, "${UUID.randomUUID()}.json")
             try {
-                file.writeText(JSONObject().put("kind", kind).put("content", content).put("name", name).toString())
+                val document = JSONObject().put("kind", kind).put("content", content).put("name", name)
+                // Everything else joins the server list, through the same confirmed hand-off as the choice.
+                if (direct) document.put("groupId", GroupRepo.serverListId())
+                file.writeText(document.toString())
                 onMainDispatcher {
                     if (activity.isFinishing || activity.isDestroyed) file.delete()
+                    else if (direct) activity.startActivity(Intent(activity, MainActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                        .putExtra(MainActivity.EXTRA_IMPORT_TARGET, file.name))
                     else activity.startActivity(Intent(activity, ImportTargetActivity::class.java).putExtra("payload", file.name))
                 }
             } catch (error: Exception) {

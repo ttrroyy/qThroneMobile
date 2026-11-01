@@ -89,8 +89,8 @@ object WarpClient {
         var host = appProxyHost()
         if (host.contains(':')) host = "[$host]"
         val credentials = if (DataStore.effectiveInboundAuth) {
-            val user = LinkCodec.percentEncodeAll(DataStore.inboundUser)
-            "$user:${LinkCodec.percentEncodeAll(DataStore.inboundPass)}@"
+            val user = LinkCodec.percentEncodeAll(DataStore.listenerUser)
+            "$user:${LinkCodec.percentEncodeAll(DataStore.listenerPass)}@"
         } else {
             ""
         }

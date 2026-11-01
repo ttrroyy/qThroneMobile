@@ -17,6 +17,13 @@ class ProtocolLabelTest {
         assertEquals("WireGuard", WireGuard().displayProtocol())
     }
 
+    @Test fun bareHopIntervalIsSeconds() {
+        assertEquals("10s", hopSeconds("10"))
+        assertEquals("30s", hopSeconds("30s"))
+        assertEquals("1m", hopSeconds(" 1m "))
+        assertEquals("", hopSeconds(""))
+    }
+
     @Test fun amneziaWgShowsItsGeneration() {
         fun awg(block: WireGuard.() -> Unit) = WireGuard().apply { enable_amnezia = true; jc = 4; s1 = 15; s2 = 68; h1 = "5"; block() }.displayType()
         assertEquals("AWG 1.0", awg {})

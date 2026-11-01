@@ -151,7 +151,7 @@ fun httpGet(url: String, options: HttpGetOptions = HttpGetOptions()): HttpGetRes
         val address = appProxyHost()
         builder.proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(address, DataStore.inboundHttpPort)))
         if (DataStore.effectiveInboundAuth) {
-            val credential = Credentials.basic(DataStore.inboundUser, DataStore.inboundPass)
+            val credential = Credentials.basic(DataStore.listenerUser, DataStore.listenerPass)
             builder.proxyAuthenticator(object : okhttp3.Authenticator {
                 override fun authenticate(route: Route?, response: Response): Request? {
                     if (response.request.header("Proxy-Authorization") != null) return null
@@ -243,7 +243,7 @@ fun appHttpClient(viaProxy: Boolean, timeoutSeconds: Long = 30): OkHttpClient {
         val address = appProxyHost()
         builder.proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(address, DataStore.inboundHttpPort)))
         if (DataStore.effectiveInboundAuth) {
-            val credential = Credentials.basic(DataStore.inboundUser, DataStore.inboundPass)
+            val credential = Credentials.basic(DataStore.listenerUser, DataStore.listenerPass)
             builder.proxyAuthenticator(object : okhttp3.Authenticator {
                 override fun authenticate(route: Route?, response: Response): Request? {
                     if (response.request.header("Proxy-Authorization") != null) return null
@@ -292,7 +292,7 @@ private object SocksAuthenticator : Authenticator() {
     override fun getPasswordAuthentication(): PasswordAuthentication? {
         if (requestingProtocol?.startsWith("SOCKS", ignoreCase = true) != true) return null
         if (requestingHost != LOCALHOST && requestingSite?.isLoopbackAddress != true) return null
-        return PasswordAuthentication(DataStore.inboundUser, DataStore.inboundPass.toCharArray())
+        return PasswordAuthentication(DataStore.listenerUser, DataStore.listenerPass.toCharArray())
     }
 }
 

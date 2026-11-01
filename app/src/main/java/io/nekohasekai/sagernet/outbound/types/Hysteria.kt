@@ -113,13 +113,13 @@ class Hysteria : Outbound("hysteria") {
             }
             if (q.has("min_packet_size")) min_packet_size = QtStrings.toInt(q.value("min_packet_size"))
             if (q.has("max_packet_size")) max_packet_size = QtStrings.toInt(q.value("max_packet_size"))
-            if (q.has("hop_interval_max")) hop_interval_max = q.value("hop_interval_max")
+            if (q.has("hop_interval_max")) hop_interval_max = hopSeconds(q.value("hop_interval_max"))
             if (q.has("bbr_profile")) bbr_profile = q.value("bbr_profile")
             if (q.has("disable_chrome_parrot")) disable_chrome_parrot = q.value("disable_chrome_parrot") == "true"
         }
         if (q.has("upmbps")) up_mbps = QtStrings.toInt(q.value("upmbps"))
         if (q.has("downmbps")) down_mbps = QtStrings.toInt(q.value("downmbps"))
-        if (q.has("hop_interval")) hop_interval = q.value("hop_interval")
+        if (q.has("hop_interval")) hop_interval = hopSeconds(q.value("hop_interval"))
         if (q.has("mport")) server_ports = portsToPorts(QtStrings.split(q.valueFully("mport"), ","))
         tls.parseFromLink(url)
         tls.enabled = true
@@ -180,7 +180,7 @@ class Hysteria : Outbound("hysteria") {
         }
         super.parseFromJson(obj)
         if (obj.contains("server_ports")) server_ports = obj.array("server_ports").strings()
-        if (obj.contains("hop_interval")) hop_interval = obj.string("hop_interval")
+        if (obj.contains("hop_interval")) hop_interval = hopSeconds(obj.string("hop_interval"))
         if (obj.contains("up_mbps")) up_mbps = obj.int("up_mbps")
         if (obj.contains("down_mbps")) down_mbps = obj.int("down_mbps")
         if (protocol_version == "1") {
@@ -206,7 +206,7 @@ class Hysteria : Outbound("hysteria") {
             }
             if (obj.contains("obfsPassword")) obfs = obj.string("obfsPassword")
             if (obj.contains("password")) password = obj.string("password")
-            if (obj.contains("hop_interval_max")) hop_interval_max = obj.string("hop_interval_max")
+            if (obj.contains("hop_interval_max")) hop_interval_max = hopSeconds(obj.string("hop_interval_max"))
             if (obj.contains("bbr_profile")) bbr_profile = obj.string("bbr_profile")
             if (obj.contains("disable_chrome_parrot")) disable_chrome_parrot = obj.bool("disable_chrome_parrot")
             if (obj.isObject("realm")) {
@@ -659,3 +659,6 @@ class Hysteria : Outbound("hysteria") {
         }
     }
 }
+
+/** Share links write the port-hopping interval as bare seconds ("10"); the core needs a unit ("10s"). */
+internal fun hopSeconds(value: String): String = value.trim().let { if (it.isNotEmpty() && it.all(Char::isDigit)) it + "s" else it }

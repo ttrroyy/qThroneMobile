@@ -48,6 +48,15 @@ object GroupRepo {
             groups.filter { !it.isSubscription && it.name in legacyDefaultNames() }.forEach {
                 it.name=SagerDatabase.defaultGroupName();dao.update(it)
             }
+            // Once per install the server list goes above every group; a later manual move stays.
+            if (!DataStore.serverListRaised) {
+                DataStore.serverListRaised = true
+                val list = groups.firstOrNull { !it.isSubscription && it.name == SagerDatabase.defaultGroupName() }
+                if (list != null && list !== groups.first()) {
+                    list.displayOrder = groups.first().displayOrder - 1; dao.update(list)
+                    return dao.allGroups()
+                }
+            }
             return groups
         }
         ensureDefault()
@@ -100,7 +109,9 @@ object GroupRepo {
         if(group!=null) {
             if(group.name!=SagerDatabase.defaultGroupName()) { group.name=SagerDatabase.defaultGroupName();dao.update(group) }
             group.id
-        } else dao.insert(ProxyGroup(name=SagerDatabase.defaultGroupName(),displayOrder=dao.nextDisplayOrder()))
+        } else dao.insert(ProxyGroup(name=SagerDatabase.defaultGroupName(),
+            // A new server list starts above every group and subscription.
+            displayOrder=(dao.allGroups().minOfOrNull { it.displayOrder } ?: 1L) - 1))
     })
 
     // ------------------------------------------------------------------------------------------------ writes
