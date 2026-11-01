@@ -100,6 +100,11 @@ object ProviderGeoAssets {
             }
             check(temp.renameTo(source)) { "Cannot save geo file" }
             return source
+        } catch (error: Exception) {
+            // An older copy beats a failed start: the network that refuses the download may be the reason to reconnect.
+            if (force || !source.isFile || source.length() == 0L) throw error
+            Logs.w("Provider $kind.dat update failed, the cached copy stays: ${error.readableMessage}")
+            return source
         } finally { temp.delete() }
     }
     @Synchronized
