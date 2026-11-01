@@ -238,7 +238,7 @@ object SubscribeFlows {
     }
 
     /** ImportText into the group, then "Imported N profile(s)". */
-    private fun importInto(activity: FragmentActivity, content: String, gid: Long) {
+    fun importInto(activity: FragmentActivity, content: String, gid: Long) {
         runOnDefaultDispatcher {
             val message = try {
                 val target=if(gid>0) gid else GroupRepo.serverListId()

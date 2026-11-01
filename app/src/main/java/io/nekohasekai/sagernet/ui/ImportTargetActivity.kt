@@ -99,6 +99,13 @@ class ImportTargetActivity : ThemedActivity() {
             })
         }
         choice(R.string.qmobile_existing_group) { selectGroup() }
+        // The desktop's third answer for a plain URL: the address itself is an HTTP(S) proxy, not a subscription.
+        val plainUrl = kind == "text" && SubscribeFlows.subscribeLink(content) == null &&
+            Uri.parse(content).scheme in listOf("http", "https")
+        if (plainUrl) choice(R.string.qmobile_http_proxy_profile) {
+            kind = "proxy"
+            lifecycleScope.launch { importInto(withContext(Dispatchers.IO) { GroupRepo.serverListId() }) }
+        }
         setContentView(scrim)
     }
 
@@ -172,6 +179,7 @@ class ImportTargetActivity : ThemedActivity() {
                             val items = org.json.JSONArray(content)
                             SubscribeFlows.importTexts(activity, (0 until items.length()).map { items.getString(it) }, id)
                         }
+                        "proxy" -> SubscribeFlows.importInto(activity, content, id)
                         else -> SubscribeFlows.importText(activity, content, id)
                     }
                 }
@@ -183,35 +191,15 @@ class ImportTargetActivity : ThemedActivity() {
         fun start(activity: FragmentActivity, kind: String, content: String, name: String = "") = runOnDefaultDispatcher {
             val direct = !DataStore.advancedImport
             if (direct && kind == "text") {
+                // Without the choice the link decides: a subscription becomes its own group, a proxy address joins the server list.
                 val link = SubscribeFlows.subscribeLink(content)
                 val uri = Uri.parse(content)
-                val subscribe: suspend (String) -> Unit = { url ->
+                val url = link?.url ?: uri.takeIf { it.scheme in listOf("http", "https") && !SubscribeFlows.proxyUrl(it) }
+                    ?.buildUpon()?.fragment(null)?.build()?.toString()
+                if (url != null) {
                     val gid = SubscriptionClient.subscribeUrl(url, name.ifBlank { link?.name.orEmpty().ifBlank { uri.fragment.orEmpty() } }, true)
                     if (gid > 0) GroupRepo.setCurrent(gid)
                     onMainDispatcher { (activity as? MainActivity)?.displayFragmentWithId(R.id.nav_mobile_home) }
-                }
-                // A subscription link (provider, addsub, clash) is a subscription, as on the desktop.
-                if (link != null) { subscribe(link.url); return@runOnDefaultDispatcher }
-                if (uri.scheme in listOf("http", "https")) {
-                    // A bare URL may be a subscription or a proxy: the desktop's "url detected" choice (import_text).
-                    onMainDispatcher {
-                        if (activity.isFinishing || activity.isDestroyed) return@onMainDispatcher
-                        MobileAlertDialogBuilder(activity).setTitle(R.string.qmobile_url_detected)
-                            .setItems(activity.resources.getStringArray(R.array.qmobile_url_import)) { _, which ->
-                                runOnDefaultDispatcher {
-                                    val list = GroupRepo.serverListId()
-                                    when (which) {
-                                        0 -> { SubscriptionClient.importUrl(content, list); GroupRepo.setCurrent(list) }
-                                        1 -> subscribe(uri.buildUpon().fragment(null).build().toString())
-                                        else -> {
-                                            val count = SubscriptionClient.importText(content, list)
-                                            GroupRepo.setCurrent(list)
-                                            onMainDispatcher { android.widget.Toast.makeText(activity, activity.getString(R.string.grp_imported_count, count), android.widget.Toast.LENGTH_SHORT).show() }
-                                        }
-                                    }
-                                }
-                            }.setNegativeButton(android.R.string.cancel, null).show()
-                    }
                     return@runOnDefaultDispatcher
                 }
             }
