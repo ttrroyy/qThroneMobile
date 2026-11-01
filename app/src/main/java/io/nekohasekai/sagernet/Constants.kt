@@ -63,6 +63,7 @@ object Key {
     const val APP_LISTENER_PASS = "appListenerPass"
     const val ADVANCED_IMPORT = "qmobileAdvancedImport"
     const val SERVER_LIST_RAISED = "serverListRaised"
+    const val PROVIDER_GEO_RESTORED = "providerGeoRestored"
     const val SERVICE_ERROR = "serviceError"
     const val SERVICE_ERROR_DNS = "serviceErrorDns"
     const val SERVICE_ERROR_GEO = "serviceErrorGeo"

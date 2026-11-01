@@ -1,6 +1,7 @@
 package app.qthrone.mobile.route
 
 import app.qthrone.mobile.ktx.*
+import app.qthrone.mobile.database.DataStore
 import app.qthrone.mobile.outbound.json.JsonObject
 import app.qthrone.core.mobile.Mobile
 import java.io.File
@@ -59,17 +60,32 @@ object ProviderGeoAssets {
             status(gid,Status(complete = true))
         } catch (error: Exception) { status(gid,Status(error = error.readableMessage)); throw error }
     }
+    /**
+     * The desktop's ResolveXrayGeo: an Xray profile's `geosite:` / `geoip:` rules point at this provider's own files
+     * (`ext:` / `ext-ip:` in the asset dir), so the standard geosite.dat and geoip.dat stay for every other profile.
+     */
     @Synchronized
-    fun installXray(document: JsonObject, needed: Collection<String>) {
-        for (kind in listOf("geosite","geoip")) {
-            if ("$kind.dat" !in needed) continue
-            val source = download(0,document,kind,false)
-            val destination = File(app.filesDir,"$kind.dat")
-            val temp = File(app.filesDir,"$kind.${android.os.Process.myPid()}.${System.nanoTime()}.provider.tmp")
-            source.copyTo(temp,overwrite = true)
-            check(temp.renameTo(destination)) { "Cannot install geo file" }
+    fun xrayConfig(document: JsonObject, config: String): String {
+        var result = config
+        for (kind in listOf("geosite", "geoip")) {
+            if (!config.contains("$kind:")) continue
+            val path = download(0, document, kind, false).relativeTo(app.filesDir).invariantSeparatorsPath
+            val prefix = if (kind == "geoip") "ext-ip:" else "ext:"
+            result = result.replace(Regex("\"(!?)$kind:")) { "\"${it.groupValues[1]}$prefix$path:" }
         }
-        status(0,Status(complete = true))
+        status(0, Status(complete = true))
+        return result
+    }
+
+    /** Before 3.2.8 a provider's files replaced the standard ones; such a copy goes once, and the standard file downloads again. */
+    fun dropInstalledCopies() {
+        if (DataStore.providerGeoRestored) return
+        DataStore.providerGeoRestored = true
+        val own = File(app.filesDir, "provider-geodata").listFiles()?.filter { it.extension == "dat" }.orEmpty()
+        for (name in listOf("geosite.dat", "geoip.dat")) {
+            val installed = File(app.filesDir, name)
+            if (installed.isFile && own.any { it.length() == installed.length() && it.readBytes().contentEquals(installed.readBytes()) }) installed.delete()
+        }
     }
     private fun download(gid: Long, document: JsonObject, kind: String, force: Boolean): File {
         val source = file(document,kind)

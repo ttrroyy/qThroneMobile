@@ -27,6 +27,8 @@ object CoreConfigs {
     private class DatabaseProfiles : ProfileProvider {
         private val cache = HashMap<Long, Outbound?>()
         override fun get(id: Long): Outbound? = cache.getOrPut(id) { SagerDatabase.proxyDao.getById(id)?.outbound }
+        /** A changed copy of a profile for this generation only; the stored one stays as it is. */
+        fun put(id: Long, outbound: Outbound) { cache[id] = outbound }
     }
 
     /** [dns]: the routing profile's own DNS, null for the global one; [settings] must be mapped with the same. */
@@ -56,10 +58,15 @@ object CoreConfigs {
         var routing = SettingsMapper.routingInput(route)
         val fullJson = profile.outbound.isXrayFullConfig()
         val providerRouting=app.qthrone.mobile.route.ProviderRouting.stored(route)
+        app.qthrone.mobile.route.ProviderGeoAssets.dropInstalledCopies()
+        val profiles = DatabaseProfiles()
         providerRouting?.let { (_, document) ->
             if (fullJson) {
-                val custom = profile.outbound as? app.qthrone.mobile.outbound.types.Custom
-                if (custom != null) app.qthrone.mobile.route.ProviderGeoAssets.installXray(document,app.qthrone.mobile.bg.XrayGeoAssets.needed(listOf(custom.config)))
+                // A fresh copy: the provider's Geo files are this run's, never written into the stored profile.
+                (SagerDatabase.proxyDao.getById(profile.id)?.outbound as? app.qthrone.mobile.outbound.types.Custom)?.let { custom ->
+                    custom.config = app.qthrone.mobile.route.ProviderGeoAssets.xrayConfig(document, custom.config)
+                    profiles.put(profile.id, custom)
+                }
                 val tunnel = app.qthrone.mobile.route.ProviderRouting.settings(document,settings)
                 settings = settings.copy(remoteDns = tunnel.remoteDns, dnsPredefinedRules = tunnel.dnsPredefinedRules, fakeDns = false)
                 routing = SettingsMapper.routingInput(app.qthrone.mobile.route.RouteProfile.defaultProfile())
@@ -69,7 +76,6 @@ object CoreConfigs {
                 routing = RoutingInput(route, catalog, routing.selectors, routing.memberCheck)
             }
         }
-        val profiles = DatabaseProfiles()
         var context = SettingsMapper.buildContext(dns)
         if (app.qthrone.mobile.outbound.config.TransportIpPolicy.ipv4Only(profile.outbound, profiles)) {
             settings = app.qthrone.mobile.outbound.config.TransportIpPolicy.settings(settings)

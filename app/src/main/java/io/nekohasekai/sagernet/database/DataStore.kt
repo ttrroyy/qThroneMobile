@@ -48,6 +48,7 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     /** «Куда добавить?» before every import; off: profiles join the server list, subscriptions become their own groups. */
     var advancedImport by configurationStore.boolean(Key.ADVANCED_IMPORT) { true }
     var serverListRaised by configurationStore.boolean(Key.SERVER_LIST_RAISED)
+    var providerGeoRestored by configurationStore.boolean(Key.PROVIDER_GEO_RESTORED)
     var updateSkippedVersionCode by configurationStore.long(Key.UPDATE_SKIPPED_VERSION_CODE)
     /** The profile id to restart once after an in-app update, 0 = none. */
     var resumeAfterUpdate by configurationStore.long(Key.RESUME_AFTER_UPDATE)
