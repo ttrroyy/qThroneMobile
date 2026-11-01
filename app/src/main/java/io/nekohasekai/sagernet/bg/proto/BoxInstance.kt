@@ -59,6 +59,11 @@ abstract class BoxInstance(
             DataStore.inboundSocksPort = mkPort()
             do { DataStore.inboundHttpPort = mkPort() } while(DataStore.inboundHttpPort == DataStore.inboundSocksPort)
         }
+        // TUN mode's loopback proxy only carries the app's own requests: another app holding a port must not fail the start.
+        if (DataStore.serviceMode == app.qthrone.mobile.Key.MODE_VPN && !DataStore.lanSharingEnabled) {
+            if (!isLoopbackPortFree(DataStore.inboundSocksPort)) DataStore.inboundSocksPort = mkPort()
+            while (DataStore.inboundHttpPort == DataStore.inboundSocksPort || !isLoopbackPortFree(DataStore.inboundHttpPort)) DataStore.inboundHttpPort = mkPort()
+        }
         // The dashboard is on by default, so another app holding its port must not fail the start: it moves, and the
         // dashboard screen follows the saved port.
         if (DataStore.apiDashboardEnabled && !isLoopbackPortFree(DataStore.coreBoxApiPort)) {
