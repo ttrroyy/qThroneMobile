@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="qmobile_list_mode">Server list</string>
+    <string-array name="qmobile_list_modes"><item>By groups</item><item>Combined list</item></string-array>
+    <string-array name="qmobile_list_mode_values" translatable="false"><item>groups</item><item>list</item></string-array>
+    <string name="qmobile_all_groups">All groups</string>
+    <string name="qmobile_import_url">Import URL</string>
+    <string name="qmobile_import_url_to_group">Add profiles to this group</string>
+    <string name="qmobile_import_url_subscription">Create new subscription group</string>
+    <string name="qmobile_import_url_proxy">Import HTTP proxy profile</string>
+    <string name="qmobile_import_group_missing">The selected group no longer exists</string>
     <string name="qmobile_import_target">Where should this be added?</string>
     <string name="qmobile_link_kind">What is this link?</string>
     <string name="qmobile_link_subscription">A subscription</string>

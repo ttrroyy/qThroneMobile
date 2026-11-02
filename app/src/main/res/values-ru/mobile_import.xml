@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="qmobile_list_mode">Список серверов</string>
+    <string-array name="qmobile_list_modes"><item>По группам</item><item>Общий список</item></string-array>
+    <string name="qmobile_all_groups">Все группы</string>
+    <string name="qmobile_import_url">Импорт ссылки</string>
+    <string name="qmobile_import_url_to_group">Добавить профили в эту группу</string>
+    <string name="qmobile_import_url_subscription">Создать новую группу подписки</string>
+    <string name="qmobile_import_url_proxy">Импортировать HTTP-прокси профиль</string>
+    <string name="qmobile_import_group_missing">Выбранная группа больше не существует</string>
     <string name="qmobile_import_target">Куда добавить?</string>
     <string name="qmobile_link_kind">Что добавить?</string>
     <string name="qmobile_link_subscription">Подписку</string>

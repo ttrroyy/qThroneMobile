@@ -13,6 +13,7 @@ import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuil
 import app.qthrone.mobile.R
 import app.qthrone.mobile.group.SubscriptionClient
 import app.qthrone.mobile.database.GroupRepo
+import app.qthrone.mobile.database.DataStore
 import app.qthrone.mobile.database.ProfileManager
 import app.qthrone.mobile.outbound.Outbound
 import app.qthrone.mobile.ui.profile.ProfileTextImport
@@ -22,6 +23,7 @@ import app.qthrone.mobile.ktx.onMainDispatcher
 import app.qthrone.mobile.ktx.readableMessage
 import app.qthrone.mobile.ktx.runOnDefaultDispatcher
 import app.qthrone.mobile.outbound.link.Base64Strict
+import app.qthrone.mobile.outbound.link.LinkParser
 import app.qthrone.mobile.ui.route.RouteImports
 import java.io.ByteArrayOutputStream
 import java.nio.charset.Charset
@@ -31,7 +33,7 @@ import com.king.zxing.util.CodeUtils
 /**
  * The desktop's import entry points (mainwindow_deeplink.cpp): pasted, scanned or shared text
  * (import_or_handle_deeplink, import_text), the throne:// deep links and the "Add this subscription?" prompt.
- * Imports go to the explicit group [gid]; otherwise the user chooses the destination first.
+ * Grouped imports use the current group; the combined list keeps loose profiles in the server list.
  */
 object SubscribeFlows {
 
@@ -40,12 +42,29 @@ object SubscribeFlows {
 
     private const val MAX_IMPORT_FILE_SIZE = 50L * 1024 * 1024
 
-    /** Text from the clipboard, a scan or a share: http(s) URL creates a subscription; links/documents go into the server list unless an explicit target is supplied. */
+    fun targetGroupId(): Long = if (DataStore.mobileListMode == "groups") GroupRepo.currentId() else GroupRepo.serverListId()
+
+    internal fun isHttpProxy(content: String): Boolean {
+        if (content.contains('\n')) return false
+        val link = LinkParser.parse(content)
+        if (!link.isValid || link.host.isEmpty() || link.scheme !in listOf("http", "https")) return false
+        // shortcut: root URLs with an explicit port are proxies; ambiguous subscription URLs use the grouped URL choice.
+        return link.userName.isNotEmpty() || link.password.isNotEmpty() ||
+            (link.port > 0 && link.path in listOf("", "/") && link.query.isEmpty())
+    }
+
     fun importText(activity: FragmentActivity, text: String, gid: Long = -1L) {
         val content = text.trim()
         if (content.isEmpty()) return
         if (ProviderRouting.isLink(content)) { importRoute(activity, content); return }
         if (RouteImports.isRouteLink(content)) { importRoute(activity, content); return }
+        if (gid <= 0) {
+            runOnDefaultDispatcher {
+                val target = targetGroupId()
+                onMainDispatcher { if (!activity.isFinishing && !activity.isDestroyed) importText(activity, content, target) }
+            }
+            return
+        }
         if (ProviderLinks.isProviderLink(content)) {
             // RSA key parsing and authenticated decryption must not stall the main thread.
             runOnDefaultDispatcher {
@@ -54,26 +73,37 @@ object SubscribeFlows {
                     if (activity.isFinishing || activity.isDestroyed) return@onMainDispatcher
                     if (decoded == null) notify(activity, activity.getString(R.string.provider_crypto_import_error))
                     else if (SubscriptionCrypto.isHttpUrl(decoded.data)) {
-                        addSubscription(activity, content, decoded.name.ifBlank { hostOf(decoded.data) }, gid)
-                    } else if (gid <= 0) ImportTargetActivity.start(activity, "text", decoded.data)
-                    else importInto(activity, decoded.data, gid)
+                        addSubscription(activity, content, decoded.name.ifBlank { hostOf(decoded.data) })
+                    } else importInto(activity, decoded.data, gid)
                 }
             }
             return
         }
-        if (gid <= 0) { ImportTargetActivity.start(activity, "text", content); return }
         if (content.startsWith("throne://")) {
             openDeepLink(activity, content, gid)
             return
         }
         subscribeLink(content)?.let {
-            addSubscription(activity, it.url, it.name, gid)
+            addSubscription(activity, it.url, it.name)
             return
         }
-        if (content.startsWith("http://") || content.startsWith("https://")) {
+        if (!content.contains('\n') && (content.startsWith("http://", true) || content.startsWith("https://", true))) {
             val uri=Uri.parse(content)
-            if(uri.userInfo!=null) importInto(activity,content,gid)
-            else addSubscription(activity,uri.buildUpon().fragment(null).build().toString(),uri.fragment.orEmpty().ifBlank { hostOf(content) },gid)
+            val url=uri.buildUpon().fragment(null).build().toString()
+            val name=uri.fragment.orEmpty().ifBlank { hostOf(content) }
+            if (DataStore.mobileListMode == "groups") {
+                MaterialAlertDialogBuilder(activity).setTitle(R.string.qmobile_import_url)
+                    .setItems(arrayOf(activity.getString(R.string.qmobile_import_url_to_group),
+                        activity.getString(R.string.qmobile_import_url_subscription),
+                        activity.getString(R.string.qmobile_import_url_proxy))) { _, choice ->
+                        when (choice) {
+                            0 -> SubscriptionClient.importUrl(url, gid)
+                            1 -> addSubscription(activity, url, name)
+                            2 -> importInto(activity, content, gid)
+                        }
+                    }.show()
+            } else if (isHttpProxy(content)) importInto(activity, content, gid)
+            else addSubscription(activity, url, name)
             return
         }
         importInto(activity, content, gid)
@@ -82,7 +112,13 @@ object SubscribeFlows {
     /** Several payloads at once (importFromFiles): each URL or deep link on its own, the rest as one import. */
     fun importTexts(activity: FragmentActivity, payloads: List<String>, gid: Long = -1L) {
         if (payloads.size == 1) { importText(activity, payloads.single(), gid); return }
-        if (gid <= 0) { ImportTargetActivity.start(activity, "batch", org.json.JSONArray(payloads).toString()); return }
+        if (gid <= 0) {
+            runOnDefaultDispatcher {
+                val target=targetGroupId()
+                onMainDispatcher { if (!activity.isFinishing && !activity.isDestroyed) importTexts(activity, payloads, target) }
+            }
+            return
+        }
         val batch = ArrayList<String>()
         for (payload in payloads.map { it.trim() }.filter { it.isNotEmpty() }) {
             val single = payload.startsWith("http://") || payload.startsWith("https://") ||
@@ -93,11 +129,16 @@ object SubscribeFlows {
     }
 
     /** Adds a subscription link (throne://addsub, clash://install-config, a pasted URL) without asking. */
-    fun addSubscription(activity: FragmentActivity, url: String, name: String, gid: Long = -1L) {
-        if (gid <= 0) {
-            ImportTargetActivity.start(activity, "text", url, name)
-        } else {
-            SubscriptionClient.importUrl(url, gid)
+    fun addSubscription(activity: FragmentActivity, url: String, name: String) {
+        runOnDefaultDispatcher {
+            val id=SubscriptionClient.subscribeUrl(url, name, true)
+            if (id > 0) {
+                GroupRepo.setCurrent(id)
+                onMainDispatcher {
+                    if (!activity.isFinishing && !activity.isDestroyed)
+                        (activity as? MainActivity)?.displayFragmentWithId(R.id.nav_mobile_home)
+                }
+            }
         }
     }
 
@@ -130,7 +171,13 @@ object SubscribeFlows {
     /** A file opened or shared from outside that is not a backup: its text is imported like pasted text (importFromFiles). */
     /** importFromFiles: a text file goes through [importUri]; a zip holds one document per entry (WireGuard / OpenVPN). */
     fun importFile(activity: FragmentActivity, uri: Uri, gid: Long = -1L) {
-        if (gid <= 0) { ImportTargetActivity.start(activity, "file", uri.toString()); return }
+        if (gid <= 0) {
+            runOnDefaultDispatcher {
+                val target=targetGroupId()
+                onMainDispatcher { if (!activity.isFinishing && !activity.isDestroyed) importFile(activity, uri, target) }
+            }
+            return
+        }
         val name = displayName(uri)
         if (isImage(uri, name)) { importQrImage(activity, uri, name, gid); return }
         if (!name.endsWith(".zip", true)) { importUri(activity, uri, gid); return }
@@ -182,6 +229,7 @@ object SubscribeFlows {
 
     fun importUri(activity: FragmentActivity, uri: Uri, gid: Long = -1L) {
         runOnDefaultDispatcher {
+            val target=if (gid > 0) gid else targetGroupId()
             val name = displayName(uri)
             val text: String? = try {
                 readText(uri, name)
@@ -195,7 +243,7 @@ object SubscribeFlows {
                 if (text.isNullOrBlank()) {
                     notify(activity, activity.getString(R.string.grp_file_not_readable, name))
                 } else if (!activity.isFinishing && !activity.isDestroyed) {
-                    importText(activity, text, gid)
+                    importText(activity, text, target)
                 }
             }
         }
@@ -211,7 +259,7 @@ object SubscribeFlows {
             RouteImports.isRouteLink(link) -> importRoute(activity, link)
             command.equals("addsub", ignoreCase = true) -> {
                 val sub = subscribeLink(link) ?: return
-                addSubscription(activity, sub.url, sub.name, gid)
+                addSubscription(activity, sub.url, sub.name)
             }
 
             else -> {
@@ -234,7 +282,8 @@ object SubscribeFlows {
     fun importInto(activity: FragmentActivity, content: String, gid: Long) {
         runOnDefaultDispatcher {
             val message = try {
-                val target=if(gid>0) gid else GroupRepo.serverListId()
+                val target=if(gid>0) gid else targetGroupId()
+                requireNotNull(GroupRepo.get(target)) { activity.getString(R.string.qmobile_import_group_missing) }
                 activity.getString(R.string.grp_imported_count, SubscriptionClient.importText(content, target))
             } catch (e: Exception) {
                 Logs.w(e)

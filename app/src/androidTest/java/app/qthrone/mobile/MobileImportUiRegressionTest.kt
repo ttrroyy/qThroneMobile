@@ -20,7 +20,7 @@ import app.qthrone.mobile.database.ProxyEntity
 import app.qthrone.mobile.database.ProxyGroup
 import app.qthrone.mobile.database.SagerDatabase
 import app.qthrone.mobile.outbound.types.Socks
-import app.qthrone.mobile.ui.ImportTargetActivity
+import app.qthrone.mobile.ui.SubscribeFlows
 import app.qthrone.mobile.ui.MainActivity
 import app.qthrone.mobile.ui.MobileHomeFragment
 import app.qthrone.mobile.ui.MobilePalette
@@ -29,7 +29,6 @@ import app.qthrone.mobile.ui.SettingsPreferenceFragment
 import app.qthrone.mobile.ui.settings.AppearanceSettingsFragment
 import app.qthrone.mobile.ui.settings.UpdateSettingsFragment
 import app.qthrone.mobile.utils.Theme
-import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -128,53 +127,26 @@ class MobileImportUiRegressionTest {
         }
     }
 
-    @Test fun cancellingDestinationDoesNotCreateOrImportAnything() {
-        val groups = SagerDatabase.groupDao.allGroups().map { it.id }
-        val profiles = SagerDatabase.proxyDao.getAll().map { it.id }
-        val name = "${UUID.randomUUID()}.json"
-        val payload = File(context.cacheDir, "import-target/$name").apply {
-            parentFile!!.mkdirs()
-            writeText(JSONObject().put("kind", "text").put("content", "socks://192.0.2.1:1080#cancelled").toString())
-        }
-        val activity = instrumentation.startActivitySync(Intent(context, ImportTargetActivity::class.java)
-            .putExtra("payload", name).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as ImportTargetActivity
-        try {
-            ui {
-                val texts = descendants(activity.window.decorView).filterIsInstance<TextView>()
-                assertTrue(texts.any { it.text == context.getString(R.string.qmobile_new_group) })
-                assertTrue(texts.any { it.text == context.getString(R.string.qmobile_existing_group) })
-                activity.finish()
-            }
-            instrumentation.waitForIdleSync()
-            assertEquals(groups, SagerDatabase.groupDao.allGroups().map { it.id })
-            assertEquals(profiles, SagerDatabase.proxyDao.getAll().map { it.id })
-            await { !payload.exists() }
-        } finally { ui { activity.finish() }; payload.delete() }
-    }
-
-    @Test fun confirmedFileImportOutlivesTheDestinationScreen() {
+    @Test fun fileImportUsesTheExplicitGroup() {
         val group = ProxyGroup(name = "Confirmed file destination")
         group.id = SagerDatabase.groupDao.insert(group)
         val source = File(context.cacheDir, "${UUID.randomUUID()}.txt").apply { writeText("socks://192.0.2.1:1080#confirmed-file") }
-        val payload = File(context.cacheDir, "import-target/${UUID.randomUUID()}.json").apply {
-            parentFile!!.mkdirs()
-            writeText(JSONObject().put("kind", "file").put("content", Uri.fromFile(source).toString()).put("groupId", group.id).toString())
-        }
         val activity = instrumentation.startActivitySync(Intent(context, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)) as MainActivity
         try {
-            ui { ImportTargetActivity.consume(activity, payload.name) }
+            ui { SubscribeFlows.importFile(activity, Uri.fromFile(source), group.id) }
             await { SagerDatabase.proxyDao.getByGroup(group.id).size == 1 }
             assertEquals("confirmed-file", SagerDatabase.proxyDao.getByGroup(group.id).single().displayName())
-            assertFalse(payload.exists())
         } finally {
             ui { activity.finish() }
             SagerDatabase.groupDao.deleteById(group.id)
-            source.delete(); payload.delete()
+            source.delete()
         }
     }
 
     @Test fun bottomServerReceivesWholeRowTouchWithLegacyControlsHidden() {
+        val listMode=DataStore.mobileListMode
+        DataStore.mobileListMode="list"
         val dashboard = context.getSharedPreferences("dashboard", Context.MODE_PRIVATE)
         val collapsed = dashboard.getStringSet("collapsedGroups", emptySet()).orEmpty().toSet()
         val selected = DataStore.selectedProxy
@@ -210,6 +182,7 @@ class MobileImportUiRegressionTest {
         } finally {
             ui { activity.finish() }
             DataStore.selectedProxy = selected
+            DataStore.mobileListMode=listMode
             SagerDatabase.groupDao.deleteById(group.id)
             dashboard.edit().putStringSet("collapsedGroups", collapsed).commit()
         }

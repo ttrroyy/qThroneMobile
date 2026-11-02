@@ -151,7 +151,7 @@ abstract class ProfileSettingsActivity<T : Outbound>(
                 if (editingId == 0L) {
                     val target = intent.getLongExtra("qmobileGroupId", 0L)
                     DataStore.editingGroup = target.takeIf { app.qthrone.mobile.database.GroupRepo.get(it) != null }
-                        ?: app.qthrone.mobile.database.GroupRepo.serverListId()
+                        ?: app.qthrone.mobile.ui.SubscribeFlows.targetGroupId()
                     editingOutbound = createEntity()
                 } else {
                     val entity = proxyEntity

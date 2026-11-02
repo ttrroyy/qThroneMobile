@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import app.qthrone.mobile.database.ProxyEntity
+import app.qthrone.mobile.database.DataStore
 import app.qthrone.mobile.database.ProxyGroup
 import app.qthrone.mobile.database.SagerDatabase
 import app.qthrone.mobile.outbound.types.Socks
@@ -50,6 +51,8 @@ class LargeSubscriptionUiRegressionTest {
     }
 
     @Test fun collapsedAndExpandedLargeSubscriptionsKeepTheUiBoundedAndResponsive() {
+        val previousMode=DataStore.mobileListMode
+        DataStore.mobileListMode="list"
         val dashboard = context.getSharedPreferences("dashboard", Context.MODE_PRIVATE)
         val previousCollapsed = dashboard.getStringSet("collapsedGroups", emptySet()).orEmpty().toSet()
         val group = ProxyGroup(name = "Large subscription regression", url = "https://example.invalid/subscription")
@@ -92,6 +95,7 @@ class LargeSubscriptionUiRegressionTest {
             assertEquals(2200, SagerDatabase.proxyDao.getByGroup(group.id).size)
         } finally {
             activity?.let { ui { it.finish() } }
+            DataStore.mobileListMode=previousMode
             SagerDatabase.groupDao.deleteById(group.id)
             dashboard.edit().putStringSet("collapsedGroups", previousCollapsed).commit()
         }

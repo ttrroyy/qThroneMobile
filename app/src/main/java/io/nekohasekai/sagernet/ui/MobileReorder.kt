@@ -6,12 +6,11 @@ import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.LinearLayout
 import androidx.core.view.doOnPreDraw
-import android.widget.ScrollView
 
 /** Reorder existing views in place. No database/render notifications until the gesture finishes. */
 internal class MobileReorder(
     private val container: LinearLayout,
-    private val scroll: ScrollView,
+    private val scroll: View,
     private val active: (Boolean) -> Unit,
     private val save: (List<Long>) -> Unit,
     private val compatible: (Long, Long) -> Boolean = { _, _ -> true },
@@ -25,7 +24,8 @@ internal class MobileReorder(
     private var source: View?=null
     private var original=emptyList<View>()
     private var accepted=false
-    private var pointerY=0f
+    private val horizontal get() = container.orientation == LinearLayout.HORIZONTAL
+    private var pointer=0f
     private var pendingMove=false
     private val scrollStep=object: Runnable {
         override fun run() {
@@ -33,14 +33,17 @@ internal class MobileReorder(
             if(!container.isAttachedToWindow) { finish(false);return }
             val location=IntArray(2);container.getLocationOnScreen(location)
             val viewport=IntArray(2);scroll.getLocationOnScreen(viewport)
-            val y=location[1]+pointerY-viewport[1]
+            val axis=if(horizontal) 0 else 1
+            val position=location[axis]+pointer-viewport[axis]
             val edge=56*container.resources.displayMetrics.density
-            val delta=when { y<edge -> -12; y>scroll.height-edge -> 12; else -> 0 }
+            val extent=if(horizontal) scroll.width else scroll.height
+            val delta=when { position<edge -> -12; position>extent-edge -> 12; else -> 0 }
             if(delta!=0) {
-                val before=scroll.scrollY
-                scroll.scrollBy(0,(delta*container.resources.displayMetrics.density).toInt())
-                pointerY+=scroll.scrollY-before
-                move(dragged,pointerY)
+                val before=if(horizontal) scroll.scrollX else scroll.scrollY
+                val step=(delta*container.resources.displayMetrics.density).toInt()
+                scroll.scrollBy(if(horizontal) step else 0,if(horizontal) 0 else step)
+                pointer+=(if(horizontal) scroll.scrollX else scroll.scrollY)-before
+                move(dragged,pointer)
             }
             container.postOnAnimation(this)
         }
@@ -52,8 +55,8 @@ internal class MobileReorder(
                 when(event.action) {
                     DragEvent.ACTION_DRAG_STARTED -> true
                     DragEvent.ACTION_DRAG_LOCATION -> {
-                        pointerY=event.y
-                        source?.let { move(it,event.y) }
+                        pointer=if(horizontal) event.x else event.y
+                        source?.let { move(it,pointer) }
                         true
                     }
                     DragEvent.ACTION_DROP -> { accepted=true;true }
@@ -95,7 +98,8 @@ internal class MobileReorder(
                     item.scaleX=1f;item.scaleY=1f
                     val handleLocation=IntArray(2);handle.getLocationOnScreen(handleLocation)
                     val containerLocation=IntArray(2);container.getLocationOnScreen(containerLocation)
-                    pointerY=handleLocation[1]-containerLocation[1]+handle.height/2f
+                    val axis=if(horizontal) 0 else 1
+                    pointer=handleLocation[axis]-containerLocation[axis]+(if(horizontal) handle.width else handle.height)/2f
                     container.postOnAnimation(scrollStep)
                 } else finish(false)
             }.start()
@@ -105,15 +109,17 @@ internal class MobileReorder(
 
     private fun children()=(0 until container.childCount).map { container.getChildAt(it) }
 
-    private fun move(item: View,y: Float) {
+    private fun move(item: View,position: Float) {
         if(pendingMove) return
         val current=children()
         val from=current.indexOf(item)
         if(from<0) return
-        val target=current.indices.lastOrNull { y>current[it].top+current[it].height/2f } ?: 0
+        val target=current.indices.lastOrNull {
+            position > if(horizontal) current[it].left+current[it].width/2f else current[it].top+current[it].height/2f
+        } ?: 0
         val to=target.coerceIn(0,current.lastIndex)
         if(to==from || !compatible(ids[item] ?: return,ids[current[to]] ?: return)) return
-        val tops=current.associateWith { it.top+it.translationY }
+        val positions=current.associateWith { if(horizontal) it.left+it.translationX else it.top+it.translationY }
         current.forEach { it.animate().cancel() }
         container.removeView(item);container.addView(item,to)
         pendingMove=true
@@ -121,8 +127,13 @@ internal class MobileReorder(
             pendingMove=false
             if(source!==item) return@doOnPreDraw
             current.filter { it!==item }.forEach { view ->
-                view.translationY=(tops[view] ?: view.top.toFloat())-view.top
-                view.animate().translationY(0f).setDuration(160).start()
+                if(horizontal) {
+                    view.translationX=(positions[view] ?: view.left.toFloat())-view.left
+                    view.animate().translationX(0f).setDuration(160).start()
+                } else {
+                    view.translationY=(positions[view] ?: view.top.toFloat())-view.top
+                    view.animate().translationY(0f).setDuration(160).start()
+                }
             }
         }
     }
@@ -131,16 +142,18 @@ internal class MobileReorder(
      * Lets an item dragged out of another movable list be dropped anywhere on [zone] (a whole group card,
      * so a collapsed or empty group takes it too); [receive] gets its id. The source list then restores its order.
      */
-    fun acceptFrom(zone: View, receive: (Long) -> Unit) {
+    fun acceptFrom(zone: View, canReceive: Boolean = true, onDrag: (View, DragEvent) -> Unit = { _, _ -> }, receive: (Long) -> Unit) {
         zone.setOnDragListener { _,event ->
             val state=event.localState as? MobileReorder
-            if(state==null || state===this || !state.movable) false else {
+            if(state==null || (state===this && canReceive) || !state.movable) false else {
+                onDrag(zone,event)
                 when(event.action) {
-                    DragEvent.ACTION_DRAG_ENTERED -> zone.animate().alpha(.6f).setDuration(90).start()
+                    DragEvent.ACTION_DRAG_ENTERED -> if(canReceive) zone.animate().alpha(.6f).setDuration(90).start()
                     DragEvent.ACTION_DRAG_EXITED,DragEvent.ACTION_DRAG_ENDED -> zone.animate().alpha(1f).setDuration(90).start()
-                    DragEvent.ACTION_DRAG_LOCATION -> state.follow(zone,event.y)
+                    DragEvent.ACTION_DRAG_LOCATION -> state.follow(zone,event.x,event.y)
                     DragEvent.ACTION_DROP -> {
                         zone.animate().alpha(1f).setDuration(90).start()
+                        if(!canReceive) return@setOnDragListener false
                         state.source?.let { state.ids[it] }?.let(receive)
                     }
                 }
@@ -150,10 +163,11 @@ internal class MobileReorder(
     }
 
     /** Keeps auto-scroll following the finger while it is over another list. */
-    private fun follow(view: View,y: Float) {
+    private fun follow(view: View,x: Float,y: Float) {
         val at=IntArray(2);view.getLocationOnScreen(at)
         val mine=IntArray(2);container.getLocationOnScreen(mine)
-        pointerY=at[1]+y-mine[1]
+        val axis=if(horizontal) 0 else 1
+        pointer=at[axis]+(if(horizontal) x else y)-mine[axis]
     }
 
     fun cancel() { finish(false) }
@@ -172,7 +186,7 @@ internal class MobileReorder(
                 }
             }
         }
-        children().forEach { it.animate().cancel();it.translationY=0f }
+        children().forEach { it.animate().cancel();it.translationX=0f;it.translationY=0f }
         release(item)
         item.visibility=View.VISIBLE
         item.scaleX=1.025f;item.scaleY=1.025f
@@ -180,5 +194,19 @@ internal class MobileReorder(
         original=emptyList()
         if(commit && changed) save(order.mapNotNull { ids[it] })
         else active(false)
+    }
+
+    companion object {
+        fun cancelOnDrop(zone: View) {
+            zone.setOnDragListener { _,event ->
+                val state=event.localState as? MobileReorder ?: return@setOnDragListener false
+                when(event.action) {
+                    DragEvent.ACTION_DRAG_ENTERED -> zone.alpha=1f
+                    DragEvent.ACTION_DRAG_EXITED,DragEvent.ACTION_DRAG_ENDED -> zone.alpha=.75f
+                    DragEvent.ACTION_DROP -> state.cancel()
+                }
+                true
+            }
+        }
     }
 }
