@@ -14,6 +14,7 @@
     </PreferenceCategory>
     <!-- One untitled section, most used first: the chain through front and landing proxies, then updates. -->
     <PreferenceCategory app:key="groupSubscription">
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference app:icon="@drawable/baseline_public_24" app:key="groupRouteProfileId" app:title="@string/group_route_profile" app:defaultValue="-1" />
         <Preference app:icon="@drawable/ic_hardware_router" app:key="groupFrontProxyId" app:persistent="false" app:title="@string/grp_front_proxy" />
         <Preference app:icon="@drawable/baseline_public_24" app:key="groupLandingProxyId" app:persistent="false" app:title="@string/grp_landing_proxy" />
         <SwitchPreference app:icon="@drawable/ic_baseline_update_24" app:key="groupSkipAutoUpdate" app:title="@string/grp_skip_auto_update" />

@@ -11,6 +11,7 @@ import app.qthrone.mobile.outbound.types.S3Bypass
 import app.qthrone.mobile.outbound.types.Sstp
 import app.qthrone.mobile.outbound.types.WdttPlus
 import app.qthrone.mobile.outbound.types.Shadowsocks
+import app.qthrone.mobile.outbound.types.ShadowsocksR
 import app.qthrone.mobile.outbound.types.Socks
 import java.util.concurrent.ConcurrentHashMap
 
@@ -36,12 +37,12 @@ object OutboundFactory {
     @JvmField
     val ALL_TYPES: List<String> = listOf(
         "qwdtt", "csqtt", "wdttplus", "openflux", "openfluxkey", "olcrtc", "dnstt", "vaydns", "slipstream", "masterdns", "cottendns", "soar", "s3bypass", "sstp", "socks", "http", "shadowsocks", "chain", "autoselector", "vmess", "trojan", "vless", "xrayvless", "hysteria",
-        "tuic", "juicity", "trusttunnel", "anytls", "mieru", "snell", "shadowtls", "wireguard", "masque", "openvpn",
+        "shadowsocksr", "tuic", "juicity", "trusttunnel", "anytls", "mieru", "snell", "shadowtls", "wireguard", "masque", "openvpn",
         "openconnect", "tailscale", "ssh", "custom", "extracore", "naive", "direct",
     )
 
     /** OutboundFactory.cpp:44 and the JSON alias of openvpn.cpp:157-158. */
-    private val TYPE_ALIASES = mapOf("wdtt" to "qwdtt", "hysteria2" to "hysteria", "openvpn-client" to "openvpn")
+    private val TYPE_ALIASES = mapOf("wdtt" to "qwdtt", "hysteria2" to "hysteria", "openvpn-client" to "openvpn", "ssr" to "shadowsocksr")
 
     /** Not ported (tailscale) or desktop-only (extracore); always an [InvalidOutbound]. */
     @JvmField
@@ -64,6 +65,7 @@ object OutboundFactory {
         "socks" to { Socks() },
         "http" to { Http() },
         "shadowsocks" to { Shadowsocks() },
+        "shadowsocksr" to { ShadowsocksR() },
         "dnstt" to { DnsTunnel("dnstt") },
         "vaydns" to { DnsTunnel("vaydns") },
         "slipstream" to { DnsTunnel("slipstream") },
@@ -134,6 +136,7 @@ object OutboundFactory {
         Protocol("socks", listOf("socks5://", "socks4://", "socks4a://", "socks://"), listOf("socks"), listOf("socks5")),
         Protocol("http", listOf("http://", "https://"), listOf("http"), listOf("http")),
         Protocol("shadowsocks", listOf("ss://"), listOf("shadowsocks"), listOf("ss")),
+        Protocol("shadowsocksr", listOf("ssr://"), listOf("shadowsocksr","ssr"), listOf("ssr")),
         Protocol("vmess", listOf("vmess://"), listOf("vmess"), listOf("vmess")),
         Protocol("vless", listOf("vless://"), listOf("vless"), listOf("vless")),
         Protocol("trojan", listOf("trojan://"), listOf("trojan"), listOf("trojan")),
@@ -156,7 +159,7 @@ object OutboundFactory {
     fun typeForScheme(link: String): String? {
         // The desktop reads qWDTT and CSQTT schemes in any letter case.
         for (p in PROTOCOLS) for (scheme in p.schemes)
-            if (link.startsWith(scheme, ignoreCase = p.type in listOf("qwdtt", "csqtt", "wdttplus", "sstp"))) return p.type
+            if (link.startsWith(scheme, ignoreCase = p.type in listOf("qwdtt", "csqtt", "wdttplus", "sstp", "shadowsocksr"))) return p.type
         return null
     }
 
@@ -210,7 +213,7 @@ object OutboundFactory {
      */
     @JvmStatic
     fun fromJson(data: JsonObject): Outbound? {
-        val outbound = if (data.contains("protocol")) newByType("xray" + data.string("protocol"))
+        val outbound = if (data.contains("protocol") && !data.contains("type")) newByType("xray" + data.string("protocol"))
         else newByType(data.string("type"))
         if (outbound.invalid) return null
         outbound.parseFromJson(data)

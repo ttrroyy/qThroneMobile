@@ -9,8 +9,11 @@ class LogRedactor(private val hideDestinations: Boolean) {
     private companion object {
         val AUTH_HEADER = Regex("""(?im)(\b(?:cookie|set-cookie|authorization|proxy-authorization)\s*:\s*)[^\r\n]+""")
         val URL = Regex("""\b([a-zA-Z][a-zA-Z0-9+.\-]*)://([^\s/@"'<>]*@)?([^\s/?#"'<>]+)([^\s"'<>]*)""")
+        const val STRING = """"(?:[^"\\]++|\\.)*+""""
+        const val ARRAY = """\[(?:[^\[\]"]++|$STRING|\[(?:[^\[\]"]++|$STRING)*+])*+]"""
+        const val OBJECT = """\{(?:[^{}"]++|$STRING|\{(?:[^{}"]++|$STRING)*+})*+}"""
         val SECRET = Regex(
-            """(?i)("?)([\w\-]*(?:password|passwd|pass|secret|token|key|uuid|auth|cookie|username|user_name|login|psk|short_id)[\w\-]*)\1(\s*[:=]\s*)("(?:[^"\\]|\\.)*"|[^\s,;&}\]]+)"""
+            """(?i)("?)([\w\-]*(?:password|passwd|pass|secret|token|key|uuid|auth|cookie|username|user_name|login|psk|short_id|proto(?:col)?[_-]?param|obfs[_-]?param)[\w\-]*)\1(\s*[:=]\s*)($STRING|$ARRAY|$OBJECT|[^\s,;&}\]]+)"""
         )
         // The logged start config names the servers by domain as well as by IP.
         val SERVER = Regex(

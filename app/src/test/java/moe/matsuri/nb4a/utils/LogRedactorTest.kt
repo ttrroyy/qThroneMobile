@@ -5,6 +5,10 @@ import org.junit.Test
 
 class LogRedactorTest {
     private val redactor = LogRedactor(false)
+    @Test fun hidesSecretArraysAndSsrAuthentication() {
+        val result = redactor.redact("""{"secrets":["first-value","second-value"],"protocol_param":"42:auth-value","obfsparam":"hidden-host"}""")
+        for (secret in listOf("first-value", "second-value", "auth-value", "hidden-host")) assertFalse(result.contains(secret))
+    }
     @Test(timeout=2000) fun oversizedTokenLinesCannotStallExportOrLeakSuffix() {
         val line="access_token="+"a".repeat(200000)+"secretSuffix"
         val result=redactor.redact(line)

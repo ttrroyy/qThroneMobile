@@ -1,0 +1,7 @@
+<resources>
+    <string name="warp_mode_amnezia" translatable="false">AmneziaWG</string>
+    <string name="warp_amnezia_generating">Generating the AmneziaWG QUIC signature…</string>
+    <string name="warp_amnezia_missing">AmneziaWG has no QUIC signature yet: tap Generate WARP config.</string>
+    <string name="warp_quic_signature_invalid">The core returned an invalid QUIC signature.</string>
+    <string name="warp_quic_signature_failed">Failed to generate WARP QUIC signature: %1$s</string>
+</resources>

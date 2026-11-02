@@ -25,6 +25,8 @@ def patch(core: Path):
     for source in (ROOT / "core-patches" / "obfs").glob("*.go"):
         shutil.copyfile(source, target / source.name)
     context = core / "mobile" / "context.go"
+    if 'outbounds, endpoints := obfs.Registries()' in context.read_text():
+        return
     replace_once(context, "\tctx = box.Context(ctx, include.InboundRegistry(), include.OutboundRegistry(), include.EndpointRegistry(), dnsRegistry,",
                  "\toutbounds, endpoints := obfs.Registries()\n\tctx = box.Context(ctx, include.InboundRegistry(), outbounds, endpoints, dnsRegistry,")
     replace_once(context, "import (\n", f"import (\n\t\"{module}/internal/obfs\"\n")

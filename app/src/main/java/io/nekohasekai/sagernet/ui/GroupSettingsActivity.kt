@@ -71,6 +71,7 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
 
         private const val AUTO_SELECTOR = "autoselector"
 
+        private const val KEY_ROUTE = "groupRouteProfileId"
         private const val KEY_FRONT = "groupFrontProxyId"
         private const val KEY_LANDING = "groupLandingProxyId"
         private const val KEY_AUTO_CLEAR = "groupAutoClearUnavailable"
@@ -145,6 +146,7 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
     private var globalSendHwid = false
 
     /** "[group] name" of the profiles the front/landing menus offer. */
+    private var routeProfiles = emptyList<app.qthrone.mobile.route.RouteProfile>()
     private val proxyLabels = HashMap<Long, String>()
 
     private val fragment get() = supportFragmentManager.findFragmentById(R.id.settings) as? GroupPreferenceFragment
@@ -202,6 +204,7 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
                     if (editingId == 0L && suggestedName.isNotBlank()) DataStore.groupName = suggestedName
                     DataStore.dirty = prefilled || (editingId == 0L && suggestedName.isNotBlank())
                 } else originalSignature = savedInstanceState?.getString("originalSignature") ?: editSignature()
+                routeProfiles = app.qthrone.mobile.database.RouteManager.usable()
                 val identity = RequestIdentity.resolve(null)
                 defaultUserAgent = identity.userAgent
                 defaultDevice = identity.device
@@ -374,6 +377,7 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
         store.putBoolean(KEY_SKIP_AUTO_UPDATE, group.skipAutoUpdate)
         store.putBoolean(KEY_SHOW_INFO_CARD, group.subOptions.showInfoCard)
         val options = group.subOptions
+        store.putString(KEY_ROUTE, options.routeProfileId.toString())
         store.putString(KEY_USER_AGENT, options.userAgent)
         store.putString(KEY_SEND_HWID, options.sendHwid.value.toString())
         store.putString(KEY_HWID, options.hwid)
@@ -404,6 +408,7 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
         fun text(key: String) = store.getString(key).orEmpty().trim()
         fun flag(key: String) = store.getBoolean(key, false)
         return SubscriptionOptions(
+            routeProfileId = text(KEY_ROUTE).toLongOrNull()?.takeIf { it > 0 } ?: -1L,
             userAgent = text(KEY_USER_AGENT),
             sendHwid = sendHwidMode(),
             hwid = text(KEY_HWID),
@@ -557,6 +562,12 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
             addPreferencesFromResource(R.xml.group_preferences)
 
             findPreference<SimpleMenuPreference>(Key.GROUP_TYPE)!!.isEnabled = host.editingId == 0L
+            findPreference<SimpleMenuPreference>(KEY_ROUTE)!!.apply {
+                entries = (listOf(getString(R.string.group_route_inherit)) + host.routeProfiles.map { it.name }).toTypedArray()
+                entryValues = (listOf("-1") + host.routeProfiles.map { it.id.toString() }).toTypedArray()
+                if (value !in entryValues) value = "-1"
+                summaryProvider = Preference.SummaryProvider<SimpleMenuPreference> { it.entry }
+            }
             setupProxyMenu(KEY_FRONT)
             setupProxyMenu(KEY_LANDING)
 
@@ -695,7 +706,7 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
             }
             // The sort rule is part of the editor, next to the name and link.
             findPreference<Preference>(KEY_SORT_RULE)?.isVisible = editing
-            for (key in listOf(KEY_AUTO_CLEAR, KEY_FRONT, KEY_LANDING))
+            for (key in listOf(KEY_AUTO_CLEAR, KEY_FRONT, KEY_LANDING, KEY_ROUTE))
                 findPreference<Preference>(key)?.isVisible = settings
             for (key in listOf(KEY_SKIP_AUTO_UPDATE, KEY_AUTO_UPDATE_MINUTES, KEY_SHOW_INFO_CARD, KEY_ALLOW_COLLAPSE, KEY_KEEP_WORKING,
                 KEY_REMOVE_DUPLICATES, KEY_REMOVE_INSECURE, KEY_REMOVE_INVALID, KEY_URL_TEST, KEY_REMOVE_UNAVAILABLE,

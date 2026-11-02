@@ -1,5 +1,6 @@
 package app.qthrone.mobile.bg.test
 
+import app.qthrone.mobile.database.ProxyEntity
 import app.qthrone.mobile.aidl.ITestSessionCallback
 import app.qthrone.core.mobile.Mobile
 import kotlinx.coroutines.CoroutineScope
@@ -69,10 +70,10 @@ object TestEngine {
      * Waits for a running session to finish, then URL-tests [ids] and persists the results (desktop queueUrlTests);
      * cancelling the caller stops the tests.
      */
-    suspend fun queueUrlTests(ids: List<Long>) {
+    suspend fun queueUrlTests(ids: List<Long>, onResult: ((ProxyEntity) -> Unit)? = null) {
         if (ids.isEmpty()) return
         session.lock()
-        val test = TestSession(sessionIds.incrementAndGet(), TestSpec(TestSpec.KIND_URL, ids.toLongArray()), null)
+        val test = TestSession(sessionIds.incrementAndGet(), TestSpec(TestSpec.KIND_URL, ids.toLongArray()), null, onResult)
         current = test
         try {
             coroutineScope {

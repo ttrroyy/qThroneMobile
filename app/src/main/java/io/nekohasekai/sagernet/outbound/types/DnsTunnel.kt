@@ -57,7 +57,9 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
         type=kind
         data=obj.copy();data.remove("type");data.remove("tag")
         name=obj.string("name").ifEmpty { obj.string("tag") };data.remove("name")
-        data["domain"]=data.string("domain").trim().trimEnd('.')
+        data["domain"]=if(type=="masterdns" || type=="cottendns") data.string("domain").split(Regex("[,\\s]+"))
+            .filter { it.isNotEmpty() }.joinToString(",") { it.trimEnd('.') }
+            else data.string("domain").trim().trimEnd('.')
         if(!keyed(type) && !data.contains("backend")) data["backend"]=jsonObjectOf("type" to "socks")
         if(keyed(type)) data.remove("backend")
         server=data.string("domain");serverPort=0
@@ -66,7 +68,9 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
 
     private fun valid():Boolean {
         val domain=data.string("domain")
-        if(domain.isEmpty() || domain.length>253 || domain.any { it.isWhitespace() || it=='/' }) return false
+        val domains=if(type=="masterdns" || type=="cottendns") domain.split(',') else listOf(domain)
+        if(domains.any { it.isEmpty() || it.length>253 || it.any { c -> c.isWhitespace() || c=='/' } }) return false
+        if(data.contains("options") && !data.isObject("options")) return false
         when(type) {
             "dnstt","vaydns" -> if(!data.string("pubkey").matches(HEX64)) return false
             "masterdns","cottendns" -> if(data.string("mkey").isBlank() || data.int("encryption") !in 0..5) return false
@@ -108,6 +112,7 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
             val transport=json.obj("transport");val backend=json.obj("backend")
             val obj=jsonObjectOf("type" to transport.string("type"),"name" to json.string("tag"))
             for((key,value) in transport) if(key!="type") obj[key]=value
+            if(json.contains("resolvers")) obj["resolvers"]=json.array("resolvers").copy()
             if(backend.isNotEmpty()) obj["backend"]=backend.copy()
             return parseFromJson(obj)
         }
@@ -193,6 +198,7 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
         }
         val obj=jsonObjectOf("type" to (if(scheme=="cottendns") "cottendns" else "masterdns"),"name" to profile.string("name"),
             "domain" to domains.joinToString(","),"mkey" to key,"encryption" to method)
+        if(profile.contains("resolvers")) obj["resolvers"]=profile.array("resolvers").copy()
         if(scheme=="cottendns" && profile.obj("cottenSettings").isNotEmpty()) obj["cotten"]=profile.obj("cottenSettings").copy()
         return parseFromJson(obj)
     }
@@ -329,6 +335,7 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
             if(data.obj("cotten").isNotEmpty()) profile["cottenSettings"]=data.obj("cotten").copy()
         }
         profile["server"]=server
+        if(data.array("resolvers").isNotEmpty()) profile["resolvers"]=data.array("resolvers").copy()
         val json=jsonObjectOf("schema" to "whitedns.profile","version" to 1,"import_type" to type,"profile" to profile)
         return type+"://"+Base64Strict.encode(json.toCompact(),urlSafe=true,padding=false)
     }
@@ -339,11 +346,13 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
     /** dnst:// (§2): the readable form, or base64url JSON when a certificate or key would not fit in a URL. */
     override fun exportToLink():String {
         if(!valid()) return ""
-        if(type=="cottendns" || type=="soar") return exportWhiteDns()
+        if((type=="cottendns" || type=="soar") && data.obj("options").isEmpty()) return exportWhiteDns()
         val backend=data.obj("backend")
-        if(data.string("cert").isNotEmpty() || backend.string("pk").isNotEmpty()) {
+        if(data.string("cert").isNotEmpty() || backend.string("pk").isNotEmpty() || data.array("resolvers").isNotEmpty() ||
+            data.obj("options").isNotEmpty() || data.string("domain").contains(',') || type=="slipstream") {
             val transport=JsonObject().also { t -> t["type"]=type;for((k,v) in data) if(k!="backend" && k!="resolvers") t[k]=v }
             val json=jsonObjectOf("transport" to transport,"backend" to if(type=="masterdns") jsonObjectOf("type" to "socks") else backend)
+            if(data.array("resolvers").isNotEmpty()) json["resolvers"]=data.array("resolvers").copy()
             if(name.isNotEmpty()) json["tag"]=name
             return PREFIX+Base64Strict.encode(json.toCompact(),urlSafe=true,padding=false)
         }

@@ -180,6 +180,7 @@ class VpnService : BaseVpnService(),
             )
         }
 
+        if (DataStore.allowAppsBypassVpn) builder.allowBypass()
         updateUnderlyingNetwork(builder)
         metered = DataStore.meteredNetwork
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) builder.setMetered(metered)
@@ -190,7 +191,9 @@ class VpnService : BaseVpnService(),
 
     fun updateUnderlyingNetwork(builder: Builder? = null) {
         val networks=SagerNet.underlyingNetwork?.let { arrayOf(it) }
-        builder?.setUnderlyingNetworks(networks) ?: setUnderlyingNetworks(networks)
+        if (builder != null) {
+            if (networks != null) builder.setUnderlyingNetworks(networks)
+        } else setUnderlyingNetworks(networks)
     }
 
     override fun onRevoke() = stopRunner()

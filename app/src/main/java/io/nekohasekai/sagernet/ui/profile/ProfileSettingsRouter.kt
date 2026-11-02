@@ -12,6 +12,7 @@ fun settingsActivityFor(type: String): Class<out ProfileSettingsActivity<*>> =
         "socks" -> SocksSettingsActivity::class.java
         "http" -> HttpSettingsActivity::class.java
         "shadowsocks" -> ShadowsocksSettingsActivity::class.java
+        "shadowsocksr" -> ShadowsocksRSettingsActivity::class.java
         "vmess" -> VMessSettingsActivity::class.java
         "vless" -> VlessSettingsActivity::class.java
         "xrayvless" -> XrayVlessSettingsActivity::class.java

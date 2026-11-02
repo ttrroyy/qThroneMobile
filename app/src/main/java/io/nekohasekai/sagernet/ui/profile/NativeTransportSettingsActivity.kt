@@ -92,6 +92,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
                 "soar" -> defaults["pubkey"]=""
             }
             for((key,value) in defaults) if(!document.contains(key)) document[key]=value
+            if(type=="masterdns" && !document.contains("options")) document["options"]=JsonObject()
             if(type=="soar") {
                 // The advanced Soar settings of an imported profile stay as they came.
                 val soar=document.obj("soar")
@@ -123,11 +124,12 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             for ((key, value) in obj) {
                 if (key == "type") continue
                 val path = if (prefix.isEmpty()) key else "$prefix.$key"
-                if (value is JsonObject) write(value, path)
+                if (value is JsonObject && !(type=="masterdns" && path=="options")) write(value, path)
                 else {
                     fields[path] = value
                     DataStore.profileCacheStore.putString(cache(path), when(value) {
                         is JsonArray -> if(key in listOf("hashes","resolvers")) value.strings().joinToString("\n") else value.toCompact()
+                        is JsonObject -> value.toCompact()
                         else -> value.toString()
                     })
                 }
@@ -142,7 +144,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "dnstt" -> listOf("name","domain","pubkey","resolvers") + backendFields
             "vaydns" -> listOf("name","domain","pubkey","resolvers","record_type","dnstt_compat","clientid_size","idle_timeout","keepalive") + backendFields
             "slipstream" -> listOf("name","domain","cert","resolvers","authoritative","congestion_control","keep_alive_interval") + backendFields
-            "masterdns","cottendns" -> listOf("name","domain","mkey","encryption","resolvers")
+            "masterdns","cottendns" -> listOf("name","domain","mkey","encryption","resolvers","options")
             "soar" -> listOf("name","domain","pubkey","resolvers","soar.discovery","soar.country")
             "sstp" -> listOf("name","server","server_port","username","password","sni","allow_insecure","use_server_dns")
             "openfluxkey" -> listOf("name","transport","doc_url","key_token","e2e_encryption")
@@ -196,6 +198,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
                 is Number -> text.toLong()
                 is JsonArray -> if(key in listOf("hashes","resolvers")) JsonArray.of(*text.split(Regex("[,\\s]+" )).filter { it.isNotBlank() }.toTypedArray())
                     else JsonInput.parseValue(text) as? JsonArray ?: error("$key: JSON array required")
+                is JsonObject -> if(text.isBlank()) JsonObject() else JsonInput.parseObjectOrNull(text) ?: error("$key: JSON object required")
                 else -> text
             }
         }
@@ -285,7 +288,8 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "sessionsDir" to "Каталог сессий", "accessKey" to "Access Key", "secretKey" to "Secret Key",
             "pollIntervalMs" to "Опрос хранилища, мс", "writeIntervalMs" to "Запись в хранилище, мс",
             "idleTimeoutSec" to "Тайм-аут простоя, с", "maxFileSizeBytes" to "Наибольший объект, байт",
-            "doc_url" to "Ссылка на документ или доску", "key_token" to "Ключ доступа", "e2e_encryption" to "Сквозное шифрование ключом")
+            "doc_url" to "Ссылка на документ или доску", "key_token" to "Ключ доступа", "e2e_encryption" to "Сквозное шифрование ключом",
+            "options" to "Дополнительные параметры MasterDNS (JSON)")
         val choices = mutableMapOf("hash_source" to listOf("manual","auto"),"mode" to listOf("raw","wg"), "obfs" to listOf("audio","video"),
             "vk_anon_path" to listOf("vkcalls","legacy"), "captcha_mode" to listOf("auto","wv","rjs"),
             "provider" to listOf("jitsi","telemost","wbstream"),
@@ -394,7 +398,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
                         it.inputType = when {
                             value is Number -> InputType.TYPE_CLASS_NUMBER
                             key in listOf("password","secret") -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                            key in listOf("hashes","cert","pk") || value is JsonArray -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                            key in listOf("hashes","cert","pk") || value is JsonArray || value is JsonObject -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
                             else -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
                         }
                     }
@@ -422,6 +426,10 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
                 else -> labels[key] ?: path.removePrefix("options.")
             }
             if(preference is EditTextPreference) preference.dialogTitle = preference.title
+            if(path=="options" && value is JsonObject) {
+                preference.summaryProvider=null
+                preference.summary="Балансировка резолверов, MTU, дублирование и тайм-ауты. Пусто: настройки движка."
+            }
             if(editingOutbound.type=="wdttplus") when(key) {
                 "tcp_only" -> preference.summary="Отключить внешний UDP и использовать TCP/TLS"
                 "rt_masque" -> preference.summary="Резерв через Cloudflare. При первом включении потребуется регистрация Cloudflare"
@@ -433,6 +441,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
                 if(key == "hash_source" && text == "auto" && (editingOutbound.type !in listOf("qwdtt","csqtt","wdttplus") || !app.qthrone.mobile.bg.carrier.VkRelayAccount.linked() || app.qthrone.mobile.bg.carrier.VkRelayAccount.needsRelink())) return@setOnPreferenceChangeListener false
                 val range=optionLimits[path.removePrefix("options.")]
                 if(value is Number && text.toLongOrNull()==null) return@setOnPreferenceChangeListener false
+                if(value is JsonObject && text.isNotBlank() && JsonInput.parseObjectOrNull(text)==null) return@setOnPreferenceChangeListener false
                 if(range!=null && text.toIntOrNull()?.let { it in range }!=true) return@setOnPreferenceChangeListener false
                 if(key in listOf("server_port","raw_port") && text.toIntOrNull()?.let { it in 1..65535 }!=true) return@setOnPreferenceChangeListener false
                 DataStore.profileCacheStore.putString(cache(path),text)

@@ -1078,7 +1078,23 @@ class MobileHomeFragment : ToolbarFragment() {
         }
         entry(getString(R.string.qmobile_ping),R.drawable.ic_mobile_test) { viewLifecycleOwner.lifecycleScope.launch { val ids=withContext(Dispatchers.IO) { SagerDatabase.proxyDao.getByGroup(group.id).map { it.id }.toLongArray() };testMenu(ids,group.displayName(),group.id,true) } }
         entry(getString(R.string.qmobile_edit),R.drawable.ic_mobile_edit) { editGroup(group,false) }
-        if(group.isSubscription) entry(getString(R.string.settings),R.drawable.ic_mobile_settings) { editGroup(group,true) }
+        entry(getString(R.string.settings),R.drawable.ic_mobile_settings) { editGroup(group,true) }
+        entry(getString(R.string.connection_test_clear_results),R.drawable.ic_mobile_test) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                withContext(Dispatchers.IO) { ProfileManager.clearGroupTestResults(group.id) }
+                refresh()
+            }
+        }
+        entry(getString(R.string.clear_traffic_statistics),R.drawable.ic_mobile_test) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                withContext(Dispatchers.IO) {
+                    val ids=ProfileManager.memberIds(group.id).toLongArray()
+                    runCatching { host().connection.service?.resetTraffic(ids) }.onFailure { app.qthrone.mobile.ktx.Logs.w(it) }
+                    ProfileManager.resetTraffic(ids)
+                }
+                refresh()
+            }
+        }
         val pinned=group.id in pinnedGroups()
         entry(getString(if(pinned) R.string.qmobile_unpin else R.string.qmobile_pin),R.drawable.ic_mobile_pin) { val ids=pinnedGroups().toMutableSet();if(pinned) ids.remove(group.id) else ids.add(group.id);DataStore.mobilePinnedGroups=ids.joinToString(",");refresh() }
         entry(getString(R.string.qmobile_delete),R.drawable.ic_mobile_delete) {
@@ -1266,6 +1282,7 @@ class MobileHomeFragment : ToolbarFragment() {
             "socks" to R.string.action_socks,
             "http" to R.string.action_http,
             "shadowsocks" to R.string.action_shadowsocks,
+            "shadowsocksr" to R.string.action_shadowsocksr,
             "vmess" to R.string.action_vmess,
             "vless" to R.string.action_vless,
             "xrayvless" to R.string.action_vless_xray,

@@ -174,9 +174,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/bg/BaseService.kt": {
-    "mtime": 1793630121.418447,
-    "seen": 1793631200.254441,
-    "ast_hash": "8e5166896462e5d27fc09280c3b02fa5",
+    "mtime": 1793633339.3145094,
+    "seen": 1793633860.2463007,
+    "ast_hash": "dea49494d2481cb65f797f4512eee9ce",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/bg/CoreDiagnostics.kt": {
@@ -258,9 +258,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/bg/VpnService.kt": {
-    "mtime": 1793630121.425847,
-    "seen": 1793631200.254441,
-    "ast_hash": "31a4d8229eef82cea8bb7bdb055a021e",
+    "mtime": 1793633604.0812304,
+    "seen": 1793633860.2463007,
+    "ast_hash": "bd2a10ae2916d2441afd0f92498e3ecb",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/bg/WarpRegistration.kt": {
@@ -288,15 +288,15 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/bg/autoselector/AutoSelectorProfiles.kt": {
-    "mtime": 1793630121.4273705,
-    "seen": 1793631200.254441,
-    "ast_hash": "4f8c0fbbdfd6a007e43ed5734cdd1e01",
+    "mtime": 1793633339.3123703,
+    "seen": 1793633860.2463007,
+    "ast_hash": "b27ebc47eb91399d660d54669a21832f",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/bg/autoselector/AutoSelectorRuntime.kt": {
-    "mtime": 1793630121.428875,
-    "seen": 1793631200.254441,
-    "ast_hash": "054c56ce1b0270fff5d9b82206733ee8",
+    "mtime": 1793633339.3129156,
+    "seen": 1793633860.2463007,
+    "ast_hash": "ae396c7dc1c0002ab7e401ff16298cd6",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/bg/autoselector/AutoSelectorStatus.kt": {
@@ -474,9 +474,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/bg/proto/CoreConfigs.kt": {
-    "mtime": 1793630121.4426816,
-    "seen": 1793631200.254441,
-    "ast_hash": "e48bedde1abcf04dd985e500ea4fb16a",
+    "mtime": 1793633149.0181298,
+    "seen": 1793633860.2463007,
+    "ast_hash": "5e8ac420ac27aedf2ff6496579c772e1",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/bg/proto/CoreUrlTest.kt": {
@@ -558,9 +558,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/bg/test/TestEngine.kt": {
-    "mtime": 1793630121.4501925,
-    "seen": 1793631200.254441,
-    "ast_hash": "c4c31e2960fd61393971fbe0c6638a93",
+    "mtime": 1793633339.3134482,
+    "seen": 1793633860.2463007,
+    "ast_hash": "f1e0fe0ce2ecd5d2d269b2373cafb988",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/bg/test/TestNotification.kt": {
@@ -576,9 +576,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/bg/test/TestSession.kt": {
-    "mtime": 1793630121.4521942,
-    "seen": 1793631200.254441,
-    "ast_hash": "8c26d0cc124426a64a10205f7c8a5f18",
+    "mtime": 1793633339.3139782,
+    "seen": 1793633860.2463007,
+    "ast_hash": "02c0dfe22556d6ff7c0980824a55fc82",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/bg/test/TestSpec.kt": {
@@ -600,9 +600,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/database/DataStore.kt": {
-    "mtime": 1793630250.1451313,
-    "seen": 1793631200.254441,
-    "ast_hash": "2add34043118a39ea5a77819f1d9fa8f",
+    "mtime": 1793633448.4790936,
+    "seen": 1793633860.2463007,
+    "ast_hash": "d528cb9cc486408a4cac47a532a5598e",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/database/DnsServerHistory.kt": {
@@ -696,15 +696,15 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/database/SettingsMapper.kt": {
-    "mtime": 1793629221.63931,
-    "seen": 1793631200.254441,
-    "ast_hash": "a708a55d3fbdf8f28258438a65965341",
+    "mtime": 1793633448.4796205,
+    "seen": 1793633860.2463007,
+    "ast_hash": "5fca09c8d5b68bdecc4fca44f45d8161",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/database/SettingsRegistry.kt": {
-    "mtime": 1793630250.145679,
-    "seen": 1793631200.254441,
-    "ast_hash": "5a610704ac6092d3855b0ca68751fca8",
+    "mtime": 1793633448.478584,
+    "seen": 1793633860.2463007,
+    "ast_hash": "ce0c11ca8ccd5c82995239d45bdc1b83",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/database/SubUserInfo.kt": {
@@ -714,9 +714,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/database/SubscriptionOptions.kt": {
-    "mtime": 1793629221.6409006,
-    "seen": 1793631200.254441,
-    "ast_hash": "7caa6cc7d24c3beb4f5198dfb14ee218",
+    "mtime": 1793633149.0181298,
+    "seen": 1793633860.2463007,
+    "ast_hash": "0469e2efdddbeaa06b6c9f4ff624e0d9",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/database/backup/BackupEntry.kt": {
@@ -1050,9 +1050,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/outbound/OutboundFactory.kt": {
-    "mtime": 1793629221.656614,
-    "seen": 1793631200.254441,
-    "ast_hash": "a4d13b5a829d6044ad51447b5803ee7c",
+    "mtime": 1793632612.1345258,
+    "seen": 1793633012.6511803,
+    "ast_hash": "e104c83fa213034b37cc3c67c2685722",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/outbound/QtStrings.kt": {
@@ -1104,9 +1104,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/outbound/config/AutoSelectorPlan.kt": {
-    "mtime": 1793630121.4754455,
-    "seen": 1793631200.254441,
-    "ast_hash": "b4e7263df06d261240f35fbfafffca97",
+    "mtime": 1793633339.31184,
+    "seen": 1793633860.2463007,
+    "ast_hash": "b4cc9c6a845bd4cc363ff4b6f954c19d",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/outbound/config/BuildState.kt": {
@@ -1152,9 +1152,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/outbound/config/GeneratorSettings.kt": {
-    "mtime": 1793630121.4821997,
-    "seen": 1793631200.254441,
-    "ast_hash": "3f123266867a4542e5344d8ccd8ab6ae",
+    "mtime": 1793633448.461226,
+    "seen": 1793633860.2463007,
+    "ast_hash": "4142bc3de2d4ad150ace7bf508da2bb2",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/outbound/config/LocalPorts.kt": {
@@ -1194,9 +1194,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/outbound/config/WarpHop.kt": {
-    "mtime": 1793630121.488255,
-    "seen": 1793631200.254441,
-    "ast_hash": "1de636d5c0766517efce66fd7377f6ad",
+    "mtime": 1793633448.461226,
+    "seen": 1793633860.2463007,
+    "ast_hash": "37361936a9c37dd4c52cd0fa458549b8",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/outbound/import/ClashProxy.kt": {
@@ -1224,9 +1224,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/outbound/import/ProfileImport.kt": {
-    "mtime": 1793629221.6599782,
-    "seen": 1793631200.254441,
-    "ast_hash": "f4027b3b0e3796f6cdc9ee4f8224a294",
+    "mtime": 1793632612.1335256,
+    "seen": 1793633012.6511803,
+    "ast_hash": "6290a892253e45315eba92d59fe9940a",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/outbound/json/Json.kt": {
@@ -1320,9 +1320,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/outbound/types/DnsTunnel.kt": {
-    "mtime": 1793630121.4997578,
-    "seen": 1793631200.254441,
-    "ast_hash": "c7da8d66716d9aee5fc1d4054fbe8822",
+    "mtime": 1793631557.376321,
+    "seen": 1793633012.6511803,
+    "ast_hash": "67aaee39d6e7c07dffab303d42656b5f",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/outbound/types/Http.kt": {
@@ -1686,9 +1686,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/GroupSettingsActivity.kt": {
-    "mtime": 1793629221.6701634,
-    "seen": 1793631200.254441,
-    "ast_hash": "23876973bfab5d93900c012652ce74af",
+    "mtime": 1793633149.0196364,
+    "seen": 1793633860.2468262,
+    "ast_hash": "a3d8e661c1249de761866bcbc7ed41c5",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/HashTextPreference.kt": {
@@ -1746,9 +1746,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/MobileHomeFragment.kt": {
-    "mtime": 1793631112.8827724,
-    "seen": 1793631200.254441,
-    "ast_hash": "0a65df7da963a86e60645db482230656",
+    "mtime": 1793633695.0748494,
+    "seen": 1793633860.2468262,
+    "ast_hash": "9ee5172d3277229cb77353c8512f329c",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/MobilePalette.kt": {
@@ -2184,9 +2184,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/profile/NativeTransportSettingsActivity.kt": {
-    "mtime": 1793629221.709358,
-    "seen": 1793631200.2549663,
-    "ast_hash": "f8389cc3b3feac0707a3310de08c48c8",
+    "mtime": 1793631607.7366724,
+    "seen": 1793633012.6511803,
+    "ast_hash": "f9b7fd4f8567ad2f0ea0998a64b74845",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/profile/OpenConnectSettingsActivity.kt": {
@@ -2220,9 +2220,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/profile/ProfileSettingsRouter.kt": {
-    "mtime": 1793629221.7109587,
-    "seen": 1793631200.2549663,
-    "ast_hash": "32cef76d89668f31c25ef60f0095fd12",
+    "mtime": 1793632107.5146909,
+    "seen": 1793633012.6511803,
+    "ast_hash": "f3d3107093e0393b4219e85242b3d1ab",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/profile/ProfileTextImport.kt": {
@@ -2310,15 +2310,15 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/profiles/ProfileImports.kt": {
-    "mtime": 1793629221.7176113,
-    "seen": 1793631200.2549663,
-    "ast_hash": "503838d5e109f1a007336e79306afb02",
+    "mtime": 1793632194.260088,
+    "seen": 1793633012.6511803,
+    "ast_hash": "7d95d7b698e120be7e3b41fd75b23b16",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/profiles/ProfileItemMenu.kt": {
-    "mtime": 1793629221.718611,
-    "seen": 1793631200.2549663,
-    "ast_hash": "b1372b844fb8221098fb3b943b07e382",
+    "mtime": 1793633695.0748494,
+    "seen": 1793633860.2468262,
+    "ast_hash": "b03775ae338e41ec786573a33a2ebe66",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/profiles/ProfileListAdapter.kt": {
@@ -2448,9 +2448,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/settings/GeneralSettingsScreens.kt": {
-    "mtime": 1793629221.7273083,
-    "seen": 1793631200.2549663,
-    "ast_hash": "6b103bbb1411de556eb3bc7ba957ea27",
+    "mtime": 1793633149.0221741,
+    "seen": 1793633860.2468262,
+    "ast_hash": "53a50c7abba8b404eec63de40622884f",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/settings/LanSharingSettingsFragment.kt": {
@@ -2490,9 +2490,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/settings/WarpSettingsScreen.kt": {
-    "mtime": 1793629221.731308,
-    "seen": 1793631200.2549663,
-    "ast_hash": "2f0b5714ffb65b9ca97b58f731451da4",
+    "mtime": 1793633901.137834,
+    "seen": 1793633970.2363622,
+    "ast_hash": "3cf5fd9c45ccae0ee9455e6fd0bce345",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/settings/XrayGeoSettingsScreen.kt": {
@@ -2562,15 +2562,15 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/warp/WarpClient.kt": {
-    "mtime": 1793629221.7365837,
-    "seen": 1793631200.2549663,
-    "ast_hash": "c1e6a6361aaf51bfb5c467a2ed63d5d2",
+    "mtime": 1793633448.4590998,
+    "seen": 1793633860.2468262,
+    "ast_hash": "846279194148d55e910ef54acd167e5b",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/warp/WarpGenerate.kt": {
-    "mtime": 1793629221.7371292,
-    "seen": 1793631200.2549663,
-    "ast_hash": "8ae40dc880b5acdf71937ece2be8c158",
+    "mtime": 1793633448.4596243,
+    "seen": 1793633860.2468262,
+    "ast_hash": "a7df8af7d365b1ebddb701c18ddd8df1",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/update/Semver.kt": {
@@ -2892,9 +2892,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/moe/matsuri/nb4a/utils/LogRedactor.kt": {
-    "mtime": 1793630121.5576205,
-    "seen": 1793631200.2549663,
-    "ast_hash": "b077313cfed0767a3e0adbc0f3b0bf49",
+    "mtime": 1793633942.5747397,
+    "seen": 1793633970.2363622,
+    "ast_hash": "3e08cc6df4ca33559ab4815f933301c2",
     "semantic_hash": ""
   },
   "app/src/main/java/moe/matsuri/nb4a/utils/NGUtil.kt": {
@@ -3306,9 +3306,9 @@
     "semantic_hash": ""
   },
   "app/src/test/java/io/nekohasekai/sagernet/outbound/types/DnsTunnelLinkTest.kt": {
-    "mtime": 1793630121.828814,
-    "seen": 1793631200.2549663,
-    "ast_hash": "e90edb8e465f4e2c6800bcb9b4a932d8",
+    "mtime": 1793631674.207644,
+    "seen": 1793633012.6521847,
+    "ast_hash": "33a499f3fa5467bd2a26af76251edb93",
     "semantic_hash": ""
   },
   "app/src/test/java/io/nekohasekai/sagernet/outbound/types/MasqueLinkTest.kt": {
@@ -3450,9 +3450,9 @@
     "semantic_hash": ""
   },
   "app/src/test/java/moe/matsuri/nb4a/utils/LogRedactorTest.kt": {
-    "mtime": 1793630121.838716,
-    "seen": 1793631200.2549663,
-    "ast_hash": "5a44a001c37eb64cd069d67fb0a783bc",
+    "mtime": 1793633942.5756445,
+    "seen": 1793633970.236885,
+    "ast_hash": "cdb06478dd233e7bfbce2287e95b5a47",
     "semantic_hash": ""
   },
   "app/src/test/resources/subscription_crypto/vectors.json": {
@@ -4038,9 +4038,9 @@
     "semantic_hash": ""
   },
   "core-patches/mobile/url_probe.go": {
-    "mtime": 1793630121.942147,
-    "seen": 1793631200.2549663,
-    "ast_hash": "bafb375724c47cf53c8d2b4267783904",
+    "mtime": 1793633176.7388802,
+    "seen": 1793633860.2473528,
+    "ast_hash": "fe4f1e7a8b2ad9bafeb8e832f06d7114",
     "semantic_hash": ""
   },
   "core-patches/mobile/url_probe_test.go": {
@@ -4080,9 +4080,9 @@
     "semantic_hash": ""
   },
   "core-patches/obfs/wireguard.go": {
-    "mtime": 1793630121.9541676,
-    "seen": 1793631200.2554927,
-    "ast_hash": "29217133fd0e6b48d264ec13fb3b3782",
+    "mtime": 1793633047.3044133,
+    "seen": 1793633860.2473528,
+    "ast_hash": "fdb42c22a7d47c740ec7dbab72e3ffc5",
     "semantic_hash": ""
   },
   "core-patches/obfs/xtwgobfs.go": {
@@ -4212,15 +4212,15 @@
     "semantic_hash": ""
   },
   "scripts/patch_mobile_obfs.py": {
-    "mtime": 1793630121.9877703,
-    "seen": 1793631200.2554927,
-    "ast_hash": "16ab5583d293b2237c26b0ca4bba8661",
+    "mtime": 1793633047.305653,
+    "seen": 1793633860.2473528,
+    "ast_hash": "2b682921b4195e35bc9f58519a683e46",
     "semantic_hash": ""
   },
   "scripts/patch_mobile_socks.py": {
-    "mtime": 1793630121.9887726,
-    "seen": 1793631200.2554927,
-    "ast_hash": "8456a8d0a92e4fd9b2783e263f9a9ab9",
+    "mtime": 1793633047.3061934,
+    "seen": 1793633860.2473528,
+    "ast_hash": "18a18a00ae9bfc7097ed0279cf5cfc18",
     "semantic_hash": ""
   },
   "scripts/patch_mobile_trusttunnel.py": {
@@ -4236,9 +4236,9 @@
     "semantic_hash": ""
   },
   "scripts/patch_mobile_xray_socks.py": {
-    "mtime": 1793630121.990827,
-    "seen": 1793631200.2554927,
-    "ast_hash": "91f0ce4ec5e79c38ee847a5c7a9ad173",
+    "mtime": 1793633604.0801377,
+    "seen": 1793633860.2473528,
+    "ast_hash": "a6c86bd8f7fcc7ba10df4b1683d6ab37",
     "semantic_hash": ""
   },
   "scripts/pin_csqtt_compat.py": {
@@ -4392,9 +4392,9 @@
     "semantic_hash": ""
   },
   ".github/actions/throne-core/action.yml": {
-    "mtime": 1793630121.0465548,
-    "seen": 1793631200.2554927,
-    "ast_hash": "69834bb911406815be9d7b7c13523bc6",
+    "mtime": 1793633047.3074534,
+    "seen": 1793633860.2473528,
+    "ast_hash": "35931f649d7ebf306274be1d550ed790",
     "semantic_hash": ""
   },
   ".github/workflows/artwork.yml": {
@@ -6957,6 +6957,30 @@
     "mtime": 1793630570.591929,
     "seen": 1793631200.2549663,
     "ast_hash": "032fa453b280f6cba156a13808685994",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/io/nekohasekai/sagernet/outbound/types/ShadowsocksR.kt": {
+    "mtime": 1793632612.1345258,
+    "seen": 1793633012.6511803,
+    "ast_hash": "c7e5d9f6ee2df3bba4cba746415ba859",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/io/nekohasekai/sagernet/ui/profile/ShadowsocksRSettingsActivity.kt": {
+    "mtime": 1793632107.5082994,
+    "seen": 1793633012.6511803,
+    "ast_hash": "f2dc805009bc83e53ed394c592cb966b",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/io/nekohasekai/sagernet/outbound/types/ShadowsocksRTest.kt": {
+    "mtime": 1793632650.2809827,
+    "seen": 1793633012.6521847,
+    "ast_hash": "b3a785dc39c97c08b089732b77ec86d9",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/io/nekohasekai/sagernet/outbound/config/SelectorCountriesTest.kt": {
+    "mtime": 1793633604.0893245,
+    "seen": 1793633860.2473528,
+    "ast_hash": "c56edc5326cae72142ae07bff8fa1018",
     "semantic_hash": ""
   }
 }

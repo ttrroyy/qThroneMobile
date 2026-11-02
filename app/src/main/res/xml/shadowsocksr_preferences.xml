@@ -1,0 +1,13 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+    <EditTextPreference app:key="name" app:title="@string/profile_name" app:icon="@drawable/ic_social_emoji_symbols" app:useSimpleSummaryProvider="true" />
+    <PreferenceCategory app:title="@string/proxy_cat">
+        <EditTextPreference app:key="server" app:title="@string/server_address" app:icon="@drawable/ic_hardware_router" app:useSimpleSummaryProvider="true" />
+        <EditTextPreference app:key="serverPort" app:title="@string/server_port" app:icon="@drawable/ic_maps_directions_boat" app:useSimpleSummaryProvider="true" />
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference app:key="method" app:title="@string/enc_method" app:icon="@drawable/ic_notification_enhanced_encryption" app:useSimpleSummaryProvider="true" />
+        <EditTextPreference app:key="password" app:title="@string/password" app:icon="@drawable/ic_settings_password" app:dialogLayout="@layout/layout_password_dialog" />
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference app:key="protocol" app:title="@string/ssr_protocol" app:icon="@drawable/ic_action_settings" app:useSimpleSummaryProvider="true" />
+        <EditTextPreference app:key="protocolParam" app:title="@string/ssr_protocol_param" app:icon="@drawable/ic_action_settings" app:useSimpleSummaryProvider="true" />
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference app:key="obfs" app:title="@string/ssr_obfs" app:icon="@drawable/ic_action_settings" app:useSimpleSummaryProvider="true" />
+        <EditTextPreference app:key="obfsParam" app:title="@string/ssr_obfs_param" app:icon="@drawable/ic_action_settings" app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+</PreferenceScreen>

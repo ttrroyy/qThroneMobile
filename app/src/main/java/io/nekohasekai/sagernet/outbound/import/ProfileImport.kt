@@ -180,6 +180,7 @@ object ProfileImport {
             }
             if (doc is JsonObject) {
                 val items = when {
+                    doc.isArray("configs") -> doc.array("configs")
                     doc.isArray("profiles") -> doc.array("profiles")
                     doc.isArray("servers") && (!doc.contains("version") || doc.array("servers").filterIsInstance<JsonObject>().any {
                         it.contains("type") || it.contains("protocol") || it.contains("peer") || it.contains("outbounds")
@@ -212,8 +213,14 @@ object ProfileImport {
                     return
                 }
                 val type=doc.string("type").lowercase()
+                if(type.isEmpty() && doc.contains("server") && doc.contains("method") && (doc.contains("obfs") || doc.contains("protocol"))) {
+                    val copy=doc.copy();copy["type"]="shadowsocksr"
+                    val outbound=OutboundFactory.newByType("shadowsocksr")
+                    if(outbound.parseFromJson(copy)) produce(outbound) else log("Invalid ShadowsocksR profile")
+                    return
+                }
                 if (type in listOf("qwdtt","wdtt","csqtt","wdttplus","openflux","openfluxkey","olcrtc","dnstt","vaydns","slipstream","masterdns","cottendns","soar","s3bypass","sstp",
-                        "chain","autoselector","custom","xrayvless")) {
+                        "chain","autoselector","custom","xrayvless","ssr","shadowsocksr")) {
                     val outbound=OutboundFactory.newByType(type)
                     if(outbound.parseFromJson(doc)) produce(outbound) else log("Invalid $type profile")
                     return
@@ -278,13 +285,13 @@ object ProfileImport {
         private fun xraySubType(doc: Any): XraySubType {
             if (doc is JsonObject) {
                 if (doc.contains("outbounds") && hasXrayOutbound(doc.array("outbounds"))) return XraySubType.OutboundInJson
-                if (doc.contains("protocol")) return XraySubType.OutboundObject
+                if (doc.contains("protocol") && !doc.contains("type") && !(doc.contains("server") && doc.contains("method"))) return XraySubType.OutboundObject
                 return XraySubType.Invalid
             }
             if (doc is JsonArray && doc.isNotEmpty()) {
                 val first = doc[0]
                 if (first is JsonObject) {
-                    if (first.contains("protocol")) return XraySubType.OutboundJsonArray
+                    if (first.contains("protocol") && !first.contains("type")) return XraySubType.OutboundJsonArray
                     if (first.contains("outbounds") && hasXrayOutbound(first.array("outbounds"))) return XraySubType.ConfigJsonArray
                 }
             }
@@ -292,7 +299,7 @@ object ProfileImport {
         }
 
         private fun hasXrayOutbound(outbounds: JsonArray): Boolean =
-            outbounds.any { it is JsonObject && it.contains("protocol") }
+            outbounds.any { it is JsonObject && it.contains("protocol") && !it.contains("type") }
 
         /** Parser::singBox (SubscriptionParser.cpp:372-400). */
         private fun singBox(doc: Any, type: SingBoxSubType, jsonDepth: Int) {

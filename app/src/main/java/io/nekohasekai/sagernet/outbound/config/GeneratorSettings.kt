@@ -156,6 +156,7 @@ data class GeneratorSettings(
     val enableWarp: Boolean = false,
     /** warp_mode: "wireguard" or "masque". */
     val warpMode: String = "wireguard",
+    val warpAmneziaPackets: List<String> = emptyList(),
     /** warp_ep, warp_private_key, warp_public_key, warp_ifc_addrs, warp_reserved (decimal strings). */
     val warpEp: String = "",
     val warpPrivateKey: String = "",

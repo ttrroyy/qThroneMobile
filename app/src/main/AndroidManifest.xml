@@ -216,6 +216,7 @@
         <activity
             android:name="app.qthrone.mobile.ui.profile.ShadowsocksSettingsActivity"
             android:configChanges="uiMode" />
+        <activity android:name="app.qthrone.mobile.ui.profile.ShadowsocksRSettingsActivity" android:configChanges="uiMode" />
         <activity
             android:name="app.qthrone.mobile.ui.profile.VMessSettingsActivity"
             android:configChanges="uiMode" />

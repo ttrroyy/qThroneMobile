@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"ThroneCore/internal/probe"
+	"qThroneCore/internal/probe"
 	E "github.com/sagernet/sing/common/exceptions"
 )
 

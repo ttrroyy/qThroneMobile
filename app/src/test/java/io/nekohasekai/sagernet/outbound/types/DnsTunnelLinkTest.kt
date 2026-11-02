@@ -91,6 +91,20 @@ class DnsTunnelLinkTest {
         }
     }
 
+    @Test fun sharingKeepsResolversDomainsAndClientOptions() {
+        val profile=DnsTunnel()
+        assertTrue(profile.parseFromJson(app.qthrone.mobile.outbound.json.JsonInput.parseObject("""{
+            "type":"masterdns","domain":"a.example.com., b.example.com", "mkey":"secret", "encryption":1,
+            "resolvers":["192.0.2.1:5353"],"options":{"PACKET_DUPLICATION_COUNT":3,"MTU_TEST_TIMEOUT":2.5}}
+        """)))
+        val shared=read(profile.exportToLink())!!
+        assertEquals("a.example.com,b.example.com",shared.exportToJson().string("domain"))
+        assertEquals(listOf("192.0.2.1:5353"),shared.exportToJson().array("resolvers").strings())
+        assertEquals(profile.exportToJson().obj("options").toCompact(),shared.exportToJson().obj("options").toCompact())
+        assertFalse(DnsTunnel().parseFromJson(app.qthrone.mobile.outbound.json.JsonInput.parseObject(
+            """{"type":"masterdns","domain":"a.example.com","mkey":"secret","encryption":1,"options":[]} """)))
+    }
+
     @Test fun s3BypassConfigurationOfTheOriginalApp() {
         val config = """{"log":{"loglevel":"info"},"inbounds":[{"tag":"socks-in","listen":"127.0.0.1","port":10808,"protocol":"socks","settings":{"auth":"noauth","udp":true}}],
             "outbounds":[{"tag":"proxy","protocol":"fedarisha","settings":{"storage":{"type":"s3","bucket":"vlt-alpha","endpoint":"https://storage.example.ru","region":"ru-msk",

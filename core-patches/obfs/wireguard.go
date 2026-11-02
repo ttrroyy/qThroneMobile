@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net"
 	"net/netip"
+	"qThroneCore/internal/ssr"
 	"strings"
 	"sync"
 	"time"
@@ -53,6 +54,7 @@ type WireGuardObfsOutboundOptions struct {
 
 // Register adds the obfuscating WireGuard endpoint and the Phobos SOCKS5 outbound to the sing-box registries.
 func Register(outbounds *outbound.Registry, endpoints *endpoint.Registry) {
+	ssr.Register(outbounds)
 	outbound.Register[WireGuardObfsOutboundOptions](outbounds, TypeWireGuardObfs, newWireGuardObfsOutbound)
 	outbound.Register[PhobosOutboundOptions](outbounds, TypePhobos, newPhobosOutbound)
 	endpoint.Register[WireGuardEndpointOptions](endpoints, C.TypeWireGuard, newWireGuardEndpoint)

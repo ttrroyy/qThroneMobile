@@ -35,7 +35,9 @@ def patch(core: Path):
     current = json.loads(subprocess.check_output(["go", "mod", "edit", "-json"], cwd=core))
     replacement = next((item["New"] for item in current.get("Replace", [])
                         if item["Old"]["Path"] == MODULE), None)
-    if replacement not in ({"Path": SOURCE, "Version": VERSION}, {"Path": "./.qthrone/sing"}):
+    if replacement not in ({"Path": SOURCE, "Version": VERSION},
+                           {"Path": SOURCE, "Version": "v0.9.4-0.20261002235655-c4c9e6e3b2c1"},
+                           {"Path": "./.qthrone/sing"}):
         raise ValueError("Core sing replacement changed; review the pinned UDP patch")
     info = json.loads(subprocess.check_output(
         ["go", "mod", "download", "-json", SOURCE + "@" + VERSION], cwd=core))

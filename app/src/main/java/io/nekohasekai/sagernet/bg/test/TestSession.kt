@@ -37,6 +37,7 @@ internal class TestSession(
     val id: Int,
     val spec: TestSpec,
     client: ITestSessionCallback?,
+    private val onUrlStored: ((ProxyEntity) -> Unit)? = null,
 ) {
 
     /** The spec's values, else the desktop settings. */
@@ -233,7 +234,9 @@ internal class TestSession(
     fun reportUrl(results: List<ProbeResult>) {
         val selected = spec.profileIds.toSet()
         val scoped = results.filter { it.profileId in selected }
-        persist(scoped) { ProfileManager.saveUrlTestResult(it.profileId, it.latency, it.error, it.connectOnly) }
+        val stored = ArrayList<ProxyEntity>()
+        persist(scoped) { ProfileManager.saveUrlTestResult(it.profileId, it.latency, it.error, it.connectOnly)?.let(stored::add) }
+        onUrlStored?.let { hook -> stored.forEach { profile -> runCatching { hook(profile) }.onFailure { Logs.w(it) } } }
         for (result in scoped) {
             val latency = if (result.measured) latencyCode(result.latency, result.error, result.connectOnly) else 0
             if (result.connectOnly) {

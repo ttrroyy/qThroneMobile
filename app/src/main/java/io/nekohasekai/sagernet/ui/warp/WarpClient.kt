@@ -18,6 +18,7 @@ object WarpClient {
 
     const val TUNNEL_WIREGUARD = "wireguard"
     const val TUNNEL_MASQUE = "masque"
+    const val MODE_AMNEZIA = "amnezia"
     const val DEFAULT_API_HOST = "api.cloudflareclient.com"
     const val TERMS_URL = "https://www.cloudflare.com/application/terms/"
 
@@ -50,16 +51,25 @@ object WarpClient {
         }
     }
 
-    fun modeName(mode: String): String =
-        app.getString(if (mode == TUNNEL_MASQUE) R.string.warp_mode_masque else R.string.warp_mode_wireguard)
+    fun modeName(mode: String): String = app.getString(
+        when (mode) {
+            TUNNEL_MASQUE -> R.string.warp_mode_masque
+            MODE_AMNEZIA -> R.string.warp_mode_amnezia
+            else -> R.string.warp_mode_wireguard
+        }
+    )
 
-    /** generate.cpp:559-571: the key, endpoint or addresses of the active mode are missing. */
-    fun isGenerated(): Boolean = if (DataStore.warpMode == TUNNEL_MASQUE) {
-        DataStore.warpMasquePrivateKey.isNotEmpty() && DataStore.warpMasquePeerPublicKey.isNotEmpty() &&
-            DataStore.warpMasqueEp.isNotEmpty() && DataStore.warpMasqueIfcAddrs.isNotEmpty()
-    } else {
-        DataStore.warpPrivateKey.isNotEmpty() && DataStore.warpPublicKey.isNotEmpty() &&
-            DataStore.warpEp.isNotEmpty() && DataStore.warpIfcAddrs.isNotEmpty()
+    /** generate.cpp:559-571: the key, endpoint or addresses of the active mode, or the amnezia packets, are missing. */
+    fun isGenerated(): Boolean {
+        val mode = DataStore.warpMode
+        return if (mode == TUNNEL_MASQUE) {
+            DataStore.warpMasquePrivateKey.isNotEmpty() && DataStore.warpMasquePeerPublicKey.isNotEmpty() &&
+                DataStore.warpMasqueEp.isNotEmpty() && DataStore.warpMasqueIfcAddrs.isNotEmpty()
+        } else {
+            DataStore.warpPrivateKey.isNotEmpty() && DataStore.warpPublicKey.isNotEmpty() &&
+                DataStore.warpEp.isNotEmpty() && DataStore.warpIfcAddrs.isNotEmpty() &&
+                (mode != MODE_AMNEZIA || DataStore.warpAmneziaPackets.isNotEmpty())
+        }
     }
 
     /** normalizeWarpApiHosts (dialog_manage_routes.cpp:38-49). */
@@ -126,4 +136,27 @@ object WarpClient {
             reserved = result.string("reserved").split(',').map { it.trim() }.filter { it.isNotEmpty() },
         )
     }
+    suspend fun generateCamouflage(): Result<List<String>> = withContext(Dispatchers.IO) {
+        val raw = try {
+            CoreServiceClient.call { it.genQuicSignature(CAMOUFLAGE_DOMAIN) }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Logs.w(e)
+            null
+        }
+        val result = raw?.let { JsonInput.parseObjectOrNull(it) }
+        val packets = result?.array("packets")?.strings().orEmpty()
+        var message = if (result == null) app.getString(R.string.warp_core_unreachable) else result.string("error")
+        if (message.isEmpty() && (packets.isEmpty() || packets.size > 5 || packets.any { it.isEmpty() })) {
+            message = app.getString(R.string.warp_quic_signature_invalid)
+        }
+        if (message.isEmpty()) {
+            Result.success(packets)
+        } else {
+            Result.failure(IllegalStateException(app.getString(R.string.warp_quic_signature_failed, message)))
+        }
+    }
+
+    private const val CAMOUFLAGE_DOMAIN = "www.cloudflare.com"
 }

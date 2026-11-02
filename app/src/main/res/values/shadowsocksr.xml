@@ -1,0 +1,7 @@
+<resources>
+    <string name="action_shadowsocksr" translatable="false">ShadowsocksR</string>
+    <string name="ssr_protocol">SSR protocol</string>
+    <string name="ssr_protocol_param">Protocol parameter</string>
+    <string name="ssr_obfs">Obfuscation</string>
+    <string name="ssr_obfs_param">Obfuscation parameter</string>
+</resources>

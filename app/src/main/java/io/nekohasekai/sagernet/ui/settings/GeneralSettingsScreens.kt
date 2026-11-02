@@ -54,6 +54,7 @@ class GeneralSettingsFragment : SettingsScreenFragment(R.xml.settings_general) {
             true
         }
         reloadOn(Key.METERED_NETWORK)
+        reloadOn("allowAppsBypassVpn")
 
         alwaysOn = pref(KEY_ALWAYS_ON_VPN)
         alwaysOn.setOnPreferenceClickListener {

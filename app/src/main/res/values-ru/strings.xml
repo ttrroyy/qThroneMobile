@@ -387,8 +387,8 @@
     <string name="autosel_connectivity_url_none">Не задано: используется состояние сети системы</string>
     <string name="autosel_connectivity_url_tip">Запрашивается БЕЗ прокси, чтобы отличать отсутствие интернета от отказа серверов и замечать момент восстановления. Оставьте пустым, чтобы унаследовать «URL прямого теста» из Настройки › Тестирование, а если пусто и там — полагаться на состояние сети системы. Заблокированный URL может лишь задержать возобновление на несколько минут; он не может навсегда оставить селектор на паузе.</string>
     <string name="autosel_country_filter">Только страны</string>
-    <string name="autosel_country_filter_empty">Любая страна (напр., DE,NL,FR)</string>
-    <string name="autosel_country_filter_tip">Коды стран через запятую, пусто — любые. Используется страна, найденная IP-тестом, поэтому профили без IP-теста пропускаются, пока задано это ограничение.</string>
+    <string name="autosel_country_filter_empty">Любая страна (например DE,NL или !RU)</string>
+    <string name="autosel_country_filter_tip">Коды стран через запятую, пусто: любые. ! исключает страну, например !RU. Используется страна выхода из IP-теста; профили с неизвестной страной пропускаются, пока задан фильтр.</string>
     <string name="autosel_detail_balancing">балансировка из %d</string>
     <string name="autosel_detail_checking">%d проверяется</string>
     <string name="autosel_detail_cooling">%d остывает</string>

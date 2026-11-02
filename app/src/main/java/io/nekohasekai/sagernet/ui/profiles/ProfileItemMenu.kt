@@ -58,6 +58,22 @@ class ProfileItemMenu(private val host: ConfigurationFragment) {
         val popup = PopupMenu(anchor.context, anchor)
         popup.menuInflater.inflate(R.menu.double_column_item_menu, popup.menu)
         val menu = popup.menu
+        menu.add(R.string.connection_test_clear_results).setOnMenuItemClickListener {
+            host.launchIo {
+                ProfileManager.clearTestResults(listOf(profile.id))
+                app.qthrone.mobile.database.GroupRepo.postReload(profile.groupId)
+            }
+            true
+        }
+        menu.add(R.string.clear_traffic_statistics).setOnMenuItemClickListener {
+            val service = (host.activity as? app.qthrone.mobile.ui.MainActivity)?.connection?.service
+            val ids = longArrayOf(profile.id)
+            host.launchIo {
+                runCatching { service?.resetTraffic(ids) }.onFailure { Logs.w(it) }
+                ProfileManager.resetTraffic(ids)
+            }
+            true
+        }
         // the compact card has no edit / share buttons
         menu.findItem(R.id.action_edit).isVisible = adapter.isCompact
         menu.findItem(R.id.action_share).isVisible = adapter.isCompact && !profile.isChain()

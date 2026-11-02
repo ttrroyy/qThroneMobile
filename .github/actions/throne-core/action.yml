@@ -109,7 +109,7 @@ runs:
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
       working-directory: ${{ env.THRONE_DIR }}/core
-      run: CGO_ENABLED=0 go test ./internal/obfs -count=1
+      run: CGO_ENABLED=0 go test -tags with_purego ./internal/obfs ./internal/ssr -count=1
     # Same registries as the AAR: the Android TAGS of script/build_android.sh (cf. script/gen_schema.sh). with_purego and
     # CGO_ENABLED=0 only keep cronet-go from linking its static library; option registration does not depend on them.
     - name: Generate sing-box schema

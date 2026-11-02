@@ -511,7 +511,10 @@ class BaseService {
                     "ServiceStopTrace serviceId=$serviceId proxyId=$proxyId " +
                         "stage=stopped restart=$restart hasCleanupError=${cleanupError != null}"
                 )
-                if (!restart) DeferredRuleSets.serviceStopped()
+                if (!restart) {
+                    DeferredRuleSets.serviceStopped()
+                    AutoSelectorRuntime.serviceStopped()
+                }
 
                 try {
                     when {
@@ -703,7 +706,9 @@ class BaseService {
             }
             data.connectingJob = CoroutineScope(Dispatchers.Main).launch {
                 try {
-                    withContext(Dispatchers.IO) { TestEngine.stopAndJoin() }
+                    if (profile.type != "autoselector" || !AutoSelectorRuntime.rankingInFlight()) {
+                        withContext(Dispatchers.IO) { TestEngine.stopAndJoin() }
+                    }
                     preInit()
                     moe.matsuri.nb4a.utils.CoreLog.write("[Info] Preparing profile ${profile.id}; protocol=${profile.type}; mode=${DataStore.serviceMode}")
                     proxy.init()

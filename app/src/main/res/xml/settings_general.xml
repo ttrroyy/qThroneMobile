@@ -53,7 +53,8 @@
             app:key="hideFromRecentApps"
             app:summary="@string/hide_from_recent_apps_summary"
             app:title="@string/hide_from_recent_apps" />
-</PreferenceCategory>
+        <SwitchPreference app:key="allowAppsBypassVpn" app:title="@string/allow_apps_bypass_vpn" app:summary="@string/allow_apps_bypass_vpn_summary" app:icon="@drawable/ic_action_lock_open" app:defaultValue="false" />
+    </PreferenceCategory>
 
 
 </PreferenceScreen>

@@ -30,6 +30,7 @@ import app.qthrone.mobile.ui.profile.OpenVpnSettingsActivity
 import app.qthrone.mobile.ui.profile.SSHSettingsActivity
 import app.qthrone.mobile.ui.profile.ShadowTLSSettingsActivity
 import app.qthrone.mobile.ui.profile.ShadowsocksSettingsActivity
+import app.qthrone.mobile.ui.profile.ShadowsocksRSettingsActivity
 import app.qthrone.mobile.ui.profile.SnellSettingsActivity
 import app.qthrone.mobile.ui.profile.SocksSettingsActivity
 import app.qthrone.mobile.ui.profile.TrojanSettingsActivity
@@ -85,6 +86,7 @@ class ProfileImports(private val host: ConfigurationFragment) {
         R.id.action_new_socks -> SocksSettingsActivity::class.java
         R.id.action_new_http -> HttpSettingsActivity::class.java
         R.id.action_new_ss -> ShadowsocksSettingsActivity::class.java
+        R.id.action_new_ssr -> ShadowsocksRSettingsActivity::class.java
         R.id.action_new_vmess -> VMessSettingsActivity::class.java
         R.id.action_new_vless -> VlessSettingsActivity::class.java
         R.id.action_new_xray_vless -> XrayVlessSettingsActivity::class.java

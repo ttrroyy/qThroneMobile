@@ -75,6 +75,7 @@ enum class ServerSortRule(val value: Int) {
  */
 @Parcelize
 data class SubscriptionOptions(
+    var routeProfileId: Long = -1L,
     var userAgent: String = "",
     var sendHwid: SendHwid = SendHwid.KEEP_DEFAULT,
     var hwid: String = "",
@@ -118,6 +119,7 @@ data class SubscriptionOptions(
 
     fun toJson(): JsonObject {
         val json = JsonObject()
+        if (routeProfileId > 0) json["route_profile_id"] = routeProfileId
         if (userAgent.isNotEmpty()) json["user_agent"] = userAgent
         if (sendHwid != SendHwid.KEEP_DEFAULT) json["send_hwid"] = sendHwid.value
         if (hwid.isNotEmpty()) json["hwid"] = hwid
@@ -163,6 +165,7 @@ data class SubscriptionOptions(
         fun fromJson(json: JsonObject): SubscriptionOptions {
             val mode = json.int("send_hwid")
             return SubscriptionOptions(
+                routeProfileId = json.long("route_profile_id").takeIf { it > 0 } ?: -1L,
                 userAgent = json.string("user_agent"),
                 sendHwid = if (mode == SendHwid.ON.value || mode == SendHwid.OFF.value) SendHwid.of(mode)
                 else SendHwid.KEEP_DEFAULT,

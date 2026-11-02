@@ -94,6 +94,7 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     // The preview version whose hint was dismissed; the hint stays hidden for that version only
     var previewHintDismissedVersion by configurationStore.string(Key.PREVIEW_HINT_DISMISSED_VERSION) { "" }
 
+    var allowAppsBypassVpn by configurationStore.boolean("allowAppsBypassVpn")
     var meteredNetwork by configurationStore.boolean(Key.METERED_NETWORK)
     var proxyApps by configurationStore.boolean(Key.PROXY_APPS)
     var bypass by configurationStore.boolean(Key.BYPASS_MODE) { true }
@@ -280,6 +281,7 @@ object DataStore : OnPreferenceDataStoreChangeListener {
 
     // warp
     var enableWarp by SettingsRegistry.ENABLE_WARP
+    var warpAmneziaPackets by SettingsRegistry.WARP_AMNEZIA_PACKETS
     var warpMode by SettingsRegistry.WARP_MODE
     var warpEp by SettingsRegistry.WARP_EP
     var warpPrivateKey by SettingsRegistry.WARP_PRIVATE_KEY

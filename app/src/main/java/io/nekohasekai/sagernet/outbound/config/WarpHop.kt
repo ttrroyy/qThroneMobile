@@ -36,7 +36,8 @@ object WarpHop {
                 settings.warpMasqueEp.isEmpty() || settings.warpMasqueIfcAddrs.isEmpty()
         } else {
             settings.warpPrivateKey.isEmpty() || settings.warpPublicKey.isEmpty() ||
-                settings.warpEp.isEmpty() || settings.warpIfcAddrs.isEmpty()
+                settings.warpEp.isEmpty() || settings.warpIfcAddrs.isEmpty() ||
+                (settings.warpMode == "amnezia" && settings.warpAmneziaPackets.isEmpty())
         }
 
     /** getWarpProfile (:475-524): named "warp", MTU 1280, an endpoint either way. */
@@ -79,6 +80,23 @@ object WarpHop {
             persistent_keepalive = "10"
         }
         wireGuard.mtu = 1280
+        if (settings.warpMode == "amnezia") {
+            wireGuard.enable_amnezia = true
+            wireGuard.jc = 4
+            wireGuard.jmin = 40
+            wireGuard.jmax = 70
+            // Cloudflare expects the standard WireGuard headers.
+            wireGuard.h1 = "1"
+            wireGuard.h2 = "2"
+            wireGuard.h3 = "3"
+            wireGuard.h4 = "4"
+            val packets = settings.warpAmneziaPackets
+            wireGuard.i1 = packets.getOrElse(0) { "" }
+            wireGuard.i2 = packets.getOrElse(1) { "" }
+            wireGuard.i3 = packets.getOrElse(2) { "" }
+            wireGuard.i4 = packets.getOrElse(3) { "" }
+            wireGuard.i5 = packets.getOrElse(4) { "" }
+        }
         return wireGuard
     }
 

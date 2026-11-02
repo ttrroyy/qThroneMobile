@@ -119,7 +119,7 @@ object SettingsRegistry {
     val NTP_OUTBOUNDS = listOf("direct", "proxy")
 
     @JvmField
-    val WARP_MODES = listOf("wireguard", "masque")
+    val WARP_MODES = listOf("wireguard", "masque", "amnezia")
 
     /** defaultTunPrivateRanges (SettingsRepo.h:18-21). */
     @JvmField
@@ -305,6 +305,7 @@ object SettingsRegistry {
     @JvmField val WARP_PRIVATE_KEY = string("warp_private_key", "")
     @JvmField val WARP_PUBLIC_KEY = string("warp_public_key", "")
     @JvmField val WARP_IFC_ADDRS = stringList("warp_ifc_addrs", emptyList())
+    @JvmField val WARP_AMNEZIA_PACKETS = stringList("warp_amnezia_packets", emptyList())
     @JvmField val WARP_RESERVED = stringList("warp_reserved", emptyList())
     @JvmField val WARP_TOS_ACCEPTED = bool("warp_tos_accepted", false)
     @JvmField val WARP_MASQUE_EP = string("warp_masque_ep", "")
@@ -356,7 +357,7 @@ object SettingsRegistry {
     val ANDROID_KEYS: Set<String> = setOf(
         LAN_SHARING_ENABLED.key, INBOUND_HTTP_PORT.key, "openconnect_private_networks", // Legacy beta 1 key; no longer used by the generator.
         Key.SERVICE_MODE, Key.PROXY_APPS, Key.BYPASS_MODE, Key.INDIVIDUAL, Key.APPEND_HTTP_PROXY, Key.HTTP_PROXY_BYPASS,
-        Key.METERED_NETWORK, Key.WAKE_RESET_CONNECTIONS, Key.NETWORK_CHANGE_RESET_CONNECTIONS,
+        "allowAppsBypassVpn", Key.METERED_NETWORK, Key.WAKE_RESET_CONNECTIONS, Key.NETWORK_CHANGE_RESET_CONNECTIONS,
         Key.SHOW_DIRECT_SPEED, Key.SHOW_GROUP_IN_NOTIFICATION, Key.NOTIFICATION_ACTIONS,
         Key.USE_SYSTEM_THEME, Key.APP_THEME, Key.NIGHT_THEME, Key.AMOLED_THEME, Key.APP_LANGUAGE,
         Key.ALWAYS_SHOW_ADDRESS, Key.GROUP_LAYOUT_MODE,

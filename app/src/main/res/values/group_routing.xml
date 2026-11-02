@@ -1,0 +1,6 @@
+<resources>
+    <string name="group_route_profile">Routing profile</string>
+    <string name="group_route_inherit">Use the selected routing profile</string>
+    <string name="allow_apps_bypass_vpn">Allow apps to bypass VPN</string>
+    <string name="allow_apps_bypass_vpn_summary">Apps that request it can connect outside the VPN. Off by default.</string>
+</resources>
