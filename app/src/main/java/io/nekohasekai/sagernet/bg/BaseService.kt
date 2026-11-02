@@ -102,6 +102,7 @@ class BaseService {
         val binder = Binder(this)
         var connectingJob: Job? = null
         var networkChangeJob: Job? = null
+        var subscriptionWatch: Job? = null
 
         fun changeState(s: State, msg: String? = null) {
             if (state == s && msg == null) return
@@ -447,6 +448,7 @@ class BaseService {
                 try {
                     data.connectingJob?.cancelAndJoin() // ensure stop connecting first
                     data.networkChangeJob?.cancel();data.networkChangeJob=null
+                    data.subscriptionWatch?.cancel();data.subscriptionWatch=null
                 } catch (error: Throwable) {
                     recordCleanupFailure("connecting-job-cancel", error)
                 } finally {
@@ -551,6 +553,14 @@ class BaseService {
             // Tracks the underlying network for VpnService.setUnderlyingNetworks only; the
             // "reset on network change" switch is applied by NativeInterface's monitor callback.
             var observedNetwork=SagerNet.underlyingNetwork
+            // As the original qWDTT: the set of validated non-VPN networks, not which of them is the default.
+            fun validatedNetworks()=@Suppress("DEPRECATION") SagerNet.connectivity.allNetworks.filter { n ->
+                SagerNet.connectivity.getNetworkCapabilities(n)?.let {
+                    it.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_NOT_VPN) &&
+                        it.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+                }==true
+            }.map { it.toString() }.toSet()
+            var carrierNetworks=validatedNetworks()
             DefaultNetworkListener.start(this) { network ->
                 if (network == null) {
                     observedNetwork=null
@@ -570,9 +580,14 @@ class BaseService {
                         if(oldName!=null) {
                             data.networkChangeJob?.cancel()
                             data.networkChangeJob=CoroutineScope(Dispatchers.Main).launch {
-                                delay(600)
+                                // The original waits 4 s for the networks to settle; a default that flips between
+                                // Wi-Fi and mobile data while both stay up keeps the transport (it looped before).
+                                delay(4000)
+                                val networks=validatedNetworks()
                                 if(data.state==State.Connected && SagerNet.underlyingNetwork==network &&
-                                    data.proxy?.config?.carrierPlans?.isNotEmpty()==true) {
+                                    data.proxy?.config?.carrierPlans?.isNotEmpty()==true &&
+                                    networks.isNotEmpty() && networks!=carrierNetworks) {
+                                    carrierNetworks=networks
                                     // The core can rebind its sockets; external TURN/native clients cannot.
                                     TestEngine.stopAndJoin()
                                     Logs.i("Underlying network changed; reconnecting native transport")
@@ -587,6 +602,8 @@ class BaseService {
 
         suspend fun lateInit() {
             data.notification?.postConnected()
+            data.subscriptionWatch?.cancel()
+            data.subscriptionWatch=app.qthrone.mobile.group.SubscriptionScheduler.watch()
         }
 
         /** Wi-Fi rules (route, DNS or rule-set ones) need location access and a fresh Wi-Fi state on roaming. */

@@ -13,7 +13,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
 import app.qthrone.mobile.database.GroupRepo
 import app.qthrone.mobile.group.SubscriptionClient
 import app.qthrone.mobile.ktx.onMainDispatcher
@@ -66,10 +65,11 @@ class ImportTargetActivity : ThemedActivity() {
             view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
             insets
         }
-        body.addView(TextView(this).apply {
+        val title = TextView(this).apply {
             setText(R.string.qmobile_import_target); textSize = 20f; setTextColor(MobilePalette.text)
             setPadding(dp(4), 0, 0, dp(16))
-        })
+        }
+        body.addView(title)
         fun choice(label: Int, click: () -> Unit) {
             body.addView(TextView(this).apply {
                 setText(label); textSize = 16f; setTextColor(MobilePalette.text)
@@ -82,30 +82,35 @@ class ImportTargetActivity : ThemedActivity() {
                 MobileFeedback.apply(this); setOnClickListener { click() }
             }, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(8) })
         }
-        // «Список серверов», the group plain imports used before the destination choice existed.
-        choice(R.string.qmobile_default_group) {
-            lifecycleScope.launch { importInto(withContext(Dispatchers.IO) { GroupRepo.serverListId() }) }
+        fun destinations() {
+            body.removeViews(1, body.childCount - 1)
+            title.setText(R.string.qmobile_import_target)
+            // «Список серверов», the group plain imports used before the destination choice existed.
+            choice(R.string.qmobile_default_group) {
+                lifecycleScope.launch { importInto(withContext(Dispatchers.IO) { GroupRepo.serverListId() }) }
+            }
+            choice(R.string.qmobile_new_group) {
+                createGroup.launch(Intent(this, SubscriptionEditorActivity::class.java).apply {
+                    val parsed = if (kind == "text") Uri.parse(content) else null
+                    val link = if (kind == "text") SubscribeFlows.subscribeLink(content) else null
+                    val subscription = link?.url ?: parsed?.takeIf { it.scheme in listOf("http", "https") && it.userInfo == null }
+                        ?.buildUpon()?.fragment(null)?.build()?.toString()
+                    subscription?.let { putExtra(GroupSettingsActivity.EXTRA_GROUP_SUBSCRIPTION_LINK, it) }
+                    // Only a subscription is named by its link; a plain group starts unnamed.
+                    val name = link?.name.orEmpty().ifBlank { parsed?.fragment.orEmpty() }
+                    if (subscription != null && name.isNotBlank()) putExtra(GroupSettingsActivity.EXTRA_GROUP_NAME, name)
+                })
+            }
+            choice(R.string.qmobile_existing_group) { selectGroup() }
         }
-        choice(R.string.qmobile_new_group) {
-            createGroup.launch(Intent(this, SubscriptionEditorActivity::class.java).apply {
-                val parsed = if (kind == "text") Uri.parse(content) else null
-                val link = if (kind == "text") SubscribeFlows.subscribeLink(content) else null
-                val subscription = link?.url ?: parsed?.takeIf { it.scheme in listOf("http", "https") && !SubscribeFlows.proxyUrl(it) }
-                    ?.buildUpon()?.fragment(null)?.build()?.toString()
-                subscription?.let { putExtra(GroupSettingsActivity.EXTRA_GROUP_SUBSCRIPTION_LINK, it) }
-                // Only a subscription is named by its link; a plain group starts unnamed.
-                val name = link?.name.orEmpty().ifBlank { parsed?.fragment.orEmpty() }
-                if (subscription != null && name.isNotBlank()) putExtra(GroupSettingsActivity.EXTRA_GROUP_NAME, name)
-            })
-        }
-        choice(R.string.qmobile_existing_group) { selectGroup() }
-        // The desktop's third answer for a plain URL: the address itself is an HTTP(S) proxy, not a subscription.
+        // As the desktop's import_text: a plain http(s) URL is a subscription or an HTTP(S) proxy, and only the user knows.
         val plainUrl = kind == "text" && SubscribeFlows.subscribeLink(content) == null &&
             Uri.parse(content).scheme in listOf("http", "https")
-        if (plainUrl) choice(R.string.qmobile_http_proxy_profile) {
-            kind = "proxy"
-            lifecycleScope.launch { importInto(withContext(Dispatchers.IO) { GroupRepo.serverListId() }) }
-        }
+        if (plainUrl) {
+            title.setText(R.string.qmobile_link_kind)
+            choice(R.string.qmobile_link_subscription) { destinations() }
+            choice(R.string.qmobile_http_proxy_profile) { kind = "proxy"; destinations() }
+        } else destinations()
         setContentView(scrim)
     }
 
@@ -166,7 +171,7 @@ class ImportTargetActivity : ThemedActivity() {
                 val kind = document.getString("kind")
                 val uri = Uri.parse(content)
                 val subscriptionSource = kind == "text" && (SubscribeFlows.subscribeLink(content) != null ||
-                    (uri.scheme in listOf("http", "https") && !SubscribeFlows.proxyUrl(uri)))
+                    (uri.scheme in listOf("http", "https") && uri.userInfo == null))
                 GroupRepo.setCurrent(id)
                 onMainDispatcher {
                     activity.displayFragmentWithId(R.id.nav_mobile_home)
@@ -189,32 +194,12 @@ class ImportTargetActivity : ThemedActivity() {
         }
 
         fun start(activity: FragmentActivity, kind: String, content: String, name: String = "") = runOnDefaultDispatcher {
-            val direct = !DataStore.advancedImport
-            if (direct && kind == "text") {
-                // Without the choice the link decides: a subscription becomes its own group, a proxy address joins the server list.
-                val link = SubscribeFlows.subscribeLink(content)
-                val uri = Uri.parse(content)
-                val url = link?.url ?: uri.takeIf { it.scheme in listOf("http", "https") && !SubscribeFlows.proxyUrl(it) }
-                    ?.buildUpon()?.fragment(null)?.build()?.toString()
-                if (url != null) {
-                    val gid = SubscriptionClient.subscribeUrl(url, name.ifBlank { link?.name.orEmpty().ifBlank { uri.fragment.orEmpty() } }, true)
-                    if (gid > 0) GroupRepo.setCurrent(gid)
-                    onMainDispatcher { (activity as? MainActivity)?.displayFragmentWithId(R.id.nav_mobile_home) }
-                    return@runOnDefaultDispatcher
-                }
-            }
             val directory = File(activity.cacheDir, "import-target").apply { mkdirs() }
             val file = File(directory, "${UUID.randomUUID()}.json")
             try {
-                val document = JSONObject().put("kind", kind).put("content", content).put("name", name)
-                // Everything else joins the server list, through the same confirmed hand-off as the choice.
-                if (direct) document.put("groupId", GroupRepo.serverListId())
-                file.writeText(document.toString())
+                file.writeText(JSONObject().put("kind", kind).put("content", content).put("name", name).toString())
                 onMainDispatcher {
                     if (activity.isFinishing || activity.isDestroyed) file.delete()
-                    else if (direct) activity.startActivity(Intent(activity, MainActivity::class.java)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                        .putExtra(MainActivity.EXTRA_IMPORT_TARGET, file.name))
                     else activity.startActivity(Intent(activity, ImportTargetActivity::class.java).putExtra("payload", file.name))
                 }
             } catch (error: Exception) {

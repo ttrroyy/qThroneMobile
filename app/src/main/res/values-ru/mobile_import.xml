@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="qmobile_import_target">Куда добавить?</string>
-    <string name="qmobile_advanced_import">Расширенное управление импортом профилей</string>
-    <string name="qmobile_advanced_import_sum">Спрашивать, куда добавить профиль или подписку. Если выключено, профили попадают в «Список серверов», а подписки добавляются отдельными подписками</string>
+    <string name="qmobile_link_kind">Что добавить?</string>
+    <string name="qmobile_link_subscription">Подписку</string>
     <string name="qmobile_http_proxy_profile">Профиль HTTP-прокси</string>
     <string name="qmobile_default_group">Стандартная группа</string>
     <string name="qmobile_new_group">Создать группу</string>

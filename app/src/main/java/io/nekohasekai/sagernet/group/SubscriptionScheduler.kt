@@ -20,7 +20,11 @@ import app.qthrone.mobile.database.GroupRepo
 import app.qthrone.mobile.ktx.Logs
 import app.qthrone.mobile.ktx.app
 import app.qthrone.mobile.ktx.runOnDefaultDispatcher
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -138,14 +142,31 @@ object SubscriptionScheduler {
         override suspend fun doRemoteWork(): Result {
             // The settings changed without a reschedule (e.g. a restored backup): follow them from now on.
             if (inputData.getInt(KEY_INTERVAL, 0) != shortestInterval()) schedule()
-            val now = System.currentTimeMillis() / 1000
-            val groups = GroupRepo.all().filter { group -> intervalOf(group)?.let { due(group, it, now) } == true }
-            if (groups.isEmpty()) return Result.success()
-            DataStore.subAutoUpdateLast = now
-            Logs.i(app.getString(R.string.subs_auto_update_running, app.getString(R.string.subs_auto_update_task)))
-            for (group in groups) SubscriptionQueue.refreshGroup(group.id, false, foreground = false)
-            SubscriptionQueue.awaitIdle()
+            refreshDue()
             return Result.success()
+        }
+    }
+
+    /** Refreshes the subscriptions whose period has passed; the periodic worker and [watch] share it. */
+    private val refreshing = kotlinx.coroutines.sync.Mutex()
+    suspend fun refreshDue() = refreshing.withLock {
+        val now = System.currentTimeMillis() / 1000
+        val groups = GroupRepo.all().filter { group -> intervalOf(group)?.let { due(group, it, now) } == true }
+        if (groups.isEmpty()) return@withLock
+        DataStore.subAutoUpdateLast = now
+        Logs.i(app.getString(R.string.subs_auto_update_running, app.getString(R.string.subs_auto_update_task)))
+        for (group in groups) SubscriptionQueue.refreshGroup(group.id, false, foreground = false)
+        SubscriptionQueue.awaitIdle()
+    }
+
+    /**
+     * While a profile runs, its foreground service keeps :bg awake, so the service looks for due subscriptions itself:
+     * vivo and Xiaomi defer WorkManager's periodic work for hours, and updates stopped until the app was opened.
+     */
+    fun watch(): kotlinx.coroutines.Job = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+        while (isActive) {
+            delay(5 * 60_000L)
+            try { refreshDue() } catch (e: Exception) { Logs.w("SubscriptionScheduler: update while connected failed", e) }
         }
     }
 }

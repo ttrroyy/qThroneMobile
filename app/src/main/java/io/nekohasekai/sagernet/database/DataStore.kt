@@ -45,8 +45,6 @@ object DataStore : OnPreferenceDataStoreChangeListener {
 
     var appTLSVersion by configurationStore.string(Key.APP_TLS_VERSION)
     var updateCheckAuto by configurationStore.boolean(Key.UPDATE_CHECK_AUTO) { true }
-    /** «Куда добавить?» before every import; off: profiles join the server list, subscriptions become their own groups. */
-    var advancedImport by configurationStore.boolean(Key.ADVANCED_IMPORT) { true }
     var serverListRaised by configurationStore.boolean(Key.SERVER_LIST_RAISED)
     var providerGeoRestored by configurationStore.boolean(Key.PROVIDER_GEO_RESTORED)
     var updateSkippedVersionCode by configurationStore.long(Key.UPDATE_SKIPPED_VERSION_CODE)

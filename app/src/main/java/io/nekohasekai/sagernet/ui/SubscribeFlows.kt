@@ -35,13 +35,6 @@ import com.king.zxing.util.CodeUtils
  */
 object SubscribeFlows {
 
-    /**
-     * An http(s) address of an HTTP(S) proxy rather than a subscription: it carries credentials, or only a host and an
-     * explicit port, while a subscription always has a path.
-     */
-    fun proxyUrl(uri: Uri): Boolean =
-        uri.userInfo != null || (uri.port > 0 && uri.path.orEmpty().trim('/').isEmpty() && uri.query == null)
-
     /** A subscription to add: the URL and the group name the link suggests (may be empty). */
     class SubscribeLink(val url: String, val name: String)
 
@@ -79,7 +72,7 @@ object SubscribeFlows {
         }
         if (content.startsWith("http://") || content.startsWith("https://")) {
             val uri=Uri.parse(content)
-            if(proxyUrl(uri)) importInto(activity,content,gid)
+            if(uri.userInfo!=null) importInto(activity,content,gid)
             else addSubscription(activity,uri.buildUpon().fragment(null).build().toString(),uri.fragment.orEmpty().ifBlank { hostOf(content) },gid)
             return
         }

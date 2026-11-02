@@ -502,10 +502,11 @@ class MobileHomeFragment : ToolbarFragment() {
                 geoBanner!!.addView(geoStatus,LinearLayout.LayoutParams(0,-2,1f))
                 geoBanner!!.addView(geoProgress,LinearLayout.LayoutParams(dp(28),dp(28)))
                 geoBanner!!.addView(geoCheck,LinearLayout.LayoutParams(dp(28),dp(28)))
+                // Under the decoration, right above the subscriptions it is about.
+                subscriptionTop?.let { body.addView(it) }
                 body.addView(geoBanner,LinearLayout.LayoutParams(-1,-2).apply { bottomMargin=dp(10) })
                 updateGeoStatus()
                 val serverColumn=LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL }
-                subscriptionTop?.let { body.addView(it) }
                 val serverScroll=ScrollView(requireContext()).apply {
                     isVerticalScrollBarEnabled=false; isHorizontalScrollBarEnabled=false
                     clipToPadding=false; addView(serverColumn,FrameLayout.LayoutParams(-1,-2))
