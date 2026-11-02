@@ -166,6 +166,13 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data android:scheme="ss" />
+                <data android:scheme="ssr" />
+                <data android:scheme="dnst" />
+                <data android:scheme="slipnet" />
+                <data android:scheme="masterdns" />
+                <data android:scheme="stormdns" />
+                <data android:scheme="cottendns" />
+                <data android:scheme="soar" />
                 <data android:scheme="socks" />
                 <data android:scheme="socks4" />
                 <data android:scheme="socks4a" />
@@ -195,7 +202,7 @@
                 <data android:scheme="happ" />
                 <data android:scheme="incy" />
                 <data android:scheme="csqtt" />
-            <data android:scheme="sstp" />
+                <data android:scheme="sstp" />
                 <data android:scheme="json" />
             </intent-filter>
         </activity>

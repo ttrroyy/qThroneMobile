@@ -1218,9 +1218,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/outbound/import/MasterDnsFiles.kt": {
-    "mtime": 1793629221.6594734,
-    "seen": 1793631200.254441,
-    "ast_hash": "8e2dfb921858b503b96125f6abf4044e",
+    "mtime": 1793636449.5636573,
+    "seen": 1793636568.4481962,
+    "ast_hash": "1e39705e3acfa767864e43b0c9fa5905",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/outbound/import/ProfileImport.kt": {
@@ -3270,9 +3270,9 @@
     "semantic_hash": ""
   },
   "app/src/test/java/io/nekohasekai/sagernet/outbound/import/MasterDnsFilesTest.kt": {
-    "mtime": 1793630121.8243008,
-    "seen": 1793631200.2549663,
-    "ast_hash": "bcd93116a8d715bb3895a43fc03b2781",
+    "mtime": 1793636414.2584653,
+    "seen": 1793636568.4481962,
+    "ast_hash": "cb22cd8c1e99a3f21282e17e229b5ca6",
     "semantic_hash": ""
   },
   "app/src/test/java/io/nekohasekai/sagernet/outbound/import/UnifiedJsonImportTest.kt": {

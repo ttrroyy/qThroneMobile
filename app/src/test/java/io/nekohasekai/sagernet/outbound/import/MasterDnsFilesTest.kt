@@ -35,4 +35,33 @@ class MasterDnsFilesTest {
         assertNull(MasterDnsFiles.fromToml("DOMAINS = []\nENCRYPTION_KEY = \"k\""))
         assertNull(MasterDnsFiles.fromToml("DOMAINS = [\"a.example\"]"))
     }
+
+    @Test fun nativeOptionsKeepTypesThroughImportAndSharing() {
+        val toml = """
+            DOMAINS = [
+                'a.example.com', # primary
+                "b.example.com",
+            ]
+            ENCRYPTION_KEY = 'secret#key'
+            MTU_TEST_TIMEOUT = 2.5
+            PACKET_DUPLICATION_COUNT = 3
+            BASE_ENCODE_DATA = false
+            SOCKS5_PASS = "local-secret"
+            LOCAL_DNS_ENABLED = true
+        """.trimIndent()
+        val json = """{"DOMAINS":["a.example.com","b.example.com"],"ENCRYPTION_KEY":"secret#key",
+            "MTU_TEST_TIMEOUT":2.5,"PACKET_DUPLICATION_COUNT":3,"BASE_ENCODE_DATA":false,
+            "SOCKS5_PASS":"local-secret","LOCAL_DNS_ENABLED":true}"""
+        for (input in listOf(toml, json)) {
+            val profile = single(input)
+            val options = profile.exportToJson().obj("options")
+            assertEquals("secret#key", profile.exportToJson().string("mkey"))
+            assertEquals(2.5, (options["MTU_TEST_TIMEOUT"] as Number).toDouble(), 0.0)
+            assertEquals(3, options.int("PACKET_DUPLICATION_COUNT"))
+            assertEquals(false, options["BASE_ENCODE_DATA"])
+            assertFalse(options.contains("SOCKS5_PASS"))
+            assertFalse(options.contains("LOCAL_DNS_ENABLED"))
+            assertEquals(profile.exportToJson().toCompact(), single(profile.exportToLink()).exportToJson().toCompact())
+        }
+    }
 }
