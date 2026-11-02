@@ -45,13 +45,14 @@ object CoreConfigs {
     fun buildMain(profile: ProxyEntity, deferRuleSets: Boolean = false): GeneratedConfig {
         val (landing, front) = groupProxies(profile.groupId)
         val options = SagerDatabase.groupDao.getById(profile.groupId)?.subOptions
+        val chosenRoute = options?.routeProfileId?.takeIf { it > 0 }?.let(RouteManager::get)?.takeIf { !it.is_raw }
         val bound = options?.takeIf { it.routingProvider.isNotBlank() && it.providerRoutingEnabled }
         val route = when {
+            chosenRoute != null -> chosenRoute.copy()
             bound?.providerRouting == "off" -> app.qthrone.mobile.route.RouteProfile.defaultProfile()
             bound != null -> app.qthrone.mobile.route.ProviderRouting.profile(
                 app.qthrone.mobile.outbound.json.JsonInput.parseObjectOrNull(bound.providerRouting) ?: app.qthrone.mobile.outbound.json.JsonObject(), bound.routingProvider)
-            else -> (options?.routeProfileId?.takeIf { it > 0 }?.let(RouteManager::get)?.takeIf { !it.is_raw }
-                ?: RouteManager.current()).copy()
+            else -> RouteManager.current().copy()
         }
         // Provider routing below still wins over the routing profile's own DNS, which wins over Settings > DNS.
         val dns = route.activeDns()

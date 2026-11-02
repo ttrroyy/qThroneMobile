@@ -3,4 +3,6 @@
     <string name="group_route_inherit">Использовать выбранный профиль маршрутизации</string>
     <string name="allow_apps_bypass_vpn">Разрешать приложениям обходить VPN</string>
     <string name="allow_apps_bypass_vpn_summary">Приложения, запрашивающие обход, смогут подключаться напрямую. По умолчанию выключено.</string>
+    <string name="qmobile_group_servers">Серверы: %1$d</string>
+    <string name="qmobile_group_empty">В этой группе пока нет серверов.</string>
 </resources>

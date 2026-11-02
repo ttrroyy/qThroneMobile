@@ -75,9 +75,10 @@ def run(*args, merge_stderr=False):
 
 
 def core_ref():
-    for line in (ROOT / "nb4a.properties").read_text().splitlines():
-        if line.startswith("THRONE_CORE_REF="):
-            return line.split("=", 1)[1].strip()
+    properties = dict(line.split("=", 1) for line in (ROOT / "nb4a.properties").read_text().splitlines() if "=" in line)
+    ref = properties.get("THRONE_AAR_REF", properties.get("THRONE_CORE_REF", "")).strip()
+    if ref:
+        return ref
     fail("THRONE_CORE_REF missing in nb4a.properties")
 
 

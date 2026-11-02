@@ -146,7 +146,7 @@ fun Project.setupApp() {
     val pkgName = metadata.getProperty("PACKAGE_NAME")
     val baseVersion = metadata.getProperty("VERSION_NAME")
     val versionIndex = metadata.getProperty("VERSION_CODE").toInt()
-    val coreRef = metadata.getProperty("THRONE_CORE_REF")
+    val coreRef = metadata.getProperty("THRONE_AAR_REF") ?: metadata.getProperty("THRONE_CORE_REF")
     val preview = buildChannel() == "preview"
     val build = buildNumber()
     android.apply {

@@ -474,9 +474,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/bg/proto/CoreConfigs.kt": {
-    "mtime": 1793633149.0181298,
-    "seen": 1793633860.2463007,
-    "ast_hash": "5e8ac420ac27aedf2ff6496579c772e1",
+    "mtime": 1793634416.4649575,
+    "seen": 1793634566.0409703,
+    "ast_hash": "c927ba5738b51e7fd9d4fae383c9d17d",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/bg/proto/CoreUrlTest.kt": {
@@ -1746,9 +1746,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/MobileHomeFragment.kt": {
-    "mtime": 1793633695.0748494,
-    "seen": 1793633860.2468262,
-    "ast_hash": "9ee5172d3277229cb77353c8512f329c",
+    "mtime": 1793634717.4104557,
+    "seen": 1793634803.2148213,
+    "ast_hash": "fa3cebaa5c92f968aaee2aa4debb3f66",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/MobilePalette.kt": {
@@ -3498,9 +3498,9 @@
     "semantic_hash": ""
   },
   "buildScript/fdroid/prebuild.sh": {
-    "mtime": 1793630121.844847,
-    "seen": 1793631200.2549663,
-    "ast_hash": "e0a63e89f649006ab42ff75ad4feda7b",
+    "mtime": 1793634416.462135,
+    "seen": 1793634566.042002,
+    "ast_hash": "836fd444062025c91886d24e22cb5a8b",
     "semantic_hash": ""
   },
   "buildScript/prepare_mobile_seasonal.py": {
@@ -3516,9 +3516,9 @@
     "semantic_hash": ""
   },
   "buildScript/release_assets.py": {
-    "mtime": 1793630121.8458488,
-    "seen": 1793631200.2549663,
-    "ast_hash": "83ec725b69dd07756050d8343b6170a0",
+    "mtime": 1793634416.4496121,
+    "seen": 1793634566.042002,
+    "ast_hash": "328bb17a6720dab98bdf2a748d05756f",
     "semantic_hash": ""
   },
   "buildScript/release_tag.py": {
@@ -3528,9 +3528,9 @@
     "semantic_hash": ""
   },
   "buildScript/test_release_metadata.py": {
-    "mtime": 1793630121.8458488,
-    "seen": 1793631200.2549663,
-    "ast_hash": "dbfb32d38a802416ec5fa8958f62a598",
+    "mtime": 1793634639.3191948,
+    "seen": 1793634803.216334,
+    "ast_hash": "e41496996d144f30f81a980598c7ab5e",
     "semantic_hash": ""
   },
   "buildScript/test_release_tag.py": {
@@ -3546,9 +3546,9 @@
     "semantic_hash": ""
   },
   "buildSrc/src/main/kotlin/Helpers.kt": {
-    "mtime": 1793630121.848857,
-    "seen": 1793631200.2549663,
-    "ast_hash": "955d9092b65ba1959661ce35a4444742",
+    "mtime": 1793634416.4481018,
+    "seen": 1793634566.042002,
+    "ast_hash": "589ecc576cdb68e008f22f0923d992cf",
     "semantic_hash": ""
   },
   "carriers/cottendns/main.go": {
@@ -4392,9 +4392,9 @@
     "semantic_hash": ""
   },
   ".github/actions/throne-core/action.yml": {
-    "mtime": 1793633047.3074534,
-    "seen": 1793633860.2473528,
-    "ast_hash": "35931f649d7ebf306274be1d550ed790",
+    "mtime": 1793634416.4469874,
+    "seen": 1793634566.0426483,
+    "ast_hash": "f66dd536f8a4d3dea931fc3c3db039e4",
     "semantic_hash": ""
   },
   ".github/workflows/artwork.yml": {
@@ -4422,9 +4422,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/preview.yml": {
-    "mtime": 1793630121.0504112,
-    "seen": 1793631200.2554927,
-    "ast_hash": "71358726744935891e00ac2b6435a408",
+    "mtime": 1793634528.0848403,
+    "seen": 1793634566.0426483,
+    "ast_hash": "4c9a5241b78b53997cecf32ccfcf20e4",
     "semantic_hash": ""
   },
   ".github/workflows/release.yml": {

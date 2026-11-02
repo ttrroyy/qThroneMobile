@@ -5,11 +5,13 @@ set -e
 # nb4a.properties (gomobile + gobind on PATH, JDK 17, ANDROID_HOME/ANDROID_NDK_HOME set), the same as
 # .github/actions/throne-core.
 THRONE_CORE_REF=$(sed -n 's/^THRONE_CORE_REF=//p' nb4a.properties | tr -d '\r[:space:]')
+AAR_REF=$(sed -n 's/^THRONE_AAR_REF=//p' nb4a.properties | tr -d '\r[:space:]')
+THRONE_CORE_REF=${AAR_REF:-$THRONE_CORE_REF}
 test -n "$THRONE_CORE_REF"
 THRONE_DIR="$(cd .. && pwd)/Throne"
 rm -rf "$THRONE_DIR"
 git init -q "$THRONE_DIR"
-git -C "$THRONE_DIR" remote add origin https://github.com/throneproj/Throne
+git -C "$THRONE_DIR" remote add origin https://github.com/ttrroyy/qThrone
 git -C "$THRONE_DIR" fetch -q --depth 1 origin "$THRONE_CORE_REF"
 git -C "$THRONE_DIR" checkout -q --detach FETCH_HEAD
 

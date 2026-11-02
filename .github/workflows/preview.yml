@@ -41,9 +41,6 @@ jobs:
             echo "build=$BUILD"
             echo "tag=v${VERSION_NAME}-pre.${BUILD}"
           } >> "$GITHUB_OUTPUT"
-      - name: Use .debug package name
-        if: steps.version.outputs.skip != 'true'
-        run: sed -i 's/^PACKAGE_NAME=.*/PACKAGE_NAME=app.qthrone.mobile.debug/' nb4a.properties
       - name: Build
         if: steps.version.outputs.skip != 'true'
         uses: ./.github/actions/android-build
@@ -59,7 +56,7 @@ jobs:
         if: steps.version.outputs.skip != 'true'
         uses: actions/upload-artifact@v7
         with:
-          name: Throne-${{ steps.version.outputs.tag }}
+          name: qThroneMobile-${{ steps.version.outputs.tag }}
           path: dist/
           if-no-files-found: error
           retention-days: 14

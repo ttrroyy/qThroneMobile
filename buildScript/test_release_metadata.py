@@ -6,10 +6,21 @@ from pathlib import Path
 from unittest.mock import patch
 
 from release_assets import ABIS, embedded_manifest, release_notes, sha256
+from release_assets import core_ref
 from publish_release import publish, validate_assets, validate_bridge
 
 
 class ReleaseMetadataTest(unittest.TestCase):
+    def test_core_metadata_uses_the_aar_pin(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            metadata = root / "nb4a.properties"
+            with patch("release_assets.ROOT", root):
+                metadata.write_text("THRONE_CORE_REF=transports\n")
+                self.assertEqual(core_ref(), "transports")
+                metadata.write_text("THRONE_CORE_REF=transports\nTHRONE_AAR_REF=engine\n")
+                self.assertEqual(core_ref(), "engine")
+
     def manifest(self, directory):
         assets = {}
         for abi in ABIS + ["universal"]:

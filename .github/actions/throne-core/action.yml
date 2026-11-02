@@ -10,7 +10,8 @@ runs:
       shell: bash
       run: |
         set -euo pipefail
-        REF=$(sed -n 's/^THRONE_CORE_REF=//p' nb4a.properties | tr -d '\r[:space:]')
+        REF=$(sed -n 's/^THRONE_AAR_REF=//p' nb4a.properties | tr -d '\r[:space:]')
+        if [ -z "$REF" ]; then REF=$(sed -n 's/^THRONE_CORE_REF=//p' nb4a.properties | tr -d '\r[:space:]'); fi
         test -n "$REF"
         THRONE_DIR="$(dirname "$GITHUB_WORKSPACE")/Throne"
         rm -rf "$THRONE_DIR"
