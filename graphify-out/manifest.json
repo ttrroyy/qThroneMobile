@@ -1746,9 +1746,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/MobileHomeFragment.kt": {
-    "mtime": 1793634717.4104557,
-    "seen": 1793634803.2148213,
-    "ast_hash": "fa3cebaa5c92f968aaee2aa4debb3f66",
+    "mtime": 1793640505.008108,
+    "seen": 1793640534.6908696,
+    "ast_hash": "1174435124785cda3bf1a6dc20a88aec",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/MobilePalette.kt": {
@@ -1770,9 +1770,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/MobileReorder.kt": {
-    "mtime": 1793630618.686408,
-    "seen": 1793631200.254441,
-    "ast_hash": "7f2c6c333eaddfbe6721523653877519",
+    "mtime": 1793640284.695364,
+    "seen": 1793640534.6908696,
+    "ast_hash": "362adc8b70c3b3a8114e990be5fe8896",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/MobileRoutingFragment.kt": {
@@ -4458,9 +4458,9 @@
     "semantic_hash": ""
   },
   "RELEASE_NOTES.md": {
-    "mtime": 1793634883.6614337,
-    "seen": 1793636143.4294682,
-    "ast_hash": "a84eeb6efd95dbc7cbd3aaa50465445a",
+    "mtime": 1793640380.7742193,
+    "seen": 1793640534.6913939,
+    "ast_hash": "5ddce83eb5bef29f94ec4c3a841f86b8",
     "semantic_hash": ""
   },
   "app/src/main/assets/flags/SOURCE.txt": {
@@ -7005,6 +7005,18 @@
     "mtime": 1793636102.62595,
     "seen": 1793636143.4294682,
     "ast_hash": "923235224f8c544d0a8f573eb27ca0c7",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/io/nekohasekai/sagernet/ui/MobileGroupDrag.kt": {
+    "mtime": 1793640182.6238005,
+    "seen": 1793640534.6908696,
+    "ast_hash": "3fb2874043bd22354c29f08a846f0d08",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/io/nekohasekai/sagernet/ui/MobileGroupDragTest.kt": {
+    "mtime": 1793640182.6248615,
+    "seen": 1793640534.6913939,
+    "ast_hash": "994022098fc6ea1f1877757c079eeb72",
     "semantic_hash": ""
   }
 }

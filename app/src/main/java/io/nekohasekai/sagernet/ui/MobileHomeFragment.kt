@@ -136,9 +136,13 @@ class MobileHomeFragment : ToolbarFragment() {
     }
     private fun reorderActive(active: Boolean) {
         reordering=active
-        dragCancel?.visibility=if(active) View.VISIBLE else View.GONE
-        if(!active) stopGroupScroll()
-        if(active) load?.cancel() else refresh()
+        if(active) load?.cancel() else {
+            stopGroupScroll()
+            groupStrip?.removeCallbacks(previewHoveredGroup)
+            groupDragPreview.finish()?.let { groupScrollPositions[it.groupId]=it.scrollY }
+            activeProfileDrag=null
+            if(!profileTransferPending) refresh()
+        }
     }
     private var reordering=false
     private var groupReorder: MobileReorder?=null
@@ -153,9 +157,10 @@ class MobileHomeFragment : ToolbarFragment() {
         }
     }
     private fun moveProfile(id: Long, groupId: Long) {
+        profileTransferPending=true
         viewLifecycleOwner.lifecycleScope.launch {
             try { withContext(Dispatchers.IO) { ProfileManager.moveToGroup(listOf(id),groupId) } }
-            finally { reorderActive(false) }
+            finally { profileTransferPending=false;reorderActive(false) }
         }
     }
     /**
@@ -178,10 +183,39 @@ class MobileHomeFragment : ToolbarFragment() {
     private var serverScrollView: ScrollView? = null
     private var subscriptionTop: View? = null
     private var serverRows: LinearLayout? = null
-    private var dragCancel: TextView? = null
     private var groupStrip: LinearLayout? = null
     private var groupStripScroll: HorizontalScrollView? = null
+    private var groupLeftIndicator: ImageView? = null
+    private var groupRightIndicator: ImageView? = null
     private var fixedGroupHeader: LinearLayout? = null
+    private val groupDragPreview=MobileGroupDrag()
+    private var activeProfileDrag: MobileReorder? = null
+    private var profileTransferPending=false
+    private var groupDragX=0f
+    private val previewHoveredGroup=Runnable {
+        if(reordering && groupDragPreview.previewHovered()) refresh()
+    }
+    private fun hoverGroup(id: Long?) {
+        if(!groupDragPreview.hover(id)) return
+        groupStrip?.removeCallbacks(previewHoveredGroup)
+        if(id!=null) groupStrip?.postDelayed(previewHoveredGroup,180)
+    }
+    private fun hoveredTab() {
+        val scroll=groupStripScroll ?: return
+        val x=scroll.scrollX+groupDragX
+        val tab=groupStrip?.childrenList()?.firstOrNull { x>=it.left && x<it.right }
+        hoverGroup(tab?.tag as? Long)
+    }
+    private fun updateGroupIndicators() {
+        val scroll=groupStripScroll ?: return
+        val left=scroll.canScrollHorizontally(-1)
+        val right=scroll.canScrollHorizontally(1)
+        val width=(scroll.parent as? View)?.width ?: scroll.width
+        val capacity=minOf(3,maxOf(1,(width+dp(6))/(dp(144)+dp(6))))
+        val overflow=(groupStrip?.childCount ?: 0)>capacity
+        groupLeftIndicator?.visibility=if(!overflow) View.GONE else if(left) View.VISIBLE else View.INVISIBLE
+        groupRightIndicator?.visibility=if(!overflow) View.GONE else if(right) View.VISIBLE else View.INVISIBLE
+    }
     private val groupScrollPositions=mutableMapOf<Long,Int>()
     private var renderedGroupId=0L
     private var groupScrollDirection=0
@@ -190,6 +224,7 @@ class MobileHomeFragment : ToolbarFragment() {
             val scroll=groupStripScroll ?: return
             if(!reordering || groupScrollDirection==0) return
             scroll.scrollBy(dp(9)*groupScrollDirection,0)
+            hoveredTab()
             scroll.postOnAnimation(this)
         }
     }
@@ -200,15 +235,20 @@ class MobileHomeFragment : ToolbarFragment() {
     private fun followGroupDrag(zone: View,event: DragEvent) {
         val scroll=groupStripScroll ?: return
         when(event.action) {
-            DragEvent.ACTION_DRAG_LOCATION -> {
+            DragEvent.ACTION_DRAG_ENTERED,DragEvent.ACTION_DRAG_LOCATION -> {
                 val at=IntArray(2);zone.getLocationOnScreen(at)
                 val viewport=IntArray(2);scroll.getLocationOnScreen(viewport)
                 val x=at[0]+event.x-viewport[0]
+                groupDragX=x.coerceIn(0f,(scroll.width-1).coerceAtLeast(0).toFloat())
+                hoveredTab()
                 groupScrollDirection=when { x<dp(44) -> -1; x>scroll.width-dp(44) -> 1; else -> 0 }
                 scroll.removeCallbacks(scrollGroups)
                 if(groupScrollDirection!=0) scroll.postOnAnimation(scrollGroups)
             }
-            DragEvent.ACTION_DRAG_EXITED,DragEvent.ACTION_DROP,DragEvent.ACTION_DRAG_ENDED -> stopGroupScroll()
+            DragEvent.ACTION_DRAG_EXITED,DragEvent.ACTION_DROP,DragEvent.ACTION_DRAG_ENDED -> {
+                stopGroupScroll()
+                hoverGroup(null)
+            }
         }
     }
     private fun selectGroup(id: Long) {
@@ -232,10 +272,23 @@ class MobileHomeFragment : ToolbarFragment() {
                 tab.layoutParams=params.apply { this.width=tabWidth;marginEnd=gap }
             }
         }
+        strip.post { updateGroupIndicators() }
     }
     private fun renderGroupStrip(groups: List<ProxyGroup>, selected: Long, profiles: MobileReorder, reorder: MobileReorder) {
         val strip=groupStrip ?: return
         val scroll=groupStripScroll ?: return
+        listOfNotNull(groupLeftIndicator,groupRightIndicator).forEach {
+            profiles.acceptFrom(it,false,::followGroupDrag,allowSameList=true) {}
+        }
+        if(reordering && groupDragPreview.origin!=null && strip.childCount==groups.size) {
+            strip.childrenList().forEach { tab ->
+                tab.isSelected=tab.tag==selected
+                tab.background=tile(tab.isSelected)
+                MobileFeedback.apply(tab)
+            }
+            updateGroupIndicators()
+            return
+        }
         val previous=scroll.scrollX
         val selectionChanged=renderedGroupId!=selected
         strip.removeAllViews()
@@ -245,6 +298,7 @@ class MobileHomeFragment : ToolbarFragment() {
                 orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER_VERTICAL
                 setPadding(dp(14),dp(8),dp(14),dp(8))
                 background=tile(group.id==selected);isFocusable=true;isSelected=group.id==selected
+                tag=group.id
                 contentDescription=group.displayName()
                 androidx.appcompat.widget.TooltipCompat.setTooltipText(this,group.displayName())
                 addView(text(group.displayName(),14f).apply {
@@ -257,7 +311,7 @@ class MobileHomeFragment : ToolbarFragment() {
             }
             strip.addView(tab,LinearLayout.LayoutParams(dp(144),dp(54)))
             reorder.bind(tab,tab,group.id)
-            profiles.acceptFrom(tab,!group.isSubscription && group.id!=selected,::followGroupDrag) { moveProfile(it,group.id) }
+            profiles.acceptFrom(tab,group.id!=selected,::followGroupDrag,allowSameList=true) { moveProfile(it,group.id) }
             if(group.id==selected) active=tab
         }
         sizeGroupTabs()
@@ -267,6 +321,7 @@ class MobileHomeFragment : ToolbarFragment() {
             if(selectionChanged) active?.let {
                 scroll.smoothScrollTo((it.left-(scroll.width-it.width)/2).coerceAtLeast(0),0)
             }
+            updateGroupIndicators()
         }
     }
     private var chromeKey: String? = null
@@ -331,13 +386,20 @@ class MobileHomeFragment : ToolbarFragment() {
             orientation = LinearLayout.VERTICAL; setPadding(dp(16), dp(8), dp(16), dp(20))
         }
         scroll.addView(content, FrameLayout.LayoutParams(-1,-1))
-        dragCancel=text(getString(android.R.string.cancel),16f,Color.rgb(235,110,104)).apply {
-            gravity=Gravity.CENTER;visibility=View.GONE;alpha=.75f
-            background=GradientDrawable().apply { setColor(0x55dc423d);cornerRadius=dp(12).toFloat() }
-            MobileReorder.cancelOnDrop(this)
-        }.also { scroll.addView(it,FrameLayout.LayoutParams(-1,dp(60),Gravity.BOTTOM).apply {
-            setMargins(dp(24),0,dp(24),dp(16))
-        }) }
+        scroll.setOnDragListener { _,event ->
+            val state=event.localState as? MobileReorder ?: return@setOnDragListener false
+            when(event.action) {
+                DragEvent.ACTION_DRAG_STARTED -> if(state.movable && DataStore.mobileListMode=="groups") {
+                    activeProfileDrag=state
+                    groupDragPreview.start(renderedGroupId,serverScrollView?.scrollY ?: 0)
+                }
+                DragEvent.ACTION_DRAG_ENDED -> {
+                    stopGroupScroll()
+                    state.endDrag(event.result)
+                }
+            }
+            true
+        }
         ViewCompat.setOnApplyWindowInsetsListener(scroll) { v, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(bars.left, bars.top, bars.right, bars.bottom); insets
@@ -398,6 +460,7 @@ class MobileHomeFragment : ToolbarFragment() {
     }
     override fun onResume() { super.onResume(); refresh() }
     override fun onPause() {
+        activeProfileDrag?.cancel()
         groupReorder?.cancel();profileReorders.values.forEach { it.cancel() }
         load?.cancel()
         powerPulse?.cancel(); powerPulse=null; pulseTarget=null
@@ -405,6 +468,7 @@ class MobileHomeFragment : ToolbarFragment() {
         super.onPause()
     }
     override fun onDestroyView() {
+        activeProfileDrag?.cancel()
         if(nativeReceiverRegistered) { requireContext().unregisterReceiver(nativeStatusReceiver);nativeReceiverRegistered=false }
         groupReorder?.cancel();groupReorder=null;profileReorders.values.forEach { it.cancel() };profileReorders.clear();reordering=false
         geoBanner = null; updatesTile = null; updateBanner = null; geoStatus = null; geoProgress = null; geoCheck = null
@@ -415,8 +479,9 @@ class MobileHomeFragment : ToolbarFragment() {
         if(!currentTestArmed) currentPing=null
         openSwipe=null; renderedStructure=null
         stopGroupScroll()
-        serverScrollView=null; serverRows=null; chromeKey=null; subscriptionTop=null;dragCancel=null
-        groupStrip=null;groupStripScroll=null;fixedGroupHeader=null;renderedGroupId=0L
+        serverScrollView=null; serverRows=null; chromeKey=null; subscriptionTop=null
+        groupStrip?.removeCallbacks(previewHoveredGroup)
+        groupStrip=null;groupStripScroll=null;groupLeftIndicator=null;groupRightIndicator=null;fixedGroupHeader=null;renderedGroupId=0L
         groupViews.clear(); refreshButtons.clear(); latencyViews.clear(); profileRows.clear()
         super.onDestroyView()
     }
@@ -425,7 +490,9 @@ class MobileHomeFragment : ToolbarFragment() {
     private var renderedStructure: List<GroupContent>? = null
     private fun ViewGroup.childrenList(): List<View> = (0 until childCount).map { getChildAt(it) }
     fun refresh() {
-        if (content == null || !isAdded || !isResumed || isHidden || reordering) return
+        val previewGroup=groupDragPreview.previewGroupId
+        if (content == null || !isAdded || !isResumed || isHidden || profileTransferPending ||
+            (reordering && (previewGroup==null || previewGroup==renderedGroupId))) return
         if(load?.isActive==true) { refreshPending=true;return }
         refreshPending=false
         readPalette()
@@ -443,7 +510,7 @@ class MobileHomeFragment : ToolbarFragment() {
             val nextProfileReorders=profileReorders.toMutableMap()
             try {
             val selected=withContext(Dispatchers.IO) { DataStore.selectedProxy }
-            val focusedGroup=withContext(Dispatchers.IO) { if(byGroups) GroupRepo.currentId() else 0L }
+            val focusedGroup=withContext(Dispatchers.IO) { if(byGroups) previewGroup ?: GroupRepo.currentId() else 0L }
             val (groups,structure,windows)=withContext(Dispatchers.IO) {
                 val pinned=pinnedGroups()
                 val groups=GroupRepo.all().sortedBy { if(it.id in pinned) 0 else 1 }.map {
@@ -460,7 +527,7 @@ class MobileHomeFragment : ToolbarFragment() {
                 }
                 Triple(groups,keys,windows)
             }
-            if(reordering) return@launch
+            if((reordering && previewGroup==null) || (previewGroup!=null && previewGroup!=groupDragPreview.previewGroupId)) return@launch
             val column = content ?: return@launch
             groups.forEach { (group, _) -> knownGroups.add(group.id) }
             val tilesBottom=tilesAtBottom()
@@ -482,7 +549,7 @@ class MobileHomeFragment : ToolbarFragment() {
             if(chromeKey != nextChromeKey) {
                 chromeKey=nextChromeKey
                 groupReorder=null;nextProfileReorders.clear()
-                groupStrip=null;groupStripScroll=null;fixedGroupHeader=null
+                groupStrip=null;groupStripScroll=null;groupLeftIndicator=null;groupRightIndicator=null;fixedGroupHeader=null
                 column.removeAllViews(); nextLatencyViews.clear(); nextProfileRows.clear(); nextGroupViews.clear(); nextRefreshButtons.clear()
                 // Landscape: the header and the power button in a side column, so the server list keeps the full height.
                 val landscape=resources.configuration.orientation==android.content.res.Configuration.ORIENTATION_LANDSCAPE
@@ -619,23 +686,41 @@ class MobileHomeFragment : ToolbarFragment() {
                 subscriptionTop?.let { body.addView(it) }
                 body.addView(geoBanner,LinearLayout.LayoutParams(-1,-2).apply { bottomMargin=dp(10) })
                 updateGeoStatus()
+                val serverPanel=if(byGroups) LinearLayout(requireContext()).apply {
+                    orientation=LinearLayout.VERTICAL;background=tile();clipToOutline=true
+                } else body
                 if(byGroups) {
-                    val navigation=LinearLayout(requireContext()).apply {
-                        orientation=LinearLayout.VERTICAL;background=tile()
+                    val area=FrameLayout(requireContext())
+                    area.addView(serverPanel,FrameLayout.LayoutParams(-1,-2))
+                    body.addView(area,LinearLayout.LayoutParams(-1,0,1f))
+                    val tabs=LinearLayout(requireContext()).apply { gravity=Gravity.CENTER_VERTICAL }
+                    fun indicator(left: Boolean)=ImageView(requireContext()).apply {
+                        setImageResource(R.drawable.ic_mobile_chevron)
+                        imageTintList=android.content.res.ColorStateList.valueOf(blue)
+                        rotation=if(left) 180f else 0f
+                        scaleType=ImageView.ScaleType.CENTER_INSIDE
+                        visibility=View.GONE
+                        importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
                     }
+                    groupLeftIndicator=indicator(true)
+                    groupRightIndicator=indicator(false)
                     val strip=LinearLayout(requireContext()).apply { orientation=LinearLayout.HORIZONTAL }
                     val stripScroll=HorizontalScrollView(requireContext()).apply {
                         isHorizontalScrollBarEnabled=false;isFillViewport=true
                         addView(strip,FrameLayout.LayoutParams(-2,-2))
+                        setOnScrollChangeListener { _,_,_,_,_ -> updateGroupIndicators() }
                         addOnLayoutChangeListener { _,left,_,right,_,oldLeft,_,oldRight,_ ->
                             if(right-left!=oldRight-oldLeft) sizeGroupTabs()
+                            updateGroupIndicators()
                         }
                     }
                     groupStrip=strip;groupStripScroll=stripScroll
-                    navigation.addView(stripScroll,LinearLayout.LayoutParams(-1,dp(54)))
+                    tabs.addView(groupLeftIndicator,LinearLayout.LayoutParams(dp(14),dp(20)))
+                    tabs.addView(stripScroll,LinearLayout.LayoutParams(0,dp(54),1f))
+                    tabs.addView(groupRightIndicator,LinearLayout.LayoutParams(dp(14),dp(20)))
+                    serverPanel.addView(tabs,LinearLayout.LayoutParams(-1,dp(54)))
                     fixedGroupHeader=LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL }
-                    navigation.addView(fixedGroupHeader,LinearLayout.LayoutParams(-1,-2))
-                    body.addView(navigation,LinearLayout.LayoutParams(-1,-2).apply { bottomMargin=dp(6) })
+                    serverPanel.addView(fixedGroupHeader,LinearLayout.LayoutParams(-1,-2))
                 }
                 val serverColumn=LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL }
                 val serverScroll=ScrollView(requireContext()).apply {
@@ -645,7 +730,7 @@ class MobileHomeFragment : ToolbarFragment() {
                         if(byGroups) groupScrollPositions[renderedGroupId]=y else serverScrollPosition=y
                     }
                 }
-                body.addView(serverScroll,LinearLayout.LayoutParams(-1,0,1f))
+                serverPanel.addView(serverScroll,LinearLayout.LayoutParams(-1,if(byGroups) -2 else 0,if(byGroups) 0f else 1f))
                 serverRows=serverColumn; serverScrollView=serverScroll
                 if(!hasServers) {
                     body.addView(View(requireContext()), LinearLayout.LayoutParams(-1,0,1f))
@@ -722,8 +807,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     saveReorder(group.id,MobileProfilePaging.reorder(profiles.map { p -> p.id },visibleProfiles.map { p -> p.id },it))
                 })
                 profileDrag.movable=true
-                // A profile dragged out of another group lands at the end of this one; subscriptions refill themselves.
-                if(!group.isSubscription) profileDrag.acceptFrom(box) { id -> moveProfile(id,group.id) }
+                profileDrag.acceptFrom(box,group.id!=groupDragPreview.origin?.groupId) { id -> moveProfile(id,group.id) }
                 nextProfileReorders[group.id]=profileDrag
                 val title = LinearLayout(requireContext()).apply { gravity = Gravity.CENTER_VERTICAL }
                 val arrow = ImageView(requireContext()).apply {
@@ -733,7 +817,7 @@ class MobileHomeFragment : ToolbarFragment() {
                 val heading = LinearLayout(requireContext()).apply { gravity=Gravity.CENTER_VERTICAL; setPadding(dp(12),0,0,0); isFocusable=true }
                 heading.addView(arrow,LinearLayout.LayoutParams(dp(20),dp(20)))
                 val names=LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL; setPadding(dp(10),dp(8),dp(4),dp(8)) }
-                names.addView(text(if(byGroups) getString(R.string.qmobile_group_servers,profiles.size) else group.displayName(),17f).apply { setPadding(0,0,0,0); maxLines=1; ellipsize=android.text.TextUtils.TruncateAt.END })
+                names.addView(text(group.displayName(),17f).apply { setPadding(0,0,0,0); maxLines=1; ellipsize=android.text.TextUtils.TruncateAt.END })
                 if(group.isSubscription && group.subLastUpdate>0) names.addView(text(java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.SHORT,java.text.DateFormat.SHORT).format(java.util.Date(group.subLastUpdate*1000)),10f,muted).apply { setPadding(0,dp(3),0,0) })
                 heading.addView(names,LinearLayout.LayoutParams(0,-2,1f))
                 heading.setOnClickListener {
@@ -856,7 +940,7 @@ class MobileHomeFragment : ToolbarFragment() {
                             }
                         }).apply { onOpened={ opened -> openSwipe?.takeIf { it!==opened }?.closeActions(); openSwipe=opened } }
                     profileDrag.bind(row,swipe,profile.id)
-                    rows.addView(swipe, LinearLayout.LayoutParams(-1,-2).apply { setMargins(if(byGroups) 0 else dp(5),0,if(byGroups) 0 else dp(5),if(byGroups) dp(6) else dp(3)) })
+                    rows.addView(swipe, LinearLayout.LayoutParams(-1,-2).apply { setMargins(dp(5),0,dp(5),dp(3)) })
                 }
                 if(!signature.collapsed && profiles.size>MobileProfilePaging.PAGE_SIZE) {
                     val paging=LinearLayout(requireContext()).apply { gravity=Gravity.CENTER_VERTICAL }
@@ -920,7 +1004,7 @@ class MobileHomeFragment : ToolbarFragment() {
             renderedStructure=structure
             completed=true
             } finally {
-                if(!completed) { renderedStructure=null;chromeKey=null }
+                if(!completed) { renderedStructure=null;if(!reordering) chromeKey=null }
                 if(refreshPending) {
                     refreshPending=false
                     view?.post { refresh() }
@@ -1110,7 +1194,15 @@ class MobileHomeFragment : ToolbarFragment() {
                 if(!deleted) Toast.makeText(requireContext(),R.string.qmobile_delete_failed,Toast.LENGTH_LONG).show()
             }
         }
-        dialog.setContentView(androidx.core.widget.NestedScrollView(requireContext()).apply { addView(body) });dialog.show()
+        dialog.setContentView(androidx.core.widget.NestedScrollView(requireContext()).apply {
+            clipToPadding=false
+            addView(body,FrameLayout.LayoutParams(-1,-2))
+        })
+        val bars=view?.let { ViewCompat.getRootWindowInsets(it)?.getInsets(WindowInsetsCompat.Type.systemBars()) }
+        val height=view?.height?.takeIf { it>0 } ?: resources.displayMetrics.heightPixels
+        dialog.behavior.maxHeight=(height-(bars?.top ?: 0)-(bars?.bottom ?: 0)-dp(16)).coerceAtLeast(1)
+        dialog.behavior.state=com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
+        dialog.show()
     }
     private fun editGroup(group: ProxyGroup, settings: Boolean) {
         startActivity(Intent(requireContext(), if(settings) GroupSettingsActivity::class.java else SubscriptionEditorActivity::class.java)
@@ -1232,14 +1324,6 @@ class MobileHomeFragment : ToolbarFragment() {
     }
     private fun subscriptionsMenu(anchor: View) {
         val popup=androidx.appcompat.widget.PopupMenu(requireContext(),anchor)
-        val modes=resources.getStringArray(R.array.qmobile_list_modes)
-        listOf("groups","list").forEachIndexed { index,mode ->
-            popup.menu.add(1,index,index,modes[index]).apply {
-                isCheckable=true;isChecked=DataStore.mobileListMode==mode
-                setOnMenuItemClickListener { DataStore.mobileListMode=mode;refresh();true }
-            }
-        }
-        popup.menu.setGroupCheckable(1,true,true)
         fun collapse(all: Boolean) {
             if(all) groupViews.keys.forEach { collapsed.add(it) } else collapsed.clear()
             requireContext().getSharedPreferences("dashboard",Context.MODE_PRIVATE).edit()

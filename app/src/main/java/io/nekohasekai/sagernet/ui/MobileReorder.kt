@@ -30,7 +30,11 @@ internal class MobileReorder(
     private val scrollStep=object: Runnable {
         override fun run() {
             val dragged=source ?: return
-            if(!container.isAttachedToWindow) { finish(false);return }
+            if(!container.isAttachedToWindow) {
+                // Previewing another group replaces the source rows until the drag ends.
+                if(!movable) finish(false)
+                return
+            }
             val location=IntArray(2);container.getLocationOnScreen(location)
             val viewport=IntArray(2);scroll.getLocationOnScreen(viewport)
             val axis=if(horizontal) 0 else 1
@@ -60,7 +64,7 @@ internal class MobileReorder(
                         true
                     }
                     DragEvent.ACTION_DROP -> { accepted=true;true }
-                    DragEvent.ACTION_DRAG_ENDED -> { finish(accepted && event.result);true }
+                    DragEvent.ACTION_DRAG_ENDED -> { endDrag(event.result);true }
                     else -> true
                 }
             }
@@ -142,10 +146,10 @@ internal class MobileReorder(
      * Lets an item dragged out of another movable list be dropped anywhere on [zone] (a whole group card,
      * so a collapsed or empty group takes it too); [receive] gets its id. The source list then restores its order.
      */
-    fun acceptFrom(zone: View, canReceive: Boolean = true, onDrag: (View, DragEvent) -> Unit = { _, _ -> }, receive: (Long) -> Unit) {
+    fun acceptFrom(zone: View, canReceive: Boolean = true, onDrag: (View, DragEvent) -> Unit = { _, _ -> }, allowSameList: Boolean = false, receive: (Long) -> Unit) {
         zone.setOnDragListener { _,event ->
             val state=event.localState as? MobileReorder
-            if(state==null || (state===this && canReceive) || !state.movable) false else {
+            if(state==null || (state===this && canReceive && !allowSameList) || !state.movable) false else {
                 onDrag(zone,event)
                 when(event.action) {
                     DragEvent.ACTION_DRAG_ENTERED -> if(canReceive) zone.animate().alpha(.6f).setDuration(90).start()
@@ -171,6 +175,7 @@ internal class MobileReorder(
     }
 
     fun cancel() { finish(false) }
+    fun endDrag(result: Boolean) { finish(accepted && result) }
     fun prune() { ids.keys.retainAll(children().toSet()) }
 
     private fun finish(commit: Boolean) {
@@ -196,17 +201,4 @@ internal class MobileReorder(
         else active(false)
     }
 
-    companion object {
-        fun cancelOnDrop(zone: View) {
-            zone.setOnDragListener { _,event ->
-                val state=event.localState as? MobileReorder ?: return@setOnDragListener false
-                when(event.action) {
-                    DragEvent.ACTION_DRAG_ENTERED -> zone.alpha=1f
-                    DragEvent.ACTION_DRAG_EXITED,DragEvent.ACTION_DRAG_ENDED -> zone.alpha=.75f
-                    DragEvent.ACTION_DROP -> state.cancel()
-                }
-                true
-            }
-        }
-    }
 }
