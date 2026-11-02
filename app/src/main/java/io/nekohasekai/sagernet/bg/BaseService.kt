@@ -1,5 +1,6 @@
 package app.qthrone.mobile.bg
 
+import app.qthrone.mobile.group.SubscriptionScheduler
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -603,7 +604,7 @@ class BaseService {
         suspend fun lateInit() {
             data.notification?.postConnected()
             data.subscriptionWatch?.cancel()
-            data.subscriptionWatch=app.qthrone.mobile.group.SubscriptionScheduler.watch()
+            data.subscriptionWatch=SubscriptionScheduler.watch()
         }
 
         /** Wi-Fi rules (route, DNS or rule-set ones) need location access and a fresh Wi-Fi state on roaming. */
