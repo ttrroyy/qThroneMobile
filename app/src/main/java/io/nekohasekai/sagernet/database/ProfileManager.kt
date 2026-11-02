@@ -298,21 +298,23 @@ object ProfileManager {
         return moved
     }
 
-    /** Android extra: moves [profileIds] to the end of group [groupId] in the given order. */
-    suspend fun moveToGroup(profileIds: List<Long>, groupId: Long) {
+    /** Moves profiles before [beforeId], or to the end when the target has no following profile. */
+    suspend fun moveToGroup(profileIds: List<Long>, groupId: Long, beforeId: Long? = null) {
         if (GroupRepo.get(groupId) == null) return
         val sources = HashSet<Long>()
         SagerDatabase.instance.runInTransaction {
             var order = dao.nextOrder(groupId)
+            val moved = ArrayList<Long>()
             for (chunk in profileIds.distinct().chunked(CHUNK)) {
                 val rows = dao.getEntities(chunk).associateBy { it.id }
                 for (id in chunk) {
                     val row = rows[id] ?: continue
-                    if (row.groupId == groupId) continue
                     sources.add(row.groupId)
                     dao.setGroup(id, groupId, order++)
+                    moved.add(id)
                 }
             }
+            if (beforeId != null) writeOrder(insertProfilesBefore(dao.getIdsByGroup(groupId), moved, beforeId))
             sources.forEach(::compactLocked)
         }
         for (gid in sources) GroupRepo.postReload(gid)

@@ -58,7 +58,7 @@ object SubscribeFlows {
         if (content.isEmpty()) return
         if (ProviderRouting.isLink(content)) { importRoute(activity, content); return }
         if (RouteImports.isRouteLink(content)) { importRoute(activity, content); return }
-        if (gid <= 0) {
+        if (gid <= 0 && DataStore.mobileListMode == "groups") {
             runOnDefaultDispatcher {
                 val target = targetGroupId()
                 onMainDispatcher { if (!activity.isFinishing && !activity.isDestroyed) importText(activity, content, target) }
@@ -112,7 +112,7 @@ object SubscribeFlows {
     /** Several payloads at once (importFromFiles): each URL or deep link on its own, the rest as one import. */
     fun importTexts(activity: FragmentActivity, payloads: List<String>, gid: Long = -1L) {
         if (payloads.size == 1) { importText(activity, payloads.single(), gid); return }
-        if (gid <= 0) {
+        if (gid <= 0 && DataStore.mobileListMode == "groups") {
             runOnDefaultDispatcher {
                 val target=targetGroupId()
                 onMainDispatcher { if (!activity.isFinishing && !activity.isDestroyed) importTexts(activity, payloads, target) }
@@ -171,7 +171,7 @@ object SubscribeFlows {
     /** A file opened or shared from outside that is not a backup: its text is imported like pasted text (importFromFiles). */
     /** importFromFiles: a text file goes through [importUri]; a zip holds one document per entry (WireGuard / OpenVPN). */
     fun importFile(activity: FragmentActivity, uri: Uri, gid: Long = -1L) {
-        if (gid <= 0) {
+        if (gid <= 0 && DataStore.mobileListMode == "groups") {
             runOnDefaultDispatcher {
                 val target=targetGroupId()
                 onMainDispatcher { if (!activity.isFinishing && !activity.isDestroyed) importFile(activity, uri, target) }
@@ -194,7 +194,7 @@ object SubscribeFlows {
                 }
                 if (outbounds.isEmpty()) activity.getString(R.string.no_proxies_found_in_file)
                 else {
-                    ProfileManager.addProfileBatch(outbounds, gid)
+                    ProfileManager.addProfileBatch(outbounds, if(gid>0) gid else targetGroupId())
                     activity.resources.getQuantityString(R.plurals.added, outbounds.size, outbounds.size)
                 }
             } catch (e: Exception) {
@@ -229,7 +229,6 @@ object SubscribeFlows {
 
     fun importUri(activity: FragmentActivity, uri: Uri, gid: Long = -1L) {
         runOnDefaultDispatcher {
-            val target=if (gid > 0) gid else targetGroupId()
             val name = displayName(uri)
             val text: String? = try {
                 readText(uri, name)
@@ -243,7 +242,7 @@ object SubscribeFlows {
                 if (text.isNullOrBlank()) {
                     notify(activity, activity.getString(R.string.grp_file_not_readable, name))
                 } else if (!activity.isFinishing && !activity.isDestroyed) {
-                    importText(activity, text, target)
+                    importText(activity, text, gid)
                 }
             }
         }

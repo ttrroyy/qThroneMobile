@@ -19,3 +19,12 @@ object ProfileOrder {
         return SagerDatabase.proxyDao.countByGroup(gid) > 1
     }
 }
+
+internal fun insertProfilesBefore(existing: List<Long>, moved: List<Long>, beforeId: Long?): List<Long> {
+    val moving = moved.distinct()
+    val movingSet = moving.toHashSet()
+    val ordered = existing.filterNot { it in movingSet }.toMutableList()
+    val index = beforeId?.let(ordered::indexOf)?.takeIf { it >= 0 } ?: ordered.size
+    ordered.addAll(index, moving)
+    return ordered
+}

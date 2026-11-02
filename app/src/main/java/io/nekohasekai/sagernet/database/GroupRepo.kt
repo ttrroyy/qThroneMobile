@@ -4,6 +4,11 @@ import app.qthrone.mobile.SagerNet
 import java.util.concurrent.Callable
 import java.util.concurrent.CopyOnWriteArrayList
 
+internal fun groupAfterRemoval(ids: List<Long>, removed: Long): Long {
+    val index = ids.indexOf(removed)
+    return ids.getOrNull(index - 1) ?: ids.firstOrNull { it != removed } ?: 0L
+}
+
 /**
  * The group repository (the desktop's GroupsRepo, GroupsRepo.cpp): the `groups` table in tab order
  * (`display_order`), the current group (`current_group`) and the Default group of an empty table.
@@ -135,16 +140,17 @@ object GroupRepo {
     /**
      * Stops a running member before deleting the group and its profiles, including the last group.
      */
-    suspend fun delete(id: Long): Boolean {
-        val remaining = SagerDatabase.instance.runInTransaction(Callable {
+    suspend fun delete(id: Long, preferredCurrentId: Long = 0L): Boolean {
+        val (remaining, replacement) = SagerDatabase.instance.runInTransaction(Callable {
             val ids = dao.allIds()
             if (id !in ids) return@Callable null
-            ids - id
+            (ids - id) to groupAfterRemoval(ids, id)
         }) ?: return false
         val running = ProfileManager.runningProfileId()
         if (running > 0 && ProfileManager.getProfile(running)?.groupId == id) SagerNet.stopService()
         dao.deleteById(id)
-        if (SettingsRegistry.CURRENT_GROUP.read(DataStore.configurationStore) == id) setCurrent(remaining.firstOrNull() ?: 0L)
+        if (SettingsRegistry.CURRENT_GROUP.read(DataStore.configurationStore) == id)
+            setCurrent(preferredCurrentId.takeIf { it in remaining } ?: replacement)
         if (DataStore.selectedProxy > 0 && ProfileManager.getProfile(DataStore.selectedProxy) == null) {
             DataStore.selectedProxy = 0L
         }

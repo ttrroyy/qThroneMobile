@@ -35,6 +35,10 @@ def patch(core: Path):
     resolver.mkdir(parents=True, exist_ok=True)
     for source in (Path(__file__).resolve().parents[1] / "core-patches" / "resolve").glob("*.go"):
         shutil.copyfile(source, resolver / source.name)
+    geodata = core / "internal" / "providergeo"
+    geodata.mkdir(parents=True, exist_ok=True)
+    for source in (Path(__file__).resolve().parents[1] / "core-patches" / "providergeo").glob("*.go"):
+        shutil.copyfile(source, geodata / source.name)
 
 
 if __name__ == "__main__":

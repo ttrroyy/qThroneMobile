@@ -612,9 +612,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/database/GroupRepo.kt": {
-    "mtime": 1793629221.6329105,
-    "seen": 1793631200.254441,
-    "ast_hash": "52cc3ea3ef53928f010a716882de5e46",
+    "mtime": 1793652997.7392502,
+    "seen": 1793653952.3847277,
+    "ast_hash": "20655ec90714479935cdae922f44b46d",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/database/GroupSort.kt": {
@@ -630,15 +630,15 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/database/ProfileManager.kt": {
-    "mtime": 1793629221.634474,
-    "seen": 1793631200.254441,
-    "ast_hash": "f4506c1ad102548a4dd71b08f1170775",
+    "mtime": 1793652768.9222884,
+    "seen": 1793653952.3847277,
+    "ast_hash": "3f61df996f45ea9b74b01c56fddc18ad",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/database/ProfileOrder.kt": {
-    "mtime": 1793629221.6350112,
-    "seen": 1793631200.254441,
-    "ast_hash": "364a04d9da6e5300467c6417ce364fde",
+    "mtime": 1793653876.6627414,
+    "seen": 1793653952.3847277,
+    "ast_hash": "7d4c2c6ef69f381bf7ea640ccac7b449",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/database/ProxyEntity.kt": {
@@ -1506,9 +1506,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/route/ProviderGeoAssets.kt": {
-    "mtime": 1793630121.517695,
-    "seen": 1793631200.254441,
-    "ast_hash": "2d5cc2326164177cfa6be1880e6b861f",
+    "mtime": 1793653835.1063938,
+    "seen": 1793653952.3847277,
+    "ast_hash": "9baf4f41d49ed555eaa01b679e96bfac",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/route/ProviderRouteProfiles.kt": {
@@ -1746,9 +1746,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/MobileHomeFragment.kt": {
-    "mtime": 1793640505.008108,
-    "seen": 1793640534.6908696,
-    "ast_hash": "1174435124785cda3bf1a6dc20a88aec",
+    "mtime": 1793653399.280194,
+    "seen": 1793653952.3847277,
+    "ast_hash": "ba14f66c382aa3cdbe66ca368205e416",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/MobilePalette.kt": {
@@ -1770,9 +1770,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/MobileReorder.kt": {
-    "mtime": 1793640284.695364,
-    "seen": 1793640534.6908696,
-    "ast_hash": "362adc8b70c3b3a8114e990be5fe8896",
+    "mtime": 1793653399.280194,
+    "seen": 1793653952.3847277,
+    "ast_hash": "1f6c5c47415b3b47dff61ef6e58dc3cb",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/MobileRoutingFragment.kt": {
@@ -1920,9 +1920,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/SubscribeFlows.kt": {
-    "mtime": 1793630740.6655498,
-    "seen": 1793631200.254441,
-    "ast_hash": "6e7f229c2bc81f1f08049bb113dbdbc9",
+    "mtime": 1793652997.7427638,
+    "seen": 1793653952.3847277,
+    "ast_hash": "f5189d215f98537c6d3788e853ef8214",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/SubscriptionEditorActivity.kt": {
@@ -4020,9 +4020,9 @@
     "semantic_hash": ""
   },
   "core-patches/mobile/geodata.go": {
-    "mtime": 1793630121.93914,
-    "seen": 1793631200.2549663,
-    "ast_hash": "11236904bb47d9c27231c37545dd4910",
+    "mtime": 1793654020.6595404,
+    "seen": 1793654041.9626007,
+    "ast_hash": "2a28387b91398aace10604a02c673bdc",
     "semantic_hash": ""
   },
   "core-patches/mobile/openconnect_auth.go": {
@@ -4224,9 +4224,9 @@
     "semantic_hash": ""
   },
   "scripts/patch_mobile_trusttunnel.py": {
-    "mtime": 1793635941.2228253,
-    "seen": 1793636143.4294682,
-    "ast_hash": "03843e5d1d318d3d1fdb93755699cc97",
+    "mtime": 1793653835.1063938,
+    "seen": 1793653952.3857286,
+    "ast_hash": "22749f8a09cec956fa19b0a63d27bb07",
     "semantic_hash": ""
   },
   "scripts/patch_mobile_warp.py": {
@@ -4392,9 +4392,9 @@
     "semantic_hash": ""
   },
   ".github/actions/throne-core/action.yml": {
-    "mtime": 1793635990.4733448,
-    "seen": 1793636143.4294682,
-    "ast_hash": "13836b726cdd6a08676e80242468bbea",
+    "mtime": 1793654019.7716596,
+    "seen": 1793654041.9626007,
+    "ast_hash": "c9c380d51f506ecd80ceabd5baa4f028",
     "semantic_hash": ""
   },
   ".github/workflows/artwork.yml": {
@@ -4458,9 +4458,9 @@
     "semantic_hash": ""
   },
   "RELEASE_NOTES.md": {
-    "mtime": 1793640380.7742193,
-    "seen": 1793640534.6913939,
-    "ast_hash": "5ddce83eb5bef29f94ec4c3a841f86b8",
+    "mtime": 1793653930.6537344,
+    "seen": 1793653952.3857286,
+    "ast_hash": "ca9fc27c2b3a046bb1e3c3b4aa656207",
     "semantic_hash": ""
   },
   "app/src/main/assets/flags/SOURCE.txt": {
@@ -7017,6 +7017,42 @@
     "mtime": 1793640182.6248615,
     "seen": 1793640534.6913939,
     "ast_hash": "994022098fc6ea1f1877757c079eeb72",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/io/nekohasekai/sagernet/database/GroupRemovalTest.kt": {
+    "mtime": 1793652997.7417583,
+    "seen": 1793653952.3847277,
+    "ast_hash": "e838ef866dbe668b66b561b5e04bd806",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/io/nekohasekai/sagernet/database/ProfileOrderTest.kt": {
+    "mtime": 1793652768.9222884,
+    "seen": 1793653952.3847277,
+    "ast_hash": "6e356d0bdd9f0e90ce76f8bfde1d391f",
+    "semantic_hash": ""
+  },
+  "core-patches/providergeo/convert.go": {
+    "mtime": 1793654019.768641,
+    "seen": 1793654041.9626007,
+    "ast_hash": "65dfe3dd17884e864f247e71aba9799b",
+    "semantic_hash": ""
+  },
+  "core-patches/providergeo/convert_test.go": {
+    "mtime": 1793654019.7701495,
+    "seen": 1793654041.9626007,
+    "ast_hash": "40da8d9604a46dcb5f922b6d29badd9c",
+    "semantic_hash": ""
+  },
+  "core-patches/providergeo/entries.go": {
+    "mtime": 1793654019.7701495,
+    "seen": 1793654041.9626007,
+    "ast_hash": "deb4c1d47db9925b8c74589390b734f6",
+    "semantic_hash": ""
+  },
+  "core-patches/providergeo/entries_test.go": {
+    "mtime": 1793654019.7701495,
+    "seen": 1793654041.9626007,
+    "ast_hash": "53ba9c652bad954a2c757734ad4b5b6b",
     "semantic_hash": ""
   }
 }

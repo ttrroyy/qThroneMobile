@@ -9,6 +9,7 @@ import java.security.MessageDigest
 import kotlinx.coroutines.*
 
 object ProviderGeoAssets {
+    private const val MAX_GEO_BYTES = 256L * 1024 * 1024
     data class Status(val file: String = "", val bytes: Long = 0, val total: Long = 0, val error: String = "", val complete: Boolean = false)
     val states = kotlinx.coroutines.flow.MutableStateFlow<Map<Long, Status>>(emptyMap())
     private val expiryScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -84,12 +85,13 @@ object ProviderGeoAssets {
         val own = File(app.filesDir, "provider-geodata").listFiles()?.filter { it.extension == "dat" }.orEmpty()
         for (name in listOf("geosite.dat", "geoip.dat")) {
             val installed = File(app.filesDir, name)
-            if (installed.isFile && own.any { it.length() == installed.length() && it.readBytes().contentEquals(installed.readBytes()) }) installed.delete()
+            if (installed.isFile && own.any { it.length() == installed.length() && fileDigest(it).contentEquals(fileDigest(installed)) }) installed.delete()
         }
     }
     private fun download(gid: Long, document: JsonObject, kind: String, force: Boolean): File {
         val source = file(document,kind)
-        if (!force && source.isFile && System.currentTimeMillis() - source.lastModified() < 7 * 86400000L) return source
+        val cachedValid = source.isFile && source.length() in 1..MAX_GEO_BYTES && runCatching { Mobile.validateGeoFile(source.absolutePath) }.isSuccess
+        if (!force && cachedValid && System.currentTimeMillis() - source.lastModified() < 7 * 86400000L) return source
         val address = url(document,kind)
         require(address.startsWith("https://") || address.startsWith("http://")) { "Invalid geo file URL" }
         source.parentFile!!.mkdirs()
@@ -101,12 +103,12 @@ object ProviderGeoAssets {
                 check(response.isSuccessful) { "HTTP ${response.code}" }
                 val body = response.body ?: error("Empty geo file")
                 val total = body.contentLength().coerceAtLeast(0)
-                check(total <= 64L * 1024 * 1024) { "Geo file is too large" }
+                check(total <= MAX_GEO_BYTES) { "Geo file is too large" }
                 body.byteStream().use { input -> temp.outputStream().use { output ->
                     val buffer = ByteArray(65536); var bytes = 0L; var shown = -1L
                     while (true) {
                         val count = input.read(buffer); if (count < 0) break
-                        bytes += count; check(bytes <= 64L * 1024 * 1024) { "Geo file is too large" }
+                        bytes += count; check(bytes <= MAX_GEO_BYTES) { "Geo file is too large" }
                         output.write(buffer,0,count)
                         val step = if (total > 0) bytes * 100 / total else bytes / (1024 * 1024)
                         if (step != shown) { shown = step; status(gid,Status(kind,bytes,total)) }
@@ -114,11 +116,12 @@ object ProviderGeoAssets {
                     check(bytes > 0) { "Empty geo file" }
                 } }
             }
+            Mobile.validateGeoFile(temp.absolutePath)
             check(temp.renameTo(source)) { "Cannot save geo file" }
             return source
         } catch (error: Exception) {
             // An older copy beats a failed start: the network that refuses the download may be the reason to reconnect.
-            if (force || !source.isFile || source.length() == 0L) throw error
+            if (force || !cachedValid) throw error
             Logs.w("Provider $kind.dat update failed, the cached copy stays: ${error.readableMessage}")
             return source
         } finally { temp.delete() }
@@ -154,4 +157,16 @@ object ProviderGeoAssets {
         return RuleSetCatalog(entries)
     }
     private fun digest(text: String) = MessageDigest.getInstance("SHA-256").digest(text.toByteArray()).joinToString("") { "%02x".format(it) }
+    private fun fileDigest(file: File): ByteArray {
+        val hash = MessageDigest.getInstance("SHA-256")
+        file.inputStream().use { input ->
+            val buffer = ByteArray(65536)
+            while (true) {
+                val count = input.read(buffer)
+                if (count < 0) break
+                hash.update(buffer,0,count)
+            }
+        }
+        return hash.digest()
+    }
 }

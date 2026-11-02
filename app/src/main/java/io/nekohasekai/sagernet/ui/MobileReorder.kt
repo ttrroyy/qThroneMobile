@@ -5,6 +5,7 @@ import android.view.DragEvent
 import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.LinearLayout
+import android.view.ViewGroup
 import androidx.core.view.doOnPreDraw
 
 /** Reorder existing views in place. No database/render notifications until the gesture finishes. */
@@ -24,6 +25,25 @@ internal class MobileReorder(
     private var source: View?=null
     private var original=emptyList<View>()
     private var accepted=false
+    private var transferred=false
+    val draggedId: Long? get() = source?.let(ids::get)
+    private var insertionMarker: View?=null
+    private var incomingSource: MobileReorder?=null
+    private var incomingY=0f
+    private var incomingBeforeId: Long?=null
+    private val incomingScroll=object:Runnable {
+        override fun run() {
+            if(incomingSource?.draggedId==null || !container.isAttachedToWindow) { clearInsertion();return }
+            val viewport=IntArray(2);scroll.getLocationOnScreen(viewport)
+            val y=incomingY-viewport[1]
+            val density=container.resources.displayMetrics.density
+            val edge=56*density
+            val delta=when { y<edge -> -12; y>scroll.height-edge -> 12; else -> 0 }
+            if(delta!=0) scroll.scrollBy(0,(delta*density).toInt())
+            updateInsertion()
+            scroll.postOnAnimation(this)
+        }
+    }
     private val horizontal get() = container.orientation == LinearLayout.HORIZONTAL
     private var pointer=0f
     private var pendingMove=false
@@ -59,8 +79,11 @@ internal class MobileReorder(
                 when(event.action) {
                     DragEvent.ACTION_DRAG_STARTED -> true
                     DragEvent.ACTION_DRAG_LOCATION -> {
+                        clearInsertion()
                         pointer=if(horizontal) event.x else event.y
                         source?.let { move(it,pointer) }
+                        container.removeCallbacks(scrollStep)
+                        container.postOnAnimation(scrollStep)
                         true
                     }
                     DragEvent.ACTION_DROP -> { accepted=true;true }
@@ -76,7 +99,7 @@ internal class MobileReorder(
         handle.setOnLongClickListener {
             if(source!=null) return@setOnLongClickListener true
             original=children()
-            source=item;accepted=false
+            source=item;accepted=false;transferred=false
             handle.parent.requestDisallowInterceptTouchEvent(true)
             active(true)
             prepare(item)
@@ -111,7 +134,7 @@ internal class MobileReorder(
         }
     }
 
-    private fun children()=(0 until container.childCount).map { container.getChildAt(it) }
+    private fun children()=(0 until container.childCount).map { container.getChildAt(it) }.filter { it!==insertionMarker }
 
     private fun move(item: View,position: Float) {
         if(pendingMove) return
@@ -146,24 +169,76 @@ internal class MobileReorder(
      * Lets an item dragged out of another movable list be dropped anywhere on [zone] (a whole group card,
      * so a collapsed or empty group takes it too); [receive] gets its id. The source list then restores its order.
      */
-    fun acceptFrom(zone: View, canReceive: Boolean = true, onDrag: (View, DragEvent) -> Unit = { _, _ -> }, allowSameList: Boolean = false, receive: (Long) -> Unit) {
+    fun acceptFrom(zone: View, canReceive: Boolean = true, onDrag: (View, DragEvent) -> Unit = { _, _ -> }, allowSameList: Boolean = false,
+        positioned: Boolean = false, receive: (Long, Long?) -> Unit) {
         zone.setOnDragListener { _,event ->
             val state=event.localState as? MobileReorder
             if(state==null || (state===this && canReceive && !allowSameList) || !state.movable) false else {
                 onDrag(zone,event)
                 when(event.action) {
-                    DragEvent.ACTION_DRAG_ENTERED -> if(canReceive) zone.animate().alpha(.6f).setDuration(90).start()
-                    DragEvent.ACTION_DRAG_EXITED,DragEvent.ACTION_DRAG_ENDED -> zone.animate().alpha(1f).setDuration(90).start()
-                    DragEvent.ACTION_DRAG_LOCATION -> state.follow(zone,event.x,event.y)
+                    DragEvent.ACTION_DRAG_ENTERED -> if(canReceive) {
+                        if(positioned) previewInsertion(state,zone,event.y)
+                        else zone.animate().alpha(.6f).setDuration(90).start()
+                    }
+                    DragEvent.ACTION_DRAG_EXITED,DragEvent.ACTION_DRAG_ENDED -> {
+                        zone.animate().alpha(1f).setDuration(90).start()
+                        clearInsertion()
+                    }
+                    DragEvent.ACTION_DRAG_LOCATION -> {
+                        state.follow(zone,event.x,event.y)
+                        if(canReceive && positioned) previewInsertion(state,zone,event.y)
+                    }
                     DragEvent.ACTION_DROP -> {
                         zone.animate().alpha(1f).setDuration(90).start()
                         if(!canReceive) return@setOnDragListener false
-                        state.source?.let { state.ids[it] }?.let(receive)
+                        if(positioned) previewInsertion(state,zone,event.y)
+                        val before=if(positioned) incomingBeforeId else null
+                        clearInsertion()
+                        if(!state.transferred) state.draggedId?.let {
+                            state.transferred=true
+                            receive(it,before)
+                        }
                     }
                 }
                 true
             }
         }
+    }
+
+    private fun previewInsertion(state: MobileReorder, zone: View, y: Float) {
+        val location=IntArray(2);zone.getLocationOnScreen(location)
+        incomingSource=state;incomingY=location[1]+y
+        state.container.removeCallbacks(state.scrollStep)
+        updateInsertion()
+        scroll.removeCallbacks(incomingScroll)
+        scroll.postOnAnimation(incomingScroll)
+    }
+
+    private fun updateInsertion() {
+        val moving=incomingSource?.draggedId ?: return
+        val location=IntArray(2);container.getLocationOnScreen(location)
+        val y=incomingY-location[1]
+        val rows=children().filter { ids[it]!=null && ids[it]!=moving }
+        val before=rows.firstOrNull { y<it.top+it.height/2f }
+        val next=before?.let(ids::get)
+        val marker=insertionMarker ?: View(container.context).apply {
+            setBackgroundColor(MobilePalette.accent(context))
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }.also { insertionMarker=it }
+        if(marker.parent===container && incomingBeforeId==next) return
+        (marker.parent as? ViewGroup)?.removeView(marker)
+        incomingBeforeId=next
+        val index=before?.let(container::indexOfChild) ?: rows.lastOrNull()?.let { container.indexOfChild(it)+1 } ?: 0
+        val density=container.resources.displayMetrics.density
+        container.addView(marker,index,LinearLayout.LayoutParams(-1,(2*density).toInt().coerceAtLeast(1)).apply {
+            setMargins((5*density).toInt(),(1*density).toInt(),(5*density).toInt(),(1*density).toInt())
+        })
+    }
+
+    private fun clearInsertion() {
+        scroll.removeCallbacks(incomingScroll)
+        incomingSource=null;incomingBeforeId=null
+        insertionMarker?.let { (it.parent as? ViewGroup)?.removeView(it) }
     }
 
     /** Keeps auto-scroll following the finger while it is over another list. */
@@ -174,13 +249,14 @@ internal class MobileReorder(
         pointer=at[axis]+(if(horizontal) x else y)-mine[axis]
     }
 
-    fun cancel() { finish(false) }
-    fun endDrag(result: Boolean) { finish(accepted && result) }
+    fun cancel() { clearInsertion();finish(false) }
+    fun endDrag(result: Boolean) { finish(accepted && result && !transferred) }
     fun prune() { ids.keys.retainAll(children().toSet()) }
 
     private fun finish(commit: Boolean) {
         val item=source ?: return
         source=null;container.removeCallbacks(scrollStep)
+        clearInsertion()
         container.parent?.requestDisallowInterceptTouchEvent(false)
         val order=children()
         val changed=order!=original
