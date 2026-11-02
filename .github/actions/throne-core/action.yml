@@ -35,7 +35,7 @@ runs:
         path: |
           app/libs/qThroneCore.aar
           app/src/main/assets/schema/sing-box.json
-        key: throne-core-${{ env.THRONE_CORE_REF }}-${{ env.THRONE_CORE_SHA }}-${{ env.THRONE_CORE_SCRIPT_SHA }}-${{ hashFiles('.github/actions/throne-core/action.yml', 'core-dependencies.json', 'scripts/prepare_mobile_core.py', 'scripts/patch_mobile_trusttunnel.py', 'scripts/patch_mobile_socks.py', 'scripts/patch_mobile_xray_socks.py', 'core-patches/xray-socks/*.go', 'core-patches/socks/*.go', 'core-patches/trusttunnel/*.go', 'core-patches/mobile/*.go', 'scripts/patch_mobile_warp.py', 'core-patches/warp/*.go', 'scripts/patch_mobile_obfs.py', 'core-patches/obfs/*.go') }}
+        key: throne-core-${{ env.THRONE_CORE_REF }}-${{ env.THRONE_CORE_SHA }}-${{ env.THRONE_CORE_SCRIPT_SHA }}-${{ hashFiles('.github/actions/throne-core/action.yml', 'core-dependencies.json', 'scripts/prepare_mobile_core.py', 'scripts/patch_mobile_trusttunnel.py', 'scripts/patch_mobile_socks.py', 'scripts/patch_mobile_xray_socks.py', 'core-patches/xray-socks/*.go', 'core-patches/socks/*.go', 'core-patches/trusttunnel/*.go', 'core-patches/mobile/*.go', 'core-patches/resolve/*.go', 'scripts/patch_mobile_warp.py', 'core-patches/warp/*.go', 'scripts/patch_mobile_obfs.py', 'core-patches/obfs/*.go') }}
     - name: Install Golang
       if: steps.cache.outputs.cache-hit != 'true'
       uses: actions/setup-go@v7
@@ -133,6 +133,10 @@ runs:
         unzip -p app/libs/qThroneCore.aar classes.jar > "$RUNNER_TEMP/throne-core-classes.jar"
         unzip -l "$RUNNER_TEMP/throne-core-classes.jar" > "$RUNNER_TEMP/throne-core-classes.txt"
         grep -q 'app/qthrone/core/mobile/Mobile.class' "$RUNNER_TEMP/throne-core-classes.txt"
+        grep -q 'app/qthrone/core/mobile/ResolveRequest.class' "$RUNNER_TEMP/throne-core-classes.txt"
+        javap -classpath "$RUNNER_TEMP/throne-core-classes.jar" app.qthrone.core.mobile.Mobile > "$RUNNER_TEMP/throne-core-api.txt"
+        grep -q 'fetchThroughProxy(' "$RUNNER_TEMP/throne-core-api.txt"
+        grep -q 'resolveDomains(' "$RUNNER_TEMP/throne-core-api.txt"
         grep -q 'go/Seq.class' "$RUNNER_TEMP/throne-core-classes.txt"
         # the APK splits (buildSrc Helpers.kt) must match the core targets
         for abi in arm64-v8a armeabi-v7a x86_64; do
@@ -147,4 +151,4 @@ runs:
         path: |
           app/libs/qThroneCore.aar
           app/src/main/assets/schema/sing-box.json
-        key: throne-core-${{ env.THRONE_CORE_REF }}-${{ env.THRONE_CORE_SHA }}-${{ env.THRONE_CORE_SCRIPT_SHA }}-${{ hashFiles('.github/actions/throne-core/action.yml', 'core-dependencies.json', 'scripts/prepare_mobile_core.py', 'scripts/patch_mobile_trusttunnel.py', 'scripts/patch_mobile_socks.py', 'scripts/patch_mobile_xray_socks.py', 'core-patches/xray-socks/*.go', 'core-patches/socks/*.go', 'core-patches/trusttunnel/*.go', 'core-patches/mobile/*.go', 'scripts/patch_mobile_warp.py', 'core-patches/warp/*.go', 'scripts/patch_mobile_obfs.py', 'core-patches/obfs/*.go') }}
+        key: throne-core-${{ env.THRONE_CORE_REF }}-${{ env.THRONE_CORE_SHA }}-${{ env.THRONE_CORE_SCRIPT_SHA }}-${{ hashFiles('.github/actions/throne-core/action.yml', 'core-dependencies.json', 'scripts/prepare_mobile_core.py', 'scripts/patch_mobile_trusttunnel.py', 'scripts/patch_mobile_socks.py', 'scripts/patch_mobile_xray_socks.py', 'core-patches/xray-socks/*.go', 'core-patches/socks/*.go', 'core-patches/trusttunnel/*.go', 'core-patches/mobile/*.go', 'core-patches/resolve/*.go', 'scripts/patch_mobile_warp.py', 'core-patches/warp/*.go', 'scripts/patch_mobile_obfs.py', 'core-patches/obfs/*.go') }}

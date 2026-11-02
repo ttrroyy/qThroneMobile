@@ -165,7 +165,7 @@ data class SubscriptionOptions(
         fun fromJson(json: JsonObject): SubscriptionOptions {
             val mode = json.int("send_hwid")
             return SubscriptionOptions(
-                routeProfileId = json.long("route_profile_id").takeIf { it > 0 } ?: -1L,
+                routeProfileId = json.integer("route_profile_id").takeIf { it > 0 } ?: -1L,
                 userAgent = json.string("user_agent"),
                 sendHwid = if (mode == SendHwid.ON.value || mode == SendHwid.OFF.value) SendHwid.of(mode)
                 else SendHwid.KEEP_DEFAULT,

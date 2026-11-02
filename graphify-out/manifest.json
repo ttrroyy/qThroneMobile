@@ -714,9 +714,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/database/SubscriptionOptions.kt": {
-    "mtime": 1793633149.0181298,
-    "seen": 1793633860.2463007,
-    "ast_hash": "0469e2efdddbeaa06b6c9f4ff624e0d9",
+    "mtime": 1793635941.221825,
+    "seen": 1793636143.4284658,
+    "ast_hash": "f72374f2589fa764c8febf86080f5358",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/database/backup/BackupEntry.kt": {
@@ -4224,9 +4224,9 @@
     "semantic_hash": ""
   },
   "scripts/patch_mobile_trusttunnel.py": {
-    "mtime": 1793630121.9893198,
-    "seen": 1793631200.2554927,
-    "ast_hash": "73f3278bc6effbb02d6f1fc6d07005d9",
+    "mtime": 1793635941.2228253,
+    "seen": 1793636143.4294682,
+    "ast_hash": "03843e5d1d318d3d1fdb93755699cc97",
     "semantic_hash": ""
   },
   "scripts/patch_mobile_warp.py": {
@@ -4392,9 +4392,9 @@
     "semantic_hash": ""
   },
   ".github/actions/throne-core/action.yml": {
-    "mtime": 1793634416.4469874,
-    "seen": 1793634566.0426483,
-    "ast_hash": "f66dd536f8a4d3dea931fc3c3db039e4",
+    "mtime": 1793635990.4733448,
+    "seen": 1793636143.4294682,
+    "ast_hash": "13836b726cdd6a08676e80242468bbea",
     "semantic_hash": ""
   },
   ".github/workflows/artwork.yml": {
@@ -4458,9 +4458,9 @@
     "semantic_hash": ""
   },
   "RELEASE_NOTES.md": {
-    "mtime": 1793629191.457349,
-    "seen": 1793631200.2554927,
-    "ast_hash": "fd3a2e82ec78465488dbec56d9ba5c08",
+    "mtime": 1793634883.6614337,
+    "seen": 1793636143.4294682,
+    "ast_hash": "a84eeb6efd95dbc7cbd3aaa50465445a",
     "semantic_hash": ""
   },
   "app/src/main/assets/flags/SOURCE.txt": {
@@ -6981,6 +6981,30 @@
     "mtime": 1793633604.0893245,
     "seen": 1793633860.2473528,
     "ast_hash": "c56edc5326cae72142ae07bff8fa1018",
+    "semantic_hash": ""
+  },
+  "core-patches/mobile/api_test.go": {
+    "mtime": 1793635989.6008615,
+    "seen": 1793636143.4294682,
+    "ast_hash": "388b78cc917b89d2f3494de175719237",
+    "semantic_hash": ""
+  },
+  "core-patches/mobile/fetch.go": {
+    "mtime": 1793636102.62595,
+    "seen": 1793636143.4294682,
+    "ast_hash": "f900bbea6f7439f15aa0271cc5e9b1fd",
+    "semantic_hash": ""
+  },
+  "core-patches/mobile/resolve.go": {
+    "mtime": 1793636102.6264708,
+    "seen": 1793636143.4294682,
+    "ast_hash": "5ade323fd770bca626b7db0f978ffeb4",
+    "semantic_hash": ""
+  },
+  "core-patches/resolve/resolve.go": {
+    "mtime": 1793636102.62595,
+    "seen": 1793636143.4294682,
+    "ast_hash": "923235224f8c544d0a8f573eb27ca0c7",
     "semantic_hash": ""
   }
 }
