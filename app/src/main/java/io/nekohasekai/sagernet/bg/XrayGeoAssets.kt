@@ -123,7 +123,7 @@ object XrayGeoAssets {
 
     fun isValidUrl(url: String): Boolean = url.toHttpUrlOrNull() != null
 
-    fun isGeoError(error: String): Boolean = error.contains(GEOIP) || error.contains(GEOSITE)
+    fun isGeoError(error: String): Boolean = error.contains(GEOIP) || error.contains(GEOSITE) || error.contains("provider-geodata/")
 
     /**
      * The data files [xrayConfigs] read: every string, and every object key (`dns.hosts`), that is a geodata rule
@@ -299,6 +299,7 @@ object XrayGeoAssets {
      * that is not installed. Null for any other error.
      */
     fun describeFailure(error: String, contextName: String): String? {
+        if (error.contains("provider-geodata/")) return "$contextName: ошибка геоданных подписки. Проверьте источник геофайлов этой подписки.\n$error"
         val referenced = FILES.filter { error.contains(it) }
         if (referenced.isEmpty()) return null
         // "failed to open <file>" (geodat_loader.go): Xray could not read it at all, installed or not.

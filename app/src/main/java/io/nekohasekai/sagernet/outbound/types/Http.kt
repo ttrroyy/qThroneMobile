@@ -120,5 +120,5 @@ class Http : Outbound("http") {
     }
 
     /** http.cpp:106-109. */
-    override fun displayType(): String = "HTTP"
+    override fun displayType(): String = if (tls.enabled) "HTTPS" else "HTTP"
 }

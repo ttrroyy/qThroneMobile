@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
     <base-config cleartextTrafficPermitted="true"/>
+    <!-- GitHub raw/download redirects use Let's Encrypt; Android before 7.1.1 lacks ISRG Root X1.
+         https://letsencrypt.org/docs/certificate-compatibility/ -->
+    <domain-config>
+        <domain includeSubdomains="true">githubusercontent.com</domain>
+        <trust-anchors>
+            <certificates src="system"/>
+            <certificates src="@raw/isrg_root_x1"/>
+        </trust-anchors>
+    </domain-config>
 </network-security-config>

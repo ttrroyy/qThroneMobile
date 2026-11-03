@@ -67,10 +67,14 @@ object ProviderGeoAssets {
      */
     @Synchronized
     fun xrayConfig(document: JsonObject, config: String): String {
+        val source = if (document.isNotEmpty()) document else JsonObject().apply {
+            this["Geoipurl"] = app.qthrone.mobile.bg.XrayGeoAssets.urlOf("geoip.dat")
+            this["Geositeurl"] = app.qthrone.mobile.bg.XrayGeoAssets.urlOf("geosite.dat")
+        }
         var result = config
         for (kind in listOf("geosite", "geoip")) {
             if (!config.contains("$kind:")) continue
-            val path = download(0, document, kind, false).relativeTo(app.filesDir).invariantSeparatorsPath
+            val path = download(0, source, kind, false).relativeTo(app.filesDir).invariantSeparatorsPath
             val prefix = if (kind == "geoip") "ext-ip:" else "ext:"
             result = result.replace(Regex("\"(!?)$kind:")) { "\"${it.groupValues[1]}$prefix$path:" }
         }

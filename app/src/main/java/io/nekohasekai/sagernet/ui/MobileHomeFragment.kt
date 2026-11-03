@@ -744,7 +744,9 @@ class MobileHomeFragment : ToolbarFragment() {
                 val serverColumn=LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL }
                 val serverScroll=ScrollView(requireContext()).apply {
                     isVerticalScrollBarEnabled=false; isHorizontalScrollBarEnabled=false
-                    clipToPadding=false; addView(serverColumn,FrameLayout.LayoutParams(-1,-2))
+                    clipToPadding=byGroups
+                    if(byGroups) setPadding(0,dp(8),0,0)
+                    addView(serverColumn,FrameLayout.LayoutParams(-1,-2))
                     setOnScrollChangeListener { _, _, y, _, _ ->
                         if(byGroups) groupScrollPositions[renderedGroupId]=y else serverScrollPosition=y
                     }

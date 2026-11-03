@@ -129,11 +129,25 @@ internal class Excluded(@JvmField val profileId: Long, @JvmField val reason: Str
  * server, and failed results feed auto_clear_unavailable.
  */
 internal suspend fun TestSession.screenXrayFullConfigs(profiles: List<ProxyEntity>): List<Excluded> {
-    val candidates = profiles.mapNotNull { profile ->
+    val originals = profiles.mapNotNull { profile ->
         (profile.outbound as? Custom)?.takeIf { it.isXrayFullConfig() }?.let { profile to it }
     }
-    if (candidates.isEmpty() || cancelled) return emptyList()
+    if (originals.isEmpty() || cancelled) return emptyList()
     val excluded = ArrayList<Excluded>()
+    val candidates = withContext(Dispatchers.IO) {
+        val fallback = app.qthrone.mobile.route.ProviderRouting.stored(app.qthrone.mobile.database.RouteManager.current())?.second
+            ?: app.qthrone.mobile.outbound.json.JsonObject()
+        originals.mapNotNull { (profile, _) ->
+            try {
+                profile to (CoreConfigs.prepareOutbound(profile, fallback) as Custom)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                excluded.add(Excluded(profile.id, e.readableMessage, invalid = false))
+                null
+            }
+        }
+    }
     val needs = withContext(Dispatchers.IO) {
         candidates.associate { (profile, custom) -> profile.id to XrayGeoAssets.needed(listOf(custom.config)) }
     }

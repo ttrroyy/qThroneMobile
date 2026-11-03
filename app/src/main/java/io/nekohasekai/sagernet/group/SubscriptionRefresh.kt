@@ -98,7 +98,7 @@ internal object SubscriptionRefresh {
             val needed = XrayGeoAssets.needed(fullConfigs)
             val provider = GroupRepo.get(gid)?.subOptions
             if (provider != null && provider.routingProvider.isNotBlank()) {
-                val document = JsonInput.parseObjectOrNull(provider.providerRouting) ?: JsonObject()
+                val document = app.qthrone.mobile.route.ProviderRouteProfiles.sourceDocument(provider.providerRouting,provider.providerRoutingProfiles)
                 runCatching { ProviderGeoAssets.prepare(gid,document) }.onFailure { SubscriptionQueue.error(gid,it.readableMessage) }
             } else {
             val failures = XrayGeoAssets.ensure(needed)

@@ -24,11 +24,25 @@ import app.qthrone.mobile.route.RouteDns
 object CoreConfigs {
 
     /** Stored profiles by id, each row parsed once per generation. */
-    private class DatabaseProfiles : ProfileProvider {
+    private class DatabaseProfiles(private val geoFallback: app.qthrone.mobile.outbound.json.JsonObject = app.qthrone.mobile.outbound.json.JsonObject()) : ProfileProvider {
         private val cache = HashMap<Long, Outbound?>()
-        override fun get(id: Long): Outbound? = cache.getOrPut(id) { SagerDatabase.proxyDao.getById(id)?.outbound }
-        /** A changed copy of a profile for this generation only; the stored one stays as it is. */
-        fun put(id: Long, outbound: Outbound) { cache[id] = outbound }
+        override fun get(id: Long): Outbound? = cache.getOrPut(id) {
+            SagerDatabase.proxyDao.getById(id)?.let { prepareOutbound(it, geoFallback) }
+        }
+    }
+
+    /** Geo sources belong to the subscription even when its routing switch is off. */
+    fun prepareOutbound(profile: ProxyEntity, fallback: app.qthrone.mobile.outbound.json.JsonObject = app.qthrone.mobile.outbound.json.JsonObject()): Outbound {
+        val outbound = profile.outbound
+        if (outbound !is app.qthrone.mobile.outbound.types.Custom || !outbound.isXrayFullConfig()) return outbound
+        val options = SagerDatabase.groupDao.getById(profile.groupId)?.subOptions
+        val document = options?.takeIf { it.routingProvider.isNotBlank() }?.let {
+            app.qthrone.mobile.route.ProviderRouteProfiles.sourceDocument(it.providerRouting, it.providerRoutingProfiles)
+        }?.takeIf { it.isNotEmpty() } ?: fallback
+        return app.qthrone.mobile.outbound.types.Custom().apply {
+            parseFromJson(outbound.exportToJson())
+            config = app.qthrone.mobile.route.ProviderGeoAssets.xrayConfig(document, config)
+        }
     }
 
     /** [dns]: the routing profile's own DNS, null for the global one; [settings] must be mapped with the same. */
@@ -61,14 +75,9 @@ object CoreConfigs {
         val fullJson = profile.outbound.isXrayFullConfig()
         val providerRouting=app.qthrone.mobile.route.ProviderRouting.stored(route)
         app.qthrone.mobile.route.ProviderGeoAssets.dropInstalledCopies()
-        val profiles = DatabaseProfiles()
+        val profiles = DatabaseProfiles(providerRouting?.second ?: app.qthrone.mobile.outbound.json.JsonObject())
         providerRouting?.let { (_, document) ->
             if (fullJson) {
-                // A fresh copy: the provider's Geo files are this run's, never written into the stored profile.
-                (SagerDatabase.proxyDao.getById(profile.id)?.outbound as? app.qthrone.mobile.outbound.types.Custom)?.let { custom ->
-                    custom.config = app.qthrone.mobile.route.ProviderGeoAssets.xrayConfig(document, custom.config)
-                    profiles.put(profile.id, custom)
-                }
                 val tunnel = app.qthrone.mobile.route.ProviderRouting.settings(document,settings)
                 settings = settings.copy(remoteDns = tunnel.remoteDns, dnsPredefinedRules = tunnel.dnsPredefinedRules, fakeDns = false)
                 routing = SettingsMapper.routingInput(app.qthrone.mobile.route.RouteProfile.defaultProfile())
@@ -99,7 +108,9 @@ object CoreConfigs {
             TestCandidate(id, landing, front)
         }
         val dns = RouteManager.customDns(DataStore.currentRouteId)
-        return generator(settings = SettingsMapper.generatorSettings(dns), dns = dns).buildTest(candidates)
+        val fallback = app.qthrone.mobile.route.ProviderRouting.stored(RouteManager.current())?.second
+            ?: app.qthrone.mobile.outbound.json.JsonObject()
+        return ConfigGenerator(DatabaseProfiles(fallback), SettingsMapper.generatorSettings(dns), SettingsMapper.buildContext(dns)).buildTest(candidates)
     }
 
     /** (landing_proxy_id, front_proxy_id) of a group, -1 when unset (any id <= 0 is "none"). */

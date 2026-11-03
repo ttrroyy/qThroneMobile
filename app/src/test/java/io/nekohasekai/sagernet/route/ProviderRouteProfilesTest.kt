@@ -6,6 +6,13 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ProviderRouteProfilesTest {
+    @Test fun disabledRoutingKeepsTheSubscriptionGeoSource() {
+        val doc=jsonObjectOf("Name" to "Provider", "Geoipurl" to "https://example.org/provider.dat")
+        val saved=JsonArray.of(doc).toCompact()
+        assertEquals(doc,ProviderRouteProfiles.sourceDocument("off",saved))
+        assertEquals(doc,ProviderRouteProfiles.sourceDocument(doc.toCompact(),"[]"))
+        assertTrue(ProviderRouteProfiles.sourceDocument("off","[]").isEmpty())
+    }
     @Test fun viewingOrSavingMetadataDoesNotRequestAProxyRestart() {
         val a=profile()
         val b=ProviderRouteProfiles.tagged(a,"Incy").apply { this["LastUpdated"]=200 }

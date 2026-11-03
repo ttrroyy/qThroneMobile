@@ -5,11 +5,20 @@
         <item name="android:switchStyle">@style/MobilePlatformSwitch</item>
         <item name="textInputStyle">@style/MobileTextInput</item>
         <item name="colorControlActivated">?attr/colorAccent</item>
+        <item name="android:colorControlActivated">?attr/colorAccent</item>
+        <item name="editTextStyle">@style/MobileEditText</item>
+        <item name="android:editTextStyle">@style/MobilePlatformEditText</item>
         <!-- Check boxes share the switch's rounded square; dialogs and menus use the same box. -->
         <item name="checkboxStyle">@style/MobileCheckBox</item>
         <item name="android:checkboxStyle">@style/MobilePlatformCheckBox</item>
         <item name="android:listChoiceIndicatorMultiple">@drawable/mobile_checkbox</item>
         <item name="listChoiceIndicatorMultipleAnimated">@drawable/mobile_checkbox</item>
+    </style>
+    <style name="MobileEditText" parent="Widget.AppCompat.EditText">
+        <item name="android:textCursorDrawable">@drawable/mobile_text_cursor</item>
+    </style>
+    <style name="MobilePlatformEditText" parent="android:Widget.Material.EditText">
+        <item name="android:textCursorDrawable">@drawable/mobile_text_cursor</item>
     </style>
     <style name="MobileCheckBox" parent="Widget.MaterialComponents.CompoundButton.CheckBox">
         <item name="useMaterialThemeColors">false</item>

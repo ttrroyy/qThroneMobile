@@ -47,6 +47,7 @@ object VkRelayPreferences {
                 super.onBindViewHolder(holder)
                 (holder.findViewById(android.R.id.summary) as? android.widget.TextView)?.apply {
                     isSingleLine=false;maxLines=Int.MAX_VALUE;ellipsize=null
+                    setTextColor(MobilePalette.muted)
                 }
                 (holder.findViewById(R.id.vk_unlink) as? ImageButton)?.apply {
                     imageTintList=android.content.res.ColorStateList.valueOf(MobilePalette.accent(context))

@@ -4,6 +4,10 @@ import app.qthrone.mobile.outbound.json.*
 
 /** Keep each provider's original so a later update can split formerly identical choices safely. */
 object ProviderRouteProfiles {
+    fun sourceDocument(selection:String, saved:String):JsonObject =
+        JsonInput.parseObjectOrNull(selection)?.takeIf { it.isNotEmpty() }
+            ?: (JsonInput.parseValue(saved) as? JsonArray)?.filterIsInstance<JsonObject>()?.firstOrNull()
+            ?: JsonObject()
     private const val SOURCE="_qthrone_source"
     private fun canonicalProvider(value:String)=when(value.lowercase()) { "happ" -> "Happ";"incy" -> "Incy";else -> value.ifBlank { "Happ" } }
     fun source(document:JsonObject,fallback:String="Happ") = canonicalProvider(document.string(SOURCE).ifBlank { fallback })
