@@ -42,7 +42,7 @@
 
 | Тип | Протоколы |
 |---|---|
-| Стандартные | VLESS, VMess, Trojan, Shadowsocks, SOCKS, HTTP(S), SSH |
+| Стандартные | VLESS, VMess, Trojan, Shadowsocks, ShadowsocksR, SOCKS, HTTP(S), SSH |
 | QUIC | Hysteria, Hysteria2, TUIC, MASQUE |
 | VPN | WireGuard, AmneziaWG, OpenVPN, OpenConnect, SSTP |
 | Другие прокси | ShadowTLS, NaïveProxy, AnyTLS, Mieru, Snell, Juicity, TrustTunnel |
