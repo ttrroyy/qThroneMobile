@@ -181,7 +181,7 @@ internal class MobileReorder(
                         else zone.animate().alpha(.6f).setDuration(90).start()
                     }
                     DragEvent.ACTION_DRAG_EXITED,DragEvent.ACTION_DRAG_ENDED -> {
-                        zone.animate().alpha(1f).setDuration(90).start()
+                        if(canReceive) zone.animate().alpha(1f).setDuration(90).start()
                         clearInsertion()
                     }
                     DragEvent.ACTION_DRAG_LOCATION -> {
@@ -189,8 +189,8 @@ internal class MobileReorder(
                         if(canReceive && positioned) previewInsertion(state,zone,event.y)
                     }
                     DragEvent.ACTION_DROP -> {
-                        zone.animate().alpha(1f).setDuration(90).start()
                         if(!canReceive) return@setOnDragListener false
+                        zone.animate().alpha(1f).setDuration(90).start()
                         if(positioned) previewInsertion(state,zone,event.y)
                         val before=if(positioned) incomingBeforeId else null
                         clearInsertion()

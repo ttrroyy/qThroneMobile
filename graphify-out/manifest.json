@@ -1770,9 +1770,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/MobileReorder.kt": {
-    "mtime": 1793656604.933138,
-    "seen": 1793679247.6795957,
-    "ast_hash": "1f6c5c47415b3b47dff61ef6e58dc3cb",
+    "mtime": 1793679340.73138,
+    "seen": 1793679352.8563507,
+    "ast_hash": "fa6d1f100e1bd6379852d65e9ff71a87",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/MobileRoutingFragment.kt": {
