@@ -21,6 +21,7 @@ import app.qthrone.mobile.route.ProviderRouting
 import app.qthrone.mobile.bg.XrayGeoAssets
 import app.qthrone.mobile.outbound.types.Custom
 import app.qthrone.mobile.route.ProviderGeoAssets
+import app.qthrone.mobile.route.ProviderRouteProfiles
 import app.qthrone.mobile.outbound.json.JsonInput
 import app.qthrone.mobile.outbound.json.JsonObject
 
@@ -98,7 +99,7 @@ internal object SubscriptionRefresh {
             val needed = XrayGeoAssets.needed(fullConfigs)
             val provider = GroupRepo.get(gid)?.subOptions
             if (provider != null && provider.routingProvider.isNotBlank()) {
-                val document = app.qthrone.mobile.route.ProviderRouteProfiles.sourceDocument(provider.providerRouting,provider.providerRoutingProfiles)
+                val document = ProviderRouteProfiles.sourceDocument(provider.providerRouting,provider.providerRoutingProfiles)
                 runCatching { ProviderGeoAssets.prepare(gid,document) }.onFailure { SubscriptionQueue.error(gid,it.readableMessage) }
             } else {
             val failures = XrayGeoAssets.ensure(needed)

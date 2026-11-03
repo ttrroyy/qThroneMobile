@@ -2,6 +2,7 @@ package app.qthrone.mobile.route
 
 import app.qthrone.mobile.ktx.*
 import app.qthrone.mobile.database.DataStore
+import app.qthrone.mobile.bg.XrayGeoAssets
 import app.qthrone.mobile.outbound.json.JsonObject
 import app.qthrone.core.mobile.Mobile
 import java.io.File
@@ -68,8 +69,8 @@ object ProviderGeoAssets {
     @Synchronized
     fun xrayConfig(document: JsonObject, config: String): String {
         val source = if (document.isNotEmpty()) document else JsonObject().apply {
-            this["Geoipurl"] = app.qthrone.mobile.bg.XrayGeoAssets.urlOf("geoip.dat")
-            this["Geositeurl"] = app.qthrone.mobile.bg.XrayGeoAssets.urlOf("geosite.dat")
+            this["Geoipurl"] = XrayGeoAssets.urlOf("geoip.dat")
+            this["Geositeurl"] = XrayGeoAssets.urlOf("geosite.dat")
         }
         var result = config
         for (kind in listOf("geosite", "geoip")) {

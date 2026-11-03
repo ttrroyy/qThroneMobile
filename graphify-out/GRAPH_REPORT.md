@@ -1,17 +1,17 @@
 # Graph Report - qThroneMobile  (2026-11-03)
 
 ## Corpus Check
-- 764 files · ~1,454,554 words
+- 764 files · ~1,454,558 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 506 file(s) not represented in the graph (top: .xml 480, .aidl 10, (none) 9)
 
 ## Summary
-- 10379 nodes · 28707 edges · 388 communities (214 shown, 174 thin omitted)
+- 10379 nodes · 28709 edges · 388 communities (214 shown, 174 thin omitted)
 - Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 1350 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f31f3e57`
+- Built from commit: `88452465`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
