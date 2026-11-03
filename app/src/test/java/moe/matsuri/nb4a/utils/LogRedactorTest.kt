@@ -5,6 +5,12 @@ import org.junit.Test
 
 class LogRedactorTest {
     private val redactor = LogRedactor(false)
+    @Test fun hidesNestedSecretObjectsWithoutDroppingDiagnosticFields() {
+        val result = redactor.redact("""{"auth":{"token":"private-token","nested":{"password":"private-password"}},"protocol_param":"private-param","status":"connecting"}""")
+        for (secret in listOf("private-token", "private-password", "private-param")) assertFalse(result.contains(secret))
+        assertTrue(result.contains("connecting"))
+        assertTrue(result.contains("<redacted>"))
+    }
     @Test fun hidesSecretArraysAndSsrAuthentication() {
         val result = redactor.redact("""{"secrets":["first-value","second-value"],"protocol_param":"42:auth-value","obfsparam":"hidden-host"}""")
         for (secret in listOf("first-value", "second-value", "auth-value", "hidden-host")) assertFalse(result.contains(secret))

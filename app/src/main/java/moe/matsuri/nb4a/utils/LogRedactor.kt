@@ -11,7 +11,7 @@ class LogRedactor(private val hideDestinations: Boolean) {
         val URL = Regex("""\b([a-zA-Z][a-zA-Z0-9+.\-]*)://([^\s/@"'<>]*@)?([^\s/?#"'<>]+)([^\s"'<>]*)""")
         const val STRING = """"(?:[^"\\]++|\\.)*+""""
         const val ARRAY = """\[(?:[^\[\]"]++|$STRING|\[(?:[^\[\]"]++|$STRING)*+])*+]"""
-        const val OBJECT = """\{(?:[^{}"]++|$STRING|\{(?:[^{}"]++|$STRING)*+})*+}"""
+        const val OBJECT = """\{(?:[^{}"]++|$STRING|\{(?:[^{}"]++|$STRING)*+\})*+\}"""
         val SECRET = Regex(
             """(?i)("?)([\w\-]*(?:password|passwd|pass|secret|token|key|uuid|auth|cookie|username|user_name|login|psk|short_id|proto(?:col)?[_-]?param|obfs[_-]?param)[\w\-]*)\1(\s*[:=]\s*)($STRING|$ARRAY|$OBJECT|[^\s,;&}\]]+)"""
         )

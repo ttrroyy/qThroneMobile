@@ -220,8 +220,8 @@ class MobileHomeFragment : ToolbarFragment() {
         val scroll=groupStripScroll ?: return
         val left=scroll.canScrollHorizontally(-1)
         val right=scroll.canScrollHorizontally(1)
-        groupLeftIndicator?.visibility=if(left) View.VISIBLE else View.INVISIBLE
-        groupRightIndicator?.visibility=if(right) View.VISIBLE else View.INVISIBLE
+        groupLeftIndicator?.alpha=if(left) 1f else .35f
+        groupRightIndicator?.alpha=if(right) 1f else .35f
     }
     private val groupScrollPositions=mutableMapOf<Long,Int>()
     private var renderedGroupId=0L
@@ -710,7 +710,7 @@ class MobileHomeFragment : ToolbarFragment() {
                         imageTintList=android.content.res.ColorStateList.valueOf(blue)
                         rotation=if(left) 180f else 0f
                         scaleType=ImageView.ScaleType.CENTER_INSIDE
-                        visibility=View.INVISIBLE
+                        alpha=.35f
                         importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
                     }
                     groupLeftIndicator=indicator(true)

@@ -45,7 +45,12 @@ object VkRelayPreferences {
         val account = object : Preference(context) {
             override fun onBindViewHolder(holder: PreferenceViewHolder) {
                 super.onBindViewHolder(holder)
-                (holder.findViewById(R.id.vk_unlink) as? ImageButton)?.setOnClickListener { button ->
+                (holder.findViewById(android.R.id.summary) as? android.widget.TextView)?.apply {
+                    isSingleLine=false;maxLines=Int.MAX_VALUE;ellipsize=null
+                }
+                (holder.findViewById(R.id.vk_unlink) as? ImageButton)?.apply {
+                    imageTintList=android.content.res.ColorStateList.valueOf(MobilePalette.accent(context))
+                }?.setOnClickListener { button ->
                     button.isEnabled = false
                     fragment.lifecycleScope.launch {
                         val result = runCatching { VkRelayAccount.unlinkWithManualHashes() }

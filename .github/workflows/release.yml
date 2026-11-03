@@ -77,6 +77,7 @@ jobs:
         run: |
           python3 buildScript/test_release_tag.py
           python3 buildScript/test_release_metadata.py
+          python3 scripts/test_log_redactor_icu.py
       - name: Require pinned compatibility transport
         run: python3 -c "import json; assert 'csqtt_compat' in json.load(open('native-transports.lock.json')), 'Build and pin CSQTT compatibility before releasing'"
       # Public tags use three version components and always increase.

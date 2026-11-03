@@ -40,6 +40,7 @@ jobs:
           python3 buildScript/test_release_tag.py
           python3 buildScript/test_release_metadata.py
           python3 scripts/test_csqtt_compat_archive.py
+          python3 scripts/test_log_redactor_icu.py
       - name: Build
         uses: ./.github/actions/android-build
         with:
