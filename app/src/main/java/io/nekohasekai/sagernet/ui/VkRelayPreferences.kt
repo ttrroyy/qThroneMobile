@@ -84,7 +84,7 @@ object VkRelayPreferences {
                 }
                 if(info.needsRelink) {
                     title = "Подтвердить привязку VK"
-                    summary = "${info.displayName}\nПодтвердить вход в VK"
+                    summary = info.displayName
                     setOnPreferenceClickListener {
                         fragment.startActivity(Intent(context,VkRelayActivity::class.java).putExtra("login",true)); true
                     }

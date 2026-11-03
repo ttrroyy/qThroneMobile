@@ -1,7 +1,7 @@
 # Graph Report - qThroneMobile  (2026-11-03)
 
 ## Corpus Check
-- 763 files · ~1,454,225 words
+- 763 files · ~1,454,196 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 505 file(s) not represented in the graph (top: .xml 479, .aidl 10, (none) 9)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `9d0677c7`
+- Built from commit: `0221eba0`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -1344,7 +1344,7 @@ Nodes (4): ThemedActivity, FragmentLifecycleCallbacks, Interface, UndoSnackbarMa
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `JsonObject` connect `JsonObject` to `ProxyEntity`, `BindingSettingsActivity`, `OpenConnect`, `Custom`, `ThrBackupTest.kt`, `jsonObjectOf`, `ProfileImports.kt`, `.parseObject`, `.check`, `.parse`, `JsonEgressTest.kt`, `DnsServers.kt`, `ProxyEntity`, `CoreSupport`, `.refresh`, `.document`, `SubUserInfo`, `.defaultOutbound`, `TrustTunnel`, `r`, `WireGuard`, `RouteRule`, `GroupSettingsActivity`, `SubscriptionOptions`, `AutoSelectorStatus`, `Qwdtt`, `Direct`, `ProviderGeoAssets`, `.buildMain`, `Sstp`, `LinkCodec`, `Masque`, `AutoSelector`, `OpenFlux`, `RouteProfile`, `ProviderRouting`, `XrayVless`, `.proxies`, `DialFields`, `CarrierBridgeCredentials`, `RouteShare`, `.append`, `Hysteria`, `OpenVpn.kt`, `JsonRelaxations`, `Outbound`, `ThrBackup`, `BackupFragment.kt`, `OutboundFactory`, `AnyTls`, `ShadowTls`, `NativeTransportSettingsActivity.kt`, `.parseObjectOrNull`, `DnsTunnelLinkTest`?**
-  _High betweenness centrality (0.129) - this node is a cross-community bridge._
+  _High betweenness centrality (0.128) - this node is a cross-community bridge._
 - **Are the 5 inferred relationships involving `JsonObject` (e.g. with `NativeTransportSettingsActivity.kt` and `init()`) actually correct?**
   _`JsonObject` has 5 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `Idle`, `Connecting`, `Connected` to the rest of the system?**
@@ -1352,7 +1352,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `ProxyEntity` be split into smaller, more focused modules?**
   _Cohesion score 0.035429141716566866 - nodes in this community are weakly interconnected._
 - **Why does `Logs` connect `ProxyEntity` to `SagerNet`, `Bundle`, `r`, `jsonObjectOf`, `BackupEntry.kt`, `.show`, `DashboardFragment`, `context`, `BackupFragment.kt`, `Utils.kt`, `MainActivity.kt`, `BaseService`, `MessageStore`, `ProxyEntity`, `NativeInterface.kt`?**
-  _High betweenness centrality (0.095) - this node is a cross-community bridge._
+  _High betweenness centrality (0.094) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `ProxyEntity` (e.g. with `.unmeasuredProfilesStayBelowEvenVerySlowWorkingProfiles()` and `.mainScreenUsesTheSameDesktopThresholdsAsProfileRows()`) actually correct?**
   _`ProxyEntity` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **Should `Bundle` be split into smaller, more focused modules?**

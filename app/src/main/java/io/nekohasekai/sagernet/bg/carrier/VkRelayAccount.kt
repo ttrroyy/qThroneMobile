@@ -72,10 +72,7 @@ object VkRelayAccount {
     data class UiInfo(val linked: Boolean,val needsRelink: Boolean,val displayName: String,val hashes: Int)
     fun uiInfo(): UiInfo {
         val session=read()
-        val label = session.optString("name").ifBlank {
-            session.optString("user").takeIf { it.isNotBlank() }?.let { "VK ID: $it" } ?: "Сессия аккаунта VK сохранена"
-        }
-        return UiInfo(linked(),needsRelink(),label,session.optJSONArray("hashes")?.length() ?: 0)
+        return UiInfo(linked(),needsRelink(),session.optString("user"),session.optJSONArray("hashes")?.length() ?: 0)
     }
     fun refreshIdentity() {
         val session = read()

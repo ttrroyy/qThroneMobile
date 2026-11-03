@@ -414,9 +414,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/bg/carrier/VkRelayAccount.kt": {
-    "mtime": 1793679220.498081,
-    "seen": 1793679247.6795957,
-    "ast_hash": "c6a109022734001b0b613be720a619ad",
+    "mtime": 1793679410.6137834,
+    "seen": 1793679428.688287,
+    "ast_hash": "9cc26c0fb809bb985e37effec5910e0c",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/bg/carrier/VkRelayLogin.kt": {
@@ -1986,9 +1986,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/VkRelayPreferences.kt": {
-    "mtime": 1793679164.6077785,
-    "seen": 1793679247.6795957,
-    "ast_hash": "4c7a43ab524e557add8eec383f47a5b7",
+    "mtime": 1793679449.520085,
+    "seen": 1793679461.2321815,
+    "ast_hash": "5699efd4c1e0dffb0f6edcbcdefb9325",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/VkTurnPayload.kt": {
@@ -4458,9 +4458,9 @@
     "semantic_hash": ""
   },
   "RELEASE_NOTES.md": {
-    "mtime": 1793679221.3101878,
-    "seen": 1793679247.6801002,
-    "ast_hash": "4b15b85ea1d323dcd371477a38b8ddab",
+    "mtime": 1793679410.6137834,
+    "seen": 1793679428.6892867,
+    "ast_hash": "3ce741491aac410b63ed2183a2ab2e9f",
     "semantic_hash": ""
   },
   "app/src/main/assets/flags/SOURCE.txt": {
