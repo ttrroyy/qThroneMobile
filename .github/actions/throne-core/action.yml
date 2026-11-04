@@ -89,6 +89,17 @@ runs:
         go install github.com/sagernet/gomobile/cmd/gomobile@v0.1.13
         go install github.com/sagernet/gomobile/cmd/gobind@v0.1.13
         echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+    - name: Verify Android protocol dependencies
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      working-directory: ${{ env.THRONE_DIR }}/core
+      run: |
+        set -euo pipefail
+        TAGS=$(sed -n 's/^TAGS="\(.*\)"$/\1/p' ../script/build_android.sh)
+        test -n "$TAGS"
+        for ARCH in arm64 arm amd64; do
+          GOOS=android GOARCH="$ARCH" CGO_ENABLED=1 go list -mod=readonly -deps -tags "$TAGS" ./mobile > /dev/null
+        done
     - name: Build ThroneCore AAR
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
