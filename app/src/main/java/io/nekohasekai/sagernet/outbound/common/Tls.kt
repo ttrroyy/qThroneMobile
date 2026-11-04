@@ -110,6 +110,7 @@ class UTls {
             obj["enabled"] = true
             obj["fingerprint"] = ctx.utlsFingerprint
         }
+        if (obj.string("fingerprint") == "unsafe") return JsonObject()
         return obj
     }
 }
@@ -394,6 +395,7 @@ class Tls {
         if (q.has("tls_min_version")) min_version = q.value("tls_min_version")
         if (q.has("tls_max_version")) max_version = q.value("tls_max_version")
         if (q.has("tls_cipher_suites")) cipher_suites = QtStrings.split(q.value("tls_cipher_suites"), ",")
+        if (q.has("cs")) cipher_suites = q.valueFully("cs").split(',', ':').map { it.trim() }.filter { it.isNotEmpty() }.toMutableList()
         if (q.has("tls_curve_preferences")) curve_preferences = QtStrings.split(q.value("tls_curve_preferences"), ",")
         if (q.has("tls_certificate")) certificate = QtStrings.split(q.value("tls_certificate"), ",")
         if (q.has("tls_certificate_path")) certificate_path = q.value("tls_certificate_path")

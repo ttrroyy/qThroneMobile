@@ -12,9 +12,9 @@ from pathlib import Path
 
 MODULE = "github.com/xtls/xray-core"
 SOURCE = "github.com/throneproj/xray-core"
-VERSION = "v1.251015.1-0.20261031105708-d672759ff89f"
-SUM = "h1:3JcqewvDEdAPQHVo5hawybIzPRPL6oEEyPWQutA5QlQ="
-MOD_SUM = "h1:V3ZV2lo9eo7BRqns6hBjiOjNty3rH9jCYXQci3vYkp8="
+VERSION = "v1.251015.1-0.20261101081745-1c6eb7771c4d"
+SUM = "h1:PVedMsGJ0xZkJANhPi8w57dcTqyJUHhdcr5abdEiDcY="
+MOD_SUM = "h1:SQ8RYpPoRB/nHiqNfvvmJVQc9wK94NlsTYpPANjhH0s="
 
 
 def replace_once(path: Path, before: str, after: str):
