@@ -25,11 +25,12 @@ import app.rawline.mobile.route.RuleType
 class ConfigGenerator @JvmOverloads constructor(
     private val profiles: ProfileProvider,
     private val settings: GeneratorSettings,
-    private val buildContext: BuildContext = BuildContext.DEFAULT,
+    buildContext: BuildContext = BuildContext.DEFAULT,
     private val routing: RoutingInput = RoutingInput.DEFAULT,
     /** Unix seconds: result freshness and warm-health ages of auto-selector members. */
     private val clock: () -> Long = { System.currentTimeMillis() / 1000 },
 ) {
+    private val buildContext = buildContext.copy(visionUdp443 = settings.enableWarp && settings.warpMode == "masque")
 
     /**
      * The config for the started profile [profileId]; [landingProxyId] becomes the exit and [frontProxyId] the

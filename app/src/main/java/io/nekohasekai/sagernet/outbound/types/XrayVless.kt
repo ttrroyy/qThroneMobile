@@ -123,7 +123,7 @@ class XrayVless : Outbound("xrayvless") {
     override fun buildXray(ctx: BuildContext): BuildResult {
         val obj = JsonObject()
         obj["protocol"] = "vless"
-        obj["settings"] = settingsJson()
+        obj["settings"] = settingsJson(ctx)
         val streamObj = streamSetting.build(ctx)
         if (streamObj.isNotEmpty()) obj["streamSettings"] = streamObj
         val muxObj = multiplex.build(ctx)
@@ -132,13 +132,13 @@ class XrayVless : Outbound("xrayvless") {
     }
 
     /** xrayVless.cpp:74-79 / 96-101: address, port, id and encryption always; flow unless empty or "none". */
-    private fun settingsJson(): JsonObject {
+    private fun settingsJson(ctx: BuildContext? = null): JsonObject {
         val settings = JsonObject()
         settings["address"] = server
         settings["port"] = serverPort
         settings["id"] = uuid
         settings["encryption"] = encryption
-        if (flow.isNotEmpty() && flow != "none") settings["flow"] = flow
+        if (flow.isNotEmpty() && flow != "none") settings["flow"] = if (ctx?.visionUdp443 == true && flow == "xtls-rprx-vision") "$flow-udp443" else flow
         return settings
     }
 

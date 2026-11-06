@@ -33,6 +33,19 @@ class NativeWarpChainTest {
         assertEquals(before,profile.exportToJson().toCompact())
     }
 
+    @Test fun masqueReachesUdp443ThroughVision() {
+        fun flow(mode:String):String {
+            val profile=app.rawline.mobile.outbound.types.XrayVless().apply {
+                server="192.0.2.1";serverPort=443;uuid="00000000-0000-0000-0000-000000000001";flow="xtls-rprx-vision"
+            }
+            val result=ConfigGenerator(ProfileProvider { if(it==1L) profile else null },settings.copy(warpMode=mode)).build(1)
+            assertNull(result.error)
+            return result.xrayConfig.orEmpty().let { Regex("xtls-rprx-vision[-a-z0-9]*").find(it)?.value.orEmpty() }
+        }
+        assertEquals("xtls-rprx-vision-udp443",flow("masque"))
+        assertEquals("xtls-rprx-vision",flow("wireguard"))
+    }
+
     @Test fun wireGuardAndMasqueKeepTheAuthenticatedNativeEntry() {
         val links=listOf(
             "qwdtt://config?peer=192.0.2.1%3A56002&pass=fixture&hashes=demo_hash_123456789",

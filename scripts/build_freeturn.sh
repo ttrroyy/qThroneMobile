@@ -23,7 +23,7 @@ export CC="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/${CLANG}2
 OUT="$ROOT/deployment/freeturn/$ABI"
 mkdir -p "$OUT"
 (cd "$SOURCE/cmd/rawline"; go build -mod=mod -trimpath -buildvcs=false -buildmode=pie \
-  -ldflags='-s -w -linkmode=external -extldflags=-Wl,-z,max-page-size=16384' -o "$OUT/libfreeturn.so" .)
+  -ldflags='-s -w -checklinkname=0 -linkmode=external -extldflags=-Wl,-z,max-page-size=16384' -o "$OUT/libfreeturn.so" .)
 "$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf" -h "$OUT/libfreeturn.so" | grep -q 'Type:.*DYN'
 cp "$SOURCE/LICENSE" "$OUT/FreeTurn-LICENSE"
 python3 - "$ABI" "$OUT" "$FREETURN" <<'PY'
