@@ -2,7 +2,6 @@ package app.qthrone.mobile.ui
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.text.InputType
 import android.view.Gravity
@@ -101,15 +100,13 @@ class ProviderRouteActivity : ServerScreenActivity() {
         val parts = ArrayList<TextView>()
         fun paint(active: Int) = parts.forEachIndexed { index, part ->
             val on = index == active
-            part.setTextColor(if (on) MobilePalette.background else MobilePalette.text)
-            part.background = GradientDrawable().apply {
-                cornerRadius = ui.dp(5).toFloat(); setColor(if (on) ui.accent else MobilePalette.surface); setStroke(1, MobilePalette.outline)
-            }
+            part.background = if (on) MobilePalette.selectedShape(this@ProviderRouteActivity) else MobilePalette.rowShape(this@ProviderRouteActivity)
+            MobileFeedback.apply(part)
         }
         labels.forEachIndexed { index, label ->
             val part = ui.text(label, 15f, bold = true).apply {
                 gravity = Gravity.CENTER; minimumHeight = ui.dp(42); isFocusable = true
-                setOnClickListener { paint(index); choose(index) }; MobileFeedback.apply(this)
+                setOnClickListener { paint(index); choose(index) }
             }
             parts.add(part)
             addView(part, LinearLayout.LayoutParams(0, -2, 1f).apply { if (index > 0) marginStart = ui.dp(8) })

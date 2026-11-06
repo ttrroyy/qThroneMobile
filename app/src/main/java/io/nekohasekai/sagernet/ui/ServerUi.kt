@@ -64,12 +64,8 @@ internal class ServerUi(private val context: Context) {
         setTypeface(null, Typeface.BOLD)
         setPadding(dp(12), dp(8), dp(12), dp(8))
         val color = if (danger) android.graphics.Color.rgb(232, 120, 112) else accent
-        setTextColor(if (primary) android.graphics.Color.BLACK else color)
-        background = GradientDrawable().apply {
-            cornerRadius = dp(5).toFloat()
-            setColor(if (primary) color else MobilePalette.surface)
-            setStroke(1, MobilePalette.outline)
-        }
+        setTextColor(if (primary) MobilePalette.text else color)
+        background = if (primary) MobilePalette.selectedShape(context, color) else MobilePalette.rowShape(context)
         isFocusable = true; setOnClickListener { click() }; MobileFeedback.apply(this)
     }
 

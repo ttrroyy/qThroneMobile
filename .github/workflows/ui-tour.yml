@@ -1,0 +1,101 @@
+name: qThroneMobile UI tour
+run-name: qThroneMobile UI tour
+on:
+  workflow_dispatch:
+    inputs:
+      build_run:
+        description: Successful CI run containing the debug APK
+        required: true
+        default: '38137800988'
+      locale:
+        description: App language for the pictures
+        default: en
+      screens:
+        description: Last screen number
+        default: '43'
+      artifact_name:
+        description: APK artifact to test (debug or signed release)
+        required: true
+        default: qThroneMobile-debug
+permissions:
+  contents: read
+  actions: read
+jobs:
+  tour:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: preview-apk
+          run-id: ${{ inputs.build_run }}
+          github-token: ${{ github.token }}
+      - name: Prepare isolated Android emulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          trap 'tail -n 100 "$RUNNER_TEMP/emulator.log" 2>/dev/null || true' EXIT
+          export ANDROID_USER_HOME="$RUNNER_TEMP/qthrone-android"
+          export ANDROID_AVD_HOME="$ANDROID_USER_HOME/avd"
+          mkdir -p "$ANDROID_AVD_HOME"
+          SDK="$ANDROID_HOME/cmdline-tools/latest/bin"
+          yes | "$SDK/sdkmanager" 'system-images;android-35;google_apis;x86_64' 'emulator' 'platform-tools' > /dev/null || test -d "$ANDROID_HOME/system-images/android-35/google_apis/x86_64"
+          "$SDK/avdmanager" create avd -n qthrone-preview -k 'system-images;android-35;google_apis;x86_64' --device pixel_6 --path "$ANDROID_AVD_HOME/qthrone-preview.avd" --force
+          test -f "$ANDROID_AVD_HOME/qthrone-preview.ini"
+          "$ANDROID_HOME/emulator/emulator" -list-avds | grep -Fx qthrone-preview
+          if test -e /dev/kvm; then sudo chmod a+rw /dev/kvm; fi
+          "$ANDROID_HOME/emulator/emulator" -avd qthrone-preview -no-window -no-audio -no-snapshot -no-boot-anim -gpu swiftshader_indirect > "$RUNNER_TEMP/emulator.log" 2>&1 &
+          timeout 180 "$ANDROID_HOME/platform-tools/adb" wait-for-device
+          for attempt in $(seq 1 180); do
+            if test "$("$ANDROID_HOME/platform-tools/adb" shell getprop sys.boot_completed | tr -d '\r')" = 1; then break; fi
+            sleep 3
+          done
+          test "$("$ANDROID_HOME/platform-tools/adb" shell getprop sys.boot_completed | tr -d '\r')" = 1
+          "$ANDROID_HOME/platform-tools/adb" shell input keyevent 82
+          "$ANDROID_HOME/platform-tools/adb" shell settings put global window_animation_scale 0
+          "$ANDROID_HOME/platform-tools/adb" shell settings put global transition_animation_scale 0
+          "$ANDROID_HOME/platform-tools/adb" shell settings put global animator_duration_scale 1
+          sleep 30
+          APK=$(find preview-apk -name '*x86_64*.apk' -print -quit)
+          test -n "$APK"
+          test "$("$ANDROID_HOME/platform-tools/adb" shell getprop ro.product.cpu.abi | tr -d '\r')" = x86_64
+          "$ANDROID_HOME/platform-tools/adb" install "$APK"
+          UNIVERSAL=$(find preview-apk -name '*universal*.apk' -print -quit)
+          test -n "$UNIVERSAL"
+          "$ANDROID_HOME/platform-tools/adb" install -r "$UNIVERSAL"
+          mkdir -p ui-screenshots
+          printf '%s\n' "PASS: ABI APK installed, universal APK installed over it with the same signature" > ui-screenshots/universal-install-result.txt
+          PACKAGE=$("$ANDROID_HOME/platform-tools/adb" shell pm list packages | sed -n 's/^package:\(app.qthrone.mobile[^[:space:]]*\).*/\1/p' | tr -d '\r')
+          test -n "$PACKAGE"
+          "$ANDROID_HOME/platform-tools/adb" shell dumpsys package "$PACKAGE" | grep -F 'primaryCpuAbi=x86_64'
+      - name: Download UI tour test
+        uses: actions/download-artifact@v8
+        with:
+          name: qThroneMobile-security-tests
+          path: ui-regression-apk
+          run-id: ${{ inputs.build_run }}
+          github-token: ${{ github.token }}
+      - name: Photograph every screen
+        shell: bash
+        run: |
+          ADB="$ANDROID_HOME/platform-tools/adb"
+          "$ADB" install "$(find ui-regression-apk -name '*.apk' -print -quit)"
+          TEST_PACKAGE=$("$ADB" shell pm list packages | sed -n 's/^package:\(app.qthrone.mobile[^[:space:]]*\.test\).*//p' | tr -d '')
+          PACKAGE=${TEST_PACKAGE%.test}
+          "$ADB" shell cmd locale set-app-locales "$PACKAGE" --locales ${{ inputs.locale }} || true
+          mkdir -p ui-tour
+          for N in $(seq 0 ${{ inputs.screens }}); do
+            "$ADB" shell am instrument -w -e class app.qthrone.mobile.UiTourTest -e screen "$N" "$TEST_PACKAGE/androidx.test.runner.AndroidJUnitRunner" | tail -3 | tr -d '' | sed "s/^/$N: /" >> ui-tour/results.txt || true
+          done
+          for IMAGE in $("$ADB" shell run-as "$PACKAGE" ls files | tr -d '' | grep '^tour-'); do
+            "$ADB" exec-out run-as "$PACKAGE" cat "files/$IMAGE" > "ui-tour/$IMAGE"
+          done
+          "$ADB" logcat -d -b crash > ui-tour/crashes.txt || true
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: qThroneMobile-ui-tour
+          path: ui-tour/
+          if-no-files-found: error

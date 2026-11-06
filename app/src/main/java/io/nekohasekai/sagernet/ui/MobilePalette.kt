@@ -22,6 +22,11 @@ object MobilePalette {
     fun rowShape(context: Context) = shape(context, 5)
     /** A card that holds rows, fields or text: also the dialogs, notices and sheets. */
     fun cardShape(context: Context) = shape(context, 12)
+    /** The chosen row or the main action: a tint and an outline of [color], never a solid fill, the same on every theme. */
+    fun selectedShape(context: Context, color: Int = accent(context)) = shape(context, 5).apply {
+        setColor(androidx.core.graphics.ColorUtils.blendARGB(surface, color, .16f))
+        setStroke((context.resources.displayMetrics.density).toInt().coerceAtLeast(1), color)
+    }
     private fun shape(context: Context, radius: Int) = android.graphics.drawable.GradientDrawable().apply {
         setColor(surface); cornerRadius = radius * context.resources.displayMetrics.density; setStroke(1, outline)
     }
