@@ -103,6 +103,12 @@ object VkRelayAccount {
             val db = SagerDatabase.instance
             db.runInTransaction {
                 for(profile in SagerDatabase.proxyDao.getAll()) {
+                    (profile.outbound as? app.rawline.mobile.outbound.types.Freeturn)?.let { freeturn ->
+                        freeturn.hashSource = "manual"
+                        profile.putOutbound(freeturn)
+                        SagerDatabase.proxyDao.updateOutbound(profile.id,profile.type,profile.name,profile.outboundJson)
+                        groups.add(profile.groupId)
+                    }
                     val outbound = profile.outbound as? Qwdtt ?: continue
                     outbound.hashSource = "manual"
                     outbound.hashSourceChosen = true

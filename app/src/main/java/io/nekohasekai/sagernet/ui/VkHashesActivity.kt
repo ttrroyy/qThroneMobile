@@ -202,10 +202,10 @@ class VkHashesActivity : ServerScreenActivity() {
         if (busy || selected.isEmpty()) return
         lifecycleScope.launch {
             val profiles = withContext(Dispatchers.IO) {
-                SagerDatabase.proxyDao.getAll().filter { it.outbound is Qwdtt }.sortedBy { it.displayName().lowercase() }
+                SagerDatabase.proxyDao.getAll().filter { it.outbound is Qwdtt || it.outbound is app.rawline.mobile.outbound.types.Freeturn }.sortedBy { it.displayName().lowercase() }
             }
             if (profiles.isEmpty()) {
-                Toast.makeText(this@VkHashesActivity, "Нет профилей qWDTT, CSQTT или WDTT Plus", Toast.LENGTH_LONG).show(); return@launch
+                Toast.makeText(this@VkHashesActivity, "Нет профилей qWDTT, CSQTT, WDTT Plus или FreeTurn", Toast.LENGTH_LONG).show(); return@launch
             }
             val picked = BooleanArray(profiles.size)
             MobileAlertDialogBuilder(this@VkHashesActivity).setTitle("Применить к профилям")
@@ -220,6 +220,11 @@ class VkHashesActivity : ServerScreenActivity() {
                     lifecycleScope.launch {
                         withContext(Dispatchers.IO) {
                             ProfileManager.updateProfile(targets.map { profile ->
+                                (profile.outbound as? app.rawline.mobile.outbound.types.Freeturn)?.let { freeturn ->
+                                    freeturn.links = selected.joinToString("\n") { app.rawline.mobile.outbound.types.Freeturn.CALL_LINK + it }
+                                    freeturn.hashSource = "manual"
+                                    return@map profile.putOutbound(freeturn)
+                                }
                                 val outbound = profile.outbound as Qwdtt
                                 // The profile editors' slots: CSQTT has six, the others four.
                                 outbound.hashes = selected.take(if (outbound.type == "csqtt") 6 else 4)

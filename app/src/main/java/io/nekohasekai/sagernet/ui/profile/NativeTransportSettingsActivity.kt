@@ -154,7 +154,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "masterdns","cottendns" -> listOf("name","domain","mkey","encryption","cotten.configPreset","resolvers","options")
             "soar" -> listOf("name","domain","pubkey","resolvers","soar.discovery","soar.country")
             "sstp" -> listOf("name","server","server_port","username","password","sni","allow_insecure","use_server_dns")
-            "freeturn" -> listOf("name","server","server_port","provider","links","wg_config","tunnel_mode","bond","relay_transport","threads","streams_per_cred",
+            "freeturn" -> listOf("name","server","server_port","provider","hash_source","links","wg_config","tunnel_mode","bond","relay_transport","threads","streams_per_cred",
                 "obf_profile","obf_key","obf_timing","client_id","dns_mode","dns_servers","manual_captcha","turn_host")
             "openfluxkey" -> listOf("name","transport","doc_url","key_token","e2e_encryption")
             "s3bypass" -> listOf("name") + listOf("endpoint","region","bucket","prefix","sessionsDir","accessKey","secretKey").map { "storage.$it" } +
@@ -292,7 +292,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "keep_alive_interval" to "Keepalive QUIC, мс", "mkey" to "Ключ шифрования", "encryption" to "Шифрование", "configPreset" to "Пресет CottenDNS",
             "discovery" to "Искать рабочие резолверы страны", "country" to "Страна сети",
             "use_server_dns" to getString(R.string.sstp_use_server_dns),
-            "links" to "Ссылки на звонки VK", "wg_config" to "Конфигурация WireGuard или AmneziaWG", "tunnel_mode" to "Режим",
+            "links" to "Ссылки на звонки VK", "wg_config" to "Конфигурация WireGuard или AmneziaWG (пусто: свой VPN-профиль в цепочке)", "tunnel_mode" to "Режим",
             "bond" to "Объединять сессии (bond)", "relay_transport" to "Транспорт до TURN", "threads" to "Потоки", "streams_per_cred" to "Потоков на учётку",
             "obf_profile" to "Обфускация", "obf_key" to "Ключ обфускации (64 HEX)", "obf_timing" to "Задержка обфускации, мс", "client_id" to "Client ID",
             "dns_mode" to "DNS клиента", "dns_servers" to "DNS-серверы клиента", "manual_captcha" to "Ручная капча", "turn_host" to "TURN-сервер (необязательно)",
@@ -407,7 +407,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
                     setOnPreferenceChangeListener { _, next -> DataStore.profileCacheStore.putString(cache(path), next.toString()); true }
                 }
                 choices.containsKey(key) || key=="workers" -> SimpleMenuPreference(requireContext()).apply {
-                    if(key == "hash_source") optionEnabled = { index -> index != 1 || (editingOutbound.type in listOf("qwdtt","csqtt","wdttplus") && app.rawline.mobile.bg.carrier.VkRelayAccount.linked() && !app.rawline.mobile.bg.carrier.VkRelayAccount.needsRelink()) }
+                    if(key == "hash_source") optionEnabled = { index -> index != 1 || (editingOutbound.type in listOf("qwdtt","csqtt","wdttplus","freeturn") && app.rawline.mobile.bg.carrier.VkRelayAccount.linked() && !app.rawline.mobile.bg.carrier.VkRelayAccount.needsRelink()) }
                     entryValues = (choices[key] ?: listOf("9")).toTypedArray()
                     entries = (captions[key] ?: choices[key] ?: listOf("9")).toTypedArray()
                     this.value=DataStore.profileCacheStore.getString(cache(path))
@@ -470,7 +470,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             preference.setOnPreferenceChangeListener { _, next ->
                 // A full VK call link pasted into a hash field keeps only its hash, as in the original apps.
                 val text=if(path.startsWith("hash_") && path!="hash_source") VkCallHash.strip(next.toString()) else next.toString()
-                if(key == "hash_source" && text == "auto" && (editingOutbound.type !in listOf("qwdtt","csqtt","wdttplus") || !app.rawline.mobile.bg.carrier.VkRelayAccount.linked() || app.rawline.mobile.bg.carrier.VkRelayAccount.needsRelink())) return@setOnPreferenceChangeListener false
+                if(key == "hash_source" && text == "auto" && (editingOutbound.type !in listOf("qwdtt","csqtt","wdttplus","freeturn") || !app.rawline.mobile.bg.carrier.VkRelayAccount.linked() || app.rawline.mobile.bg.carrier.VkRelayAccount.needsRelink())) return@setOnPreferenceChangeListener false
                 val range=optionLimits[path.removePrefix("options.")]
                 if(value is Number && text.toLongOrNull()==null) return@setOnPreferenceChangeListener false
                 if(value is JsonObject && text.isNotBlank() && JsonInput.parseObjectOrNull(text)==null) return@setOnPreferenceChangeListener false

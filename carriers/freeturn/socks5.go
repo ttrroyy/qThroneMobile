@@ -132,6 +132,10 @@ func (p *SOCKSProxy) socksConnect(c net.Conn, br *bufio.Reader, host string, por
 		bridge(c, br, remote)
 		return
 	}
+	if p.vn.stack == nil {
+		_, _ = c.Write(socksReply(0x07, nil, 0))
+		return
+	}
 	ip, err := p.vn.lookupIP(host)
 	if err != nil {
 		p.logf("socks resolve %q: %v", host, err)
@@ -283,11 +287,22 @@ func (a *udpAssoc) getFlow(key string, ip net.IP, port int) (*udpFlow, error) {
 	}
 	a.mu.Unlock()
 
-	conn, err := a.p.vn.dialUDP(ip, port)
-	if err != nil {
-		return nil, err
+	f := &udpFlow{}
+	var conn net.Conn
+	if a.p.vn.forwardUDP != "" {
+		forwarded, err := net.Dial("udp", a.p.vn.forwardUDP)
+		if err != nil {
+			return nil, err
+		}
+		conn = forwarded
+	} else {
+		tunneled, err := a.p.vn.dialUDP(ip, port)
+		if err != nil {
+			return nil, err
+		}
+		conn = tunneled
 	}
-	f := &udpFlow{conn: conn}
+	f.conn = conn
 	a.mu.Lock()
 	if a.flow == nil {
 		a.mu.Unlock()

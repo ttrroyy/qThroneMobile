@@ -22,6 +22,8 @@ class Freeturn : Outbound("freeturn"), NativeCarrier {
     override val carrierKind get() = if (tunnelMode == "tcp") CarrierKind.FREETURN_TCP else CarrierKind.FREETURN
 
     @JvmField var provider = "vk"
+    /** "auto": the linked VK account's call, made when connecting; "manual": the links below. */
+    @JvmField var hashSource = "manual"
     @JvmField var links = ""
     @JvmField var threads = DEFAULT_THREADS
     @JvmField var streamsPerCred = DEFAULT_THREADS
@@ -47,7 +49,17 @@ class Freeturn : Outbound("freeturn"), NativeCarrier {
     override fun displayType() = "FreeTurn (" + (if (provider == "direct") "Direct" else "VK") + ")"
     override fun displayAddress(): String = Hosts.displayAddress(server, serverPort)
 
-    private fun linkList() = links.split('\n', ',').map { it.trim() }.filter { it.isNotEmpty() }
+    /** A bare hash from the hash screen is a call link too. */
+    private fun linkList() = links.split('\n', ',').map { it.trim() }.filter { it.isNotEmpty() }.map { if ('/' in it) it else CALL_LINK + it }
+
+    /** A launch-only copy, as for qWDTT: account calls stay out of stored profiles, exports and subscriptions. */
+    fun withCalls(hashes: List<String>): Freeturn {
+        val copy = Freeturn()
+        check(copy.parseFromJson(exportToJson()))
+        copy.links = hashes.joinToString("\n") { CALL_LINK + it }
+        copy.hashSource = "manual"
+        return copy
+    }
 
     private fun isValid() = server.isNotEmpty() && Hosts.normalizeHost(server, false) != null && serverPort in 1..65535 &&
         provider in listOf("vk", "direct") && relayTransport in listOf("tcp", "udp") && tunnelMode in listOf("udp", "tcp") &&
@@ -61,6 +73,8 @@ class Freeturn : Outbound("freeturn"), NativeCarrier {
         serverPort = if (obj.contains("server_port")) obj.int("server_port") else 56000
         provider = obj.string("provider").ifEmpty { "vk" }
         links = obj.string("links").trim()
+        // A link without a call takes one from the account: the call is each client's own, the server's link never holds it.
+        hashSource = obj.string("hash_source").ifEmpty { if (links.isEmpty() && provider != "direct") "auto" else "manual" }
         threads = if (obj.contains("threads")) obj.int("threads") else DEFAULT_THREADS
         streamsPerCred = if (obj.contains("streams_per_cred")) obj.int("streams_per_cred") else DEFAULT_THREADS
         relayTransport = obj.string("relay_transport").ifEmpty { "tcp" }
@@ -99,7 +113,7 @@ class Freeturn : Outbound("freeturn"), NativeCarrier {
     }
 
     override fun exportToJson(): JsonObject = jsonObjectOf("type" to "freeturn", "name" to name, "server" to server, "server_port" to serverPort,
-        "provider" to provider, "links" to links, "threads" to threads, "streams_per_cred" to streamsPerCred, "relay_transport" to relayTransport,
+        "provider" to provider, "hash_source" to hashSource, "links" to links, "threads" to threads, "streams_per_cred" to streamsPerCred, "relay_transport" to relayTransport,
         "tunnel_mode" to tunnelMode, "bond" to bond, "obf_profile" to obfProfile, "obf_key" to obfKey, "obf_timing" to obfTiming, "client_id" to clientId,
         "dns_mode" to dnsMode, "dns_servers" to dnsServers, "manual_captcha" to manualCaptcha, "turn_host" to turnHost, "wg_config" to wgConfig).also { obj ->
         kcp?.let { obj["kcp"] = it }
@@ -129,10 +143,10 @@ class Freeturn : Outbound("freeturn"), NativeCarrier {
     /** config.ClientJSON of the core: its decoder refuses unknown fields, so only these reach it. */
     override fun privateConfig(port: Int, udpPort: Int, credentials: CarrierBridgeCredentials): JsonObject {
         require(isValid()) { "Проверьте параметры профиля FreeTurn" }
-        require(provider == "direct" || linkList().isNotEmpty()) { "Добавьте ссылку на звонок VK в профиль" }
-        // Without its own WireGuard configuration a UDP profile has nothing to carry.
-        require(tunnelMode == "tcp" || wgConfig.contains("[Interface]", true)) { "Добавьте конфигурацию WireGuard или AmneziaWG" }
+        require(provider == "direct" || hashSource == "auto" || linkList().isNotEmpty()) { "Добавьте ссылку на звонок VK в профиль" }
+        require(wgConfig.isEmpty() || wgConfig.contains("[Interface]", true)) { "Проверьте конфигурацию WireGuard или AmneziaWG" }
         val tcp = tunnelMode == "tcp"
+        val tunnel = !tcp && wgConfig.isNotEmpty()
         val core = jsonObjectOf("peer" to Hosts.displayAddress(server, serverPort), "clientId" to clientId, "subUrl" to "", "provider" to provider, "routes" to false,
             "turn" to jsonObjectOf("n" to if (provider == "direct") 1 else threads.takeIf { it > 0 } ?: DEFAULT_THREADS, "transport" to relayTransport, "host" to turnHost, "port" to ""),
             "proxy" to jsonObjectOf("mode" to tunnelMode, "listen" to Hosts.displayAddress("127.0.0.1", udpPort)).also { if (tcp && bond) it["bond"] = true },
@@ -141,7 +155,7 @@ class Freeturn : Outbound("freeturn"), NativeCarrier {
             "obf" to jsonObjectOf("profile" to obfProfile, "key" to if (obfProfile == "none") "" else obfKey, "timingMs" to if (obfProfile == "none") 0 else obfTiming),
             "dns" to jsonObjectOf("mode" to dnsMode, "servers" to JsonArray.of(*dnsServers.split(',').map { it.trim() }.filter { it.isNotEmpty() }.toTypedArray())),
             "log" to jsonObjectOf("debug" to false),
-            "tunnel" to jsonObjectOf("mode" to if (tcp) "none" else "awg", "config" to if (tcp) "" else wgConfig, "mtu" to WG_MTU))
+            "tunnel" to jsonObjectOf("mode" to if (tunnel) "awg" else "none", "config" to if (tunnel) wgConfig else "", "mtu" to WG_MTU))
         if (tcp) kcp?.let { core["kcp"] = it }
         val state = java.io.File(app.rawline.mobile.ktx.app.noBackupFilesDir, "freeturn")
         return jsonObjectOf("core" to core, "state_dir" to state.absolutePath, "socks" to Hosts.displayAddress("127.0.0.1", port),
@@ -150,6 +164,7 @@ class Freeturn : Outbound("freeturn"), NativeCarrier {
 
     companion object {
         const val SCHEME = "freeturn://"
+        const val CALL_LINK = "https://vk.com/call/join/"
         const val DEFAULT_THREADS = 12
         // WireGuard goes over TURN: the original's constant, the server keeps the same value.
         const val WG_MTU = 1280

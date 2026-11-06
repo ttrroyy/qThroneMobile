@@ -24,7 +24,10 @@ class CarrierPlan private constructor(
             val identity=(profile as app.rawline.mobile.outbound.Outbound).exportToJson().also { it.remove("name");it.remove("tag") }.toCompact()
             val key=java.security.MessageDigest.getInstance("SHA-256").digest(identity.toByteArray()).joinToString("") { "%02x".format(it.toInt() and 255) }
             CarrierPool.activePlan(key)?.let { return it }
-            val runtimeProfile = if(profile is Qwdtt && withAccount) NativeHashPolicy.runtimeProfile(profile, VkRelayAccount.selectedHashes(VkRelayAccount.selectionKey(profile.type,profile.server,profile.serverPort)), { VkRelayAccount.hashes(it, interactive) }) { VkRelayAccount.tokenForCalls(interactive) } else profile
+            val runtimeProfile = if(profile is Qwdtt && withAccount) NativeHashPolicy.runtimeProfile(profile, VkRelayAccount.selectedHashes(VkRelayAccount.selectionKey(profile.type,profile.server,profile.serverPort)), { VkRelayAccount.hashes(it, interactive) }) { VkRelayAccount.tokenForCalls(interactive) }
+                else if(profile is app.rawline.mobile.outbound.types.Freeturn && withAccount && profile.provider!="direct" && profile.hashSource=="auto")
+                    profile.withCalls(VkRelayAccount.selectedHashes(VkRelayAccount.selectionKey(profile.type,profile.server,profile.serverPort)).ifEmpty { VkRelayAccount.hashes(1,interactive) })
+                else profile
             val loopback=InetAddress.getByName("127.0.0.1")
             val credentials=CarrierBridgeCredentials.fresh()
             return ServerSocket(0,1,loopback).use { tcp -> DatagramSocket(0,loopback).use { udp ->

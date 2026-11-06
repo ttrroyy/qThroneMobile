@@ -25,6 +25,14 @@ func (vn *virtualNet) lookupIP(host string) (net.IP, error) {
 		}
 		return ip, nil
 	}
+	if vn.stack == nil {
+		// No tunnel to ask through: this only names the peer the relay carries the packets to.
+		addresses, err := net.LookupIP(host)
+		if err != nil || len(addresses) == 0 {
+			return nil, fmt.Errorf("resolve %s: %v", host, err)
+		}
+		return addresses[0], nil
+	}
 	var v4, v6 []net.IP
 	for _, srv := range vn.dns {
 		if srv.To4() != nil {

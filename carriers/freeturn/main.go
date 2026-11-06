@@ -203,11 +203,13 @@ func main() {
 		}
 		deps.LocalPipe = relaySide
 	} else {
-		if cfg.Proxy.Mode != config.ProxyModeTCP {
-			fatal("a WireGuard or AmneziaWG configuration is required in UDP mode")
+		// Without a built-in tunnel the relay is a plain forward to the server's VPN, as for the original's external client:
+		// here the next hop of a chain speaks to it, whatever it asks SOCKS for.
+		if cfg.Proxy.Mode == config.ProxyModeTCP {
+			vn = &virtualNet{forward: cfg.Proxy.Listen}
+		} else {
+			vn = &virtualNet{forwardUDP: cfg.Proxy.Listen, ipv4OK: true, ipv6OK: true}
 		}
-		// TCP mode forwards one stream to the server's backend: the next hop in the chain speaks to it, whatever it asks SOCKS for.
-		vn = &virtualNet{forward: cfg.Proxy.Listen}
 	}
 
 	socksLn, err := net.Listen("tcp", p.SOCKS)

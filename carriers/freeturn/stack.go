@@ -29,6 +29,8 @@ type virtualNet struct {
 	ipv6OK bool
 	// TCP mode: every CONNECT goes to this local forward of the server's backend.
 	forward string
+	// UDP mode without a built-in tunnel: every datagram goes to the local relay, for a VPN profile in the chain.
+	forwardUDP string
 
 	cancel context.CancelFunc
 	wg     sync.WaitGroup
