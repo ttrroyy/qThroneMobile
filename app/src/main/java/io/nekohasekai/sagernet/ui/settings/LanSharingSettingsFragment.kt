@@ -1,11 +1,11 @@
-package app.qthrone.mobile.ui.settings
+package app.rawline.mobile.ui.settings
 
 import android.content.Intent
 import android.provider.Settings
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
-import app.qthrone.mobile.R
-import app.qthrone.mobile.SagerNet
+import app.rawline.mobile.R
+import app.rawline.mobile.SagerNet
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.app.Activity
 import android.app.KeyguardManager
@@ -15,14 +15,14 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
-import app.qthrone.mobile.Key
-import app.qthrone.mobile.R
-import app.qthrone.mobile.SagerNet
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.broadcastReceiver
-import app.qthrone.mobile.utils.Theme
+import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
+import app.rawline.mobile.Key
+import app.rawline.mobile.R
+import app.rawline.mobile.SagerNet
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.broadcastReceiver
+import app.rawline.mobile.utils.Theme
 
 class VpnRequestActivity : AppCompatActivity() {
     private var receiver: BroadcastReceiver? = null

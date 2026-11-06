@@ -1,61 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
     <Preference
-        app:fragment="app.qthrone.mobile.ui.settings.GeneralSettingsFragment"
+        app:fragment="app.rawline.mobile.ui.settings.GeneralSettingsFragment"
         app:icon="@drawable/ic_action_settings"
         app:key="settingsGeneral"
         app:summary="@string/settings_general_sum"
         app:title="@string/settings_general" />
     <Preference
-        app:fragment="app.qthrone.mobile.ui.settings.AppearanceSettingsFragment"
+        app:fragment="app.rawline.mobile.ui.settings.AppearanceSettingsFragment"
         app:icon="@drawable/ic_baseline_color_lens_24"
         app:key="settingsAppearance"
         app:summary="@string/settings_appearance_sum"
         app:title="@string/settings_appearance" />
     <Preference
-        app:fragment="app.qthrone.mobile.ui.settings.InboundSettingsFragment"
+        app:fragment="app.rawline.mobile.ui.settings.InboundSettingsFragment"
         app:icon="@drawable/ic_baseline_input_24"
         app:key="settingsInbound"
         app:summary="@string/settings_inbound_sum"
         app:title="@string/settings_inbound" />
     <Preference
-        app:fragment="app.qthrone.mobile.ui.settings.TunSettingsFragment"
+        app:fragment="app.rawline.mobile.ui.settings.TunSettingsFragment"
         app:icon="@drawable/ic_baseline_vpn_key_24"
         app:key="settingsTun"
         app:summary="@string/settings_tun_sum"
         app:title="@string/settings_tun" />
     <Preference
-        app:fragment="app.qthrone.mobile.ui.settings.RoutingSettingsFragment"
+        app:fragment="app.rawline.mobile.ui.settings.RoutingSettingsFragment"
         app:icon="@drawable/ic_maps_directions"
         app:key="settingsRouting"
         app:summary="@string/settings_routing_sum"
         app:title="@string/settings_routing" />
     <Preference
-        app:fragment="app.qthrone.mobile.ui.settings.DnsSettingsFragment"
+        app:fragment="app.rawline.mobile.ui.settings.DnsSettingsFragment"
         app:icon="@drawable/ic_action_dns"
         app:key="settingsDns"
         app:summary="@string/settings_dns_sum"
         app:title="@string/settings_dns" />
     <Preference
-        app:fragment="app.qthrone.mobile.ui.settings.PresetSettingsFragment"
+        app:fragment="app.rawline.mobile.ui.settings.PresetSettingsFragment"
         app:icon="@drawable/ic_baseline_tune_24"
         app:key="settingsPresets"
         app:summary="@string/settings_presets_sum"
         app:title="@string/settings_presets" />
     <Preference
-        app:fragment="app.qthrone.mobile.ui.settings.TestingSettingsFragment"
+        app:fragment="app.rawline.mobile.ui.settings.TestingSettingsFragment"
         app:icon="@drawable/ic_baseline_speed_24"
         app:key="settingsTesting"
         app:summary="@string/settings_testing_sum"
         app:title="@string/settings_testing" />
     <Preference
-        app:fragment="app.qthrone.mobile.ui.settings.SubscriptionSettingsFragment"
+        app:fragment="app.rawline.mobile.ui.settings.SubscriptionSettingsFragment"
         app:icon="@drawable/ic_baseline_update_24"
         app:key="settingsSubscriptions"
         app:summary="@string/settings_subscriptions_sum"
         app:title="@string/subscriptions" />
     <Preference
-        app:fragment="app.qthrone.mobile.ui.settings.CoreSettingsFragment"
+        app:fragment="app.rawline.mobile.ui.settings.CoreSettingsFragment"
         app:icon="@drawable/baseline_developer_board_24"
         app:key="settingsCore"
         app:summary="@string/settings_core_sum"

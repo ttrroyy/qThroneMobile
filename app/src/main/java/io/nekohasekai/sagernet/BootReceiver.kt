@@ -1,4 +1,4 @@
-package app.qthrone.mobile
+package app.rawline.mobile
 
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -6,8 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.ktx.app
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.ktx.app
 
 class BootReceiver : BroadcastReceiver() {
     companion object {

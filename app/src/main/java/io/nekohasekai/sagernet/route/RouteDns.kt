@@ -1,7 +1,7 @@
-package app.qthrone.mobile.route
+package app.rawline.mobile.route
 
-import app.qthrone.mobile.outbound.json.JsonObject
-import app.qthrone.mobile.outbound.json.jsonObjectOf
+import app.rawline.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.json.jsonObjectOf
 
 /**
  * RouteDns (include/database/entities/RouteProfile.h): the DNS settings a routing profile can take over. Local

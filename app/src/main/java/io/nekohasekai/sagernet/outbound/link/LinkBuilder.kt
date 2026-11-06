@@ -1,4 +1,4 @@
-package app.qthrone.mobile.outbound.link
+package app.rawline.mobile.outbound.link
 
 /**
  * Builds `QUrl::toString(QUrl::FullyEncoded)` output for the setScheme/setHost/setPort/setUserName/setPassword/

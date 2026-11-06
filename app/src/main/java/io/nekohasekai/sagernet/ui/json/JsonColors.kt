@@ -1,10 +1,10 @@
-package app.qthrone.mobile.ui.json
+package app.rawline.mobile.ui.json
 
 import android.content.Context
 import androidx.core.graphics.ColorUtils
 import com.google.android.material.color.MaterialColors
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
-import app.qthrone.mobile.R
+import app.rawline.mobile.R
 
 /** Editor colours: the app theme for the chrome, the desktop JsonCodeEdit palette for tokens (JsonCodeEdit.cpp:25-31). */
 object JsonColors {

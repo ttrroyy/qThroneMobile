@@ -1,20 +1,20 @@
-package app.qthrone.mobile.outbound.types
+package app.rawline.mobile.outbound.types
 
-import app.qthrone.mobile.outbound.BuildContext
-import app.qthrone.mobile.outbound.BuildResult
-import app.qthrone.mobile.outbound.Outbound
-import app.qthrone.mobile.outbound.QtStrings
-import app.qthrone.mobile.outbound.SecurityInfo
-import app.qthrone.mobile.outbound.common.Tls
-import app.qthrone.mobile.outbound.json.JsonArray
-import app.qthrone.mobile.outbound.json.JsonNull
-import app.qthrone.mobile.outbound.json.JsonObject
-import app.qthrone.mobile.outbound.json.JsonValues
-import app.qthrone.mobile.outbound.json.jsonObjectOf
-import app.qthrone.mobile.outbound.link.LinkBuilder
-import app.qthrone.mobile.outbound.link.LinkCodec
-import app.qthrone.mobile.outbound.link.LinkParser
-import app.qthrone.mobile.outbound.link.LinkQuery
+import app.rawline.mobile.outbound.BuildContext
+import app.rawline.mobile.outbound.BuildResult
+import app.rawline.mobile.outbound.Outbound
+import app.rawline.mobile.outbound.QtStrings
+import app.rawline.mobile.outbound.SecurityInfo
+import app.rawline.mobile.outbound.common.Tls
+import app.rawline.mobile.outbound.json.JsonArray
+import app.rawline.mobile.outbound.json.JsonNull
+import app.rawline.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.json.JsonValues
+import app.rawline.mobile.outbound.json.jsonObjectOf
+import app.rawline.mobile.outbound.link.LinkBuilder
+import app.rawline.mobile.outbound.link.LinkCodec
+import app.rawline.mobile.outbound.link.LinkParser
+import app.rawline.mobile.outbound.link.LinkQuery
 
 /** naive (include/configs/outbounds/naive.h, src/configs/outbounds/naive.cpp). */
 class Naive : Outbound("naive") {
@@ -149,7 +149,7 @@ class Naive : Outbound("naive") {
             if (congestion_control.isNotEmpty()) obj["quic_congestion_control"] = congestion_control
         }
         val tlsObj = tls.exportToJson()
-        // exportToJson keeps the Throne-only ech.resolver, which the core rejects
+        // exportToJson keeps the Rawline-only ech.resolver, which the core rejects
         if (tls.ech.enabled) tlsObj["ech"] = tls.ech.build(ctx)
         obj["tls"] = naiveTls(tlsObj, keepFragment = false)
         return BuildResult(obj)

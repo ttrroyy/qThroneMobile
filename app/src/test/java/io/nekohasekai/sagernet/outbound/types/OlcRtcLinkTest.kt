@@ -1,4 +1,4 @@
-package app.qthrone.mobile.outbound.types
+package app.rawline.mobile.outbound.types
 
 import org.junit.Assert.*
 import org.junit.Test

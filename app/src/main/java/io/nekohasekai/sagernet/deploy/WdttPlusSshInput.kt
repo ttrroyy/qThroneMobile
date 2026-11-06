@@ -1,4 +1,4 @@
-package app.qthrone.mobile.deploy
+package app.rawline.mobile.deploy
 
 /** WDTT Plus v20's stdin framing keeps sudo's optional password read separate from admin JSON. */
 internal class RootStdinPlan(val command: String, val input: String)

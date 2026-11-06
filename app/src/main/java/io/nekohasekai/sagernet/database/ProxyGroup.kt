@@ -1,4 +1,4 @@
-package app.qthrone.mobile.database
+package app.rawline.mobile.database
 
 import android.os.Parcelable
 import androidx.room.ColumnInfo
@@ -8,8 +8,8 @@ import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Update
-import app.qthrone.mobile.R
-import app.qthrone.mobile.ktx.app
+import app.rawline.mobile.R
+import app.rawline.mobile.ktx.app
 import kotlinx.parcelize.Parcelize
 
 /**

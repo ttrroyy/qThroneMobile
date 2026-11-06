@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 /** Bound the dashboard's view hierarchy independently of subscription size. */
 internal object MobileProfilePaging {

@@ -1,9 +1,9 @@
-package app.qthrone.mobile.database
+package app.rawline.mobile.database
 
 import android.os.Parcelable
 import androidx.room.TypeConverter
-import app.qthrone.mobile.outbound.json.JsonInput
-import app.qthrone.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.json.JsonInput
+import app.rawline.mobile.outbound.json.JsonObject
 import kotlinx.parcelize.Parcelize
 
 /**

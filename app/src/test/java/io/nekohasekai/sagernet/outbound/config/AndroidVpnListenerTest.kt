@@ -1,9 +1,9 @@
-package app.qthrone.mobile.outbound.config
+package app.rawline.mobile.outbound.config
 
-import app.qthrone.mobile.bg.carrier.VpnListenerPolicy
-import app.qthrone.mobile.outbound.json.JsonInput
-import app.qthrone.mobile.outbound.json.JsonObject
-import app.qthrone.mobile.outbound.types.Socks
+import app.rawline.mobile.bg.carrier.VpnListenerPolicy
+import app.rawline.mobile.outbound.json.JsonInput
+import app.rawline.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.types.Socks
 import org.junit.Assert.*
 import org.junit.Test
 

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ktx
+package app.rawline.mobile.ktx
 
 import com.google.gson.JsonParser
 import moe.matsuri.nb4a.utils.JavaUtil.gson

@@ -1,14 +1,14 @@
-package app.qthrone.mobile.outbound.types
+package app.rawline.mobile.outbound.types
 
-import app.qthrone.mobile.outbound.*
-import app.qthrone.mobile.outbound.json.*
-import app.qthrone.mobile.outbound.link.*
-import app.qthrone.mobile.bg.carrier.CarrierKind
-import app.qthrone.mobile.bg.carrier.CarrierBridgeCredentials
+import app.rawline.mobile.outbound.*
+import app.rawline.mobile.outbound.json.*
+import app.rawline.mobile.outbound.link.*
+import app.rawline.mobile.bg.carrier.CarrierKind
+import app.rawline.mobile.bg.carrier.CarrierBridgeCredentials
 import java.util.UUID
 
 /** Desktop qwdtt.cpp configuration, without persisted runtime ports or bridge secrets. */
-open class Qwdtt : Outbound("qwdtt"), app.qthrone.mobile.bg.carrier.NativeCarrier {
+open class Qwdtt : Outbound("qwdtt"), app.rawline.mobile.bg.carrier.NativeCarrier {
     override val carrierKind get() = CarrierKind.QWDTT
     init { serverPort=56000 }
     var password=""

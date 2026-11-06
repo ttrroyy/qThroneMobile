@@ -1,4 +1,4 @@
-package app.qthrone.mobile.group
+package app.rawline.mobile.group
 
 import com.google.gson.JsonParser
 import org.junit.Assert.*

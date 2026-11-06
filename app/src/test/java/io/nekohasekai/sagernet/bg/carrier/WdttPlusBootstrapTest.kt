@@ -1,6 +1,6 @@
-package app.qthrone.mobile.bg.carrier
+package app.rawline.mobile.bg.carrier
 
-import app.qthrone.mobile.deploy.DeployServer
+import app.rawline.mobile.deploy.DeployServer
 import org.junit.Assert.*
 import org.junit.Test
 

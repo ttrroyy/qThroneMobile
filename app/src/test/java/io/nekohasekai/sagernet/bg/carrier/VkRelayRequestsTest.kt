@@ -1,4 +1,4 @@
-package app.qthrone.mobile.bg.carrier
+package app.rawline.mobile.bg.carrier
 
 import org.junit.Assert.*
 import org.junit.Test

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.content.ClipData
 import android.view.DragEvent
@@ -44,6 +44,8 @@ internal class MobileReorder(
             scroll.postOnAnimation(this)
         }
     }
+    // In the new style a held row gives way instead of growing, so its glass is never cut by the list's edge.
+    private val heldScale get() = if(MobileStyle.new) .98f else 1.025f
     private val horizontal get() = container.orientation == LinearLayout.HORIZONTAL
     private var pointer=0f
     private var pendingMove=false
@@ -105,7 +107,7 @@ internal class MobileReorder(
             prepare(item)
             item.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
             // Animate before taking the platform drag shadow; keep the original slot occupied.
-            item.animate().scaleX(1.025f).scaleY(1.025f).setDuration(90).withEndAction {
+            item.animate().scaleX(heldScale).scaleY(heldScale).setDuration(90).withEndAction {
                 if(source!==item || !handle.isPressed) { finish(false);return@withEndAction }
                 val shadow=object: View.DragShadowBuilder(shadowView) {
                     override fun onProvideShadowMetrics(size: android.graphics.Point, touch: android.graphics.Point) {
@@ -270,7 +272,7 @@ internal class MobileReorder(
         children().forEach { it.animate().cancel();it.translationX=0f;it.translationY=0f }
         release(item)
         item.visibility=View.VISIBLE
-        item.scaleX=1.025f;item.scaleY=1.025f
+        item.scaleX=heldScale;item.scaleY=heldScale
         item.animate().scaleX(1f).scaleY(1f).setDuration(120).start()
         original=emptyList()
         if(commit && changed) save(order.mapNotNull { ids[it] })

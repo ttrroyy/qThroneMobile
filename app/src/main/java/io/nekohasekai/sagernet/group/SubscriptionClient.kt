@@ -1,12 +1,12 @@
-package app.qthrone.mobile.group
+package app.rawline.mobile.group
 
-import app.qthrone.mobile.aidl.ICoreService
-import app.qthrone.mobile.aidl.ISubscriptionCallback
-import app.qthrone.mobile.bg.CoreServiceClient
-import app.qthrone.mobile.database.GroupRepo
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.app
-import app.qthrone.mobile.ktx.readableMessage
+import app.rawline.mobile.aidl.ICoreService
+import app.rawline.mobile.aidl.ISubscriptionCallback
+import app.rawline.mobile.bg.CoreServiceClient
+import app.rawline.mobile.database.GroupRepo
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.app
+import app.rawline.mobile.ktx.readableMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers

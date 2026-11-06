@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.content.Intent
 import android.os.Bundle
@@ -19,13 +19,13 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import app.qthrone.mobile.R
-import app.qthrone.mobile.SagerNet
-import app.qthrone.mobile.bg.carrier.CarrierUiRequests
-import app.qthrone.mobile.bg.carrier.VkRelayAccount
-import app.qthrone.mobile.database.ProfileManager
-import app.qthrone.mobile.database.SagerDatabase
-import app.qthrone.mobile.outbound.types.Qwdtt
+import app.rawline.mobile.R
+import app.rawline.mobile.SagerNet
+import app.rawline.mobile.bg.carrier.CarrierUiRequests
+import app.rawline.mobile.bg.carrier.VkRelayAccount
+import app.rawline.mobile.database.ProfileManager
+import app.rawline.mobile.database.SagerDatabase
+import app.rawline.mobile.outbound.types.Qwdtt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

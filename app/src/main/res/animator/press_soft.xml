@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- A drop under the finger: it spreads and flattens, then springs back past its size. -->
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_pressed="true"><set><objectAnimator android:propertyName="scaleX" android:valueTo="1.018" android:duration="130" android:valueType="floatType" /><objectAnimator android:propertyName="scaleY" android:valueTo=".93" android:duration="130" android:valueType="floatType" /></set></item>
-    <item><set><objectAnimator android:propertyName="scaleX" android:valueTo="1" android:duration="460" android:valueType="floatType" android:interpolator="@android:anim/overshoot_interpolator" /><objectAnimator android:propertyName="scaleY" android:valueTo="1" android:duration="460" android:valueType="floatType" android:interpolator="@android:anim/overshoot_interpolator" /></set></item>
-</selector>

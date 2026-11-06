@@ -1,14 +1,14 @@
-package app.qthrone.mobile.bg.proto
+package app.rawline.mobile.bg.proto
 
-import app.qthrone.mobile.bg.BaseService
-import app.qthrone.mobile.bg.ServiceNotification
-import app.qthrone.mobile.bg.XrayGeoAssets
-import app.qthrone.mobile.bg.autoselector.AutoSelectorRuntime
-import app.qthrone.mobile.database.ProxyEntity
-import app.qthrone.mobile.database.SagerDatabase
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.runOnDefaultDispatcher
-import app.qthrone.mobile.outbound.config.AutoSelectorBuild
+import app.rawline.mobile.bg.BaseService
+import app.rawline.mobile.bg.ServiceNotification
+import app.rawline.mobile.bg.XrayGeoAssets
+import app.rawline.mobile.bg.autoselector.AutoSelectorRuntime
+import app.rawline.mobile.database.ProxyEntity
+import app.rawline.mobile.database.SagerDatabase
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.runOnDefaultDispatcher
+import app.rawline.mobile.outbound.config.AutoSelectorBuild
 import kotlinx.coroutines.runBlocking
 
 class ProxyInstance(profile: ProxyEntity, var service: BaseService.Interface? = null) :

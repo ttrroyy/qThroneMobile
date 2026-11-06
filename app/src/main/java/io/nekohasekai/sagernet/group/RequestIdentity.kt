@@ -1,9 +1,9 @@
-package app.qthrone.mobile.group
+package app.rawline.mobile.group
 
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.ProxyGroup
-import app.qthrone.mobile.database.SendHwid
-import app.qthrone.mobile.ktx.appUserAgent
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.ProxyGroup
+import app.rawline.mobile.database.SendHwid
+import app.rawline.mobile.ktx.appUserAgent
 
 /** RequestIdentity (GroupUpdater.hpp:19-26): the user agent and HWID headers of a subscription request. */
 class RequestIdentity(
@@ -72,7 +72,7 @@ class RequestIdentity(
         @JvmStatic
         fun resolve(group: ProxyGroup?): RequestIdentity {
             // Panels serving Happ's full Xray JSON otherwise omit protocols such as Hy2.
-            var userAgent = if (DataStore.userAgent2.isBlank()) "Happ/3.0 " + app.qthrone.mobile.ktx.USER_AGENT else appUserAgent()
+            var userAgent = if (DataStore.userAgent2.isBlank()) "Happ/3.0 " + app.rawline.mobile.ktx.USER_AGENT else appUserAgent()
             var sendHwid = DataStore.subSendHwid
             var device = applyCustomHwidParams(DeviceDetails.get(), DataStore.subCustomHwidParams)
             if (group == null) return RequestIdentity(userAgent, sendHwid, device, DataStore.subRequestTimeoutSeconds)

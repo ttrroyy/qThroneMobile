@@ -1,8 +1,8 @@
-package app.qthrone.mobile.widget
+package app.rawline.mobile.widget
 
 import com.google.android.material.snackbar.Snackbar
-import app.qthrone.mobile.R
-import app.qthrone.mobile.ui.ThemedActivity
+import app.rawline.mobile.R
+import app.rawline.mobile.ui.ThemedActivity
 
 /**
  * @param activity ThemedActivity.

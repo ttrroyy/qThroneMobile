@@ -1,32 +1,32 @@
-package app.qthrone.mobile.database.backup
+package app.rawline.mobile.database.backup
 
 import android.database.DatabaseErrorHandler
 import android.database.sqlite.SQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import app.qthrone.mobile.Key
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.RouteManager
-import app.qthrone.mobile.database.SagerDatabase
-import app.qthrone.mobile.database.SettingsRegistry
-import app.qthrone.mobile.database.backup.DesktopSchema.ENTITY_IDS
-import app.qthrone.mobile.database.backup.DesktopSchema.GROUPS
-import app.qthrone.mobile.database.backup.DesktopSchema.GROUPS_ORDER
-import app.qthrone.mobile.database.backup.DesktopSchema.MARKERS
-import app.qthrone.mobile.database.backup.DesktopSchema.PROFILES
-import app.qthrone.mobile.database.backup.DesktopSchema.ROUTE_PROFILES
-import app.qthrone.mobile.database.backup.DesktopSchema.ROUTE_RULES
-import app.qthrone.mobile.database.backup.DesktopSchema.SETTINGS
-import app.qthrone.mobile.ktx.app
-import app.qthrone.mobile.outbound.json.JsonArray
-import app.qthrone.mobile.outbound.json.JsonInput
-import app.qthrone.mobile.outbound.json.JsonValues
-import app.qthrone.mobile.route.RouteProfile
+import app.rawline.mobile.Key
+import app.rawline.mobile.R
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.RouteManager
+import app.rawline.mobile.database.SagerDatabase
+import app.rawline.mobile.database.SettingsRegistry
+import app.rawline.mobile.database.backup.DesktopSchema.ENTITY_IDS
+import app.rawline.mobile.database.backup.DesktopSchema.GROUPS
+import app.rawline.mobile.database.backup.DesktopSchema.GROUPS_ORDER
+import app.rawline.mobile.database.backup.DesktopSchema.MARKERS
+import app.rawline.mobile.database.backup.DesktopSchema.PROFILES
+import app.rawline.mobile.database.backup.DesktopSchema.ROUTE_PROFILES
+import app.rawline.mobile.database.backup.DesktopSchema.ROUTE_RULES
+import app.rawline.mobile.database.backup.DesktopSchema.SETTINGS
+import app.rawline.mobile.ktx.app
+import app.rawline.mobile.outbound.json.JsonArray
+import app.rawline.mobile.outbound.json.JsonInput
+import app.rawline.mobile.outbound.json.JsonValues
+import app.rawline.mobile.route.RouteProfile
 import java.io.File
 import java.io.InputStream
 
 /**
- * Restores any `.thrbackup`, desktop- or Android-made (R10 §8.8, the desktop's restoreSelective, Database.cpp:339-398):
+ * Restores any `.rwlbackup`, desktop- or Android-made (R10 §8.8, the desktop's restoreSelective, Database.cpp:339-398):
  * every chosen part is read and checked first, then written in one SagerDatabase transaction that replaces the part's
  * tables with ids kept as they are, raises the id counters to the backup's `entity_ids`, merges the settings (§8.3)
  * and repairs the selection. Nothing changes when anything fails before the commit.
@@ -41,7 +41,7 @@ object BackupRestore {
     class RestoreException(message: String) : Exception(message)
 
     /** A parsed backup; its database entry waits in a temporary file until [discard] or [restore]. */
-    class Loaded(val contents: ThrBackup.Contents, internal val database: File) {
+    class Loaded(val contents: RwlBackup.Contents, internal val database: File) {
         fun discard() = BackupTemp.delete(database)
     }
 
@@ -50,7 +50,7 @@ object BackupRestore {
         BackupTemp.cleanStale()
         val file = BackupTemp.newFile(BackupTemp.RESTORE)
         try {
-            return Loaded(ThrBackup.read(input, file), file)
+            return Loaded(RwlBackup.read(input, file), file)
         } catch (e: Throwable) {
             BackupTemp.delete(file)
             throw e
@@ -58,7 +58,7 @@ object BackupRestore {
     }
 
     /** The desktop's available parts: OTP, the desktop's tray icons and older Android icon packs are never restored here. */
-    fun available(contents: ThrBackup.Contents): Choice = Choice(
+    fun available(contents: RwlBackup.Contents): Choice = Choice(
         profiles = contents.parts.profiles,
         routes = contents.parts.routes,
         settings = contents.parts.settings,

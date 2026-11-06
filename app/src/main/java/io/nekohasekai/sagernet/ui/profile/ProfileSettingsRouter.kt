@@ -1,9 +1,9 @@
-package app.qthrone.mobile.ui.profile
+package app.rawline.mobile.ui.profile
 
 import android.content.Context
 import android.content.Intent
-import app.qthrone.mobile.database.ProxyEntity
-import app.qthrone.mobile.outbound.OutboundFactory
+import app.rawline.mobile.database.ProxyEntity
+import app.rawline.mobile.outbound.OutboundFactory
 
 /** The editor activity of a desktop profile type string ("custom" and unknown types open the raw JSON editor). */
 fun settingsActivityFor(type: String): Class<out ProfileSettingsActivity<*>> =

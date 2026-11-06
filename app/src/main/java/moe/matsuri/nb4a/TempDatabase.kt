@@ -3,8 +3,8 @@ package moe.matsuri.nb4a
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import app.qthrone.mobile.SagerNet
-import app.qthrone.mobile.database.preference.KeyValuePair
+import app.rawline.mobile.SagerNet
+import app.rawline.mobile.database.preference.KeyValuePair
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 

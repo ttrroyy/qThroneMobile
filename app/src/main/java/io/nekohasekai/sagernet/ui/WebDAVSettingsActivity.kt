@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.os.Bundle
 import android.view.MenuItem
@@ -11,12 +11,12 @@ import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceDataStore
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.ktx.onMainDispatcher
-import app.qthrone.mobile.ktx.runOnDefaultDispatcher
-import app.qthrone.mobile.ktx.snackbar
-import app.qthrone.mobile.widget.applyListInsets
+import app.rawline.mobile.R
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.ktx.onMainDispatcher
+import app.rawline.mobile.ktx.runOnDefaultDispatcher
+import app.rawline.mobile.ktx.snackbar
+import app.rawline.mobile.widget.applyListInsets
 import kotlinx.coroutines.launch
 import okhttp3.Credentials
 import okhttp3.OkHttpClient

@@ -1,8 +1,8 @@
-package app.qthrone.mobile.outbound.types
+package app.rawline.mobile.outbound.types
 
-import app.qthrone.mobile.outbound.OutboundFactory
-import app.qthrone.mobile.outbound.`import`.ProfileImport
-import app.qthrone.mobile.outbound.link.Base64Strict
+import app.rawline.mobile.outbound.OutboundFactory
+import app.rawline.mobile.outbound.`import`.ProfileImport
+import app.rawline.mobile.outbound.link.Base64Strict
 import org.junit.Assert.*
 import org.junit.Test
 

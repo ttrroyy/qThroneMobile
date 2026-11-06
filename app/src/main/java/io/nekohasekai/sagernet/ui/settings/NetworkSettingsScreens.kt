@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui.settings
+package app.rawline.mobile.ui.settings
 
 import android.content.Intent
 import android.os.Build
@@ -6,20 +6,20 @@ import android.widget.Toast
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.SwitchPreference
-import app.qthrone.mobile.Key
-import app.qthrone.mobile.R
+import app.rawline.mobile.Key
+import app.rawline.mobile.R
 import androidx.lifecycle.lifecycleScope
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.RouteManager
-import app.qthrone.mobile.database.SettingValidators
-import app.qthrone.mobile.database.SettingsRegistry
-import app.qthrone.mobile.database.preference.EditTextPreferenceModifiers
-import app.qthrone.mobile.group.RemoteRouteUpdater
-import app.qthrone.mobile.ktx.needReload
-import app.qthrone.mobile.ui.AppManagerActivity
-import app.qthrone.mobile.ui.GroupSettingsActivity
-import app.qthrone.mobile.ui.MainActivity
-import app.qthrone.mobile.ui.route.RouteQuickSwitch
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.RouteManager
+import app.rawline.mobile.database.SettingValidators
+import app.rawline.mobile.database.SettingsRegistry
+import app.rawline.mobile.database.preference.EditTextPreferenceModifiers
+import app.rawline.mobile.group.RemoteRouteUpdater
+import app.rawline.mobile.ktx.needReload
+import app.rawline.mobile.ui.AppManagerActivity
+import app.rawline.mobile.ui.GroupSettingsActivity
+import app.rawline.mobile.ui.MainActivity
+import app.rawline.mobile.ui.route.RouteQuickSwitch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -45,7 +45,7 @@ open class InboundSettingsFragment(@androidx.annotation.XmlRes preferences: Int 
         val user = pref<EditTextPreference>(SettingsRegistry.INBOUND_USER.key)
         val pass = pref<EditTextPreference>(SettingsRegistry.INBOUND_PASS.key)
         findPreference<Preference>("qmobileResetSocks")?.setOnPreferenceClickListener {
-            DataStore.inboundUser = "qthrone_"+java.util.UUID.randomUUID().toString().take(8)
+            DataStore.inboundUser = "rawline_"+java.util.UUID.randomUUID().toString().take(8)
             DataStore.inboundPass = java.util.UUID.randomUUID().toString().replace("-", "")
             user.text=DataStore.inboundUser;pass.text=DataStore.inboundPass
             needReload();true
@@ -247,7 +247,7 @@ class RoutingSettingsFragment : SettingsScreenFragment(R.xml.settings_routing) {
         }
 
         pref<Preference>(KEY_ROUTE_PROFILES).setOnPreferenceClickListener {
-            (activity as? MainActivity)?.displayFragment(app.qthrone.mobile.ui.RouteFragment())
+            (activity as? MainActivity)?.displayFragment(app.rawline.mobile.ui.RouteFragment())
             true
         }
         pref<Preference>(KEY_CURRENT_ROUTE).setOnPreferenceClickListener {

@@ -1,11 +1,11 @@
 @file:Suppress("SpellCheckingInspection")
 
-package app.qthrone.mobile.ktx
+package app.rawline.mobile.ktx
 
-import app.qthrone.mobile.BuildConfig
-import app.qthrone.mobile.Key
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
+import app.rawline.mobile.BuildConfig
+import app.rawline.mobile.Key
+import app.rawline.mobile.R
+import app.rawline.mobile.database.DataStore
 import moe.matsuri.nb4a.utils.NGUtil
 import okhttp3.ConnectionSpec
 import okhttp3.Credentials
@@ -328,4 +328,4 @@ fun isLoopbackPortFree(port: Int): Boolean = try {
     false
 }
 
-const val USER_AGENT = "qThroneMobile/" + BuildConfig.VERSION_NAME + " (Android)"
+const val USER_AGENT = "RawlineMobile/" + BuildConfig.VERSION_NAME + " (Android)"

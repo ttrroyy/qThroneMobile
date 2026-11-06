@@ -1,12 +1,12 @@
-package app.qthrone.mobile.database
+package app.rawline.mobile.database
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import app.qthrone.mobile.outbound.json.JsonArray
-import app.qthrone.mobile.outbound.json.JsonInput
-import app.qthrone.mobile.outbound.json.JsonValues
-import app.qthrone.mobile.route.RouteRule
+import app.rawline.mobile.outbound.json.JsonArray
+import app.rawline.mobile.outbound.json.JsonInput
+import app.rawline.mobile.outbound.json.JsonValues
+import app.rawline.mobile.route.RouteRule
 
 /**
  * The desktop's `route_rules` row (RoutesRepo.cpp:51-94) plus the Android-only `network_type_json`,

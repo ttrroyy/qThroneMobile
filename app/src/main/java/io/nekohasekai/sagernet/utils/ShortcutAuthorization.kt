@@ -1,4 +1,4 @@
-package app.qthrone.mobile.utils
+package app.rawline.mobile.utils
 
 import android.app.Activity
 import android.content.Context
@@ -6,8 +6,8 @@ import android.content.Intent
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
-import app.qthrone.mobile.R
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder
+import app.rawline.mobile.R
+import app.rawline.mobile.ui.MobileAlertDialogBuilder
 import java.io.File
 import java.io.RandomAccessFile
 import java.security.KeyStore
@@ -17,7 +17,7 @@ import javax.crypto.Mac
 import javax.crypto.SecretKey
 
 object ShortcutAuthorization {
-    private const val EXTRA = "app.qthrone.mobile.shortcut_signature"
+    private const val EXTRA = "app.rawline.mobile.shortcut_signature"
 
     private fun key(context: Context): SecretKey = synchronized(this) {
         val lock = File(context.noBackupFilesDir, "shortcut-auth.lock")

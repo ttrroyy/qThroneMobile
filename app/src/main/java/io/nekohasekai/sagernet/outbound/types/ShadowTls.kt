@@ -1,13 +1,13 @@
-package app.qthrone.mobile.outbound.types
+package app.rawline.mobile.outbound.types
 
-import app.qthrone.mobile.outbound.BuildContext
-import app.qthrone.mobile.outbound.BuildResult
-import app.qthrone.mobile.outbound.Outbound
-import app.qthrone.mobile.outbound.QtStrings
-import app.qthrone.mobile.outbound.common.Tls
-import app.qthrone.mobile.outbound.json.JsonObject
-import app.qthrone.mobile.outbound.link.LinkBuilder
-import app.qthrone.mobile.outbound.link.LinkParser
+import app.rawline.mobile.outbound.BuildContext
+import app.rawline.mobile.outbound.BuildResult
+import app.rawline.mobile.outbound.Outbound
+import app.rawline.mobile.outbound.QtStrings
+import app.rawline.mobile.outbound.common.Tls
+import app.rawline.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.link.LinkBuilder
+import app.rawline.mobile.outbound.link.LinkParser
 
 /** shadowtls (include/configs/outbounds/shadowtls.h, src/configs/outbounds/shadowtls.cpp). */
 class ShadowTls : Outbound("shadowtls") {

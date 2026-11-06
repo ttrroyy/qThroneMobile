@@ -1,10 +1,10 @@
-package app.qthrone.mobile.deploy
+package app.rawline.mobile.deploy
 
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.AtomicFile
-import app.qthrone.mobile.ktx.app
-import app.qthrone.mobile.outbound.link.Hosts
+import app.rawline.mobile.ktx.app
+import app.rawline.mobile.outbound.link.Hosts
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File

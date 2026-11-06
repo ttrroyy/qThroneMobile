@@ -1,11 +1,11 @@
-package app.qthrone.mobile.outbound.config
+package app.rawline.mobile.outbound.config
 
-import app.qthrone.mobile.outbound.BuildContext
-import app.qthrone.mobile.outbound.Outbound
-import app.qthrone.mobile.outbound.json.JsonArray
-import app.qthrone.mobile.outbound.json.JsonObject
-import app.qthrone.mobile.outbound.json.jsonObjectOf
-import app.qthrone.mobile.outbound.types.Socks
+import app.rawline.mobile.outbound.BuildContext
+import app.rawline.mobile.outbound.Outbound
+import app.rawline.mobile.outbound.json.JsonArray
+import app.rawline.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.json.jsonObjectOf
+import app.rawline.mobile.outbound.types.Socks
 
 /** ChainBuildRequest (generate.cpp:1413-1428). */
 internal class ChainRequest(
@@ -177,13 +177,13 @@ internal class ChainBuilder(
                 continue
             }
             val stored = profiles.get(id) ?: return "Null proxy in chain, you may want to check your configs"
-            if (stored is app.qthrone.mobile.bg.carrier.NativeCarrier) {
+            if (stored is app.rawline.mobile.bg.carrier.NativeCarrier) {
                 scan.nativeCount++
                 scan.nativeIdx = hops.size
             }
-            val outbound = if(stored is app.qthrone.mobile.bg.carrier.NativeCarrier) {
+            val outbound = if(stored is app.rawline.mobile.bg.carrier.NativeCarrier) {
                 try {
-                    state.carrierPlans.getOrPut(id) { app.qthrone.mobile.bg.carrier.CarrierPlan.qwdtt(id,stored,interactive=!state.forTest) }.outbound()
+                    state.carrierPlans.getOrPut(id) { app.rawline.mobile.bg.carrier.CarrierPlan.qwdtt(id,stored,interactive=!state.forTest) }.outbound()
                 } catch(_:IllegalArgumentException) { return "Native transport: invalid configuration" }
             } else stored
             if (outbound.invalid) return "Profile $id has a type this build cannot use: ${outbound.type}"
@@ -259,7 +259,7 @@ internal class ChainBuilder(
         }
 
         val warpError = WarpHop.adaptToTransport(hops.firstOrNull { it.id == WarpHop.PROFILE_ID }?.outbound,
-            hops.any { (profiles.get(it.id) as? app.qthrone.mobile.bg.carrier.NativeCarrier)?.carrierKind?.tcpOnly == true })
+            hops.any { (profiles.get(it.id) as? app.rawline.mobile.bg.carrier.NativeCarrier)?.carrierKind?.tcpOnly == true })
         if (warpError.isNotEmpty()) { state.error = warpError; return ingressTag }
 
         val last = hops.lastOrNull()
@@ -376,9 +376,9 @@ internal class ChainBuilder(
             if (opts.markIngress && idx == 0) state.singIngressTags.add(tag)
             val hop = hops[idx]
             if (tag in listOf(Tags.PROXY, Tags.WARP_BYPASS) &&
-                (profiles.get(hop.id) as? app.qthrone.mobile.outbound.types.Sstp)?.useServerDns == true
+                (profiles.get(hop.id) as? app.rawline.mobile.outbound.types.Sstp)?.useServerDns == true
             ) state.sstpDnsTag = tag
-            if (tag == Tags.PROXY) (hop.outbound as? app.qthrone.mobile.outbound.types.WireGuard)?.dnsServer()?.takeIf { it.isNotEmpty() }?.let { state.wireGuardDns = it }
+            if (tag == Tags.PROXY) (hop.outbound as? app.rawline.mobile.outbound.types.WireGuard)?.dnsServer()?.takeIf { it.isNotEmpty() }?.let { state.wireGuardDns = it }
             val result = hop.outbound.build(ctx)
             if (!result.ok) {
                 state.error += result.error
@@ -389,13 +389,13 @@ internal class ChainBuilder(
             if (state.carrierPlans[hop.id]?.kind?.tcpOnly == true) obj["network"] = "tcp"
             if (idx == 0 || (opts.warpWrap && idx == 1)) {
                 val tunnelDns = when (val outbound = hop.outbound) {
-                    is app.qthrone.mobile.outbound.types.OpenConnect -> outbound.tunnel_dns
-                    is app.qthrone.mobile.outbound.types.OpenVpn -> outbound.tunnel_dns
+                    is app.rawline.mobile.outbound.types.OpenConnect -> outbound.tunnel_dns
+                    is app.rawline.mobile.outbound.types.OpenVpn -> outbound.tunnel_dns
                     else -> null
                 }
-                if (tunnelDns != null && tunnelDns != app.qthrone.mobile.outbound.types.TUNNEL_DNS_NONE) {
+                if (tunnelDns != null && tunnelDns != app.rawline.mobile.outbound.types.TUNNEL_DNS_NONE) {
                     state.vpnDnsEndpoints[tag] = hop.outbound.type
-                    if (tunnelDns == app.qthrone.mobile.outbound.types.TUNNEL_DNS_STRICT && tag in listOf(Tags.PROXY, Tags.WARP_BYPASS))
+                    if (tunnelDns == app.rawline.mobile.outbound.types.TUNNEL_DNS_STRICT && tag in listOf(Tags.PROXY, Tags.WARP_BYPASS))
                         state.vpnStrictDnsTag = tag
                 }
             }

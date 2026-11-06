@@ -1,10 +1,10 @@
-package app.qthrone.mobile.database.backup
+package app.rawline.mobile.database.backup
 
 import android.util.Xml
-import app.qthrone.mobile.BuildConfig
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.ktx.app
+import app.rawline.mobile.BuildConfig
+import app.rawline.mobile.R
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.ktx.app
 import okhttp3.Credentials
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -24,7 +24,7 @@ import java.util.Locale
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 
-/** `.thrbackup` files in `<webdavServer>/<webdavPath>` over WebDAV with Basic auth (the device-local settings). */
+/** `.rwlbackup` files in `<webdavServer>/<webdavPath>` over WebDAV with Basic auth (the device-local settings). */
 class WebDavBackup private constructor(private val base: HttpUrl, private val segments: List<String>) {
 
     /** A backup in the folder; [modified] is epoch milliseconds, 0 when the server does not say. */
@@ -49,7 +49,7 @@ class WebDavBackup private constructor(private val base: HttpUrl, private val se
         client.newCall(request).execute().use { requireOk(it) }
     }
 
-    /** The folder's `.thrbackup` files, newest first; empty when the folder does not exist. */
+    /** The folder's `.rwlbackup` files, newest first; empty when the folder does not exist. */
     fun list(): List<Remote> {
         val request = request(directory)
             .method("PROPFIND", PROPFIND_BODY.toRequestBody("application/xml; charset=utf-8".toMediaType()))
@@ -108,7 +108,7 @@ class WebDavBackup private constructor(private val base: HttpUrl, private val se
         )
     }
 
-    /** A multistatus body: each `response` whose `href` is a file named `*.thrbackup` (namespace prefixes vary). */
+    /** A multistatus body: each `response` whose `href` is a file named `*.rwlbackup` (namespace prefixes vary). */
     private fun parse(input: InputStream): List<Remote> {
         val parser = Xml.newPullParser()
         parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true)
@@ -144,7 +144,7 @@ class WebDavBackup private constructor(private val base: HttpUrl, private val se
                     "response" -> {
                         val url = href?.let { directory.resolve(it) }
                         val name = url?.pathSegments?.lastOrNull { it.isNotEmpty() }
-                        if (!collection && url != null && name != null && name.endsWith(EXTENSION, ignoreCase = true)) {
+                        if (!collection && url != null && name != null && (name.endsWith(EXTENSION, ignoreCase = true) || name.endsWith(OLD_EXTENSION, ignoreCase = true))) {
                             out.add(Remote(name, url, size, modified))
                         }
                     }
@@ -167,7 +167,9 @@ class WebDavBackup private constructor(private val base: HttpUrl, private val se
         ?: if (remote.modified > 0) SimpleDateFormat(STAMP_FORMAT, Locale.US).format(Date(remote.modified)) else ""
 
     companion object {
-        const val EXTENSION = ".thrbackup"
+        const val EXTENSION = ".rwlbackup"
+        /** Backups made before the rename stay listed and restorable. */
+        private const val OLD_EXTENSION = ".thrbackup"
         private const val OCTET_STREAM = "application/octet-stream"
         private const val STAMP_FORMAT = "yyyyMMdd_HHmmss"
         private val STAMP = Regex("\\d{8}_\\d{6}")
@@ -187,8 +189,8 @@ class WebDavBackup private constructor(private val base: HttpUrl, private val se
             return WebDavBackup(base, path.split('/').filter { it.isNotBlank() })
         }
 
-        /** `throne_backup_<versionName>_<yyyyMMdd_HHmmss>.thrbackup`. */
+        /** `rawline_backup_<versionName>_<yyyyMMdd_HHmmss>.rwlbackup`. */
         fun fileName(): String =
-            "throne_backup_${BuildConfig.VERSION_NAME}_${SimpleDateFormat(STAMP_FORMAT, Locale.US).format(Date())}$EXTENSION"
+            "rawline_backup_${BuildConfig.VERSION_NAME}_${SimpleDateFormat(STAMP_FORMAT, Locale.US).format(Date())}$EXTENSION"
     }
 }

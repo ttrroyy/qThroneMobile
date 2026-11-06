@@ -1,9 +1,9 @@
-package app.qthrone.mobile.bg.carrier
+package app.rawline.mobile.bg.carrier
 
-import app.qthrone.mobile.ktx.app
-import app.qthrone.mobile.outbound.json.JsonInput
-import app.qthrone.mobile.outbound.link.Hosts
-import app.qthrone.mobile.outbound.types.Qwdtt
+import app.rawline.mobile.ktx.app
+import app.rawline.mobile.outbound.json.JsonInput
+import app.rawline.mobile.outbound.link.Hosts
+import app.rawline.mobile.outbound.types.Qwdtt
 import java.io.File
 import java.util.UUID
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +29,7 @@ object QwdttPing {
 
     /** Where the app's carrier and test code is blocked right now, for a ping that overran its deadline. */
     fun stuckThreads(): String = Thread.getAllStackTraces().entries
-        .filter { (_, stack) -> stack.any { it.className.startsWith("app.qthrone.mobile.bg.") } }
+        .filter { (_, stack) -> stack.any { it.className.startsWith("app.rawline.mobile.bg.") } }
         .joinToString(" | ") { (thread, stack) ->
             thread.name + " " + thread.state + ": " + stack.take(14).joinToString(" < ") { it.className.substringAfterLast('.') + "." + it.methodName }
         }
@@ -76,7 +76,7 @@ object QwdttPing {
                         result.find(line.trim())?.let { latency.set(it.groupValues[1].toInt()) }
                     }
                 }
-            }, "qThrone-qwdtt-ping").apply { isDaemon = true; start() }
+            }, "Rawline-qwdtt-ping").apply { isDaemon = true; start() }
             try {
                 while (process.isAlive) {
                     coroutineContext.ensureActive()

@@ -1,10 +1,10 @@
-package app.qthrone.mobile.outbound.types
+package app.rawline.mobile.outbound.types
 
-import app.qthrone.mobile.bg.carrier.CarrierBridgeCredentials
-import app.qthrone.mobile.bg.carrier.NativeHashPolicy
-import app.qthrone.mobile.outbound.OutboundFactory
-import app.qthrone.mobile.outbound.link.encryptCsqttPayload
-import app.qthrone.mobile.outbound.link.formatCsqttLink
+import app.rawline.mobile.bg.carrier.CarrierBridgeCredentials
+import app.rawline.mobile.bg.carrier.NativeHashPolicy
+import app.rawline.mobile.outbound.OutboundFactory
+import app.rawline.mobile.outbound.link.encryptCsqttPayload
+import app.rawline.mobile.outbound.link.formatCsqttLink
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -16,7 +16,7 @@ class CsqttRebirthTest {
         assertEquals("old+pass@word",profile.password)
         assertEquals(hashes,profile.hashes)
         val html="<!DOCTYPE html><html><input value='$link'><a href='$link'>Connect</a></html>"
-        val imported=app.qthrone.mobile.outbound.`import`.ProfileImport.parse(html).outbounds.single() as Csqtt
+        val imported=app.rawline.mobile.outbound.`import`.ProfileImport.parse(html).outbounds.single() as Csqtt
         assertEquals(profile.exportIdentity().toCompact(),imported.exportIdentity().toCompact())
     }
 
@@ -24,7 +24,7 @@ class CsqttRebirthTest {
         // Independent AES-GCM vector using the key seed and nonce layout found in the supplied 2.5.0 APK.
         val link="csqtt://AAECAwQFBgcICQoLnWJ4sGLhXEU4Lx5kmNv4OgG3nIAwttrQ9J8P4vf_mYSVcA21sCLBNlFIYwCVOGm4NBpIOEwOveKOn3k9OmGrnU1kpW32LX1P0DYwJIoD72fH_zBQH5eZPx1htJPKCYwG_P6KzrnibBCrY2UYCouGNKq--cwoSbO-Zv1WI6UBk5mQ98ct_g"
         val html="<!doctype html><html><input readonly value=\"$link\"><a href=\"$link\">Connect</a></html>"
-        val profile=app.qthrone.mobile.outbound.`import`.ProfileImport.parse(html).outbounds.single() as Csqtt
+        val profile=app.rawline.mobile.outbound.`import`.ProfileImport.parse(html).outbounds.single() as Csqtt
         assertEquals("198.51.100.25",profile.server)
         assertEquals("Pre250-Secret",profile.password)
         assertEquals(listOf("0123456789abcdef123456","fedcba9876543210abcdef"),profile.hashes)
@@ -32,12 +32,12 @@ class CsqttRebirthTest {
 
     @Test(timeout=2000) fun brokenHtmlCannotMakeLinkExtractionScanAcrossTags() {
         val html="<!DOCTYPE html><html>"+"<a ".repeat(30_000)+"x></html>"
-        assertTrue(app.qthrone.mobile.outbound.`import`.ProfileImport.parse(html).outbounds.isEmpty())
+        assertTrue(app.rawline.mobile.outbound.`import`.ProfileImport.parse(html).outbounds.isEmpty())
     }
     @Test fun importsOriginalQrSubscriptionOnceAndCreatesFreshRuntimeSessions() {
         val link=formatCsqttLink("192.0.2.1",32322,"examplePassword1",listOf("exampleHash123456789"))
         val html="""<!DOCTYPE html><html><body><input readonly value="$link"><a href="$link">Connect</a></body></html>"""
-        val p=app.qthrone.mobile.outbound.`import`.ProfileImport.parse(html).outbounds.single() as Csqtt
+        val p=app.rawline.mobile.outbound.`import`.ProfileImport.parse(html).outbounds.single() as Csqtt
         assertEquals(32322,p.serverPort)
         assertEquals(listOf("exampleHash123456789"),p.hashes)
         val first=p.privateConfig(10808,9000,CarrierBridgeCredentials.fresh())
@@ -87,7 +87,7 @@ class CsqttRebirthTest {
     }
     @Test fun oldTcpAndOriginalSrtpNamesAreNormalized() {
         val p=Csqtt()
-        assertTrue(p.parseFromJson(app.qthrone.mobile.outbound.json.jsonObjectOf(
+        assertTrue(p.parseFromJson(app.rawline.mobile.outbound.json.jsonObjectOf(
             "type" to "csqtt","server" to "192.0.2.1","server_port" to 46000,"turn_tcp" to true,"srtp_mode" to "wrap-srtp")))
         assertEquals("tcp_tls",p.turnTransport)
         assertEquals("wrap",p.srtpMode)

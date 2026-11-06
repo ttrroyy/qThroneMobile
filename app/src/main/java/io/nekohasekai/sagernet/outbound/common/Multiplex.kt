@@ -1,11 +1,11 @@
-package app.qthrone.mobile.outbound.common
+package app.rawline.mobile.outbound.common
 
-import app.qthrone.mobile.outbound.BuildContext
-import app.qthrone.mobile.outbound.import.ClashProxy
-import app.qthrone.mobile.outbound.QtStrings
-import app.qthrone.mobile.outbound.json.JsonObject
-import app.qthrone.mobile.outbound.link.LinkParser
-import app.qthrone.mobile.outbound.link.ParsedLink
+import app.rawline.mobile.outbound.BuildContext
+import app.rawline.mobile.outbound.import.ClashProxy
+import app.rawline.mobile.outbound.QtStrings
+import app.rawline.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.link.LinkParser
+import app.rawline.mobile.outbound.link.ParsedLink
 
 /** TcpBrutal (multiplex.h:8-20, multiplex.cpp:7-48). */
 class TcpBrutal {

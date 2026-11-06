@@ -1,14 +1,14 @@
-package app.qthrone.mobile.bg.carrier
+package app.rawline.mobile.bg.carrier
 
-import app.qthrone.mobile.outbound.OutboundFactory
-import app.qthrone.mobile.outbound.types.Qwdtt
-import app.qthrone.mobile.outbound.types.WdttPlus
+import app.rawline.mobile.outbound.OutboundFactory
+import app.rawline.mobile.outbound.types.Qwdtt
+import app.rawline.mobile.outbound.types.WdttPlus
 import org.junit.Assert.*
 import org.junit.Test
 
 class NativeAutoHashesTest {
     @Test fun autoJsCanBeSavedWithoutATokenAndGetsItFromTheSharedBindingOnlyAtLaunch() {
-        val saved=app.qthrone.mobile.outbound.types.Csqtt().apply {
+        val saved=app.rawline.mobile.outbound.types.Csqtt().apply {
             server="192.0.2.1"; password="fixture-password";hashSource="auto_js";vkAnonPath="auto_js"
         }
         saved.privateConfig(1080,1081,CarrierBridgeCredentials("fixture","fixture"))
@@ -16,7 +16,7 @@ class NativeAutoHashesTest {
         var requests=0
         val runtime=NativeHashPolicy.runtimeProfile(saved,{ error("Auto JS must not create API hashes") }) {
             requests++; "vk1.runtime_fixture_token"
-        } as app.qthrone.mobile.outbound.types.Csqtt
+        } as app.rawline.mobile.outbound.types.Csqtt
         assertEquals(1,requests)
         assertEquals("vk1.runtime_fixture_token",runtime.vkAccessToken)
         assertEquals("auto_js",runtime.hashSource)
@@ -26,7 +26,7 @@ class NativeAutoHashesTest {
     }
 
     @Test fun tokenLinkKeepsItsOwnAccountAndFailedLookupDoesNotMutateTheProfile() {
-        val saved=app.qthrone.mobile.outbound.types.Csqtt().apply {
+        val saved=app.rawline.mobile.outbound.types.Csqtt().apply {
             server="192.0.2.1";password="fixture";hashSource="auto_js";vkAnonPath="auto_js";vkAccessToken="vk1.link_fixture"
         }
         assertSame(saved,NativeHashPolicy.runtimeProfile(saved,{ error("Unexpected API call") },{ error("A link's own token takes priority") }))
@@ -40,7 +40,7 @@ class NativeAutoHashesTest {
     }
 
     @Test fun explicitAutoApiCannotBeChangedBackToAutoJsByASubscriptionsOldAuthPath() {
-        val saved=app.qthrone.mobile.outbound.types.Csqtt().apply {
+        val saved=app.rawline.mobile.outbound.types.Csqtt().apply {
             server="192.0.2.1";password="fixture";hashSource="auto";vkAnonPath="auto_js";vkAccessToken="vk1.provider_fixture"
         }
         val before=saved.exportToJson().toCompact()
@@ -93,7 +93,7 @@ class NativeAutoHashesTest {
                     requested = it
                     accountHashes(it)
                 }
-                val effective=if(type=="csqtt") app.qthrone.mobile.outbound.types.Csqtt.normalizeWorkers(workers) else workers
+                val effective=if(type=="csqtt") app.rawline.mobile.outbound.types.Csqtt.normalizeWorkers(workers) else workers
                 val count=if(type=="csqtt") ((effective+9)/10).coerceAtMost(6) else (workers+26)/27
                 assertEquals("$type, $workers workers", count, requested)
                 assertEquals(effective, runtime.workers)

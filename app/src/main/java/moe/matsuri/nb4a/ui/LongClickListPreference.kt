@@ -5,7 +5,7 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceViewHolder
-import app.qthrone.mobile.R
+import app.rawline.mobile.R
 
 class LongClickListPreference
 @JvmOverloads constructor(

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.appwidget
+package app.rawline.mobile.appwidget
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -11,18 +11,18 @@ import android.text.format.Formatter
 import android.view.View
 import android.widget.RemoteViews
 import androidx.preference.PreferenceDataStore
-import app.qthrone.mobile.Key
-import app.qthrone.mobile.utils.ShortcutAuthorization
-import app.qthrone.mobile.QuickToggleShortcut
-import app.qthrone.mobile.R
-import app.qthrone.mobile.bg.BaseService
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.GroupRepo
-import app.qthrone.mobile.database.ProfileOrder
-import app.qthrone.mobile.database.SagerDatabase
-import app.qthrone.mobile.database.preference.OnPreferenceDataStoreChangeListener
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.runOnDefaultDispatcher
+import app.rawline.mobile.Key
+import app.rawline.mobile.utils.ShortcutAuthorization
+import app.rawline.mobile.QuickToggleShortcut
+import app.rawline.mobile.R
+import app.rawline.mobile.bg.BaseService
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.GroupRepo
+import app.rawline.mobile.database.ProfileOrder
+import app.rawline.mobile.database.SagerDatabase
+import app.rawline.mobile.database.preference.OnPreferenceDataStoreChangeListener
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.runOnDefaultDispatcher
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -32,8 +32,8 @@ import kotlinx.coroutines.sync.withLock
  */
 object Widgets {
 
-    const val ACTION_NEXT = "app.qthrone.mobile.appwidget.NEXT"
-    const val ACTION_PREVIOUS = "app.qthrone.mobile.appwidget.PREVIOUS"
+    const val ACTION_NEXT = "app.rawline.mobile.appwidget.NEXT"
+    const val ACTION_PREVIOUS = "app.rawline.mobile.appwidget.PREVIOUS"
 
     private const val SPEED_INTERVAL_MS = 3000L
     private const val SMALL_WIDTH_DP = 100

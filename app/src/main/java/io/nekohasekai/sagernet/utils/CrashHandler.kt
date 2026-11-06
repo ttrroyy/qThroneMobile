@@ -1,11 +1,11 @@
-package app.qthrone.mobile.utils
+package app.rawline.mobile.utils
 
 import android.content.Intent
 import android.util.Log
 import com.jakewharton.processphoenix.ProcessPhoenix
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.app
-import app.qthrone.mobile.ui.BlankActivity
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.app
+import app.rawline.mobile.ui.BlankActivity
 
 /** Logs an uncaught exception and restarts into [BlankActivity], which shares a redacted log export. */
 object CrashHandler : Thread.UncaughtExceptionHandler {

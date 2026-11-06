@@ -1,10 +1,10 @@
-package app.qthrone.mobile.group
+package app.rawline.mobile.group
 
 import android.annotation.SuppressLint
 import android.os.Build
 import android.provider.Settings
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.ktx.app
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.ktx.app
 import java.util.UUID
 
 /**

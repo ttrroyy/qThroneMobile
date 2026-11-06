@@ -3,12 +3,12 @@ package moe.matsuri.nb4a.ui
 import android.content.Context
 import android.util.AttributeSet
 import androidx.preference.Preference
-import app.qthrone.mobile.Key
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.ktx.app
-import app.qthrone.mobile.ui.json.JsonEditorActivity
-import app.qthrone.mobile.ui.json.JsonRelaxations
+import app.rawline.mobile.Key
+import app.rawline.mobile.R
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.ktx.app
+import app.rawline.mobile.ui.json.JsonEditorActivity
+import app.rawline.mobile.ui.json.JsonRelaxations
 
 /**
  * Opens the JSON editor on a profile-cache entry: the preference's own key by default (`serverConfig` when it has

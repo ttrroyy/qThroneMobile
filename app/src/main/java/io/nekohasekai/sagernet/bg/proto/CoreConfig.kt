@@ -1,6 +1,6 @@
-package app.qthrone.mobile.bg.proto
+package app.rawline.mobile.bg.proto
 
-import app.qthrone.mobile.outbound.config.GeneratedConfig
+import app.rawline.mobile.outbound.config.GeneratedConfig
 
 /** What a core instance or a probe box is started with: the sing-box config and its Xray half. */
 data class CoreConfig(

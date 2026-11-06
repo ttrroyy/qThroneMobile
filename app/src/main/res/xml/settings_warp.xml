@@ -31,12 +31,12 @@
             app:key="warp_public_key"
             app:title="@string/warp_public_key"
             app:useSimpleSummaryProvider="true" />
-        <app.qthrone.mobile.ui.settings.StringListPreference
+        <app.rawline.mobile.ui.settings.StringListPreference
             app:dialogMessage="@string/one_per_line"
             app:icon="@drawable/ic_baseline_domain_24"
             app:key="warp_ifc_addrs"
             app:title="@string/warp_interface_addresses" />
-        <app.qthrone.mobile.ui.settings.StringListPreference
+        <app.rawline.mobile.ui.settings.StringListPreference
             app:dialogMessage="@string/reserved_hint"
             app:icon="@drawable/ic_baseline_fingerprint_24"
             app:key="warp_reserved"
@@ -63,7 +63,7 @@
             app:key="warp_masque_peer_public_key"
             app:title="@string/warp_peer_public_key"
             app:useSimpleSummaryProvider="true" />
-        <app.qthrone.mobile.ui.settings.StringListPreference
+        <app.rawline.mobile.ui.settings.StringListPreference
             app:dialogMessage="@string/one_per_line"
             app:icon="@drawable/ic_baseline_domain_24"
             app:key="warp_masque_ifc_addrs"
@@ -88,7 +88,7 @@
             app:persistent="false"
             app:summary="@string/warp_generate_sum"
             app:title="@string/warp_generate" />
-        <app.qthrone.mobile.ui.settings.StringListPreference
+        <app.rawline.mobile.ui.settings.StringListPreference
             app:icon="@drawable/baseline_public_24"
             app:key="warp_api_hosts"
             app:title="@string/warp_api_hosts" />

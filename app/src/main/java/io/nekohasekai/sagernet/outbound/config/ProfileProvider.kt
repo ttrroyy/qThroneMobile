@@ -1,6 +1,6 @@
-package app.qthrone.mobile.outbound.config
+package app.rawline.mobile.outbound.config
 
-import app.qthrone.mobile.outbound.Outbound
+import app.rawline.mobile.outbound.Outbound
 
 /**
  * The storage layer's lookup of a stored profile by id (ProfilesRepo::GetProfile): the parsed outbound of the row,

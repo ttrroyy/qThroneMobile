@@ -1,7 +1,7 @@
-package app.qthrone.mobile.bg.test
+package app.rawline.mobile.bg.test
 
-import app.qthrone.mobile.database.ProxyEntity
-import app.qthrone.mobile.aidl.ITestSessionCallback
+import app.rawline.mobile.database.ProxyEntity
+import app.rawline.mobile.aidl.ITestSessionCallback
 import app.qthrone.core.mobile.Mobile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

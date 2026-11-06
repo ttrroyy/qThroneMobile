@@ -15,8 +15,8 @@ def shell(*args):
     return subprocess.check_output([adb, 'shell', *args], text=True)
 
 package = next(line.removeprefix('package:').strip() for line in shell('pm', 'list', 'packages').splitlines()
-               if line.startswith('package:app.qthrone.mobile') and not line.endswith('.test'))
-activity = package + '/app.qthrone.mobile.ui.MainActivity'
+               if line.startswith('package:app.rawline.mobile') and not line.endswith('.test'))
+activity = package + '/app.rawline.mobile.ui.MainActivity'
 shell('am', 'force-stop', package)
 shell('am', 'start', '-n', activity)
 time.sleep(3)

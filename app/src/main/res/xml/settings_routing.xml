@@ -56,8 +56,8 @@
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/cag_warp">
-        <app.qthrone.mobile.ui.settings.WarpEntryPreference
-            app:fragment="app.qthrone.mobile.ui.settings.WarpSettingsFragment"
+        <app.rawline.mobile.ui.settings.WarpEntryPreference
+            app:fragment="app.rawline.mobile.ui.settings.WarpSettingsFragment"
             app:icon="@drawable/ic_file_cloud_queue"
             app:key="settingsWarp"
             app:persistent="false"
@@ -67,6 +67,6 @@
         <SwitchPreference app:icon="@drawable/ic_navigation_apps" app:key="proxyApps" app:title="@string/proxied_apps" app:summary="@string/proxied_apps_summary" />
         <Preference app:icon="@drawable/ic_navigation_apps" app:key="routingApplications" app:title="@string/apps" app:widgetLayout="@layout/qmobile_preference_arrow" />
     </PreferenceCategory>
-    <Preference app:fragment="app.qthrone.mobile.ui.settings.XrayGeoSettingsFragment"
+    <Preference app:fragment="app.rawline.mobile.ui.settings.XrayGeoSettingsFragment"
         app:title="@string/xray_geo_download_title" app:widgetLayout="@layout/qmobile_preference_arrow" />
 </PreferenceScreen>

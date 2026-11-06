@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android" android:drawable="@drawable/mobile_switch_thumb_drop_shape">
+    <target android:name="drop" android:animation="@animator/switch_drop" />
+</animated-vector>

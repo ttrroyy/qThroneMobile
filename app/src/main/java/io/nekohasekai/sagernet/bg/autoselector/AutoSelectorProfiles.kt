@@ -1,14 +1,14 @@
-package app.qthrone.mobile.bg.autoselector
+package app.rawline.mobile.bg.autoselector
 
-import app.qthrone.mobile.bg.test.TestEngine
-import app.qthrone.mobile.database.ProfileManager
-import app.qthrone.mobile.database.ProxyEntity
-import app.qthrone.mobile.database.SagerDatabase
-import app.qthrone.mobile.database.SettingsMapper
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.outbound.config.AutoSelectorPlanner
-import app.qthrone.mobile.outbound.config.SelectorMember
-import app.qthrone.mobile.outbound.types.AutoSelector
+import app.rawline.mobile.bg.test.TestEngine
+import app.rawline.mobile.database.ProfileManager
+import app.rawline.mobile.database.ProxyEntity
+import app.rawline.mobile.database.SagerDatabase
+import app.rawline.mobile.database.SettingsMapper
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.outbound.config.AutoSelectorPlanner
+import app.rawline.mobile.outbound.config.SelectorMember
+import app.rawline.mobile.outbound.types.AutoSelector
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope

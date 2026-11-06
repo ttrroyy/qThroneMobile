@@ -1,11 +1,11 @@
-package app.qthrone.mobile.bg
+package app.rawline.mobile.bg
 
 import android.content.pm.PackageManager
 import android.os.Build
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.app
-import app.qthrone.mobile.ktx.readableMessage
-import app.qthrone.mobile.outbound.config.ConfigGenerator
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.app
+import app.rawline.mobile.ktx.readableMessage
+import app.rawline.mobile.outbound.config.ConfigGenerator
 import java.io.File
 import java.io.IOException
 

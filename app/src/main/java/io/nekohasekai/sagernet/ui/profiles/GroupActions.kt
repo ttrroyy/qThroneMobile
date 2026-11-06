@@ -1,25 +1,25 @@
-package app.qthrone.mobile.ui.profiles
+package app.rawline.mobile.ui.profiles
 
 import androidx.annotation.PluralsRes
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.GroupRepo
-import app.qthrone.mobile.database.GroupSort
-import app.qthrone.mobile.database.GroupSortAction
-import app.qthrone.mobile.database.GroupSortMethod
-import app.qthrone.mobile.database.ProfileManager
-import app.qthrone.mobile.database.ProxyEntity
-import app.qthrone.mobile.database.ProxyGroup
-import app.qthrone.mobile.database.TestShowItems
-import app.qthrone.mobile.group.SubscriptionClient
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.confirmAction
-import app.qthrone.mobile.ktx.nameList
-import app.qthrone.mobile.ktx.readableMessage
-import app.qthrone.mobile.ktx.snackbar
-import app.qthrone.mobile.ui.ConfigurationFragment
-import app.qthrone.mobile.ui.MainActivity
+import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
+import app.rawline.mobile.R
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.GroupRepo
+import app.rawline.mobile.database.GroupSort
+import app.rawline.mobile.database.GroupSortAction
+import app.rawline.mobile.database.GroupSortMethod
+import app.rawline.mobile.database.ProfileManager
+import app.rawline.mobile.database.ProxyEntity
+import app.rawline.mobile.database.ProxyGroup
+import app.rawline.mobile.database.TestShowItems
+import app.rawline.mobile.group.SubscriptionClient
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.confirmAction
+import app.rawline.mobile.ktx.nameList
+import app.rawline.mobile.ktx.readableMessage
+import app.rawline.mobile.ktx.snackbar
+import app.rawline.mobile.ui.ConfigurationFragment
+import app.rawline.mobile.ui.MainActivity
 
 /** The desktop's group actions on the current tab (mainwindow_profiles.cpp, mainwindow_setup.cpp). */
 internal object GroupActions {

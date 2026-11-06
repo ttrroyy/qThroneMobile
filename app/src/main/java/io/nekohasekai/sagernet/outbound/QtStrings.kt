@@ -1,4 +1,4 @@
-package app.qthrone.mobile.outbound
+package app.rawline.mobile.outbound
 
 /**
  * QString helpers with the exact semantics the desktop profile code relies on

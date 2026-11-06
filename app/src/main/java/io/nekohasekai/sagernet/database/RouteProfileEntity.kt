@@ -1,12 +1,12 @@
-package app.qthrone.mobile.database
+package app.rawline.mobile.database
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import app.qthrone.mobile.outbound.json.JsonInput
-import app.qthrone.mobile.route.RouteDns
-import app.qthrone.mobile.route.RouteProfile
-import app.qthrone.mobile.route.RouteRule
+import app.rawline.mobile.outbound.json.JsonInput
+import app.rawline.mobile.route.RouteDns
+import app.rawline.mobile.route.RouteProfile
+import app.rawline.mobile.route.RouteRule
 
 /**
  * The desktop's `route_profiles` row (RoutesRepo.cpp:14-49). The raw and endpoint columns only carry desktop data

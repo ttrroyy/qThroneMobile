@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.app.Activity
 import android.content.ClipData
@@ -16,29 +16,29 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
-import app.qthrone.mobile.BuildConfig
-import app.qthrone.mobile.R
-import app.qthrone.mobile.SagerNet
-import app.qthrone.mobile.bg.BaseService
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.backup.BackupExport
-import app.qthrone.mobile.database.backup.BackupRestore
-import app.qthrone.mobile.database.backup.ThrBackup
-import app.qthrone.mobile.database.backup.WebDavBackup
-import app.qthrone.mobile.databinding.LayoutBackupBinding
-import app.qthrone.mobile.databinding.LayoutImportBinding
-import app.qthrone.mobile.databinding.LayoutProgressBinding
-import app.qthrone.mobile.ktx.confirmAction
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.app
-import app.qthrone.mobile.ktx.onMainDispatcher
-import app.qthrone.mobile.ktx.readableMessage
-import app.qthrone.mobile.ktx.runOnDefaultDispatcher
-import app.qthrone.mobile.ktx.snackbar
-import app.qthrone.mobile.ktx.startFilesForResult
-import app.qthrone.mobile.ktx.triggerFullRestart
-import app.qthrone.mobile.widget.applyListInsets
+import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
+import app.rawline.mobile.BuildConfig
+import app.rawline.mobile.R
+import app.rawline.mobile.SagerNet
+import app.rawline.mobile.bg.BaseService
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.backup.BackupExport
+import app.rawline.mobile.database.backup.BackupRestore
+import app.rawline.mobile.database.backup.RwlBackup
+import app.rawline.mobile.database.backup.WebDavBackup
+import app.rawline.mobile.databinding.LayoutBackupBinding
+import app.rawline.mobile.databinding.LayoutImportBinding
+import app.rawline.mobile.databinding.LayoutProgressBinding
+import app.rawline.mobile.ktx.confirmAction
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.app
+import app.rawline.mobile.ktx.onMainDispatcher
+import app.rawline.mobile.ktx.readableMessage
+import app.rawline.mobile.ktx.runOnDefaultDispatcher
+import app.rawline.mobile.ktx.snackbar
+import app.rawline.mobile.ktx.startFilesForResult
+import app.rawline.mobile.ktx.triggerFullRestart
+import app.rawline.mobile.widget.applyListInsets
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -50,7 +50,7 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * Tools › Backup: the desktop's "Backup and Restore" (dialog_basic_settings.cpp:575-835) on `.thrbackup` files. A
+ * Tools › Backup: the desktop's "Backup and Restore" (dialog_basic_settings.cpp:575-835) on `.rwlbackup` files. A
  * backup (saved, shared or uploaded to WebDAV) holds the checked parts; a restore accepts any stream that starts
  * with "THRN", shows the desktop's part dialog, stops the service and restarts the app afterwards.
  */
@@ -66,7 +66,7 @@ class BackupFragment : Fragment(R.layout.layout_backup) {
             if (restore != null) arguments = bundleOf(ARG_RESTORE to restore.toString())
         }
 
-        fun fileName(): String = "qThrone-backup-${SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())}.thrbackup"
+        fun fileName(): String = "Rawline-backup-${SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())}.rwlbackup"
     }
 
     private var binding: LayoutBackupBinding? = null
@@ -250,7 +250,7 @@ class BackupFragment : Fragment(R.layout.layout_backup) {
     private fun uploadToWebDav(selection: BackupExport.Selection) {
         val dav = webDav() ?: return
         runTask(R.string.webdav_uploading, R.string.webdav_backup_failed, work = {
-            val file = File(app.cacheDir, "thrupload-${System.currentTimeMillis()}.thrbackup")
+            val file = File(app.cacheDir, "rwlupload-${System.currentTimeMillis()}.rwlbackup")
             try {
                 file.outputStream().use { BackupExport.write(selection, it) }
                 dav.upload(file, WebDavBackup.fileName())
@@ -369,7 +369,7 @@ class BackupFragment : Fragment(R.layout.layout_backup) {
     }
 
     private fun platformName(platform: String): String = when (platform) {
-        ThrBackup.PLATFORM_ANDROID -> getString(R.string.backup_platform_android)
+        RwlBackup.PLATFORM_ANDROID -> getString(R.string.backup_platform_android)
         "winnt" -> getString(R.string.backup_platform_windows)
         "linux" -> getString(R.string.backup_platform_linux)
         "darwin" -> getString(R.string.backup_platform_macos)
@@ -456,10 +456,10 @@ class BackupFragment : Fragment(R.layout.layout_backup) {
     }
 
     private fun describe(e: Throwable): String = when (e) {
-        is ThrBackup.FormatException -> when (e.kind) {
-            ThrBackup.Kind.NOT_BACKUP -> app.getString(R.string.backup_error_not_backup)
-            ThrBackup.Kind.UNSUPPORTED_VERSION -> app.getString(R.string.backup_error_version, e.version)
-            ThrBackup.Kind.CORRUPT -> app.getString(R.string.backup_error_corrupt)
+        is RwlBackup.FormatException -> when (e.kind) {
+            RwlBackup.Kind.NOT_BACKUP -> app.getString(R.string.backup_error_not_backup)
+            RwlBackup.Kind.UNSUPPORTED_VERSION -> app.getString(R.string.backup_error_version, e.version)
+            RwlBackup.Kind.CORRUPT -> app.getString(R.string.backup_error_corrupt)
         }
 
         else -> e.readableMessage

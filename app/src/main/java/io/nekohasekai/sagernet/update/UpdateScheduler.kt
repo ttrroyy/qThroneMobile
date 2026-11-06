@@ -1,4 +1,4 @@
-package app.qthrone.mobile.update
+package app.rawline.mobile.update
 
 import android.content.Context
 import androidx.work.Constraints
@@ -8,11 +8,11 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkerParameters
 import androidx.work.multiprocess.RemoteCoroutineWorker
 import androidx.work.multiprocess.RemoteWorkManager
-import app.qthrone.mobile.BuildConfig
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.app
-import app.qthrone.mobile.ktx.runOnDefaultDispatcher
+import app.rawline.mobile.BuildConfig
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.app
+import app.rawline.mobile.ktx.runOnDefaultDispatcher
 import java.util.concurrent.TimeUnit
 
 /**
@@ -20,7 +20,8 @@ import java.util.concurrent.TimeUnit
  * and only with a network. A newly found version is announced once by notification.
  */
 object UpdateScheduler {
-    private const val WORK_NAME = "UpdateCheck"
+    private const val WORK_NAME = "RawlineUpdateCheck"
+    private const val OLD_WORK_NAME = "UpdateCheck"
     private const val NOTIFIED = "updateNotifiedVersionCode"
 
     /** Follows the "show available updates" switch: scheduled while it is on, cancelled otherwise. */
@@ -28,6 +29,7 @@ object UpdateScheduler {
         runOnDefaultDispatcher {
             try {
                 val manager = RemoteWorkManager.getInstance(app)
+                manager.cancelUniqueWork(OLD_WORK_NAME).get()
                 if (BuildConfig.IN_APP_UPDATER && DataStore.updateCheckAuto) {
                     val request = PeriodicWorkRequestBuilder<CheckTask>(15, TimeUnit.MINUTES)
                         .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.bg.carrier
+package app.rawline.mobile.bg.carrier
 
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request

@@ -1,15 +1,15 @@
-package app.qthrone.mobile.outbound.common
+package app.rawline.mobile.outbound.common
 
-import app.qthrone.mobile.outbound.BuildContext
-import app.qthrone.mobile.outbound.import.ClashProxy
-import app.qthrone.mobile.outbound.QtStrings
-import app.qthrone.mobile.outbound.json.JsonObject
-import app.qthrone.mobile.outbound.json.JsonValues
-import app.qthrone.mobile.outbound.json.jsonObjectOf
-import app.qthrone.mobile.outbound.link.Base64Strict
-import app.qthrone.mobile.outbound.link.Hosts
-import app.qthrone.mobile.outbound.link.LinkParser
-import app.qthrone.mobile.outbound.link.ParsedLink
+import app.rawline.mobile.outbound.BuildContext
+import app.rawline.mobile.outbound.import.ClashProxy
+import app.rawline.mobile.outbound.QtStrings
+import app.rawline.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.json.JsonValues
+import app.rawline.mobile.outbound.json.jsonObjectOf
+import app.rawline.mobile.outbound.link.Base64Strict
+import app.rawline.mobile.outbound.link.Hosts
+import app.rawline.mobile.outbound.link.LinkParser
+import app.rawline.mobile.outbound.link.ParsedLink
 
 private val SHA256_HEX = Regex("[0-9a-fA-F]{64}")
 private const val LOWER_HEX = "0123456789abcdef"
@@ -115,7 +115,7 @@ class UTls {
     }
 }
 
-/** ECH (TLS.h:27-47, TLS.cpp:91-217). [resolver] is Throne-only: it is stored and shared but never reaches the core. */
+/** ECH (TLS.h:27-47, TLS.cpp:91-217). [resolver] is Rawline-only: it is stored and shared but never reaches the core. */
 class Ech {
     @JvmField var enabled: Boolean = false
     @JvmField var config: MutableList<String> = ArrayList()
@@ -235,7 +235,7 @@ class Ech {
         return obj
     }
 
-    /** TLS.cpp:212-217: the core rejects the Throne-only `resolver`. */
+    /** TLS.cpp:212-217: the core rejects the Rawline-only `resolver`. */
     fun build(ctx: BuildContext): JsonObject {
         val obj = exportToJson()
         obj.remove("resolver")

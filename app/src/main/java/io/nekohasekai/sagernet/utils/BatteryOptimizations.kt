@@ -1,4 +1,4 @@
-package app.qthrone.mobile.utils
+package app.rawline.mobile.utils
 
 import android.annotation.SuppressLint
 import android.app.ActivityManager

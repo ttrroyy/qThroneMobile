@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.app.Activity
 import android.content.Intent
@@ -21,28 +21,28 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
-import app.qthrone.mobile.Key
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.GroupRepo
-import app.qthrone.mobile.database.ProfileManager
-import app.qthrone.mobile.database.ProxyGroup
-import app.qthrone.mobile.database.SendHwid
-import app.qthrone.mobile.database.SubscriptionOptions
-import app.qthrone.mobile.database.ServerSortRule
-import app.qthrone.mobile.database.GroupSort
-import app.qthrone.mobile.database.GroupSortAction
-import app.qthrone.mobile.database.GroupSortMethod
-import app.qthrone.mobile.database.preference.OnPreferenceDataStoreChangeListener
-import app.qthrone.mobile.group.DeviceDetails
-import app.qthrone.mobile.group.RequestIdentity
-import app.qthrone.mobile.group.SubscriptionScheduler
-import app.qthrone.mobile.group.SubscriptionNameFilter
-import app.qthrone.mobile.group.ProviderLinks
-import app.qthrone.mobile.ktx.FixedLinearLayoutManager
-import app.qthrone.mobile.ui.settings.DefaultSummaryProvider
-import app.qthrone.mobile.widget.ListListener
+import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
+import app.rawline.mobile.Key
+import app.rawline.mobile.R
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.GroupRepo
+import app.rawline.mobile.database.ProfileManager
+import app.rawline.mobile.database.ProxyGroup
+import app.rawline.mobile.database.SendHwid
+import app.rawline.mobile.database.SubscriptionOptions
+import app.rawline.mobile.database.ServerSortRule
+import app.rawline.mobile.database.GroupSort
+import app.rawline.mobile.database.GroupSortAction
+import app.rawline.mobile.database.GroupSortMethod
+import app.rawline.mobile.database.preference.OnPreferenceDataStoreChangeListener
+import app.rawline.mobile.group.DeviceDetails
+import app.rawline.mobile.group.RequestIdentity
+import app.rawline.mobile.group.SubscriptionScheduler
+import app.rawline.mobile.group.SubscriptionNameFilter
+import app.rawline.mobile.group.ProviderLinks
+import app.rawline.mobile.ktx.FixedLinearLayoutManager
+import app.rawline.mobile.ui.settings.DefaultSummaryProvider
+import app.rawline.mobile.widget.ListListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -146,7 +146,7 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
     private var globalSendHwid = false
 
     /** "[group] name" of the profiles the front/landing menus offer. */
-    private var routeProfiles = emptyList<app.qthrone.mobile.route.RouteProfile>()
+    private var routeProfiles = emptyList<app.rawline.mobile.route.RouteProfile>()
     private val proxyLabels = HashMap<Long, String>()
 
     private val fragment get() = supportFragmentManager.findFragmentById(R.id.settings) as? GroupPreferenceFragment
@@ -204,7 +204,7 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
                     if (editingId == 0L && suggestedName.isNotBlank()) DataStore.groupName = suggestedName
                     DataStore.dirty = prefilled || (editingId == 0L && suggestedName.isNotBlank())
                 } else originalSignature = savedInstanceState?.getString("originalSignature") ?: editSignature()
-                routeProfiles = app.qthrone.mobile.database.RouteManager.usable()
+                routeProfiles = app.rawline.mobile.database.RouteManager.usable()
                 val identity = RequestIdentity.resolve(null)
                 defaultUserAgent = identity.userAgent
                 defaultDevice = identity.device
@@ -435,7 +435,7 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
         )
     }
 
-    private fun editSignature(): String = app.qthrone.mobile.outbound.json.jsonObjectOf(
+    private fun editSignature(): String = app.rawline.mobile.outbound.json.jsonObjectOf(
         "name" to DataStore.groupName.trim(), "type" to DataStore.groupType,
         "url" to DataStore.subscriptionLink.trim(), "front" to proxyId(KEY_FRONT), "landing" to proxyId(KEY_LANDING),
         "clear" to DataStore.profileCacheStore.getBoolean(KEY_AUTO_CLEAR, false),
@@ -677,7 +677,7 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
                 val items = arrayListOf<CharSequence>(getString(R.string.grp_none))
                 if (current > 0) items.add(proxyText(current))
                 items.add(getString(R.string.route_profile))
-                app.qthrone.mobile.ui.MobileSelector.show(preference,items,if(current > 0) 1 else 0) { which ->
+                app.rawline.mobile.ui.MobileSelector.show(preference,items,if(current > 0) 1 else 0) { which ->
                     when(which) { 0 -> setProxy(key,-1L); items.lastIndex -> host.pickProfile(key) }
                 }
                 true

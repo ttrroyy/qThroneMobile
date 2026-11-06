@@ -1,10 +1,10 @@
 -repackageclasses ''
 -allowaccessmodification
 
--keep class app.qthrone.mobile.** { *;}
+-keep class app.rawline.mobile.** { *;}
 -keep class moe.matsuri.nb4a.** { *;}
 # OutboundFactory instantiates the profile types reflectively by class name
--keep class app.qthrone.mobile.outbound.types.** { *; }
+-keep class app.rawline.mobile.outbound.types.** { *; }
 
 # Clean Kotlin
 -assumenosideeffects class kotlin.jvm.internal.Intrinsics {

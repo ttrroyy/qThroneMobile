@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.os.Bundle
 import android.view.View
@@ -13,8 +13,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import app.qthrone.mobile.R
-import app.qthrone.mobile.deploy.*
+import app.rawline.mobile.R
+import app.rawline.mobile.deploy.*
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -378,7 +378,7 @@ open class DeployEditorFragment : Fragment() {
         }
         displayedConfig=DeployConfig.display(s?.get("config").orEmpty())
         val legacy=if(s!=null && s.kind=="qwdtt" && displayedConfig.isNotBlank()) runCatching {
-            app.qthrone.mobile.deploy.QwdttAdmin.links(s,s["name"].ifBlank { s["password"] },s["password"],emptyList()).second
+            app.rawline.mobile.deploy.QwdttAdmin.links(s,s["name"].ifBlank { s["password"] },s["password"],emptyList()).second
         }.getOrNull() else null
         val shown=displayedConfig+" "+legacy.orEmpty()
         if(configBox!=null && shown!=shownConfig) {

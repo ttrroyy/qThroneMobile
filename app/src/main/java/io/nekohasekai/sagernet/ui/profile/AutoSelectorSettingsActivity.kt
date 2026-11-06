@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui.profile
+package app.rawline.mobile.ui.profile
 
 import android.content.Intent
 import android.os.Bundle
@@ -11,23 +11,23 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
-import app.qthrone.mobile.Action
-import app.qthrone.mobile.R
-import app.qthrone.mobile.bg.autoselector.AutoSelectorProfiles
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.GroupRepo
-import app.qthrone.mobile.database.ProfileManager
-import app.qthrone.mobile.database.SettingsMapper
-import app.qthrone.mobile.database.preference.EditTextPreferenceModifiers
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.onMainDispatcher
-import app.qthrone.mobile.ktx.runOnDefaultDispatcher
-import app.qthrone.mobile.ktx.runOnMainDispatcher
-import app.qthrone.mobile.outbound.config.AutoSelectorPlan
-import app.qthrone.mobile.outbound.config.AutoSelectorPlanner
-import app.qthrone.mobile.outbound.config.AutoSelectorSkip
-import app.qthrone.mobile.outbound.types.AutoSelector
+import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
+import app.rawline.mobile.Action
+import app.rawline.mobile.R
+import app.rawline.mobile.bg.autoselector.AutoSelectorProfiles
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.GroupRepo
+import app.rawline.mobile.database.ProfileManager
+import app.rawline.mobile.database.SettingsMapper
+import app.rawline.mobile.database.preference.EditTextPreferenceModifiers
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.onMainDispatcher
+import app.rawline.mobile.ktx.runOnDefaultDispatcher
+import app.rawline.mobile.ktx.runOnMainDispatcher
+import app.rawline.mobile.outbound.config.AutoSelectorPlan
+import app.rawline.mobile.outbound.config.AutoSelectorPlanner
+import app.rawline.mobile.outbound.config.AutoSelectorSkip
+import app.rawline.mobile.outbound.types.AutoSelector
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

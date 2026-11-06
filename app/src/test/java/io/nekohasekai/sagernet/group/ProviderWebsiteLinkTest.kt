@@ -1,4 +1,4 @@
-package app.qthrone.mobile.group
+package app.rawline.mobile.group
 
 import java.net.URLEncoder
 import org.junit.Assert.*

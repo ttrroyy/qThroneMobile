@@ -1,6 +1,6 @@
-package app.qthrone.mobile.outbound.config
+package app.rawline.mobile.outbound.config
 
-import app.qthrone.mobile.outbound.json.*
+import app.rawline.mobile.outbound.json.*
 import org.junit.Assert.*
 import org.junit.Test
 

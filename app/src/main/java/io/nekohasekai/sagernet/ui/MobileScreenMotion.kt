@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.animation.Animator
 import android.animation.AnimatorSet
@@ -8,10 +8,18 @@ import android.os.Build
 import android.view.View
 import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
-import app.qthrone.mobile.R
+import app.rawline.mobile.R
 
 /** Screen changes: the classic style fades quickly everywhere; the new style rises softly, screens and windows alike. */
 object MobileScreenMotion {
+    /** Some phones hold an app at 60 Hz unless its window asks for the fastest mode of the screen. */
+    fun fullFrameRate(window: android.view.Window) {
+        @Suppress("DEPRECATION") val display = window.windowManager.defaultDisplay ?: return
+        val mode = display.mode
+        val fastest = display.supportedModes.filter { it.physicalWidth == mode.physicalWidth && it.physicalHeight == mode.physicalHeight }.maxByOrNull { it.refreshRate } ?: return
+        window.attributes = window.attributes.apply { preferredDisplayModeId = fastest.modeId }
+    }
+
     fun create(fragment: Fragment, nextAnim: Int): Animator? {
         val view = fragment.view ?: return null
         val incoming = nextAnim == R.anim.settings_enter || nextAnim == R.anim.settings_pop_enter
@@ -19,15 +27,16 @@ object MobileScreenMotion {
         view.translationX = 0f
         val fade = ObjectAnimator.ofFloat(view, View.ALPHA, if (incoming) 0f else 1f, if (incoming) 1f else 0f)
         if (!MobileStyle.new) return fade.apply { duration = 90 }
-        fade.duration = if (incoming) 200 else 140
-        val rise = view.resources.displayMetrics.density * 24
+        fade.duration = if (incoming) 180 else 120
+        val rise = view.resources.displayMetrics.density * 12
+        view.setLayerType(View.LAYER_TYPE_HARDWARE, null)
         return AnimatorSet().apply {
             val soft = AnimationUtils.loadInterpolator(view.context, android.R.interpolator.fast_out_slow_in)
             interpolator = soft
-            if (incoming) playTogether(fade, ObjectAnimator.ofFloat(view, View.TRANSLATION_Y, rise, 0f).setDuration(300))
-            else playTogether(fade, ObjectAnimator.ofFloat(view, View.SCALE_X, 1f, .97f).setDuration(220), ObjectAnimator.ofFloat(view, View.SCALE_Y, 1f, .97f).setDuration(220))
+            if (incoming) playTogether(fade, ObjectAnimator.ofFloat(view, View.TRANSLATION_Y, rise, 0f).setDuration(220))
+            else play(fade)
             addListener(object : android.animation.AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) { view.translationY = 0f; view.scaleX = 1f; view.scaleY = 1f }
+                override fun onAnimationEnd(animation: Animator) { view.translationY = 0f; view.setLayerType(View.LAYER_TYPE_NONE, null) }
             })
         }
     }

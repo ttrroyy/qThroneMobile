@@ -1,10 +1,10 @@
-package app.qthrone.mobile.ui.settings
+package app.rawline.mobile.ui.settings
 
 import android.content.Intent
 import androidx.preference.Preference
-import app.qthrone.mobile.R
-import app.qthrone.mobile.update.UpdateActivity
-import app.qthrone.mobile.BuildConfig
+import app.rawline.mobile.R
+import app.rawline.mobile.update.UpdateActivity
+import app.rawline.mobile.BuildConfig
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -18,7 +18,7 @@ class UpdateSettingsFragment : SettingsScreenFragment(R.xml.settings_updates) {
         val available=pref<Preference>("updateAvailable")
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                app.qthrone.mobile.update.UpdateDiscovery.available.collect { offer ->
+                app.rawline.mobile.update.UpdateDiscovery.available.collect { offer ->
                     available.isVisible=offer!=null
                     if(offer!=null) {
                         available.title=getString(R.string.update_home_banner,offer.versionName)

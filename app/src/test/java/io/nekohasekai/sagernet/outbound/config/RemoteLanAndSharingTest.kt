@@ -1,20 +1,20 @@
-package app.qthrone.mobile.outbound.config
+package app.rawline.mobile.outbound.config
 
-import app.qthrone.mobile.outbound.json.JsonArray
-import app.qthrone.mobile.outbound.json.JsonInput
-import app.qthrone.mobile.outbound.json.JsonObject
-import app.qthrone.mobile.outbound.json.jsonObjectOf
-import app.qthrone.mobile.outbound.types.OpenConnect
-import app.qthrone.mobile.outbound.types.Socks
-import app.qthrone.mobile.outbound.types.Qwdtt
-import app.qthrone.mobile.outbound.BuildContext
-import app.qthrone.mobile.bg.carrier.VpnListenerPolicy
+import app.rawline.mobile.outbound.json.JsonArray
+import app.rawline.mobile.outbound.json.JsonInput
+import app.rawline.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.json.jsonObjectOf
+import app.rawline.mobile.outbound.types.OpenConnect
+import app.rawline.mobile.outbound.types.Socks
+import app.rawline.mobile.outbound.types.Qwdtt
+import app.rawline.mobile.outbound.BuildContext
+import app.rawline.mobile.bg.carrier.VpnListenerPolicy
 import org.junit.Assert.*
 import org.junit.Test
 
 class RemoteLanAndSharingTest {
     @Test fun sstpServerDnsUsesItsAuthenticatedBridgeAndLeavesSavedDnsAlone() {
-        val profile=app.qthrone.mobile.outbound.types.Sstp().apply { server="vpn.example.org";username="user";password="secret" }
+        val profile=app.rawline.mobile.outbound.types.Sstp().apply { server="vpn.example.org";username="user";password="secret" }
         val settings=GeneratorSettings(vpnMode=true,remoteDns="https://cloudflare-dns.com/dns-query")
         for(enabled in listOf(false,true)) {
             profile.useServerDns=enabled
@@ -29,7 +29,7 @@ class RemoteLanAndSharingTest {
     }
 
     @Test fun wireGuardDnsLineIsTheRemoteResolverThroughTheTunnel() {
-        val profile=app.qthrone.mobile.outbound.types.WireGuard()
+        val profile=app.rawline.mobile.outbound.types.WireGuard()
         assertTrue(profile.parseFromLink(listOf("[Interface]", "PrivateKey = wFNC2jmaWZaW3SrWi4FpXDQmVM8KPgtwlahJ8or8i1g=",
             "Address = 10.88.3.164/32", "DNS = 1.1.1.1", "", "[Peer]", "PublicKey = tjMSwMQMt0wGxNHzOQhYuY20//KhyQpAYPpcexim00s=",
             "Endpoint = wg.example.org:51111", "AllowedIPs = 0.0.0.0/0").joinToString("\n")))
@@ -39,13 +39,13 @@ class RemoteLanAndSharingTest {
         assertEquals("udp",remote.string("type"));assertEquals("1.1.1.1",remote.string("server"));assertEquals("proxy",remote.string("detour"))
         // The core's endpoint has no DNS field; the line stays in the saved profile only.
         assertFalse(config.array("endpoints").filterIsInstance<JsonObject>().any { it.contains("dns") })
-        assertEquals(listOf("1.1.1.1"),app.qthrone.mobile.outbound.types.WireGuard().apply { parseFromJson(profile.exportToJson()) }.dns)
+        assertEquals(listOf("1.1.1.1"),app.rawline.mobile.outbound.types.WireGuard().apply { parseFromJson(profile.exportToJson()) }.dns)
     }
 
     @Test fun openConnectAndOpenVpnDnsModesReachTheirEndpoint() {
         for(mode in listOf("none","prefer","strict")) for(type in listOf("openconnect","openvpn")) {
             val profile=if(type=="openconnect") OpenConnect().apply { server="vpn.example.org";tunnel_dns=mode }
-                else app.qthrone.mobile.outbound.types.OpenVpn().apply { server="vpn.example.org";tunnel_dns=mode }
+                else app.rawline.mobile.outbound.types.OpenVpn().apply { server="vpn.example.org";tunnel_dns=mode }
             val result=ConfigGenerator(ProfileProvider { if(it==1L) profile else null },GeneratorSettings(vpnMode=true)).build(1)
             assertNull(result.error)
             val dns=JsonInput.parseObject(result.coreConfig).obj("dns")
@@ -84,7 +84,7 @@ class RemoteLanAndSharingTest {
     }
     @Test fun remoteLanUsesAdvertisedRoutesForOpenConnectAndOpenVpn() {
         for(profile in listOf(OpenConnect().apply { server="vpn.example.org" },
-            app.qthrone.mobile.outbound.types.OpenVpn().apply { server="vpn.example.org" })) {
+            app.rawline.mobile.outbound.types.OpenVpn().apply { server="vpn.example.org" })) {
             val result=ConfigGenerator(ProfileProvider { profile },GeneratorSettings(vpnMode=true)).build(1)
             assertNull(result.error)
             val rules=JsonInput.parseObject(result.coreConfig).obj("route").array("rules").filterIsInstance<JsonObject>()
@@ -95,7 +95,7 @@ class RemoteLanAndSharingTest {
         }
     }
     @Test fun sstpReachesTheServersLanButKeepsThePhonesOwnNetwork() {
-        val profile=app.qthrone.mobile.outbound.types.Sstp().apply { server="vpn.example.org";username="user";password="secret" }
+        val profile=app.rawline.mobile.outbound.types.Sstp().apply { server="vpn.example.org";username="user";password="secret" }
         val result=ConfigGenerator(ProfileProvider { profile },GeneratorSettings(vpnMode=true,localLanCidrs=listOf("192.168.31.0/24"))).build(1)
         assertNull(result.error)
         val config=JsonInput.parseObject(result.coreConfig)
@@ -109,14 +109,14 @@ class RemoteLanAndSharingTest {
     }
     @Test fun explicitUserLanRoutePrecedesServerPreference() {
         val profile=OpenConnect().apply { server="vpn.example.org" }
-        val route=app.qthrone.mobile.route.RouteProfile.defaultProfile().apply {
-            rules.add(app.qthrone.mobile.route.RouteRule().apply {
+        val route=app.rawline.mobile.route.RouteProfile.defaultProfile().apply {
+            rules.add(app.rawline.mobile.route.RouteRule().apply {
                 name="Local printer";ip_cidr.add("192.168.1.25/32")
-                action="route";outbound_id=app.qthrone.mobile.route.OutboundIds.DIRECT
+                action="route";outbound_id=app.rawline.mobile.route.OutboundIds.DIRECT
             })
         }
         val result=ConfigGenerator(ProfileProvider { profile },GeneratorSettings(vpnMode=true),
-            routing=RoutingInput(route,app.qthrone.mobile.route.RuleSetCatalog(emptyList()))).build(1)
+            routing=RoutingInput(route,app.rawline.mobile.route.RuleSetCatalog(emptyList()))).build(1)
         assertNull(result.error)
         val rules=JsonInput.parseObject(result.coreConfig).obj("route").array("rules").filterIsInstance<JsonObject>()
         val userRule=rules.indexOfFirst { it.array("ip_cidr").contains("192.168.1.25/32") && it.string("outbound")=="direct" }
@@ -138,7 +138,7 @@ class RemoteLanAndSharingTest {
     @Test fun qwdttUsesRuntimeIpv4WithoutChangingGlobalPreferences() {
         val original=GeneratorSettings(vpnMode=true,ipv6Enabled=true,remoteDnsDisableIpv6=false)
         assertTrue(TransportIpPolicy.ipv4Only(Qwdtt(),ProfileProvider { null }))
-        assertTrue(TransportIpPolicy.ipv4Only(app.qthrone.mobile.outbound.types.Csqtt(),ProfileProvider { null }))
+        assertTrue(TransportIpPolicy.ipv4Only(app.rawline.mobile.outbound.types.Csqtt(),ProfileProvider { null }))
         assertFalse(TransportIpPolicy.ipv4Only(Socks(),ProfileProvider { null }))
         val effective=TransportIpPolicy.settings(original)
         assertFalse(effective.ipv6Enabled)

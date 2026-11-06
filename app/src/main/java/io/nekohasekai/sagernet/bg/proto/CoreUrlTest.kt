@@ -1,11 +1,11 @@
-package app.qthrone.mobile.bg.proto
+package app.rawline.mobile.bg.proto
 
-import app.qthrone.mobile.bg.CoreRuntime
-import app.qthrone.mobile.bg.test.TestTags
-import app.qthrone.mobile.database.ProfileManager
-import app.qthrone.mobile.database.ProxyEntity
-import app.qthrone.mobile.ktx.completeWith
-import app.qthrone.mobile.outbound.types.Chain
+import app.rawline.mobile.bg.CoreRuntime
+import app.rawline.mobile.bg.test.TestTags
+import app.rawline.mobile.database.ProfileManager
+import app.rawline.mobile.database.ProxyEntity
+import app.rawline.mobile.ktx.completeWith
+import app.rawline.mobile.outbound.types.Chain
 import app.qthrone.core.mobile.Instance
 import app.qthrone.core.mobile.Mobile
 import app.qthrone.core.mobile.TestRequest
@@ -71,9 +71,9 @@ internal fun exitsThroughVpn(profile: ProxyEntity?): Boolean {
 
 /** What a probe box is started with: the config, its Xray half and the tags to measure. */
 internal fun CoreConfig.applyTo(request: TestRequest) {
-    app.qthrone.mobile.bg.carrier.VpnListenerPolicy.check(coreConfig)
-    xrayConfig?.let(app.qthrone.mobile.bg.carrier.VpnListenerPolicy::checkXray)
-    xrayFullConfigs.forEach(app.qthrone.mobile.bg.carrier.VpnListenerPolicy::checkXray)
+    app.rawline.mobile.bg.carrier.VpnListenerPolicy.check(coreConfig)
+    xrayConfig?.let(app.rawline.mobile.bg.carrier.VpnListenerPolicy::checkXray)
+    xrayFullConfigs.forEach(app.rawline.mobile.bg.carrier.VpnListenerPolicy::checkXray)
     request.coreConfig = coreConfig
     request.needXray = needXray
     request.xrayConfig = xrayConfig ?: ""

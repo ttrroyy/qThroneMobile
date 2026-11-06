@@ -1,10 +1,10 @@
-package app.qthrone.mobile.ui.profile
+package app.rawline.mobile.ui.profile
 
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.outbound.types.Naive
+import app.rawline.mobile.R
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.outbound.types.Naive
 
 class NaiveSettingsActivity : BindingSettingsActivity<Naive>() {
 

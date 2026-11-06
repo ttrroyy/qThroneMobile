@@ -1,7 +1,7 @@
-package app.qthrone.mobile.bg.test
+package app.rawline.mobile.bg.test
 
-import app.qthrone.mobile.bg.CoreRuntime
-import app.qthrone.mobile.database.ProxyEntity
+import app.rawline.mobile.bg.CoreRuntime
+import app.rawline.mobile.database.ProxyEntity
 import app.qthrone.core.mobile.IPTestHandler
 import app.qthrone.core.mobile.Mobile
 

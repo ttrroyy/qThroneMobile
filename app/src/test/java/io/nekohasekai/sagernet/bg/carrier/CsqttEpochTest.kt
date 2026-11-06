@@ -1,6 +1,6 @@
-package app.qthrone.mobile.bg.carrier
+package app.rawline.mobile.bg.carrier
 
-import app.qthrone.mobile.outbound.json.JsonInput
+import app.rawline.mobile.outbound.json.JsonInput
 import org.junit.Assert.*
 import org.junit.Test
 

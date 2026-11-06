@@ -1,4 +1,4 @@
-"""i18n coverage diagnostic for ThroneForAndroid string resources.
+"""i18n coverage diagnostic for RawlineForAndroid string resources.
 
 Read-only checks against app/src/main/res:
   - missing / extra entries per locale (strings, plurals, arrays)

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.bg.carrier
+package app.rawline.mobile.bg.carrier
 
 internal object HashCheckProtocol {
     data class Update(val slot: Int, val message: String, val finished: Boolean)

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.widget
+package app.rawline.mobile.widget
 
 import android.content.Context
 import android.graphics.drawable.Drawable
@@ -15,8 +15,8 @@ import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.progressindicator.BaseProgressIndicator
-import app.qthrone.mobile.R
-import app.qthrone.mobile.bg.BaseService
+import app.rawline.mobile.R
+import app.rawline.mobile.bg.BaseService
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import java.util.*

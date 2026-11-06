@@ -1,18 +1,18 @@
-package app.qthrone.mobile.bg.proto
+package app.rawline.mobile.bg.proto
 
-import app.qthrone.mobile.bg.AbstractInstance
-import app.qthrone.mobile.bg.CoreRuntime
-import app.qthrone.mobile.bg.SingBoxDashboard
-import app.qthrone.mobile.bg.XrayGeoAssets
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.ProxyEntity
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.isLoopbackPortFree
-import app.qthrone.mobile.ktx.mkPort
-import app.qthrone.mobile.ktx.readableMessage
-import app.qthrone.mobile.outbound.config.AutoSelectorBuild
-import app.qthrone.mobile.outbound.config.GeneratedConfig
-import app.qthrone.mobile.outbound.types.Custom
+import app.rawline.mobile.bg.AbstractInstance
+import app.rawline.mobile.bg.CoreRuntime
+import app.rawline.mobile.bg.SingBoxDashboard
+import app.rawline.mobile.bg.XrayGeoAssets
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.ProxyEntity
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.isLoopbackPortFree
+import app.rawline.mobile.ktx.mkPort
+import app.rawline.mobile.ktx.readableMessage
+import app.rawline.mobile.outbound.config.AutoSelectorBuild
+import app.rawline.mobile.outbound.config.GeneratedConfig
+import app.rawline.mobile.outbound.types.Custom
 import app.qthrone.core.mobile.Instance
 import app.qthrone.core.mobile.Mobile
 import app.qthrone.core.mobile.StartOptions
@@ -24,9 +24,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import app.qthrone.mobile.bg.carrier.NativeConnectionStatus
-import app.qthrone.mobile.bg.carrier.NativeConnectionStage
-import app.qthrone.mobile.bg.carrier.CarrierPool
+import app.rawline.mobile.bg.carrier.NativeConnectionStatus
+import app.rawline.mobile.bg.carrier.NativeConnectionStage
+import app.rawline.mobile.bg.carrier.CarrierPool
 
 abstract class BoxInstance(
     val profile: ProxyEntity
@@ -36,7 +36,7 @@ abstract class BoxInstance(
     lateinit var core: CoreConfig
     lateinit var box: Instance
 
-    private val carrierProcesses = mutableListOf<app.qthrone.mobile.bg.carrier.CarrierPool.Lease>()
+    private val carrierProcesses = mutableListOf<app.rawline.mobile.bg.carrier.CarrierPool.Lease>()
     private var nativeStatus:NativeConnectionStatus.Writer?=null
     private var nativeWatchdog:Job?=null
     private var wakeCheck:Job?=null
@@ -60,7 +60,7 @@ abstract class BoxInstance(
             do { DataStore.inboundHttpPort = mkPort() } while(DataStore.inboundHttpPort == DataStore.inboundSocksPort)
         }
         // TUN mode's loopback proxy only carries the app's own requests: another app holding a port must not fail the start.
-        if (DataStore.serviceMode == app.qthrone.mobile.Key.MODE_VPN && !DataStore.lanSharingEnabled) {
+        if (DataStore.serviceMode == app.rawline.mobile.Key.MODE_VPN && !DataStore.lanSharingEnabled) {
             if (!isLoopbackPortFree(DataStore.inboundSocksPort)) DataStore.inboundSocksPort = mkPort()
             while (DataStore.inboundHttpPort == DataStore.inboundSocksPort || !isLoopbackPortFree(DataStore.inboundHttpPort)) DataStore.inboundHttpPort = mkPort()
         }
@@ -74,8 +74,8 @@ abstract class BoxInstance(
         // A custom full config keeps its own rule-sets as written.
         if (isCustomFullConfig()) deferRuleSets = false
         config = CoreConfigs.buildMain(profile, deferRuleSets)
-        if(DataStore.serviceMode==app.qthrone.mobile.Key.MODE_VPN) {
-            app.qthrone.mobile.bg.carrier.VpnListenerPolicy.check(config.coreConfig, DataStore.lanSharingEnabled)
+        if(DataStore.serviceMode==app.rawline.mobile.Key.MODE_VPN) {
+            app.rawline.mobile.bg.carrier.VpnListenerPolicy.check(config.coreConfig, DataStore.lanSharingEnabled)
         }
     }
 
@@ -97,7 +97,7 @@ abstract class BoxInstance(
             }
         }
         try {
-            if(config.carrierPlans.any { it.kind in listOf(app.qthrone.mobile.bg.carrier.CarrierKind.QWDTT,app.qthrone.mobile.bg.carrier.CarrierKind.CSQTT,app.qthrone.mobile.bg.carrier.CarrierKind.WDTTPLUS) }) {
+            if(config.carrierPlans.any { it.kind in listOf(app.rawline.mobile.bg.carrier.CarrierKind.QWDTT,app.rawline.mobile.bg.carrier.CarrierKind.CSQTT,app.rawline.mobile.bg.carrier.CarrierKind.WDTTPLUS) }) {
                 nativeStatus=NativeConnectionStatus.Writer(profile.id).also { it.update(NativeConnectionStage.PREPARING) }
             }
             for(plan in config.carrierPlans) {
@@ -158,9 +158,9 @@ abstract class BoxInstance(
                 if(!failure.second) delay(2_000)
                 withContext(Dispatchers.Main) {
                     val service=DataStore.baseService
-                    if(service!=null && service.data.proxy===this@BoxInstance && service.data.state==app.qthrone.mobile.bg.BaseService.State.Connected) {
+                    if(service!=null && service.data.proxy===this@BoxInstance && service.data.state==app.rawline.mobile.bg.BaseService.State.Connected) {
                         if(failure.second) service.stopRunner(msg=failure.first)
-                        else { Logs.i("Native transport watchdog: reconnecting");app.qthrone.mobile.SagerNet.reloadService() }
+                        else { Logs.i("Native transport watchdog: reconnecting");app.rawline.mobile.SagerNet.reloadService() }
                     }
                 }
                 break
@@ -188,8 +188,8 @@ abstract class BoxInstance(
             }
             withContext(Dispatchers.Main) {
                 val service=DataStore.baseService
-                if(service!=null && service.data.proxy===this@BoxInstance && service.data.state==app.qthrone.mobile.bg.BaseService.State.Connected) {
-                    Logs.i("External transport wake check: reconnecting");app.qthrone.mobile.SagerNet.reloadService()
+                if(service!=null && service.data.proxy===this@BoxInstance && service.data.state==app.rawline.mobile.bg.BaseService.State.Connected) {
+                    Logs.i("External transport wake check: reconnecting");app.rawline.mobile.SagerNet.reloadService()
                 }
             }
         }
@@ -198,8 +198,8 @@ abstract class BoxInstance(
     /** The screen went off again: a check now would test a sleeping network. */
     fun cancelWakeCheck() { wakeCheck?.cancel();wakeCheck=null }
 
-    private fun underlyingValidated()=app.qthrone.mobile.SagerNet.underlyingNetwork?.let {
-        app.qthrone.mobile.SagerNet.connectivity.getNetworkCapabilities(it)
+    private fun underlyingValidated()=app.rawline.mobile.SagerNet.underlyingNetwork?.let {
+        app.rawline.mobile.SagerNet.connectivity.getNetworkCapabilities(it)
             ?.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED)
     }==true
 
@@ -209,12 +209,12 @@ abstract class BoxInstance(
      */
     @Suppress("DEPRECATION")
     private fun holdLocks() {
-        val context=app.qthrone.mobile.ktx.app
-        cpuLock=runCatching { app.qthrone.mobile.SagerNet.power.newWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK,"qthrone:native-transport")
+        val context=app.rawline.mobile.ktx.app
+        cpuLock=runCatching { app.rawline.mobile.SagerNet.power.newWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK,"rawline:native-transport")
             .apply { setReferenceCounted(false);acquire() } }.onFailure { Logs.w(it) }.getOrNull()
         val wifi=context.applicationContext.getSystemService(android.content.Context.WIFI_SERVICE) as? android.net.wifi.WifiManager
         val mode=if(android.os.Build.VERSION.SDK_INT>=29) android.net.wifi.WifiManager.WIFI_MODE_FULL_LOW_LATENCY else android.net.wifi.WifiManager.WIFI_MODE_FULL_HIGH_PERF
-        wifiLock=runCatching { wifi?.createWifiLock(mode,"qthrone:native-transport")?.apply { setReferenceCounted(false);acquire() } }.onFailure { Logs.w(it) }.getOrNull()
+        wifiLock=runCatching { wifi?.createWifiLock(mode,"rawline:native-transport")?.apply { setReferenceCounted(false);acquire() } }.onFailure { Logs.w(it) }.getOrNull()
     }
 
     private fun releaseLocks() {
@@ -244,8 +244,8 @@ class LocalDnsFailedException(val servers: String, cause: Throwable) : Exception
 class RuleSetDownloadFailedException(cause: Throwable) : Exception(cause.message, cause)
 
 internal fun CoreConfig.toStartOptions(autoSelector: AutoSelectorBuild? = null): StartOptions = StartOptions().apply {
-    this@toStartOptions.xrayConfig?.let(app.qthrone.mobile.bg.carrier.VpnListenerPolicy::checkXray)
-    this@toStartOptions.xrayFullConfigs.forEach(app.qthrone.mobile.bg.carrier.VpnListenerPolicy::checkXray)
+    this@toStartOptions.xrayConfig?.let(app.rawline.mobile.bg.carrier.VpnListenerPolicy::checkXray)
+    this@toStartOptions.xrayFullConfigs.forEach(app.rawline.mobile.bg.carrier.VpnListenerPolicy::checkXray)
     coreConfig = this@toStartOptions.coreConfig
     needXray = this@toStartOptions.needXray
     xrayConfig = this@toStartOptions.xrayConfig ?: ""

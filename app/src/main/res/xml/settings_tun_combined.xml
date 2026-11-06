@@ -8,7 +8,7 @@
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/cag_private_range_bypass">
         <SwitchPreference app:icon="@drawable/ic_baseline_nat_24" app:key="tunBypassPrivateRanges" app:persistent="false" app:summary="@string/bypass_private_ranges_sum" app:title="@string/bypass_private_ranges" />
-        <app.qthrone.mobile.ui.settings.StringListPreference app:icon="@drawable/ic_baseline_grid_3x3_24" app:dialogMessage="@string/private_ranges_dialog_message" app:key="vpn_private_ranges" app:title="@string/private_ranges" />
+        <app.rawline.mobile.ui.settings.StringListPreference app:icon="@drawable/ic_baseline_grid_3x3_24" app:dialogMessage="@string/private_ranges_dialog_message" app:key="vpn_private_ranges" app:title="@string/private_ranges" />
         <Preference app:icon="@drawable/baseline_undo_24" app:key="tunRestoreRanges" app:title="@string/restore_default_ranges" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/cag_tun_address">

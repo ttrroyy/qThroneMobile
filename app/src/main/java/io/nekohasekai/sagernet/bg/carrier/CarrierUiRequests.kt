@@ -1,12 +1,12 @@
-package app.qthrone.mobile.bg.carrier
+package app.rawline.mobile.bg.carrier
 
 import android.content.Intent
 import android.util.AtomicFile
 import androidx.core.app.NotificationCompat
-import app.qthrone.mobile.R
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.app
-import app.qthrone.mobile.ui.MainActivity
+import app.rawline.mobile.R
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.app
+import app.rawline.mobile.ui.MainActivity
 import java.io.File
 import java.io.RandomAccessFile
 import org.json.JSONObject
@@ -58,7 +58,7 @@ internal object CarrierUiRequests {
             val click=android.app.PendingIntent.getActivity(app,notificationId,intent,
                 android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE)
             manager.notify(notificationId,NotificationCompat.Builder(app,channel).setSmallIcon(R.drawable.ic_mobile_vk)
-                .setContentTitle("qThrone · VK").setContentText("Откройте приложение для подтверждения подключения")
+                .setContentTitle("Rawline · VK").setContentText("Откройте приложение для подтверждения подключения")
                 .setContentIntent(click).setAutoCancel(true).build())
         }
         return true

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -22,15 +22,12 @@ object MobileCountryFlags {
     /** A flag with no picture of its own, drawn by the system's emoji font. */
     fun emoji(context: Context, flag: String): Bitmap = images.getOrPut("emoji:$flag") {
         val size = (28 * context.resources.displayMetrics.density).toInt()
-        val plain = when (flag.removeSuffix("\uFE0F")) {
-            "\uD83C\uDFF3" -> android.graphics.Color.WHITE
-            "\uD83C\uDFF4" -> android.graphics.Color.BLACK
-            else -> null
-        }
-        if (plain != null) return@getOrPut Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888).also { it.eraseColor(plain) }
+        if (flag.removeSuffix("\uFE0F") == "\uD83C\uDFF4") return@getOrPut Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888).also { it.eraseColor(android.graphics.Color.BLACK) }
+        // Without the variation selector some fonts draw the white flag as a plain outline.
+        val glyph = if (flag == "\uD83C\uDFF3") "\uD83C\uDFF3\uFE0F" else flag
         val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply { textSize = size * .72f; textAlign = android.graphics.Paint.Align.CENTER }
         Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888).also {
-            android.graphics.Canvas(it).drawText(flag, size / 2f, size / 2f - (paint.descent() + paint.ascent()) / 2, paint)
+            android.graphics.Canvas(it).drawText(glyph, size / 2f, size / 2f - (paint.descent() + paint.ascent()) / 2, paint)
         }
     }!!
 }

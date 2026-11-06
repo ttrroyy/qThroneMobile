@@ -1,18 +1,18 @@
-package app.qthrone.mobile.outbound
+package app.rawline.mobile.outbound
 
-import app.qthrone.mobile.outbound.json.JsonInput
-import app.qthrone.mobile.outbound.json.JsonObject
-import app.qthrone.mobile.outbound.link.Base64Strict
-import app.qthrone.mobile.outbound.link.LinkParser
-import app.qthrone.mobile.outbound.types.DnsTunnel
-import app.qthrone.mobile.outbound.types.Http
-import app.qthrone.mobile.outbound.types.OpenFluxKey
-import app.qthrone.mobile.outbound.types.S3Bypass
-import app.qthrone.mobile.outbound.types.Sstp
-import app.qthrone.mobile.outbound.types.WdttPlus
-import app.qthrone.mobile.outbound.types.Shadowsocks
-import app.qthrone.mobile.outbound.types.ShadowsocksR
-import app.qthrone.mobile.outbound.types.Socks
+import app.rawline.mobile.outbound.json.JsonInput
+import app.rawline.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.link.Base64Strict
+import app.rawline.mobile.outbound.link.LinkParser
+import app.rawline.mobile.outbound.types.DnsTunnel
+import app.rawline.mobile.outbound.types.Http
+import app.rawline.mobile.outbound.types.OpenFluxKey
+import app.rawline.mobile.outbound.types.S3Bypass
+import app.rawline.mobile.outbound.types.Sstp
+import app.rawline.mobile.outbound.types.WdttPlus
+import app.rawline.mobile.outbound.types.Shadowsocks
+import app.rawline.mobile.outbound.types.ShadowsocksR
+import app.rawline.mobile.outbound.types.Socks
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap
  * src/configs/sub/SubscriptionParser.cpp:48-67 / 510-559, and useXrayVless (src/configs/common/utils.cpp:50-72).
  *
  * Extension point for the per-type work packages: a new type lives in one file,
- * `app.qthrone.mobile.outbound.types.<ClassName>` with a public no-argument constructor, where ClassName is
+ * `app.rawline.mobile.outbound.types.<ClassName>` with a public no-argument constructor, where ClassName is
  * the entry of [CONVENTION_CLASSES] for its factory string. [newByType] finds it by name, so the factory itself
  * never changes; [register] can override any entry explicitly (an app initialiser may do that to avoid reflection
  * once every type exists). Release builds shrink with R8, so a keep rule for that package is required.
@@ -48,7 +48,7 @@ object OutboundFactory {
     @JvmField
     val UNSUPPORTED_TYPES: Set<String> = setOf("tailscale", "extracore")
 
-    /** Factory string to the class expected in app.qthrone.mobile.outbound.types for the types other packages add. */
+    /** Factory string to the class expected in app.rawline.mobile.outbound.types for the types other packages add. */
     @JvmField
     val CONVENTION_CLASSES: Map<String, String> = mapOf(
         "vmess" to "Vmess", "trojan" to "Trojan", "vless" to "Vless", "xrayvless" to "XrayVless",
@@ -59,7 +59,7 @@ object OutboundFactory {
         "autoselector" to "AutoSelector", "qwdtt" to "Qwdtt", "csqtt" to "Csqtt", "openflux" to "OpenFlux", "olcrtc" to "OlcRtc", "sstp" to "Sstp",
     )
 
-    private const val TYPES_PACKAGE = "app.qthrone.mobile.outbound.types."
+    private const val TYPES_PACKAGE = "app.rawline.mobile.outbound.types."
 
     private val builtin: Map<String, () -> Outbound> = mapOf<String, () -> Outbound>(
         "socks" to { Socks() },
@@ -220,25 +220,25 @@ object OutboundFactory {
         return outbound
     }
 
-    /** Parser::jsonLink (SubscriptionParser.cpp:539-560): `throne://add/<base64 of ExportToJson>` or `json://#<base64url>`. */
+    /** Parser::jsonLink (SubscriptionParser.cpp:539-560): `rawline://add/<base64 of ExportToJson>` or `json://#<base64url>`. */
     @JvmStatic
-    fun decodeJsonLink(link: String, throneAdd: Boolean): String? {
+    fun decodeJsonLink(link: String, rawlineAdd: Boolean): String? {
         val url = LinkParser.parse(link)
         if (!url.isValid) return null
-        var dataBytes = if (throneAdd) Base64Strict.decode(url.path.drop(1)) else Base64Strict.decode(url.fragment ?: "", urlSafe = true)
+        var dataBytes = if (rawlineAdd) Base64Strict.decode(url.path.drop(1)) else Base64Strict.decode(url.fragment ?: "", urlSafe = true)
         // ExportJsonLink emits the url-safe alphabet, which the standard decoder rejects whenever '-' or '_' occurs
-        if ((dataBytes == null || dataBytes.isEmpty()) && throneAdd) dataBytes = Base64Strict.decode(url.path.drop(1), urlSafe = true)
+        if ((dataBytes == null || dataBytes.isEmpty()) && rawlineAdd) dataBytes = Base64Strict.decode(url.path.drop(1), urlSafe = true)
         if (dataBytes == null || dataBytes.isEmpty()) return null
         return String(dataBytes, Charsets.UTF_8)
     }
 
     @JvmStatic
-    fun parseJsonLink(link: String, throneAdd: Boolean): Outbound? =
-        decodeJsonLink(link,throneAdd)?.let { app.qthrone.mobile.outbound.`import`.ProfileImport.parse(it).outbounds.singleOrNull() }
+    fun parseJsonLink(link: String, rawlineAdd: Boolean): Outbound? =
+        decodeJsonLink(link,rawlineAdd)?.let { app.rawline.mobile.outbound.`import`.ProfileImport.parse(it).outbounds.singleOrNull() }
 
     /**
      * Parser::link (SubscriptionParser.cpp:510-537) for one subscription line: comments and short lines are skipped,
-     * json:// and throne://add/ carry JSON, vless:// goes to xrayvless when [useXrayVless] says so, everything else
+     * json:// and rawline://add/ carry JSON, vless:// goes to xrayvless when [useXrayVless] says so, everything else
      * follows the scheme table. `vpn://` (desktop credential links) is not supported. Null when nothing was produced.
      */
     @JvmStatic
@@ -246,7 +246,7 @@ object OutboundFactory {
     fun parseLink(line: String, preference: XrayVlessPreference = DEFAULT_XRAY_VLESS_PREFERENCE): Outbound? {
         if (line.startsWith("//") || line.startsWith("#") || line.length < 2) return null
         if (line.startsWith("json://")) return parseJsonLink(line, false)
-        if (line.startsWith("throne://add/", ignoreCase = true)) return parseJsonLink(line, true)
+        if (app.rawline.mobile.route.UrlText.isAddLink(line)) return parseJsonLink(line, true)
         if (line.startsWith("vpn://", ignoreCase = true)) return null
         val profileType = typeForScheme(line) ?: return null
         val outbound = if (line.startsWith("vless://") && useXrayVless(line, preference)) newByType("xrayvless")

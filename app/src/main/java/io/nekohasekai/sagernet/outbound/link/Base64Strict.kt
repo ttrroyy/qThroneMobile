@@ -1,4 +1,4 @@
-package app.qthrone.mobile.outbound.link
+package app.rawline.mobile.outbound.link
 
 /**
  * QByteArray::fromBase64Encoding with AbortOnBase64DecodingErrors (the desktop's DecodeB64IfValid, Utils.cpp:40-47):

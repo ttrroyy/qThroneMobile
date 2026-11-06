@@ -1,9 +1,9 @@
-package app.qthrone.mobile.outbound.config
+package app.rawline.mobile.outbound.config
 
-import app.qthrone.mobile.outbound.Outbound
-import app.qthrone.mobile.outbound.OutboundFactory
-import app.qthrone.mobile.outbound.types.AutoSelector
-import app.qthrone.mobile.outbound.types.Custom
+import app.rawline.mobile.outbound.Outbound
+import app.rawline.mobile.outbound.OutboundFactory
+import app.rawline.mobile.outbound.types.AutoSelector
+import app.rawline.mobile.outbound.types.Custom
 import java.util.EnumMap
 import java.util.regex.Pattern
 import java.util.regex.PatternSyntaxException

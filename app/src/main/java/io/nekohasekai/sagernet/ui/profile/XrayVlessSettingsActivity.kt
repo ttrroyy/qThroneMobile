@@ -1,10 +1,10 @@
-package app.qthrone.mobile.ui.profile
+package app.rawline.mobile.ui.profile
 
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.outbound.types.XrayVless
+import app.rawline.mobile.R
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.outbound.types.XrayVless
 
 /** The Xray-core VLESS outbound: uuid / encryption / flow, the Xray stream settings and the Xray mux. */
 class XrayVlessSettingsActivity : BindingSettingsActivity<XrayVless>() {

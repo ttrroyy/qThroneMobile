@@ -1,4 +1,4 @@
-package app.qthrone.mobile.outbound.types
+package app.rawline.mobile.outbound.types
 
 /** stripVkUrlStatic of the original qWDTT and CSQTT apps: a VK call link becomes its hash. */
 object VkCallHash {

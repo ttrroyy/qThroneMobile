@@ -1,6 +1,6 @@
-package app.qthrone.mobile.outbound.import
+package app.rawline.mobile.outbound.import
 
-import app.qthrone.mobile.outbound.types.Custom
+import app.rawline.mobile.outbound.types.Custom
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -12,7 +12,7 @@ class HappHysteriaImportTest {
         val imported = result.outbounds.single() as Custom
         assertEquals(Custom.CUSTOM_XRAY_FULL_CONFIG,imported.subtype)
         assertEquals("Hysteria 2",imported.displayType())
-        val outbound = imported.configObject().array("outbounds")[0] as app.qthrone.mobile.outbound.json.JsonObject
+        val outbound = imported.configObject().array("outbounds")[0] as app.rawline.mobile.outbound.json.JsonObject
         assertEquals("hysteria",outbound.string("protocol"))
         assertEquals(2,outbound.obj("streamSettings").obj("hysteriaSettings").int("version"))
         assertEquals("test-password",outbound.obj("streamSettings").obj("hysteriaSettings").string("auth"))

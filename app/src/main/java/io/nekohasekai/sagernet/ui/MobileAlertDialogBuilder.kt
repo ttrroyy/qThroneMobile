@@ -1,11 +1,11 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.content.Context
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.InsetDrawable
 import android.view.ContextThemeWrapper
 import androidx.core.view.updateLayoutParams
-import app.qthrone.mobile.utils.Theme
+import app.rawline.mobile.utils.Theme
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 /** Use the same surface and shape for editors, confirmations and preference dialogs. */
@@ -42,11 +42,13 @@ class MobileAlertDialogBuilder(context: Context) : MaterialAlertDialogBuilder(
                 setStroke(1, MobilePalette.outline)
             }
             dialog.window?.setBackgroundDrawable(InsetDrawable(surface, (24 * density).toInt()))
+            dialog.window?.let { MobileScreenMotion.fullFrameRate(it) }
             if (MobileStyle.new) dialog.window?.let { window ->
-                window.setWindowAnimations(app.qthrone.mobile.R.style.MobileDialogSoft)
+                window.setWindowAnimations(app.rawline.mobile.R.style.MobileDialogSoft)
+                window.setDimAmount(MobilePalette.windowDim)
                 if (android.os.Build.VERSION.SDK_INT >= 31) {
                     window.addFlags(android.view.WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
-                    window.attributes = window.attributes.apply { blurBehindRadius = (22 * density).toInt() }
+                    window.attributes = window.attributes.apply { blurBehindRadius = (MobilePalette.BLUR_DP * density).toInt() }
                 }
             }
             val colors=android.content.res.ColorStateList(arrayOf(intArrayOf(-android.R.attr.state_enabled),intArrayOf()),

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui.json
+package app.rawline.mobile.ui.json
 
 import android.graphics.Canvas
 import android.graphics.ColorFilter
@@ -29,8 +29,8 @@ import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.SymbolPairMatch
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
-import app.qthrone.mobile.ui.json.engine.SchemaCompletion
-import app.qthrone.mobile.ui.json.engine.Suggestion
+import app.rawline.mobile.ui.json.engine.SchemaCompletion
+import app.rawline.mobile.ui.json.engine.Suggestion
 import kotlin.math.min
 
 /** The sora-editor language of the JSON editor: highlighting, block lines, smart Enter and schema completion. */

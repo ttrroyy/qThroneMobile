@@ -1,6 +1,6 @@
-package app.qthrone.mobile.outbound.config
+package app.rawline.mobile.outbound.config
 
-import app.qthrone.mobile.outbound.json.*
+import app.rawline.mobile.outbound.json.*
 
 /** Enforce app selection inside the core as well as Android's routing policy. */
 object VpnAppGuard {

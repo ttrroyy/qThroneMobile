@@ -1,7 +1,7 @@
-package app.qthrone.mobile.deploy
+package app.rawline.mobile.deploy
 
-import app.qthrone.mobile.outbound.types.Csqtt
-import app.qthrone.mobile.outbound.types.Qwdtt
+import app.rawline.mobile.outbound.types.Csqtt
+import app.rawline.mobile.outbound.types.Qwdtt
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
@@ -33,7 +33,7 @@ class DeployConfigTest {
         val link=DeployConfig.link(config("csqtt"),"stable-deployed-owner")
         assertTrue(link.startsWith("csqtt://"))
         assertFalse(link.contains("password="))
-        assertNotNull(app.qthrone.mobile.outbound.link.parseCsqttLink(link))
+        assertNotNull(app.rawline.mobile.outbound.link.parseCsqttLink(link))
         val parsed=Csqtt()
         assertTrue(parsed.parseFromLink(link))
         assertEquals("2001:db8::1",parsed.server)

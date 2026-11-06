@@ -67,7 +67,7 @@
             app:icon="@drawable/ic_baseline_transform_24"
             app:key="dns_predefined_enable"
             app:title="@string/dns_predefined_enable" />
-        <app.qthrone.mobile.ui.settings.StringListPreference app:icon="@drawable/ic_action_dns"
+        <app.rawline.mobile.ui.settings.StringListPreference app:icon="@drawable/ic_action_dns"
             app:dialogMessage="@string/dns_predefined_rules_dialog_message"
             app:key="dns_predefined_rules"
             app:title="@string/dns_predefined_rules" />
@@ -75,7 +75,7 @@
 
     <PreferenceCategory app:title="@string/cag_advanced">
         <Preference
-            app:fragment="app.qthrone.mobile.ui.settings.DnsAdvancedSettingsFragment"
+            app:fragment="app.rawline.mobile.ui.settings.DnsAdvancedSettingsFragment"
             app:icon="@drawable/ic_baseline_tune_24"
             app:key="dnsAdvanced"
             app:summary="@string/dns_advanced_sum"

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
@@ -25,22 +25,22 @@ import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
-import app.qthrone.mobile.BuildConfig
-import app.qthrone.mobile.R
-import app.qthrone.mobile.bg.BaseService
-import app.qthrone.mobile.bg.SingBoxDashboard
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.databinding.LayoutDashboardBinding
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.launchCustomTab
-import app.qthrone.mobile.ui.settings.CoreSettingsFragment
-import app.qthrone.mobile.widget.applyInsetMargin
+import app.rawline.mobile.BuildConfig
+import app.rawline.mobile.R
+import app.rawline.mobile.bg.BaseService
+import app.rawline.mobile.bg.SingBoxDashboard
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.databinding.LayoutDashboardBinding
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.launchCustomTab
+import app.rawline.mobile.ui.settings.CoreSettingsFragment
+import app.rawline.mobile.widget.applyInsetMargin
 import org.json.JSONObject
 
 /**
  * The sing-box dashboard (SagerNet/sing-box-dashboard) served by the running core's api service, pre-connected like
  * the desktop's OpenDashboard (mainwindow_system.cpp:462-530): the page stays hidden until its localStorage holds the
- * `throne` server entry that res/dashboard-bootstrap.html seeds there, so the dashboard's setup screen never shows.
+ * `rawline` server entry that res/dashboard-bootstrap.html seeds there, so the dashboard's setup screen never shows.
  * The page is the copy the app bundles ([SingBoxDashboard]): a 404 means the build has none, or unpacking it failed.
  */
 class DashboardFragment : ToolbarFragment(R.layout.layout_dashboard), Toolbar.OnMenuItemClickListener {
@@ -70,7 +70,7 @@ class DashboardFragment : ToolbarFragment(R.layout.layout_dashboard), Toolbar.On
     private var pageLoad = 0
     private var checkedLoad = -1
 
-    /** Loads this screen starts make `throne` the active server; the page's own reloads keep the user's choice. */
+    /** Loads this screen starts make `rawline` the active server; the page's own reloads keep the user's choice. */
     private var activate = true
     private var seedReloads = 0
 
@@ -213,7 +213,7 @@ class DashboardFragment : ToolbarFragment(R.layout.layout_dashboard), Toolbar.On
         origin.isNotEmpty() && url != null && (url == origin || url.startsWith("$origin/"))
 
     /**
-     * Writes the `throne` entry when it is missing or stale and reloads, since the page reads its server list only
+     * Writes the `rawline` entry when it is missing or stale and reloads, since the page reads its server list only
      * when it starts; the page is shown once the entry is right (or cannot be written at all).
      */
     private fun seed(view: WebView) {
@@ -437,13 +437,13 @@ class DashboardFragment : ToolbarFragment(R.layout.layout_dashboard), Toolbar.On
         }
 
         /**
-         * dashboard-bootstrap.html as a check: the `throne` entry of the page's server list (src/api/config.ts) gets
+         * dashboard-bootstrap.html as a check: the `rawline` entry of the page's server list (src/api/config.ts) gets
          * this core's address and secret, other servers stay. Answers "ok" when nothing had to change, "seeded" after
          * a write and "error" when the storage is unusable. [activate] also makes it the active server.
          */
         fun seedScript(url: String, secret: String, activate: Boolean): String = """
             (function () {
-              var KEY = "sing-box-dashboard.servers", ID = "throne";
+              var KEY = "sing-box-dashboard.servers", ID = "rawline";
               var url = ${JSONObject.quote(url)}, secret = ${JSONObject.quote(secret)};
               try {
                 var state = null;
@@ -456,7 +456,7 @@ class DashboardFragment : ToolbarFragment(R.layout.layout_dashboard), Toolbar.On
                 }
                 var changed = false;
                 if (!entry) {
-                  servers.push({ id: ID, name: "Throne", url: url, secret: secret });
+                  servers.push({ id: ID, name: "Rawline", url: url, secret: secret });
                   changed = true;
                 } else if (entry.url !== url || entry.secret !== secret) {
                   entry.url = url;

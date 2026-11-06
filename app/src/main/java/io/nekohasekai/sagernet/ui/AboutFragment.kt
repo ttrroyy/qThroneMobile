@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.content.Context
 import android.os.Build
@@ -14,15 +14,15 @@ import com.danielstone.materialaboutlibrary.items.MaterialAboutActionItem
 import com.danielstone.materialaboutlibrary.model.MaterialAboutCard
 import com.danielstone.materialaboutlibrary.model.MaterialAboutList
 import com.google.android.material.card.MaterialCardView
-import app.qthrone.mobile.BuildConfig
-import app.qthrone.mobile.R
-import app.qthrone.mobile.SagerNet
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.databinding.LayoutAboutBinding
-import app.qthrone.mobile.ktx.*
-import app.qthrone.mobile.update.UpdateActivity
-import app.qthrone.mobile.update.UpdateChecker
-import app.qthrone.mobile.widget.applyListInsets
+import app.rawline.mobile.BuildConfig
+import app.rawline.mobile.R
+import app.rawline.mobile.SagerNet
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.databinding.LayoutAboutBinding
+import app.rawline.mobile.ktx.*
+import app.rawline.mobile.update.UpdateActivity
+import app.rawline.mobile.update.UpdateChecker
+import app.rawline.mobile.widget.applyListInsets
 
 class AboutFragment : ToolbarFragment(R.layout.layout_about) {
 
@@ -102,7 +102,7 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                         .addItem(
                             MaterialAboutActionItem.Builder()
                                 .icon(R.drawable.ic_baseline_layers_24)
-                                .text(getString(R.string.version_x, "ThroneCore"))
+                                .text(getString(R.string.version_x, "RawlineCore"))
                                 .subText(shortRef(BuildConfig.THRONE_CORE_REF))
                                 .setOnClickAction(::copyCoreRef)
                                 .setOnLongClickAction(::copyCoreRef)

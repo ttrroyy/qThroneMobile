@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui.settings
+package app.rawline.mobile.ui.settings
 
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
@@ -6,18 +6,18 @@ import android.widget.EditText
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.SwitchPreference
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
-import app.qthrone.mobile.R
-import app.qthrone.mobile.SpeedTestSettings
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.SettingValidators
-import app.qthrone.mobile.database.SettingsRegistry
-import app.qthrone.mobile.database.preference.EditTextPreferenceModifiers
-import app.qthrone.mobile.ktx.needReload
-import app.qthrone.mobile.ktx.needRestart
-import app.qthrone.mobile.ui.GroupSettingsActivity
-import app.qthrone.mobile.ui.MainActivity
-import app.qthrone.mobile.ui.profile.keepUnlistedValue
+import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
+import app.rawline.mobile.R
+import app.rawline.mobile.SpeedTestSettings
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.SettingValidators
+import app.rawline.mobile.database.SettingsRegistry
+import app.rawline.mobile.database.preference.EditTextPreferenceModifiers
+import app.rawline.mobile.ktx.needReload
+import app.rawline.mobile.ktx.needRestart
+import app.rawline.mobile.ui.GroupSettingsActivity
+import app.rawline.mobile.ui.MainActivity
+import app.rawline.mobile.ui.profile.keepUnlistedValue
 import moe.matsuri.nb4a.ui.LongClickListPreference
 import moe.matsuri.nb4a.ui.SimpleMenuPreference
 import kotlin.math.abs
@@ -163,7 +163,7 @@ class CoreSettingsFragment : PresetSettingsFragment(R.xml.settings_core_combined
         numeric("url_test_timeout_ms",DataStore.urlTestTimeoutMs,100..120000) { DataStore.urlTestTimeoutMs=it }
         // Off drops the shown exit and a lookup in flight; on waits for the next connection or stats bar tap.
         pref<SwitchPreference>(SettingsRegistry.EXIT_COUNTRY_LOOKUP.key).setOnPreferenceChangeListener { _, newValue ->
-            if (newValue == false) app.qthrone.mobile.widget.ExitIp.clear()
+            if (newValue == false) app.rawline.mobile.widget.ExitIp.clear()
             true
         }
 

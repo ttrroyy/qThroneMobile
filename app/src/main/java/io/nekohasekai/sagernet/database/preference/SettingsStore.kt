@@ -1,10 +1,10 @@
-package app.qthrone.mobile.database.preference
+package app.rawline.mobile.database.preference
 
 import androidx.preference.PreferenceDataStore
-import app.qthrone.mobile.database.SagerDatabase
-import app.qthrone.mobile.ktx.PreferenceProxy
-import app.qthrone.mobile.outbound.json.JsonArray
-import app.qthrone.mobile.outbound.json.JsonInput
+import app.rawline.mobile.database.SagerDatabase
+import app.rawline.mobile.ktx.PreferenceProxy
+import app.rawline.mobile.outbound.json.JsonArray
+import app.rawline.mobile.outbound.json.JsonInput
 
 /**
  * The configuration store: a [PreferenceDataStore] over the `settings` table of [SagerDatabase] in the desktop's

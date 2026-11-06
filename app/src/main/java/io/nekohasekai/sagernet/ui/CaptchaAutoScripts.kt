@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 /** Same checkbox auto-pass as the original Android client; a slider returns to the native fallback chain. */
 internal object CaptchaAutoScripts {

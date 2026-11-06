@@ -5,8 +5,8 @@ import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.FileProvider
-import app.qthrone.mobile.BuildConfig
-import app.qthrone.mobile.R
+import app.rawline.mobile.BuildConfig
+import app.rawline.mobile.R
 import java.io.File
 
 object SendLog {

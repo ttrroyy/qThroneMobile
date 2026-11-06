@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui.profiles
+package app.rawline.mobile.ui.profiles
 
 import android.content.Context
 import android.util.AttributeSet
@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.view.isGone
-import app.qthrone.mobile.R
-import app.qthrone.mobile.ktx.dp2px
+import app.rawline.mobile.R
+import app.rawline.mobile.ktx.dp2px
 import kotlin.math.max
 
 /**

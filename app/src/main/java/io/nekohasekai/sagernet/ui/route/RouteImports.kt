@@ -1,17 +1,17 @@
-package app.qthrone.mobile.ui.route
+package app.rawline.mobile.ui.route
 
 import android.content.Context
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.RouteManager
-import app.qthrone.mobile.databinding.LayoutRouteRemotePromptBinding
-import app.qthrone.mobile.group.RemoteRouteUpdater
-import app.qthrone.mobile.route.RouteProfile
-import app.qthrone.mobile.route.RouteShare
+import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
+import app.rawline.mobile.R
+import app.rawline.mobile.database.RouteManager
+import app.rawline.mobile.databinding.LayoutRouteRemotePromptBinding
+import app.rawline.mobile.group.RemoteRouteUpdater
+import app.rawline.mobile.route.RouteProfile
+import app.rawline.mobile.route.RouteShare
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -20,13 +20,13 @@ import kotlinx.coroutines.withContext
 object RouteImports {
 
     fun isRouteLink(text: String): Boolean {
-        val t = text.trim()
-        return t.startsWith(RouteShare.ROUTE_LINK_PREFIX, true) || t.startsWith(RouteShare.REMOTE_ROUTE_LINK_PREFIX, true) || app.qthrone.mobile.route.ProviderRouting.isLink(t)
+        val t = app.rawline.mobile.route.UrlText.currentScheme(text.trim())
+        return t.startsWith(RouteShare.ROUTE_LINK_PREFIX, true) || t.startsWith(RouteShare.REMOTE_ROUTE_LINK_PREFIX, true) || app.rawline.mobile.route.ProviderRouting.isLink(t)
     }
 
-    fun isRemoteRouteLink(text: String) = text.trim().startsWith(RouteShare.REMOTE_ROUTE_LINK_PREFIX, true)
+    fun isRemoteRouteLink(text: String) = app.rawline.mobile.route.UrlText.currentScheme(text.trim()).startsWith(RouteShare.REMOTE_ROUTE_LINK_PREFIX, true)
 
-    /** The entries of a throne://remoteroute link, or null after showing why it is invalid (FromRemoteRoutesLink). */
+    /** The entries of a rawline://remoteroute link, or null after showing why it is invalid (FromRemoteRoutesLink). */
     fun remoteEntries(context: Context, text: String): List<RouteShare.RemoteEntry>? = try {
         RouteShare.fromRemoteRoutesLink(text)?.takeIf { it.isNotEmpty() }
             ?: throw IllegalArgumentException(context.getString(R.string.route_remote_invalid))
@@ -71,7 +71,7 @@ object RouteImports {
         p.name.trim().ifEmpty { context.getString(R.string.route_imported_default_name) }
 
     /**
-     * A throne://route or throne://remoteroute link opened outside the Routes screen. A routing profile is added
+     * A rawline://route or rawline://remoteroute link opened outside the Routes screen. A routing profile is added
      * after "Add this routing profile?" (handle_import_route); current_route_id does not change.
      */
     fun importLink(activity: AppCompatActivity, text: String, onAdded: () -> Unit) {

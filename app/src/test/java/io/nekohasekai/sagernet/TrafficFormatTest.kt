@@ -1,4 +1,4 @@
-package app.qthrone.mobile
+package app.rawline.mobile
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

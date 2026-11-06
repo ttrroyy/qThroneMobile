@@ -1,10 +1,10 @@
-package app.qthrone.mobile.outbound.types
+package app.rawline.mobile.outbound.types
 
-import app.qthrone.mobile.outbound.*
-import app.qthrone.mobile.outbound.import.ClashProxy
-import app.qthrone.mobile.outbound.json.JsonObject
-import app.qthrone.mobile.outbound.link.Base64Strict
-import app.qthrone.mobile.outbound.link.LinkParser
+import app.rawline.mobile.outbound.*
+import app.rawline.mobile.outbound.import.ClashProxy
+import app.rawline.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.link.Base64Strict
+import app.rawline.mobile.outbound.link.LinkParser
 
 class ShadowsocksR : Outbound("shadowsocksr") {
     @JvmField var method="aes-256-cfb"

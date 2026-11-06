@@ -1,4 +1,4 @@
-package app.qthrone.mobile.widget
+package app.rawline.mobile.widget
 
 import android.content.Context
 import android.util.AttributeSet

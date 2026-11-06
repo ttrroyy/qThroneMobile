@@ -16,13 +16,13 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
         with:
-          name: qThroneMobile-debug
+          name: RawlineMobile-debug
           path: tested-apk
           run-id: ${{ inputs.build_run }}
           github-token: ${{ github.token }}
       - uses: actions/download-artifact@v8
         with:
-          name: qThroneMobile-security-tests
+          name: RawlineMobile-security-tests
           path: test-apk
           run-id: ${{ inputs.build_run }}
           github-token: ${{ github.token }}

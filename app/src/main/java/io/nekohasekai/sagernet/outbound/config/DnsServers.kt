@@ -1,10 +1,10 @@
-package app.qthrone.mobile.outbound.config
+package app.rawline.mobile.outbound.config
 
-import app.qthrone.mobile.outbound.BuildContext
-import app.qthrone.mobile.outbound.QtStrings
-import app.qthrone.mobile.outbound.json.JsonObject
-import app.qthrone.mobile.outbound.json.jsonObjectOf
-import app.qthrone.mobile.outbound.link.Hosts
+import app.rawline.mobile.outbound.BuildContext
+import app.rawline.mobile.outbound.QtStrings
+import app.rawline.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.json.jsonObjectOf
+import app.rawline.mobile.outbound.link.Hosts
 
 /** directDomainResolver (generate.cpp:788-790). */
 internal fun directDomainResolver(ctx: BuildContext): JsonObject =

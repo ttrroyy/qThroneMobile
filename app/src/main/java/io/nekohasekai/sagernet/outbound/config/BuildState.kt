@@ -1,9 +1,9 @@
-package app.qthrone.mobile.outbound.config
+package app.rawline.mobile.outbound.config
 
-import app.qthrone.mobile.outbound.Outbound
-import app.qthrone.mobile.outbound.json.JsonArray
-import app.qthrone.mobile.outbound.json.JsonObject
-import app.qthrone.mobile.outbound.link.Hosts
+import app.rawline.mobile.outbound.Outbound
+import app.rawline.mobile.outbound.json.JsonArray
+import app.rawline.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.link.Hosts
 import java.util.TreeMap
 
 /** The tag vocabulary of generate.cpp:43-74. */
@@ -95,7 +95,7 @@ internal class Prerequisites {
 
 /** The per-build state of generate.cpp:180-207 that the sections share. */
 internal class BuildState(val forTest: Boolean) {
-    val carrierPlans = LinkedHashMap<Long, app.qthrone.mobile.bg.carrier.CarrierPlan>()
+    val carrierPlans = LinkedHashMap<Long, app.rawline.mobile.bg.carrier.CarrierPlan>()
     var singToXrayTransitioned = false
     var xrayToSingTransitioned = false
     var proxyUsesXray = false

@@ -1,6 +1,6 @@
-package app.qthrone.mobile.ui.test
+package app.rawline.mobile.ui.test
 
-import app.qthrone.mobile.bg.test.TestSpec
+import app.rawline.mobile.bg.test.TestSpec
 import kotlin.math.min
 
 enum class RowPhase { QUEUED, TESTING, DONE }

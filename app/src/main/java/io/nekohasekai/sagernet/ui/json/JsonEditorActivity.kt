@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui.json
+package app.rawline.mobile.ui.json
 
 import android.content.Context
 import android.content.Intent
@@ -19,32 +19,32 @@ import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import app.qthrone.mobile.ui.MobileSheetDialog as BottomSheetDialog
+import app.rawline.mobile.ui.MobileSheetDialog as BottomSheetDialog
 import com.google.android.material.color.MaterialColors
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
+import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.SelectionChangeEvent
 import io.github.rosemoe.sora.lang.diagnostic.DiagnosticRegion
 import io.github.rosemoe.sora.lang.diagnostic.DiagnosticsContainer
-import app.qthrone.mobile.Key
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.databinding.ItemJsonProblemBinding
-import app.qthrone.mobile.databinding.LayoutJsonEditorBinding
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ui.ThemedActivity
-import app.qthrone.mobile.ui.json.engine.JsonFormatter
-import app.qthrone.mobile.ui.json.engine.JsonIssue
-import app.qthrone.mobile.ui.json.engine.JsonSpan
-import app.qthrone.mobile.ui.json.engine.JsonTree
-import app.qthrone.mobile.ui.json.engine.JsonType
-import app.qthrone.mobile.ui.json.engine.SchemaCompletion
-import app.qthrone.mobile.ui.json.engine.SchemaStore
-import app.qthrone.mobile.ui.json.engine.SchemaValidator
-import app.qthrone.mobile.ui.json.engine.Severity
-import app.qthrone.mobile.utils.Theme
-import app.qthrone.mobile.widget.applyInsetMargin
-import app.qthrone.mobile.widget.applyInsetPadding
+import app.rawline.mobile.Key
+import app.rawline.mobile.R
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.databinding.ItemJsonProblemBinding
+import app.rawline.mobile.databinding.LayoutJsonEditorBinding
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ui.ThemedActivity
+import app.rawline.mobile.ui.json.engine.JsonFormatter
+import app.rawline.mobile.ui.json.engine.JsonIssue
+import app.rawline.mobile.ui.json.engine.JsonSpan
+import app.rawline.mobile.ui.json.engine.JsonTree
+import app.rawline.mobile.ui.json.engine.JsonType
+import app.rawline.mobile.ui.json.engine.SchemaCompletion
+import app.rawline.mobile.ui.json.engine.SchemaStore
+import app.rawline.mobile.ui.json.engine.SchemaValidator
+import app.rawline.mobile.ui.json.engine.Severity
+import app.rawline.mobile.utils.Theme
+import app.rawline.mobile.widget.applyInsetMargin
+import app.rawline.mobile.widget.applyInsetPadding
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch

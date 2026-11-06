@@ -1,8 +1,8 @@
-package app.qthrone.mobile.bg.carrier
+package app.rawline.mobile.bg.carrier
 
 import android.content.Intent
 import android.util.AtomicFile
-import app.qthrone.mobile.ktx.app
+import app.rawline.mobile.ktx.app
 import org.json.JSONObject
 import java.io.File
 import java.util.UUID

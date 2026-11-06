@@ -1,8 +1,8 @@
-package app.qthrone.mobile.ui.json.engine
+package app.rawline.mobile.ui.json.engine
 
-import app.qthrone.mobile.ui.json.engine.SchemaDocument.Companion.list
-import app.qthrone.mobile.ui.json.engine.SchemaDocument.Companion.obj
-import app.qthrone.mobile.ui.json.engine.SchemaDocument.Companion.scalarText
+import app.rawline.mobile.ui.json.engine.SchemaDocument.Companion.list
+import app.rawline.mobile.ui.json.engine.SchemaDocument.Companion.obj
+import app.rawline.mobile.ui.json.engine.SchemaDocument.Companion.scalarText
 
 enum class Severity { Error, Warning }
 
@@ -18,7 +18,7 @@ class JsonIssue(
 /**
  * The JSON Schema subset of JsonSchemaValidator.cpp with its messages. A oneOf is resolved through its discriminating
  * constant (type/action), so errors name the variant. Relaxations are per editor: [allowExtraType] (desktop
- * AllowExtraType), [allowExtraKey] for keys only Throne writes, [aliasType] for a root `type` Throne names differently
+ * AllowExtraType), [allowExtraKey] for keys only Rawline writes, [aliasType] for a root `type` Rawline names differently
  * and [unknownKeysAsWarnings].
  */
 class SchemaValidator private constructor(

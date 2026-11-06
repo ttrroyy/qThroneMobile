@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui.settings
+package app.rawline.mobile.ui.settings
 
 import android.content.ActivityNotFoundException
 import android.content.ClipData
@@ -7,12 +7,12 @@ import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
-import app.qthrone.mobile.BuildConfig
-import app.qthrone.mobile.R
-import app.qthrone.mobile.bg.CoreServiceClient
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.readableMessage
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder
+import app.rawline.mobile.BuildConfig
+import app.rawline.mobile.R
+import app.rawline.mobile.bg.CoreServiceClient
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.readableMessage
+import app.rawline.mobile.ui.MobileAlertDialogBuilder
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

@@ -1,29 +1,29 @@
-package app.qthrone.mobile.group
+package app.rawline.mobile.group
 
-import app.qthrone.mobile.bg.carrier.NativeHashPolicy
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.GroupRepo
-import app.qthrone.mobile.database.GroupSort
-import app.qthrone.mobile.database.GroupSortAction
-import app.qthrone.mobile.database.GroupSortMethod
-import app.qthrone.mobile.database.ServerSortRule
-import app.qthrone.mobile.database.ProfileManager
-import app.qthrone.mobile.database.ProxyEntity
-import app.qthrone.mobile.database.SagerDatabase
-import app.qthrone.mobile.database.SettingsMapper
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.app
-import app.qthrone.mobile.ktx.readableMessage
-import app.qthrone.mobile.outbound.Outbound
-import app.qthrone.mobile.outbound.`import`.ProfileImport
-import app.qthrone.mobile.route.ProviderRouting
-import app.qthrone.mobile.bg.XrayGeoAssets
-import app.qthrone.mobile.outbound.types.Custom
-import app.qthrone.mobile.route.ProviderGeoAssets
-import app.qthrone.mobile.route.ProviderRouteProfiles
-import app.qthrone.mobile.outbound.json.JsonInput
-import app.qthrone.mobile.outbound.json.JsonObject
+import app.rawline.mobile.bg.carrier.NativeHashPolicy
+import app.rawline.mobile.R
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.GroupRepo
+import app.rawline.mobile.database.GroupSort
+import app.rawline.mobile.database.GroupSortAction
+import app.rawline.mobile.database.GroupSortMethod
+import app.rawline.mobile.database.ServerSortRule
+import app.rawline.mobile.database.ProfileManager
+import app.rawline.mobile.database.ProxyEntity
+import app.rawline.mobile.database.SagerDatabase
+import app.rawline.mobile.database.SettingsMapper
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.app
+import app.rawline.mobile.ktx.readableMessage
+import app.rawline.mobile.outbound.Outbound
+import app.rawline.mobile.outbound.`import`.ProfileImport
+import app.rawline.mobile.route.ProviderRouting
+import app.rawline.mobile.bg.XrayGeoAssets
+import app.rawline.mobile.outbound.types.Custom
+import app.rawline.mobile.route.ProviderGeoAssets
+import app.rawline.mobile.route.ProviderRouteProfiles
+import app.rawline.mobile.outbound.json.JsonInput
+import app.rawline.mobile.outbound.json.JsonObject
 
 /** GroupUpdater::refresh, importDocuments and afterUrlTest (GroupUpdater.cpp:465-683) over the Room data layer. */
 internal object SubscriptionRefresh {
@@ -125,7 +125,7 @@ internal object SubscriptionRefresh {
             .map { it.index to it.value.id }
         val stickyIds = sticky.mapTo(HashSet()) { it.second }
         fun members(): List<ProxyEntity> = ProfileManager.members(gid).filter { it.id !in stickyIds }
-        val previousNative = members().map { it.outbound }.filterIsInstance<app.qthrone.mobile.outbound.types.Qwdtt>()
+        val previousNative = members().map { it.outbound }.filterIsInstance<app.rawline.mobile.outbound.types.Qwdtt>()
         // Taken before anything is deleted, so route rules can follow a replaced node by its name.
         val routeNames = SubscriptionRouteRebind.referencedNames(members())
         val removed = ArrayList<Long>()
@@ -163,7 +163,7 @@ internal object SubscriptionRefresh {
 
         Logs.i(">>>>>>>> " + str(R.string.subs_processing))
         for (outbound in servers) {
-            if(outbound is app.qthrone.mobile.outbound.types.Qwdtt) {
+            if(outbound is app.rawline.mobile.outbound.types.Qwdtt) {
                 NativeHashPolicy.preserve(outbound,previousNative)
             }
             sink.add(outbound)
@@ -186,11 +186,11 @@ internal object SubscriptionRefresh {
                     // The old row keeps its id, test results and traffic.
                     val incoming=newEnt.outbound
                     val previous=ProfileManager.getProfile(oldId)?.outbound
-                    if(incoming is app.qthrone.mobile.outbound.types.Qwdtt && previous is app.qthrone.mobile.outbound.types.Qwdtt) {
+                    if(incoming is app.rawline.mobile.outbound.types.Qwdtt && previous is app.rawline.mobile.outbound.types.Qwdtt) {
                         incoming.deviceId=previous.deviceId
                         incoming.hashSource=previous.hashSource
                         SagerDatabase.proxyDao.updateOutbound(oldId,newEnt.type,newEnt.name,incoming.exportToJson().toCompact())
-                    } else if(incoming is app.qthrone.mobile.outbound.types.OlcRtc && previous is app.qthrone.mobile.outbound.types.OlcRtc) {
+                    } else if(incoming is app.rawline.mobile.outbound.types.OlcRtc && previous is app.rawline.mobile.outbound.types.OlcRtc) {
                         incoming.deviceId=previous.deviceId
                         SagerDatabase.proxyDao.updateOutbound(oldId,newEnt.type,newEnt.name,incoming.exportToJson().toCompact())
                     } else SagerDatabase.proxyDao.updateOutbound(oldId, newEnt.type, newEnt.name, newEnt.outboundJson)
@@ -336,7 +336,7 @@ internal object SubscriptionRefresh {
 
     private fun subscriptionIdentityKey(outbound: Outbound): String = SubscriptionReconcile.identityKey(
         outbound.type,
-        if (outbound is app.qthrone.mobile.outbound.types.Qwdtt) NativeHashPolicy.subscriptionIdentity(outbound)
+        if (outbound is app.rawline.mobile.outbound.types.Qwdtt) NativeHashPolicy.subscriptionIdentity(outbound)
         else outbound.exportIdentity().toCompact()
     )
 
@@ -347,7 +347,7 @@ internal object SubscriptionRefresh {
         private val entryIndex = ArrayList<Int>()
 
         suspend fun add(outbound: Outbound) {
-            if(outbound is app.qthrone.mobile.outbound.types.Qwdtt && !outbound.deviceIdProvided) {
+            if(outbound is app.rawline.mobile.outbound.types.Qwdtt && !outbound.deviceIdProvided) {
                 outbound.deviceId=NativeHashPolicy.defaultDeviceId(DeviceDetails.get().hwid)
                 outbound.deviceIdProvided=true
             }

@@ -1,9 +1,9 @@
-package app.qthrone.mobile.outbound.types
+package app.rawline.mobile.outbound.types
 
-import app.qthrone.mobile.bg.carrier.CarrierBridgeCredentials
-import app.qthrone.mobile.bg.carrier.CarrierKind
-import app.qthrone.mobile.outbound.BuildContext
-import app.qthrone.mobile.outbound.import.ProfileImport
+import app.rawline.mobile.bg.carrier.CarrierBridgeCredentials
+import app.rawline.mobile.bg.carrier.CarrierKind
+import app.rawline.mobile.outbound.BuildContext
+import app.rawline.mobile.outbound.import.ProfileImport
 import org.junit.Assert.*
 import org.junit.Test
 import java.util.Base64

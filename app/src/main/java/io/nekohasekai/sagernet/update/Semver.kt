@@ -1,4 +1,4 @@
-package app.qthrone.mobile.update
+package app.rawline.mobile.update
 
 /** Semantic-version precedence (semver.org §11) of release tags such as `v1.7.0` and `1.7.0-pre.12`. */
 object Semver {

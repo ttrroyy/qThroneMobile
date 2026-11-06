@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui.profile
+package app.rawline.mobile.ui.profile
 
 import android.content.Context
 import android.text.InputType
@@ -10,13 +10,13 @@ import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
 import androidx.preference.TwoStatePreference
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.SettingsMapper
-import app.qthrone.mobile.database.preference.EditTextPreferenceModifiers
-import app.qthrone.mobile.outbound.BuildContext
-import app.qthrone.mobile.outbound.common.Ech
-import app.qthrone.mobile.outbound.common.MUX_CUSTOM
+import app.rawline.mobile.R
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.SettingsMapper
+import app.rawline.mobile.database.preference.EditTextPreferenceModifiers
+import app.rawline.mobile.outbound.BuildContext
+import app.rawline.mobile.outbound.common.Ech
+import app.rawline.mobile.outbound.common.MUX_CUSTOM
 import moe.matsuri.nb4a.proxy.PreferenceBindingManager
 import moe.matsuri.nb4a.ui.SimpleMenuPreference
 

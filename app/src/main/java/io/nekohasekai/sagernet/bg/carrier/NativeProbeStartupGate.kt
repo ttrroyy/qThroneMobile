@@ -1,4 +1,4 @@
-package app.qthrone.mobile.bg.carrier
+package app.rawline.mobile.bg.carrier
 
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.ensureActive

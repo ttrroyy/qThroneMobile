@@ -1,6 +1,6 @@
-package app.qthrone.mobile.database
+package app.rawline.mobile.database
 
-import app.qthrone.mobile.SagerNet
+import app.rawline.mobile.SagerNet
 import java.util.concurrent.Callable
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -105,7 +105,7 @@ object GroupRepo {
         dao.insertDefaultIfEmpty(SagerDatabase.defaultGroupName())
     }
 
-    private fun legacyDefaultNames() = setOf("", "Default", "По умолчанию", "默认", "پیش فرض", SagerNet.application.getString(app.qthrone.mobile.R.string.group_default_name))
+    private fun legacyDefaultNames() = setOf("", "Default", "По умолчанию", "默认", "پیش فرض", SagerNet.application.getString(app.rawline.mobile.R.string.group_default_name))
 
     /** Plain pasted or scanned profiles never become members of the selected subscription. */
     fun serverListId(): Long = SagerDatabase.instance.runInTransaction(Callable {

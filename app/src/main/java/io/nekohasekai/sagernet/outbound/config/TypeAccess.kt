@@ -1,10 +1,10 @@
-package app.qthrone.mobile.outbound.config
+package app.rawline.mobile.outbound.config
 
-import app.qthrone.mobile.outbound.Outbound
-import app.qthrone.mobile.outbound.types.Chain
-import app.qthrone.mobile.outbound.types.Custom
-import app.qthrone.mobile.outbound.types.Hysteria
-import app.qthrone.mobile.outbound.types.Socks
+import app.rawline.mobile.outbound.Outbound
+import app.rawline.mobile.outbound.types.Chain
+import app.rawline.mobile.outbound.types.Custom
+import app.rawline.mobile.outbound.types.Hysteria
+import app.rawline.mobile.outbound.types.Socks
 
 /** The desktop's Profile::Chain() / Custom() / Hysteria() / Socks() casts, which yield nothing for any other type. */
 internal object TypeAccess {

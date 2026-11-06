@@ -1,16 +1,16 @@
-package app.qthrone.mobile.outbound.types
+package app.rawline.mobile.outbound.types
 
-import app.qthrone.mobile.outbound.BuildContext
-import app.qthrone.mobile.outbound.BuildResult
-import app.qthrone.mobile.outbound.Outbound
-import app.qthrone.mobile.outbound.QtStrings
-import app.qthrone.mobile.outbound.SecurityInfo
-import app.qthrone.mobile.outbound.SecurityLevel
-import app.qthrone.mobile.outbound.json.JsonArray
-import app.qthrone.mobile.outbound.json.JsonObject
-import app.qthrone.mobile.outbound.json.JsonValues
-import app.qthrone.mobile.outbound.link.Hosts
-import app.qthrone.mobile.outbound.link.LinkParser
+import app.rawline.mobile.outbound.BuildContext
+import app.rawline.mobile.outbound.BuildResult
+import app.rawline.mobile.outbound.Outbound
+import app.rawline.mobile.outbound.QtStrings
+import app.rawline.mobile.outbound.SecurityInfo
+import app.rawline.mobile.outbound.SecurityLevel
+import app.rawline.mobile.outbound.json.JsonArray
+import app.rawline.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.json.JsonValues
+import app.rawline.mobile.outbound.link.Hosts
+import app.rawline.mobile.outbound.link.LinkParser
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
@@ -327,7 +327,7 @@ class OpenConnect : Outbound("openconnect") {
     @JvmField var server_path: String = ""
     @JvmField var mtu: Int = 0
     @JvmField var tls: Tls = Tls()
-    /** Throne-only, never sent to the core (openconnect.h:133-136); Android has no OTP store, so it only round-trips. */
+    /** Rawline-only, never sent to the core (openconnect.h:133-136); Android has no OTP store, so it only round-trips. */
     @JvmField var otp_profile_id: Int = -1
     @JvmField var only_advertised_routes: Boolean = true
     @JvmField var tunnel_dns: String = TUNNEL_DNS_PREFER
@@ -901,7 +901,7 @@ private object OcImport {
                 entry.value = value.substring(equals + 1)
                 out.form_entries.add(entry)
             }
-            "proxy", "proxy-auth", "http-auth" -> notes.add("Configure a proxy through Throne's chain instead, ignored: $name")
+            "proxy", "proxy-auth", "http-auth" -> notes.add("Configure a proxy through Rawline's chain instead, ignored: $name")
             else -> {
                 if (name in IGNORED) return
                 notes.add("Unknown OpenConnect option, ignored: ${if (hasValue) "$name=$value" else name}")

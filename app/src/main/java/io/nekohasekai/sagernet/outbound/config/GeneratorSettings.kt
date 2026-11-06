@@ -1,9 +1,9 @@
-package app.qthrone.mobile.outbound.config
+package app.rawline.mobile.outbound.config
 
 /**
  * Every setting the config skeleton reads (include/database/SettingsRepo.h), with the desktop default. Each field
  * names the desktop key; database.SettingsMapper fills it from the DataStore property of that key (lowerCamelCase).
- * `direct_dns_disable_ipv6` and `use_dns_object` are read from [app.qthrone.mobile.outbound.BuildContext] (they
+ * `direct_dns_disable_ipv6` and `use_dns_object` are read from [app.rawline.mobile.outbound.BuildContext] (they
  * also drive the domain strategies there), not duplicated here.
  */
 data class GeneratorSettings(

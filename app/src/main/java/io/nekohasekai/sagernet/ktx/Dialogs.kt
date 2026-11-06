@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ktx
+package app.rawline.mobile.ktx
 
 import android.app.Activity
 import android.content.Context
@@ -6,8 +6,8 @@ import android.content.ContextWrapper
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
-import app.qthrone.mobile.R
+import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
+import app.rawline.mobile.R
 
 fun Context.alert(text: String): AlertDialog {
     return MobileAlertDialogBuilder(this).setTitle(R.string.error_title)

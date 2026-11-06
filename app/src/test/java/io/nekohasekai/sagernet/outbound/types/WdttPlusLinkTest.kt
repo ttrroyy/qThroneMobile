@@ -1,6 +1,6 @@
-package app.qthrone.mobile.outbound.types
+package app.rawline.mobile.outbound.types
 
-import app.qthrone.mobile.outbound.`import`.ProfileImport
+import app.rawline.mobile.outbound.`import`.ProfileImport
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -38,14 +38,14 @@ class WdttPlusLinkTest {
 
     @Test fun theQwdttEngineRunsAPlainWdttLinkOnQwdtt() {
         val profile = ProfileImport.parse("wdtt://31.76.50.112:56000:56001:9000:secret:$hash").outbounds.single() as WdttPlus
-        assertEquals(app.qthrone.mobile.bg.carrier.CarrierKind.QWDTT, profile.carrierKind)
+        assertEquals(app.rawline.mobile.bg.carrier.CarrierKind.QWDTT, profile.carrierKind)
         profile.engine = "wdttplus"
-        assertEquals(app.qthrone.mobile.bg.carrier.CarrierKind.WDTTPLUS, WdttPlus().apply { assertTrue(parseFromJson(profile.exportToJson())) }.carrierKind)
+        assertEquals(app.rawline.mobile.bg.carrier.CarrierKind.WDTTPLUS, WdttPlus().apply { assertTrue(parseFromJson(profile.exportToJson())) }.carrierKind)
         profile.engine = "qwdtt"; profile.mode = "raw"; profile.rawPort = 56013
         val stored = WdttPlus().apply { assertTrue(parseFromJson(profile.exportToJson())) }
         assertEquals("WDTT · qWDTT (RAW)", stored.displayType())
-        assertEquals(app.qthrone.mobile.bg.carrier.CarrierKind.QWDTT, stored.carrierKind)
-        val config = stored.privateConfig(1080, 1081, app.qthrone.mobile.bg.carrier.CarrierBridgeCredentials("u", "pw"))
+        assertEquals(app.rawline.mobile.bg.carrier.CarrierKind.QWDTT, stored.carrierKind)
+        val config = stored.privateConfig(1080, 1081, app.rawline.mobile.bg.carrier.CarrierBridgeCredentials("u", "pw"))
         assertEquals("raw", config.string("mode"))
         assertEquals("31.76.50.112:56013", config.string("peer"))
         assertEquals("secret", config.string("password"))
@@ -56,11 +56,11 @@ class WdttPlusLinkTest {
     @Test fun csqttVersionPicksTheClient() {
         val profile = Csqtt().apply { assertTrue(parseFromLink("csqtt://connect?v=2&host=203.0.113.7&peer=46000&password=s&hashes=$hash")) }
         assertEquals("2.5.0", profile.version)
-        assertEquals("legacy", profile.privateConfig(1080, 1081, app.qthrone.mobile.bg.carrier.CarrierBridgeCredentials("u", "pw")).string("protocol_variant"))
+        assertEquals("legacy", profile.privateConfig(1080, 1081, app.rawline.mobile.bg.carrier.CarrierBridgeCredentials("u", "pw")).string("protocol_variant"))
         profile.version = "2.1.9"
         val stored = Csqtt().apply { assertTrue(parseFromJson(profile.exportToJson())) }
         assertEquals("CSQTT 2.1.9 (UDP)", stored.displayType())
-        assertEquals("compat", stored.privateConfig(1080, 1081, app.qthrone.mobile.bg.carrier.CarrierBridgeCredentials("u", "pw")).string("protocol_variant"))
+        assertEquals("compat", stored.privateConfig(1080, 1081, app.rawline.mobile.bg.carrier.CarrierBridgeCredentials("u", "pw")).string("protocol_variant"))
         assertFalse(Csqtt().parseFromJson(profile.exportToJson().also { it["csqtt_version"] = "3.0" }))
     }
 
@@ -82,7 +82,7 @@ class WdttPlusLinkTest {
     @Test fun startsLikeTheOriginalApp() {
         val profile = WdttPlus()
         assertTrue(profile.parseFromLink("wdtt://connect?v=1&host=192.0.2.5&dtls=56000&wg=56001&local=9000&password=p&hashes=$hash"))
-        val config = profile.privateConfig(1080, 1081, app.qthrone.mobile.bg.carrier.CarrierBridgeCredentials("u", "pw"))
+        val config = profile.privateConfig(1080, 1081, app.rawline.mobile.bg.carrier.CarrierBridgeCredentials("u", "pw"))
         val args = config.array("args").strings()
         for (flag in listOf("-startup-config-stdin=true", "-socks-auth=true", "-vkcalls-preflight=true", "-config-first-start=true"))
             assertTrue(flag, flag in args)
@@ -98,13 +98,13 @@ class WdttPlusLinkTest {
             tcpOnly = true; turnSni = "turn.example.org"; rtMasque = true; rtMasqueServerBootstrap = true; workers = 36
         }
         val restored = WdttPlus().apply { assertTrue(parseFromJson(profile.exportToJson())) }
-        val args = restored.privateConfig(1080,1081,app.qthrone.mobile.bg.carrier.CarrierBridgeCredentials("u","pw")).array("args").strings()
+        val args = restored.privateConfig(1080,1081,app.rawline.mobile.bg.carrier.CarrierBridgeCredentials("u","pw")).array("args").strings()
         assertTrue("-turn-stream-first=true" in args)
         assertTrue("-rt-masque=true" in args)
         assertEquals("turn.example.org",args[args.indexOf("-turn-sni")+1])
         assertEquals("auto",args[args.indexOf("-transport-experiment")+1])
         assertFalse(args.any { it == "p" || it == hash || it == "pw" })
-        assertTrue(restored.privateConfig(1080,1081,app.qthrone.mobile.bg.carrier.CarrierBridgeCredentials("u","pw")).bool("masque_server_bootstrap"))
+        assertTrue(restored.privateConfig(1080,1081,app.rawline.mobile.bg.carrier.CarrierBridgeCredentials("u","pw")).bool("masque_server_bootstrap"))
         assertEquals(profile.exportToJson().toCompact(),restored.exportToJson().toCompact())
     }
 
@@ -119,7 +119,7 @@ class WdttPlusLinkTest {
         stored["turn_sni"] = ""
         val disabled = WdttPlus().apply { assertTrue(parseFromJson(stored)) }
         assertEquals("", disabled.turnSni)
-        assertFalse("-turn-sni" in disabled.privateConfig(1080,1081,app.qthrone.mobile.bg.carrier.CarrierBridgeCredentials("u","pw")).array("args").strings())
+        assertFalse("-turn-sni" in disabled.privateConfig(1080,1081,app.rawline.mobile.bg.carrier.CarrierBridgeCredentials("u","pw")).array("args").strings())
     }
 
     @Test fun invalidExternalSniIsRejectedBeforeNativeLaunch() {

@@ -1,20 +1,20 @@
-package app.qthrone.mobile.outbound
+package app.rawline.mobile.outbound
 
-import app.qthrone.mobile.outbound.common.DialFields
-import app.qthrone.mobile.outbound.common.Multiplex
-import app.qthrone.mobile.outbound.common.QuicFields
-import app.qthrone.mobile.outbound.common.Tls
-import app.qthrone.mobile.outbound.common.Transport
-import app.qthrone.mobile.outbound.common.XrayMultiplex
-import app.qthrone.mobile.outbound.common.XrayStreamSetting
-import app.qthrone.mobile.outbound.import.ClashProxy
-import app.qthrone.mobile.outbound.json.JsonObject
-import app.qthrone.mobile.outbound.json.jsonObjectOf
-import app.qthrone.mobile.outbound.link.Base64Strict
-import app.qthrone.mobile.outbound.link.Hosts
-import app.qthrone.mobile.outbound.link.LinkBuilder
-import app.qthrone.mobile.outbound.link.LinkParser
-import app.qthrone.mobile.outbound.link.ParsedLink
+import app.rawline.mobile.outbound.common.DialFields
+import app.rawline.mobile.outbound.common.Multiplex
+import app.rawline.mobile.outbound.common.QuicFields
+import app.rawline.mobile.outbound.common.Tls
+import app.rawline.mobile.outbound.common.Transport
+import app.rawline.mobile.outbound.common.XrayMultiplex
+import app.rawline.mobile.outbound.common.XrayStreamSetting
+import app.rawline.mobile.outbound.import.ClashProxy
+import app.rawline.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.json.jsonObjectOf
+import app.rawline.mobile.outbound.link.Base64Strict
+import app.rawline.mobile.outbound.link.Hosts
+import app.rawline.mobile.outbound.link.LinkBuilder
+import app.rawline.mobile.outbound.link.LinkParser
+import app.rawline.mobile.outbound.link.ParsedLink
 
 /** BuildResult (baseConfig.h:9-12). */
 class BuildResult(@JvmField val json: JsonObject, @JvmField val error: String = "") {
@@ -189,7 +189,7 @@ abstract class Outbound(@JvmField var type: String) {
     fun exportJsonLink(stripMetadata: Boolean = false): String {
         val json = exportToJson()
         if (stripMetadata) json.remove("tag")
-        return "throne://add/" + Base64Strict.encode(json.toCompact(), urlSafe = true, padding = false)
+        return "rawline://add/" + Base64Strict.encode(json.toCompact(), urlSafe = true, padding = false)
     }
 
     open fun parseFromLink(link: String): Boolean = parseFromLink(LinkParser.parse(link))

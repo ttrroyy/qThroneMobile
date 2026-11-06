@@ -1,11 +1,11 @@
-package app.qthrone.mobile.utils
+package app.rawline.mobile.utils
 
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import app.qthrone.mobile.ktx.launchCustomTab
+import app.rawline.mobile.ktx.launchCustomTab
 import java.util.Locale
 
 /**

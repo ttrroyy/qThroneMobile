@@ -1,4 +1,4 @@
-package app.qthrone.mobile.database.preference
+package app.rawline.mobile.database.preference
 
 import android.text.InputFilter
 import android.view.inputmethod.EditorInfo

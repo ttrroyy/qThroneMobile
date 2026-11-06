@@ -1,9 +1,9 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.content.Intent
 import android.os.Bundle
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.ProxyEntity
+import app.rawline.mobile.R
+import app.rawline.mobile.database.ProxyEntity
 
 class ProfileSelectActivity : ThemedActivity(R.layout.layout_empty),
     ConfigurationFragment.SelectCallback {

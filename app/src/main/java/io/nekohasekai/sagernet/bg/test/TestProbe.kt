@@ -1,16 +1,16 @@
-package app.qthrone.mobile.bg.test
+package app.rawline.mobile.bg.test
 
-import app.qthrone.mobile.bg.ProfileValidator
-import app.qthrone.mobile.bg.XrayGeoAssets
-import app.qthrone.mobile.bg.proto.CoreConfig
-import app.qthrone.mobile.bg.proto.CoreConfigs
-import app.qthrone.mobile.bg.proto.applyTo
-import app.qthrone.mobile.database.ProxyEntity
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.completeWith
-import app.qthrone.mobile.ktx.readableMessage
-import app.qthrone.mobile.outbound.config.GeneratedConfig
-import app.qthrone.mobile.outbound.types.Custom
+import app.rawline.mobile.bg.ProfileValidator
+import app.rawline.mobile.bg.XrayGeoAssets
+import app.rawline.mobile.bg.proto.CoreConfig
+import app.rawline.mobile.bg.proto.CoreConfigs
+import app.rawline.mobile.bg.proto.applyTo
+import app.rawline.mobile.database.ProxyEntity
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.completeWith
+import app.rawline.mobile.ktx.readableMessage
+import app.rawline.mobile.outbound.config.GeneratedConfig
+import app.rawline.mobile.outbound.types.Custom
 import app.qthrone.core.mobile.Mobile
 import app.qthrone.core.mobile.TestRequest
 import kotlinx.coroutines.CancellationException
@@ -62,7 +62,7 @@ internal class TestProbe private constructor(
     private val core: CoreConfig,
     private val tagToProfileId: Map<String, Long>,
     private val fullConfigProfileId: Long,
-    val carrierPlans:List<app.qthrone.mobile.bg.carrier.CarrierPlan> = emptyList(),
+    val carrierPlans:List<app.rawline.mobile.bg.carrier.CarrierPlan> = emptyList(),
 ) {
     val profileIds: List<Long> =
         if (fullConfigProfileId > 0) listOf(fullConfigProfileId) else tagToProfileId.values.toList()
@@ -135,8 +135,8 @@ internal suspend fun TestSession.screenXrayFullConfigs(profiles: List<ProxyEntit
     if (originals.isEmpty() || cancelled) return emptyList()
     val excluded = ArrayList<Excluded>()
     val candidates = withContext(Dispatchers.IO) {
-        val fallback = app.qthrone.mobile.route.ProviderRouting.stored(app.qthrone.mobile.database.RouteManager.current())?.second
-            ?: app.qthrone.mobile.outbound.json.JsonObject()
+        val fallback = app.rawline.mobile.route.ProviderRouting.stored(app.rawline.mobile.database.RouteManager.current())?.second
+            ?: app.rawline.mobile.outbound.json.JsonObject()
         originals.mapNotNull { (profile, _) ->
             try {
                 profile to (CoreConfigs.prepareOutbound(profile, fallback) as Custom)
@@ -310,14 +310,14 @@ internal abstract class LatencySweep(protected val session: TestSession) {
         }
         try {
             val status=if(session.kind==TestSpec.KIND_URL && probe.carrierPlans.isNotEmpty())
-                app.qthrone.mobile.bg.carrier.NativeConnectionStatus.Writer(probe.profileIds.first(),testing=true) else null
+                app.rawline.mobile.bg.carrier.NativeConnectionStatus.Writer(probe.profileIds.first(),testing=true) else null
             try {
-            status?.update(app.qthrone.mobile.bg.carrier.NativeConnectionStage.PREPARING)
+            status?.update(app.rawline.mobile.bg.carrier.NativeConnectionStage.PREPARING)
             // CSQTT must obtain its tunnel config before the short HTTP latency deadline starts.
             // CarrierProcess owns the startup deadline; coroutine cancellation still stops preparation.
-            withPreparedTransports(probe.carrierPlans,{ plan -> app.qthrone.mobile.bg.carrier.CarrierPool.acquire(plan,
+            withPreparedTransports(probe.carrierPlans,{ plan -> app.rawline.mobile.bg.carrier.CarrierPool.acquire(plan,
                 session.interactive && session.kind!=TestSpec.KIND_URL,onStatus={ status?.update(it) }).closedInBackground() }) {
-                status?.update(app.qthrone.mobile.bg.carrier.NativeConnectionStage.CONNECTED)
+                status?.update(app.rawline.mobile.bg.carrier.NativeConnectionStage.CONNECTED)
                 measure(probe, batch, emit)
             }
             } finally { status?.close() }

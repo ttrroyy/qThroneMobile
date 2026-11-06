@@ -1,6 +1,6 @@
-package app.qthrone.mobile.bg.carrier
+package app.rawline.mobile.bg.carrier
 
-import app.qthrone.mobile.outbound.types.Qwdtt
+import app.rawline.mobile.outbound.types.Qwdtt
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -11,10 +11,10 @@ class NativeHashPolicyTest {
         assertEquals(27,NativeHashPolicy.preservedWorkers(27,54))
         assertEquals(54,NativeHashPolicy.preservedWorkers(54,81))
         for(type in listOf("qwdtt","csqtt")) {
-            val old=if(type=="csqtt") app.qthrone.mobile.outbound.types.Csqtt() else Qwdtt()
+            val old=if(type=="csqtt") app.rawline.mobile.outbound.types.Csqtt() else Qwdtt()
             old.name="workers";old.server="192.0.2.1";old.password="fixture";old.hashSource="manual"
             old.hashes=listOf("a","b","c","d");old.workers=108
-            val incoming=if(type=="csqtt") app.qthrone.mobile.outbound.types.Csqtt() else Qwdtt()
+            val incoming=if(type=="csqtt") app.rawline.mobile.outbound.types.Csqtt() else Qwdtt()
             incoming.name=old.name;incoming.server=old.server;incoming.password=old.password
             // Provider now supplies three slots; the surviving trailing slot duplicates one of them.
             incoming.hashes=listOf("d","e","f");incoming.workers=9
@@ -25,24 +25,24 @@ class NativeHashPolicyTest {
         }
     }
     @Test fun subscriptionHashesAndExistingRowSurviveRepeatedRefreshForBothTransports() {
-        for (old in listOf(profile(),app.qthrone.mobile.outbound.types.Csqtt().apply {
+        for (old in listOf(profile(),app.rawline.mobile.outbound.types.Csqtt().apply {
             name="Example";server="192.0.2.1";password="test";hashes=listOf("local_hash")
         })) {
             repeat(2) {
-                val incoming=if(old is app.qthrone.mobile.outbound.types.Csqtt) app.qthrone.mobile.outbound.types.Csqtt() else Qwdtt()
+                val incoming=if(old is app.rawline.mobile.outbound.types.Csqtt) app.rawline.mobile.outbound.types.Csqtt() else Qwdtt()
                 assertTrue(incoming.parseFromJson(old.exportToJson()))
                 incoming.hashes=listOf("subscription_default")
                 incoming.workers=18
                 NativeHashPolicy.preserve(incoming,listOf(old))
                 assertEquals(listOf("subscription_default"),incoming.hashes)
                 assertEquals(old.deviceId,incoming.deviceId)
-                val previous=app.qthrone.mobile.group.OldEntry(7,"old-content",NativeHashPolicy.subscriptionIdentity(old),"old")
-                val index=app.qthrone.mobile.group.ContentIndex(listOf(previous))
-                val next=app.qthrone.mobile.group.NewEntry("new").apply {
+                val previous=app.rawline.mobile.group.OldEntry(7,"old-content",NativeHashPolicy.subscriptionIdentity(old),"old")
+                val index=app.rawline.mobile.group.ContentIndex(listOf(previous))
+                val next=app.rawline.mobile.group.NewEntry("new").apply {
                     id=8;content="new-content";identity=NativeHashPolicy.subscriptionIdentity(incoming)
                 }
                 index.noteArrival(next.content)
-                val plan=app.qthrone.mobile.group.SubscriptionReconcile.reconcile(listOf(previous),listOf(next),index)
+                val plan=app.rawline.mobile.group.SubscriptionReconcile.reconcile(listOf(previous),listOf(next),index)
                 assertEquals(listOf(7L),plan.order)
                 assertEquals(listOf(7L to 8L),plan.updates)
                 assertEquals(listOf(8L),plan.stale)
@@ -51,10 +51,10 @@ class NativeHashPolicyTest {
     }
     @Test fun subscriptionReplacesLeadingSlotsAndKeepsOnlyUnclaimedManualSlots() {
         for(type in listOf("qwdtt","csqtt")) {
-            val old=if(type=="csqtt") app.qthrone.mobile.outbound.types.Csqtt() else Qwdtt()
+            val old=if(type=="csqtt") app.rawline.mobile.outbound.types.Csqtt() else Qwdtt()
             old.name="Example";old.hashes=listOf("sub-old","manual-2","manual-3","manual-4")
             for(count in listOf(1,3,4)) {
-                val incoming=if(type=="csqtt") app.qthrone.mobile.outbound.types.Csqtt() else Qwdtt()
+                val incoming=if(type=="csqtt") app.rawline.mobile.outbound.types.Csqtt() else Qwdtt()
                 incoming.name="Example";incoming.hashes=(1..count).map { "sub-new-$it" }
                 NativeHashPolicy.preserve(incoming,listOf(old))
                 assertEquals((1..count).map { "sub-new-$it" }+old.hashes.drop(count),incoming.hashes)
@@ -85,8 +85,8 @@ class NativeHashPolicyTest {
         assertEquals("auto",incoming.hashSource)
     }
     @Test fun csqttDeviceIdentitySurvivesReplacedServer() {
-        val old=app.qthrone.mobile.outbound.types.Csqtt().apply { name="Same server";deviceId="existing-phone" }
-        val incoming=app.qthrone.mobile.outbound.types.Csqtt().apply { name="Same server";server="192.0.2.55" }
+        val old=app.rawline.mobile.outbound.types.Csqtt().apply { name="Same server";deviceId="existing-phone" }
+        val incoming=app.rawline.mobile.outbound.types.Csqtt().apply { name="Same server";server="192.0.2.55" }
         NativeHashPolicy.preserve(incoming,listOf(old))
         assertEquals("existing-phone",incoming.deviceId)
         assertTrue(incoming.deviceIdProvided)
@@ -105,16 +105,16 @@ class NativeHashPolicyTest {
         assertFalse(incoming.hashSourceChosen)
     }
     @Test fun newProfilesStartLikeTheOriginalAppsAndRefreshKeepsTheUsersModeAndTransport() {
-        val qwdtt=Qwdtt();assertTrue(qwdtt.parseFromJson(app.qthrone.mobile.outbound.json.JsonInput.parseObject("""{"type":"qwdtt","peer":"192.0.2.1:56000","password":"fixture"}""")))
+        val qwdtt=Qwdtt();assertTrue(qwdtt.parseFromJson(app.rawline.mobile.outbound.json.JsonInput.parseObject("""{"type":"qwdtt","peer":"192.0.2.1:56000","password":"fixture"}""")))
         assertEquals("wg",qwdtt.mode);assertTrue(qwdtt.turnTcp)
-        val csqtt=app.qthrone.mobile.outbound.types.Csqtt()
-        assertTrue(csqtt.parseFromJson(app.qthrone.mobile.outbound.json.JsonInput.parseObject("""{"type":"csqtt","server":"192.0.2.1","server_port":46000,"password":"fixture","hashes":["exampleHash123456789"]}""")))
+        val csqtt=app.rawline.mobile.outbound.types.Csqtt()
+        assertTrue(csqtt.parseFromJson(app.rawline.mobile.outbound.json.JsonInput.parseObject("""{"type":"csqtt","server":"192.0.2.1","server_port":46000,"password":"fixture","hashes":["exampleHash123456789"]}""")))
         assertFalse(csqtt.turnTcp)
         for(type in listOf("qwdtt","csqtt")) {
-            val old=if(type=="csqtt") app.qthrone.mobile.outbound.types.Csqtt() else Qwdtt()
+            val old=if(type=="csqtt") app.rawline.mobile.outbound.types.Csqtt() else Qwdtt()
             old.name="Example";old.server="192.0.2.1";old.password="fixture";old.hashes=listOf("user_hash_123456789")
             old.mode="raw";old.turnTcp=type=="csqtt";old.workers=27
-            val incoming=if(type=="csqtt") app.qthrone.mobile.outbound.types.Csqtt() else Qwdtt()
+            val incoming=if(type=="csqtt") app.rawline.mobile.outbound.types.Csqtt() else Qwdtt()
             incoming.name="Example";incoming.server=old.server;incoming.password=old.password
             incoming.mode="wg";incoming.turnTcp=type!="csqtt";incoming.workers=9
             NativeHashPolicy.preserve(incoming,listOf(old))
@@ -127,7 +127,7 @@ class NativeHashPolicyTest {
     }
     @Test fun userSlotsSurviveRefreshAndTheSubscriptionOnlyReplacesItsOwnCount() {
         for(type in listOf("qwdtt","csqtt")) {
-            fun profile(vararg hashes:String)=(if(type=="csqtt") app.qthrone.mobile.outbound.types.Csqtt() else Qwdtt()).apply {
+            fun profile(vararg hashes:String)=(if(type=="csqtt") app.rawline.mobile.outbound.types.Csqtt() else Qwdtt()).apply {
                 name="Example";server="192.0.2.1";password="fixture";hashSource="manual";this.hashes=hashes.toList()
             }
             // The subscription gives one hash; the user adds three of their own.
@@ -146,11 +146,11 @@ class NativeHashPolicyTest {
         }
     }
     @Test fun handEditedHashesAndTransportOptionsSurviveRefresh() {
-        val old=app.qthrone.mobile.outbound.types.Csqtt().apply {
+        val old=app.rawline.mobile.outbound.types.Csqtt().apply {
             name="Example";server="192.0.2.1";password="fixture";hashes=listOf("user_hash_1234567890")
             manualHashesOverride=true;srtpMode="dtls";turnTransport="tcp_tls";vkAccessToken="token";workers=40
         }
-        val incoming=app.qthrone.mobile.outbound.types.Csqtt().apply {
+        val incoming=app.rawline.mobile.outbound.types.Csqtt().apply {
             name="Example";server="192.0.2.1";password="fixture";hashes=listOf("sub_hash_1234567890")
         }
         NativeHashPolicy.preserve(incoming,listOf(old))
@@ -158,11 +158,11 @@ class NativeHashPolicyTest {
         assertTrue(incoming.manualHashesOverride)
         assertEquals("dtls",incoming.srtpMode);assertEquals("tcp_tls",incoming.turnTransport)
         assertEquals("token",incoming.vkAccessToken);assertEquals(40,incoming.workers)
-        val restored=app.qthrone.mobile.outbound.types.Csqtt()
+        val restored=app.rawline.mobile.outbound.types.Csqtt()
         assertTrue(restored.parseFromJson(incoming.exportToJson()))
         assertTrue(restored.manualHashesOverride)
-        val plus=app.qthrone.mobile.outbound.types.WdttPlus().apply { name="Plus";hashes=listOf("a");workers=27;tcpOnly=true;captchaMode="wv" }
-        val plusIncoming=app.qthrone.mobile.outbound.types.WdttPlus().apply { name="Plus";hashes=listOf("a","b") }
+        val plus=app.rawline.mobile.outbound.types.WdttPlus().apply { name="Plus";hashes=listOf("a");workers=27;tcpOnly=true;captchaMode="wv" }
+        val plusIncoming=app.rawline.mobile.outbound.types.WdttPlus().apply { name="Plus";hashes=listOf("a","b") }
         NativeHashPolicy.preserve(plusIncoming,listOf(plus))
         assertEquals(27,plusIncoming.workers);assertTrue(plusIncoming.tcpOnly);assertEquals("wv",plusIncoming.captchaMode)
     }

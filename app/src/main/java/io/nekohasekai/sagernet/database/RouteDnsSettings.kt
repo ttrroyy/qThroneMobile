@@ -1,6 +1,6 @@
-package app.qthrone.mobile.database
+package app.rawline.mobile.database
 
-import app.qthrone.mobile.route.RouteDns
+import app.rawline.mobile.route.RouteDns
 
 /** RouteDns::Global and RouteDns::Current (RouteProfile.cpp): the DNS settings a config is generated with. */
 object RouteDnsSettings {

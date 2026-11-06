@@ -1,4 +1,4 @@
-package app.qthrone.mobile.update
+package app.rawline.mobile.update
 
 import org.json.JSONArray
 import org.json.JSONObject

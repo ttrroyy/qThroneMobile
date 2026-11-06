@@ -1,13 +1,13 @@
-package app.qthrone.mobile.database.backup
+package app.rawline.mobile.database.backup
 
 import android.content.Intent
 import android.net.Uri
 import androidx.fragment.app.FragmentActivity
-import app.qthrone.mobile.R
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ui.MainActivity
+import app.rawline.mobile.R
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ui.MainActivity
 
-// Entry for a .thrbackup opened from outside (VIEW/SEND intents).
+// Entry for a .rwlbackup opened from outside (VIEW/SEND intents).
 object BackupEntry {
 
     private var pending: Uri? = null
@@ -18,7 +18,7 @@ object BackupEntry {
      */
     fun open(activity: FragmentActivity, uri: Uri): Boolean {
         val backup = try {
-            activity.contentResolver.openInputStream(uri)?.use { ThrBackup.hasMagic(it) } == true
+            activity.contentResolver.openInputStream(uri)?.use { RwlBackup.hasMagic(it) } == true
         } catch (e: Exception) {
             Logs.w("open backup $uri", e)
             false

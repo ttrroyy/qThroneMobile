@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui.settings
+package app.rawline.mobile.ui.settings
 
 import android.content.Context
 import android.util.AttributeSet
@@ -8,17 +8,17 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
 import androidx.preference.SwitchPreference
-import app.qthrone.mobile.R
-import app.qthrone.mobile.SagerNet
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.SettingsRegistry
-import app.qthrone.mobile.database.preference.OnPreferenceDataStoreChangeListener
-import app.qthrone.mobile.ktx.needReload
-import app.qthrone.mobile.ktx.readableMessage
-import app.qthrone.mobile.ktx.runOnMainDispatcher
-import app.qthrone.mobile.ui.profile.ProfileSettingsActivity
-import app.qthrone.mobile.ui.warp.WarpClient
-import app.qthrone.mobile.ui.warp.WarpGenerate
+import app.rawline.mobile.R
+import app.rawline.mobile.SagerNet
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.SettingsRegistry
+import app.rawline.mobile.database.preference.OnPreferenceDataStoreChangeListener
+import app.rawline.mobile.ktx.needReload
+import app.rawline.mobile.ktx.readableMessage
+import app.rawline.mobile.ktx.runOnMainDispatcher
+import app.rawline.mobile.ui.profile.ProfileSettingsActivity
+import app.rawline.mobile.ui.warp.WarpClient
+import app.rawline.mobile.ui.warp.WarpGenerate
 import kotlinx.coroutines.launch
 import moe.matsuri.nb4a.ui.SimpleMenuPreference
 

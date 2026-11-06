@@ -1,4 +1,4 @@
-package app.qthrone.mobile.bg
+package app.rawline.mobile.bg
 
 import android.app.Service
 import android.content.Intent

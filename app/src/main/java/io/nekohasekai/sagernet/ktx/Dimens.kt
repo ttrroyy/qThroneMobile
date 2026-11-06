@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ktx
+package app.rawline.mobile.ktx
 
 import android.content.res.Resources
 import kotlin.math.ceil

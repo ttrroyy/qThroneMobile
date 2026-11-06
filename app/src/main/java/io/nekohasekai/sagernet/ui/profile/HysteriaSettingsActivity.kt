@@ -1,9 +1,9 @@
-package app.qthrone.mobile.ui.profile
+package app.rawline.mobile.ui.profile
 
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
-import app.qthrone.mobile.R
-import app.qthrone.mobile.outbound.types.Hysteria
+import app.rawline.mobile.R
+import app.rawline.mobile.outbound.types.Hysteria
 
 /** Hysteria v1 and v2 on one screen; the version menu gates the version-specific fields and the v2 realm block. */
 class HysteriaSettingsActivity : BindingSettingsActivity<Hysteria>() {

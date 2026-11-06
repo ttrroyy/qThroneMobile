@@ -1,4 +1,4 @@
-package app.qthrone.mobile.bg.carrier
+package app.rawline.mobile.bg.carrier
 
 internal object NativeCaptchaPolicy {
     const val AUTOMATIC_TIMEOUT_MS = 10_000L

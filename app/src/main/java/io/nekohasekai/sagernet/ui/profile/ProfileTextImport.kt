@@ -1,9 +1,9 @@
-package app.qthrone.mobile.ui.profile
+package app.rawline.mobile.ui.profile
 
-import app.qthrone.mobile.database.SettingsMapper
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.outbound.Outbound
-import app.qthrone.mobile.outbound.`import`.ProfileImport
+import app.rawline.mobile.database.SettingsMapper
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.outbound.Outbound
+import app.rawline.mobile.outbound.`import`.ProfileImport
 
 /**
  * The UI's entry to the profile text parser (WP-S `ProfileImport`): clipboard text, QR payloads and file contents

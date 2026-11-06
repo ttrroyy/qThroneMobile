@@ -1,7 +1,7 @@
-package app.qthrone.mobile
+package app.rawline.mobile
 
-import app.qthrone.mobile.database.SettingsRegistry
-import app.qthrone.mobile.ktx.PreferenceProxy
+import app.rawline.mobile.database.SettingsRegistry
+import app.rawline.mobile.ktx.PreferenceProxy
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -10,7 +10,7 @@ import org.junit.Test
 class TestSettingsContractTest {
 
     @Test
-    fun freshInstallDefaultsMatchQThrone() {
+    fun freshInstallDefaultsMatchRawline() {
         assertEquals("https://www.google.com/generate_204", SettingsRegistry.TEST_URL.default)
         assertEquals(32, SettingsRegistry.TEST_CONCURRENT.default)
         assertEquals(5000, SettingsRegistry.URL_TEST_TIMEOUT_MS.default)

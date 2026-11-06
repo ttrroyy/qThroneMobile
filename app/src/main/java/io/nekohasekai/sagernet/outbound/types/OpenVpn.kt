@@ -1,15 +1,15 @@
-package app.qthrone.mobile.outbound.types
+package app.rawline.mobile.outbound.types
 
-import app.qthrone.mobile.outbound.BuildContext
-import app.qthrone.mobile.outbound.BuildResult
-import app.qthrone.mobile.outbound.Outbound
-import app.qthrone.mobile.outbound.QtStrings
-import app.qthrone.mobile.outbound.SecurityInfo
-import app.qthrone.mobile.outbound.SecurityLevel
-import app.qthrone.mobile.outbound.json.JsonArray
-import app.qthrone.mobile.outbound.json.JsonObject
-import app.qthrone.mobile.outbound.json.JsonValues
-import app.qthrone.mobile.outbound.link.Hosts
+import app.rawline.mobile.outbound.BuildContext
+import app.rawline.mobile.outbound.BuildResult
+import app.rawline.mobile.outbound.Outbound
+import app.rawline.mobile.outbound.QtStrings
+import app.rawline.mobile.outbound.SecurityInfo
+import app.rawline.mobile.outbound.SecurityLevel
+import app.rawline.mobile.outbound.json.JsonArray
+import app.rawline.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.json.JsonValues
+import app.rawline.mobile.outbound.link.Hosts
 
 /** Outbound.h:17-20: ignore the pushed resolvers, use them for the names they claim, or also for every remote query. */
 const val TUNNEL_DNS_NONE = "none"
@@ -573,7 +573,7 @@ class OpenVpn : Outbound("openvpn") {
     @JvmField var static_challenge_echo: Boolean = false
     @JvmField var mtu: Int = 0
     @JvmField var tls: Tls = Tls()
-    /** Throne-only, never sent to the core (openvpn.h:86-89); Android has no OTP store, so it only round-trips. */
+    /** Rawline-only, never sent to the core (openvpn.h:86-89); Android has no OTP store, so it only round-trips. */
     @JvmField var otp_profile_id: Int = -1
     @JvmField var only_advertised_routes: Boolean = true
     @JvmField var tunnel_dns: String = TUNNEL_DNS_PREFER

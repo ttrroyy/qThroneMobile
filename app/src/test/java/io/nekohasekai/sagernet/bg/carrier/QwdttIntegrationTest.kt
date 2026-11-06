@@ -1,8 +1,8 @@
-package app.qthrone.mobile.bg.carrier
+package app.rawline.mobile.bg.carrier
 
-import app.qthrone.mobile.outbound.OutboundFactory
-import app.qthrone.mobile.outbound.types.Qwdtt
-import app.qthrone.mobile.outbound.json.JsonInput
+import app.rawline.mobile.outbound.OutboundFactory
+import app.rawline.mobile.outbound.types.Qwdtt
+import app.rawline.mobile.outbound.json.JsonInput
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -25,8 +25,8 @@ class QwdttIntegrationTest {
             profile.mode="raw"
             assertEquals("192.0.2.1:56003",profile.privateConfig(19001,19002,CarrierBridgeCredentials("user","pass")).string("peer"))
         }
-        val csqtt=app.qthrone.mobile.outbound.types.Csqtt().apply {
-            assertTrue(parseFromJson(app.qthrone.mobile.outbound.json.jsonObjectOf("type" to "csqtt","server" to "192.0.2.1","server_port" to 56002,"password" to "fixture")))
+        val csqtt=app.rawline.mobile.outbound.types.Csqtt().apply {
+            assertTrue(parseFromJson(app.rawline.mobile.outbound.json.jsonObjectOf("type" to "csqtt","server" to "192.0.2.1","server_port" to 56002,"password" to "fixture")))
         }
         assertFalse(csqtt.exportToJson().contains("no_dtls"))
     }
@@ -68,7 +68,7 @@ class QwdttIntegrationTest {
     @Test fun excessQwdttHashesKeepFirstFourSlots() {
         val input=profile().exportToJson()
         val hashes=(1..7).map { "test_hash_123456789_$it" }
-        input["hashes"]=app.qthrone.mobile.outbound.json.JsonArray.of(*hashes.toTypedArray())
+        input["hashes"]=app.rawline.mobile.outbound.json.JsonArray.of(*hashes.toTypedArray())
         val restored=Qwdtt()
         assertTrue(restored.parseFromJson(input))
         assertEquals(hashes.take(4),restored.hashes)
@@ -77,10 +77,10 @@ class QwdttIntegrationTest {
     @Test fun excessCsqttLinkHashesKeepFirstSixSlots() {
         val hashes=(1..8).map { "test_hash_123456789_$it" }
         val link="csqtt://connect?v=2&host=192.0.2.1&peer=46000&password=test-password&hashes="+hashes.joinToString("+")
-        val restored=app.qthrone.mobile.outbound.types.Csqtt()
+        val restored=app.rawline.mobile.outbound.types.Csqtt()
         assertTrue(restored.parseFromLink(link))
         assertEquals(hashes.take(6),restored.hashes)
-        val again=app.qthrone.mobile.outbound.types.Csqtt()
+        val again=app.rawline.mobile.outbound.types.Csqtt()
         assertTrue(again.parseFromLink(restored.exportToLink()))
         assertEquals(restored.hashes,again.hashes)
     }

@@ -1,11 +1,11 @@
-package app.qthrone.mobile.ui.profiles
+package app.rawline.mobile.ui.profiles
 
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
-import app.qthrone.mobile.R
-import app.qthrone.mobile.bg.test.TestSpec
-import app.qthrone.mobile.ktx.snackbar
-import app.qthrone.mobile.ui.ConfigurationFragment
-import app.qthrone.mobile.ui.test.TestSessionClient
+import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
+import app.rawline.mobile.R
+import app.rawline.mobile.bg.test.TestSpec
+import app.rawline.mobile.ktx.snackbar
+import app.rawline.mobile.ui.ConfigurationFragment
+import app.rawline.mobile.ui.test.TestSessionClient
 
 /** The test entry points of the profiles screen (desktop TestRunner scopes: group, selection, one profile, current). */
 internal object ProfileTests {

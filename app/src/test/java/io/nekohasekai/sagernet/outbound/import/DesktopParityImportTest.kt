@@ -1,8 +1,8 @@
-package app.qthrone.mobile.outbound.`import`
+package app.rawline.mobile.outbound.`import`
 
-import app.qthrone.mobile.outbound.types.Csqtt
-import app.qthrone.mobile.outbound.types.Custom
-import app.qthrone.mobile.outbound.types.Qwdtt
+import app.rawline.mobile.outbound.types.Csqtt
+import app.rawline.mobile.outbound.types.Custom
+import app.rawline.mobile.outbound.types.Qwdtt
 import org.junit.Assert.*
 import org.junit.Test
 

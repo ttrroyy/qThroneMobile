@@ -1,7 +1,7 @@
-package app.qthrone.mobile.route
+package app.rawline.mobile.route
 
-import app.qthrone.mobile.outbound.json.*
-import app.qthrone.mobile.database.SubscriptionOptions
+import app.rawline.mobile.outbound.json.*
+import app.rawline.mobile.database.SubscriptionOptions
 import org.junit.Assert.*
 import org.junit.Test
 

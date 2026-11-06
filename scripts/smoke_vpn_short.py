@@ -22,7 +22,7 @@ for _ in range(20):
 else:
     raise AssertionError('Current connection HTTP probe failed')
 # An unsigned command from the shell must not silently stop a connected VPN.
-shell('am', 'start', '-n', package + '/app.qthrone.mobile.ui.QuickDisableShortcut')
+shell('am', 'start', '-n', package + '/app.rawline.mobile.ui.QuickDisableShortcut')
 time.sleep(2)
 state = shell('dumpsys', 'connectivity')
 assert 'TRANSPORT_VPN' in state or 'Transports: VPN' in state

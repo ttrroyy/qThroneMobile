@@ -1,4 +1,4 @@
-package app.qthrone.mobile.bg
+package app.rawline.mobile.bg
 
 import android.app.Service
 import android.content.Intent
@@ -7,11 +7,11 @@ import android.net.IpPrefix
 import android.net.ProxyInfo
 import android.os.Build
 import android.os.ParcelFileDescriptor
-import app.qthrone.mobile.*
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.ktx.*
-import app.qthrone.mobile.ui.VpnRequestActivity
-import app.qthrone.mobile.utils.PlatformNotifications
+import app.rawline.mobile.*
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.ktx.*
+import app.rawline.mobile.ui.VpnRequestActivity
+import app.rawline.mobile.utils.PlatformNotifications
 import app.qthrone.core.mobile.Mobile
 import app.qthrone.core.mobile.RoutePrefix
 import app.qthrone.core.mobile.RoutePrefixIterator

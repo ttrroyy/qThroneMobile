@@ -1,4 +1,4 @@
-package app.qthrone.mobile.bg.test
+package app.rawline.mobile.bg.test
 
 import kotlinx.coroutines.*
 import org.junit.Assert.*

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.database
+package app.rawline.mobile.database
 
 import androidx.room.Dao
 import androidx.room.Insert

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui.route
+package app.rawline.mobile.ui.route
 
 import android.content.Intent
 import android.os.Bundle
@@ -14,27 +14,27 @@ import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
-import app.qthrone.mobile.Key
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.RouteManager
-import app.qthrone.mobile.database.preference.OnPreferenceDataStoreChangeListener
-import app.qthrone.mobile.ktx.FixedLinearLayoutManager
-import app.qthrone.mobile.route.OutboundIds
-import app.qthrone.mobile.route.RouteRule
-import app.qthrone.mobile.route.RuleType
-import app.qthrone.mobile.ui.AppListActivity
-import app.qthrone.mobile.ui.ThemedActivity
-import app.qthrone.mobile.ui.WifiPermissionFlow
-import app.qthrone.mobile.ui.profile.multilineInput
-import app.qthrone.mobile.ui.profile.portInput
-import app.qthrone.mobile.ui.profile.setVisible
-import app.qthrone.mobile.ui.settings.LinesSummaryProvider
-import app.qthrone.mobile.utils.PackageCache
-import app.qthrone.mobile.utils.WifiStateAccess
-import app.qthrone.mobile.widget.ListListener
-import app.qthrone.mobile.widget.StringLinesPreference
+import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
+import app.rawline.mobile.Key
+import app.rawline.mobile.R
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.RouteManager
+import app.rawline.mobile.database.preference.OnPreferenceDataStoreChangeListener
+import app.rawline.mobile.ktx.FixedLinearLayoutManager
+import app.rawline.mobile.route.OutboundIds
+import app.rawline.mobile.route.RouteRule
+import app.rawline.mobile.route.RuleType
+import app.rawline.mobile.ui.AppListActivity
+import app.rawline.mobile.ui.ThemedActivity
+import app.rawline.mobile.ui.WifiPermissionFlow
+import app.rawline.mobile.ui.profile.multilineInput
+import app.rawline.mobile.ui.profile.portInput
+import app.rawline.mobile.ui.profile.setVisible
+import app.rawline.mobile.ui.settings.LinesSummaryProvider
+import app.rawline.mobile.utils.PackageCache
+import app.rawline.mobile.utils.WifiStateAccess
+import app.rawline.mobile.widget.ListListener
+import app.rawline.mobile.widget.StringLinesPreference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -337,7 +337,7 @@ class RouteRuleActivity : ThemedActivity(R.layout.layout_config_settings), OnPre
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
             listView.layoutManager = FixedLinearLayoutManager(listView)
-            app.qthrone.mobile.ui.MobileSettingsStyle.apply(this,view)
+            app.rawline.mobile.ui.MobileSettingsStyle.apply(this,view)
             ViewCompat.setOnApplyWindowInsetsListener(listView, ListListener)
         }
 

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.bg.test
+package app.rawline.mobile.bg.test
 
 import android.annotation.SuppressLint
 import android.app.Notification
@@ -10,13 +10,13 @@ import android.content.IntentFilter
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import app.qthrone.mobile.R
-import app.qthrone.mobile.SagerNet
-import app.qthrone.mobile.bg.CoreForeground
-import app.qthrone.mobile.bg.proto.SpeedTestSnapshot
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.app
-import app.qthrone.mobile.utils.PlatformNotifications
+import app.rawline.mobile.R
+import app.rawline.mobile.SagerNet
+import app.rawline.mobile.bg.CoreForeground
+import app.rawline.mobile.bg.proto.SpeedTestSnapshot
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.app
+import app.rawline.mobile.utils.PlatformNotifications
 import kotlinx.coroutines.delay
 
 /** The progress notification of a running session ("<kind> · <scope>", n / N, Stop), shown through [CoreForeground]. */
@@ -127,7 +127,7 @@ internal class TestNotification(private val session: TestSession) {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
         return NotificationCompat.Builder(app, CoreForeground.CHANNEL)
-            .setSmallIcon(R.drawable.ic_throne_tile)
+            .setSmallIcon(R.drawable.ic_rawline_tile)
             .setContentTitle(if (scope.isBlank()) kind else app.getString(R.string.test_engine_title, kind, scope))
             .setContentText(text.substringBefore('\n'))
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))
@@ -144,7 +144,7 @@ internal class TestNotification(private val session: TestSession) {
 
     companion object {
         const val REASON = "tests"
-        private const val ACTION_STOP = "app.qthrone.mobile.TEST_STOP"
+        private const val ACTION_STOP = "app.rawline.mobile.TEST_STOP"
         private const val REFRESH_MS = 1000L
         private const val WARNING_TAG = "tests"
         private const val WARNING_ID = 1

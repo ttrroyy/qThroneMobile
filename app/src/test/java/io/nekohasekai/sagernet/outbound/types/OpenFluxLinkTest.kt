@@ -1,8 +1,8 @@
-package app.qthrone.mobile.outbound.types
+package app.rawline.mobile.outbound.types
 
-import app.qthrone.mobile.bg.carrier.CarrierBridgeCredentials
-import app.qthrone.mobile.outbound.json.JsonObject
-import app.qthrone.mobile.outbound.import.ProfileImport
+import app.rawline.mobile.bg.carrier.CarrierBridgeCredentials
+import app.rawline.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.import.ProfileImport
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -56,7 +56,7 @@ class OpenFluxLinkTest {
         assertTrue(stored.parseFromJson(JsonObject().apply {
             this["type"] = "openflux"; this["negotiate"] = true; this["secret"] = "a shared secret of 32 characters"
             this["context"] = "http://openflux"
-            this["transports"] = app.qthrone.mobile.outbound.json.JsonInput.parseValue("""[{"type":"yandex","url":"https://disk.yandex.ru/i/abc"}]""")
+            this["transports"] = app.rawline.mobile.outbound.json.JsonInput.parseValue("""[{"type":"yandex","url":"https://disk.yandex.ru/i/abc"}]""")
         }))
         assertFalse(config(stored).contains("context"))
     }

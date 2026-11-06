@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ktx
+package app.rawline.mobile.ktx
 
 import androidx.preference.PreferenceDataStore
 import kotlin.reflect.KProperty

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.outbound.link
+package app.rawline.mobile.outbound.link
 
 // CSQTT 2.5.0 Legacy UiUtils.kt (PolyForm Noncommercial 1.0.0).
 // Source: ttrroyy/csqtt-rebirth, 2066156119a5afe7d63e104aefdc8e0849999d03.

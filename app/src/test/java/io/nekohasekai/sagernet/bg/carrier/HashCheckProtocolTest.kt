@@ -1,4 +1,4 @@
-package app.qthrone.mobile.bg.carrier
+package app.rawline.mobile.bg.carrier
 
 import org.junit.Assert.*
 import org.junit.Test
@@ -6,7 +6,7 @@ import org.junit.Test
 class HashCheckProtocolTest {
     @Test fun hashChecksReuseTheNativeBridgeBrowserProfile() {
         val cache=java.io.File("cache")
-        assertEquals(java.io.File(cache,"carriers/qThrone/qwdtt/80b2f897e93e81f769edd02733c0f3e4"),
+        assertEquals(java.io.File(cache,"carriers/Rawline/qwdtt/80b2f897e93e81f769edd02733c0f3e4"),
             CarrierHashCheck.stateDirectory(cache,"fixture-device"))
         assertNotEquals(CarrierHashCheck.stateDirectory(cache,"fixture-device"),
             CarrierHashCheck.stateDirectory(cache,"another-device"))

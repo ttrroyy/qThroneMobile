@@ -1,10 +1,10 @@
-package app.qthrone.mobile.update
+package app.rawline.mobile.update
 
 import org.junit.Assert.*
 import org.junit.Test
 
 class UpdateOfferCacheTest {
-    private val asset = UpdateChecker.Asset("qThrone.apk", 123L, "https://github.com/example/qThrone.apk")
+    private val asset = UpdateChecker.Asset("Rawline.apk", 123L, "https://github.com/example/Rawline.apk")
     private val release = UpdateChecker.Release("v1.9.1", "https://github.com/example/releases/v1.9.1", "Notes\nSecond line", false, listOf(asset))
 
     @Test fun installableOfferSurvivesRestartWithDownloadVerificationMetadata() {

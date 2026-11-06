@@ -1,13 +1,13 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
-    <Preference app:key="qmobileGeneral" app:widgetLayout="@layout/qmobile_preference_arrow" app:fragment="app.qthrone.mobile.ui.settings.GeneralSettingsFragment" app:title="@string/qmobile_general" />
-    <Preference app:key="qmobileTun" app:widgetLayout="@layout/qmobile_preference_arrow" app:fragment="app.qthrone.mobile.ui.settings.TunSettingsFragment" app:title="@string/qmobile_tun" />
-    <Preference app:key="qmobileCore" app:widgetLayout="@layout/qmobile_preference_arrow" app:fragment="app.qthrone.mobile.ui.settings.CoreSettingsFragment" app:title="@string/qmobile_core" />
-    <Preference app:key="qmobileDns" app:widgetLayout="@layout/qmobile_preference_arrow" app:fragment="app.qthrone.mobile.ui.settings.DnsSettingsFragment" app:title="@string/qmobile_dns" />
-    <Preference app:key="qmobileRouting" app:widgetLayout="@layout/qmobile_preference_arrow" app:fragment="app.qthrone.mobile.ui.settings.RoutingSettingsFragment" app:title="@string/qmobile_routes" />
-    <Preference app:key="qmobileSubscription" app:widgetLayout="@layout/qmobile_preference_arrow" app:fragment="app.qthrone.mobile.ui.settings.SubscriptionSettingsFragment" app:title="@string/qmobile_subscriptions" />
-    <Preference app:key="qmobileVkRelay" app:fragment="app.qthrone.mobile.ui.VkRelayActivity$Screen" app:widgetLayout="@layout/qmobile_preference_arrow" app:title="Настройки VK-релея" />
-    <Preference app:key="qmobileAppearance" app:fragment="app.qthrone.mobile.ui.settings.AppearanceSettingsFragment" app:title="@string/settings_appearance" app:widgetLayout="@layout/qmobile_preference_arrow" />
+    <Preference app:key="qmobileGeneral" app:widgetLayout="@layout/qmobile_preference_arrow" app:fragment="app.rawline.mobile.ui.settings.GeneralSettingsFragment" app:title="@string/qmobile_general" />
+    <Preference app:key="qmobileTun" app:widgetLayout="@layout/qmobile_preference_arrow" app:fragment="app.rawline.mobile.ui.settings.TunSettingsFragment" app:title="@string/qmobile_tun" />
+    <Preference app:key="qmobileCore" app:widgetLayout="@layout/qmobile_preference_arrow" app:fragment="app.rawline.mobile.ui.settings.CoreSettingsFragment" app:title="@string/qmobile_core" />
+    <Preference app:key="qmobileDns" app:widgetLayout="@layout/qmobile_preference_arrow" app:fragment="app.rawline.mobile.ui.settings.DnsSettingsFragment" app:title="@string/qmobile_dns" />
+    <Preference app:key="qmobileRouting" app:widgetLayout="@layout/qmobile_preference_arrow" app:fragment="app.rawline.mobile.ui.settings.RoutingSettingsFragment" app:title="@string/qmobile_routes" />
+    <Preference app:key="qmobileSubscription" app:widgetLayout="@layout/qmobile_preference_arrow" app:fragment="app.rawline.mobile.ui.settings.SubscriptionSettingsFragment" app:title="@string/qmobile_subscriptions" />
+    <Preference app:key="qmobileVkRelay" app:fragment="app.rawline.mobile.ui.VkRelayActivity$Screen" app:widgetLayout="@layout/qmobile_preference_arrow" app:title="Настройки VK-релея" />
+    <Preference app:key="qmobileAppearance" app:fragment="app.rawline.mobile.ui.settings.AppearanceSettingsFragment" app:title="@string/settings_appearance" app:widgetLayout="@layout/qmobile_preference_arrow" />
     <Preference app:key="settingsBackup" app:widgetLayout="@layout/qmobile_preference_arrow" app:title="@string/qmobile_backup" />
-    <Preference app:fragment="app.qthrone.mobile.ui.settings.UpdateSettingsFragment" app:widgetLayout="@layout/qmobile_preference_arrow" app:title="@string/qmobile_updates" />
+    <Preference app:fragment="app.rawline.mobile.ui.settings.UpdateSettingsFragment" app:widgetLayout="@layout/qmobile_preference_arrow" app:title="@string/qmobile_updates" />
     <Preference app:key="qmobileLogs" app:widgetLayout="@layout/qmobile_preference_arrow" app:title="@string/qmobile_logs" />
 </PreferenceScreen>

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.utils
+package app.rawline.mobile.utils
 
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -7,7 +7,7 @@ import android.net.VpnService
 import android.os.Build
 import android.provider.Settings
 
-/** Whether Throne is the always-on VPN of this user, readable from any process (API 29+). */
+/** Whether Rawline is the always-on VPN of this user, readable from any process (API 29+). */
 object AlwaysOnVpn {
 
     enum class State { UNKNOWN, OFF, ON, LOCKDOWN }

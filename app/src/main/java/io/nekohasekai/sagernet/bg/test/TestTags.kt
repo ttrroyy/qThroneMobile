@@ -1,8 +1,8 @@
-package app.qthrone.mobile.bg.test
+package app.rawline.mobile.bg.test
 
-import app.qthrone.mobile.bg.proto.CoreConfig
-import app.qthrone.mobile.outbound.json.JsonInput
-import app.qthrone.mobile.outbound.json.JsonObject
+import app.rawline.mobile.bg.proto.CoreConfig
+import app.rawline.mobile.outbound.json.JsonInput
+import app.rawline.mobile.outbound.json.JsonObject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update

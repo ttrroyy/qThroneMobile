@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui.settings
+package app.rawline.mobile.ui.settings
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -10,21 +10,21 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.preference.MultiSelectListPreference
 import androidx.preference.Preference
 import androidx.preference.SwitchPreference
-import app.qthrone.mobile.BootReceiver
-import app.qthrone.mobile.BuildConfig
-import app.qthrone.mobile.Key
-import app.qthrone.mobile.R
-import app.qthrone.mobile.SagerNet
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.SettingsRegistry
-import app.qthrone.mobile.ktx.needReload
-import app.qthrone.mobile.ktx.remove
-import app.qthrone.mobile.ui.MainActivity
-import app.qthrone.mobile.utils.AlwaysOnVpn
-import app.qthrone.mobile.utils.AppLocale
-import app.qthrone.mobile.utils.BatteryOptimizations
-import app.qthrone.mobile.utils.OemBackground
-import app.qthrone.mobile.utils.Theme
+import app.rawline.mobile.BootReceiver
+import app.rawline.mobile.BuildConfig
+import app.rawline.mobile.Key
+import app.rawline.mobile.R
+import app.rawline.mobile.SagerNet
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.SettingsRegistry
+import app.rawline.mobile.ktx.needReload
+import app.rawline.mobile.ktx.remove
+import app.rawline.mobile.ui.MainActivity
+import app.rawline.mobile.utils.AlwaysOnVpn
+import app.rawline.mobile.utils.AppLocale
+import app.rawline.mobile.utils.BatteryOptimizations
+import app.rawline.mobile.utils.OemBackground
+import app.rawline.mobile.utils.Theme
 import moe.matsuri.nb4a.ui.ColorPickerPreference
 import moe.matsuri.nb4a.ui.SimpleMenuPreference
 
@@ -119,8 +119,8 @@ class AppearanceSettingsFragment : SettingsScreenFragment(R.xml.settings_appeara
     override fun bind() {
         pref<SimpleMenuPreference>("qmobileUiStyle").setOnPreferenceChangeListener { _, _ -> applyThemeInstantly(); true }
         // The new style is black or white with one look: accent colours, seasonal art and a bottom tile bar mean nothing there.
-        val modern = app.qthrone.mobile.ui.MobileStyle.new
-        listOf(Key.APP_THEME, "seasonal_decoration", "qmobileTilesPosition", "qmobileHomeTilesMode", "qmobileListMode").forEach { pref<Preference>(it).isVisible = !modern }
+        val modern = app.rawline.mobile.ui.MobileStyle.new
+        listOf(Key.APP_THEME, "seasonal_decoration", "qmobileTilesPosition", "qmobileHomeTilesMode", "qmobileHomeControl", "qmobileListMode").forEach { pref<Preference>(it).isVisible = !modern }
         pref<Preference>("seasonal_decoration").setOnPreferenceChangeListener { _, _ -> applyThemeInstantly(); true }
         pref<ColorPickerPreference>(Key.APP_THEME).setOnPreferenceChangeListener { _, _ ->
             DataStore.useSystemTheme = false

@@ -18,18 +18,18 @@
  *                                                                             *
  *******************************************************************************/
 
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
-import app.qthrone.mobile.utils.ShortcutAuthorization
+import app.rawline.mobile.utils.ShortcutAuthorization
 import android.app.Activity
 import android.content.pm.ShortcutManager
 import android.os.Build
 import android.os.Bundle
 import androidx.core.content.getSystemService
-import app.qthrone.mobile.SagerNet
-import app.qthrone.mobile.aidl.ISagerNetService
-import app.qthrone.mobile.bg.BaseService
-import app.qthrone.mobile.bg.SagerConnection
+import app.rawline.mobile.SagerNet
+import app.rawline.mobile.aidl.ISagerNetService
+import app.rawline.mobile.bg.BaseService
+import app.rawline.mobile.bg.SagerConnection
 
 class QuickDisableShortcut : Activity(), SagerConnection.Callback {
     private val connection = SagerConnection(SagerConnection.CONNECTION_ID_SHORTCUT)

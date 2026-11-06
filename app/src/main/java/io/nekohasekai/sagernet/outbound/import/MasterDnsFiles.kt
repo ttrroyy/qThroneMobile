@@ -1,10 +1,10 @@
-package app.qthrone.mobile.outbound.import
+package app.rawline.mobile.outbound.import
 
-import app.qthrone.mobile.outbound.json.JsonArray
-import app.qthrone.mobile.outbound.json.JsonInput
-import app.qthrone.mobile.outbound.json.JsonObject
-import app.qthrone.mobile.outbound.json.jsonObjectOf
-import app.qthrone.mobile.outbound.types.DnsTunnel
+import app.rawline.mobile.outbound.json.JsonArray
+import app.rawline.mobile.outbound.json.JsonInput
+import app.rawline.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.json.jsonObjectOf
+import app.rawline.mobile.outbound.types.DnsTunnel
 
 /** MasterDnsVPN's own client configuration and WhiteDNS's profile file, as the desktop reads them (SubscriptionParser.cpp). */
 object MasterDnsFiles {

@@ -47,8 +47,8 @@
                     android:id="@+id/action_selection_copy_links"
                     android:title="@string/profiles_copy_share_links" />
                 <item
-                    android:id="@+id/action_selection_copy_throne"
-                    android:title="@string/profiles_copy_throne_links" />
+                    android:id="@+id/action_selection_copy_rawline"
+                    android:title="@string/profiles_copy_rawline_links" />
             </menu>
         </item>
     </group>

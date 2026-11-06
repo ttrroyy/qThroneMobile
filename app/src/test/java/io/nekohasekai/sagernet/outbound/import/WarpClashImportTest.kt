@@ -1,7 +1,7 @@
-package app.qthrone.mobile.outbound.`import`
+package app.rawline.mobile.outbound.`import`
 
-import app.qthrone.mobile.outbound.types.Masque
-import app.qthrone.mobile.outbound.types.WireGuard
+import app.rawline.mobile.outbound.types.Masque
+import app.rawline.mobile.outbound.types.WireGuard
 import org.junit.Assert.*
 import org.junit.Test
 

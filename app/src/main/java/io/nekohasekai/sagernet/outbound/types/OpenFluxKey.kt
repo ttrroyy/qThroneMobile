@@ -1,8 +1,8 @@
-package app.qthrone.mobile.outbound.types
-import app.qthrone.mobile.outbound.*
-import app.qthrone.mobile.outbound.json.*
-import app.qthrone.mobile.outbound.link.*
-import app.qthrone.mobile.bg.carrier.*
+package app.rawline.mobile.outbound.types
+import app.rawline.mobile.outbound.*
+import app.rawline.mobile.outbound.json.*
+import app.rawline.mobile.outbound.link.*
+import app.rawline.mobile.bg.carrier.*
 
 /**
  * A profile of the wlruscfd/openflux-server fork: the openflux://import?data=<base64url JSON> link its control plane

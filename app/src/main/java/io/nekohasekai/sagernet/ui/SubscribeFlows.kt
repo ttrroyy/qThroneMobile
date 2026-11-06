@@ -1,30 +1,30 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
-import app.qthrone.mobile.group.ProviderLinks
-import app.qthrone.mobile.group.SubscriptionCrypto
-import app.qthrone.mobile.route.ProviderRouting
+import app.rawline.mobile.group.ProviderLinks
+import app.rawline.mobile.group.SubscriptionCrypto
+import app.rawline.mobile.route.ProviderRouting
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
-import app.qthrone.mobile.R
-import app.qthrone.mobile.group.SubscriptionClient
-import app.qthrone.mobile.database.GroupRepo
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.ProfileManager
-import app.qthrone.mobile.outbound.Outbound
-import app.qthrone.mobile.ui.profile.ProfileTextImport
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.app
-import app.qthrone.mobile.ktx.onMainDispatcher
-import app.qthrone.mobile.ktx.readableMessage
-import app.qthrone.mobile.ktx.runOnDefaultDispatcher
-import app.qthrone.mobile.outbound.link.Base64Strict
-import app.qthrone.mobile.outbound.link.LinkParser
-import app.qthrone.mobile.ui.route.RouteImports
+import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
+import app.rawline.mobile.R
+import app.rawline.mobile.group.SubscriptionClient
+import app.rawline.mobile.database.GroupRepo
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.ProfileManager
+import app.rawline.mobile.outbound.Outbound
+import app.rawline.mobile.ui.profile.ProfileTextImport
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.app
+import app.rawline.mobile.ktx.onMainDispatcher
+import app.rawline.mobile.ktx.readableMessage
+import app.rawline.mobile.ktx.runOnDefaultDispatcher
+import app.rawline.mobile.outbound.link.Base64Strict
+import app.rawline.mobile.outbound.link.LinkParser
+import app.rawline.mobile.ui.route.RouteImports
 import java.io.ByteArrayOutputStream
 import java.nio.charset.Charset
 import java.util.zip.ZipInputStream
@@ -32,7 +32,7 @@ import com.king.zxing.util.CodeUtils
 
 /**
  * The desktop's import entry points (mainwindow_deeplink.cpp): pasted, scanned or shared text
- * (import_or_handle_deeplink, import_text), the throne:// deep links and the "Add this subscription?" prompt.
+ * (import_or_handle_deeplink, import_text), the rawline:// deep links and the "Add this subscription?" prompt.
  * Grouped imports use the current group; the combined list keeps loose profiles in the server list.
  */
 object SubscribeFlows {
@@ -79,8 +79,8 @@ object SubscribeFlows {
             }
             return
         }
-        if (content.startsWith("throne://")) {
-            openDeepLink(activity, content, gid)
+        if (app.rawline.mobile.route.UrlText.currentScheme(content).startsWith("rawline://")) {
+            openDeepLink(activity, app.rawline.mobile.route.UrlText.currentScheme(content), gid)
             return
         }
         subscribeLink(content)?.let {
@@ -122,13 +122,13 @@ object SubscribeFlows {
         val batch = ArrayList<String>()
         for (payload in payloads.map { it.trim() }.filter { it.isNotEmpty() }) {
             val single = payload.startsWith("http://") || payload.startsWith("https://") ||
-                payload.startsWith("throne://") || ProviderLinks.isProviderLink(payload) || subscribeLink(payload) != null
+                app.rawline.mobile.route.UrlText.currentScheme(payload).startsWith("rawline://") || ProviderLinks.isProviderLink(payload) || subscribeLink(payload) != null
             if (single) importText(activity, payload, gid) else batch.add(payload)
         }
         if (batch.isNotEmpty()) importInto(activity, batch.joinToString("\n"), gid)
     }
 
-    /** Adds a subscription link (throne://addsub, clash://install-config, a pasted URL) without asking. */
+    /** Adds a subscription link (rawline://addsub, clash://install-config, a pasted URL) without asking. */
     fun addSubscription(activity: FragmentActivity, url: String, name: String) {
         runOnDefaultDispatcher {
             val id=SubscriptionClient.subscribeUrl(url, name, true)
@@ -143,7 +143,7 @@ object SubscribeFlows {
     }
 
     /**
-     * throne://addsub/<base64 of "url#name"> (handle_deeplink_impl) or clash://install-config?url=&name=;
+     * rawline://addsub/<base64 of "url#name"> (handle_deeplink_impl) or clash://install-config?url=&name=;
      * null for any other text. An addsub link whose payload does not decode is null too (the desktop ignores it).
      */
     fun subscribeLink(text: String): SubscribeLink? {
@@ -156,7 +156,7 @@ object SubscribeFlows {
             val uri = Uri.parse(content)
             return SubscribeLink(uri.getQueryParameter("url").orEmpty(), uri.getQueryParameter("name").orEmpty())
         }
-        if (!content.startsWith("throne://")) return null
+        if (!app.rawline.mobile.route.UrlText.currentScheme(content).startsWith("rawline://")) return null
         val uri = Uri.parse(content)
         if (!uri.host.equals("addsub", ignoreCase = true)) return null
         val path = uri.path ?: return null

@@ -1,6 +1,6 @@
-package app.qthrone.mobile.bg.test
+package app.rawline.mobile.bg.test
 
-import app.qthrone.mobile.database.*
+import app.rawline.mobile.database.*
 import org.junit.Assert.*
 import org.junit.Test
 

@@ -1,11 +1,11 @@
-package app.qthrone.mobile.ui.profile
+package app.rawline.mobile.ui.profile
 
 import androidx.preference.PreferenceFragmentCompat
-import app.qthrone.mobile.R
-import app.qthrone.mobile.outbound.types.Masque
-import app.qthrone.mobile.ui.warp.WarpClient
-import app.qthrone.mobile.ui.warp.WarpGenerate
-import app.qthrone.mobile.ui.warp.setFieldText
+import app.rawline.mobile.R
+import app.rawline.mobile.outbound.types.Masque
+import app.rawline.mobile.ui.warp.WarpClient
+import app.rawline.mobile.ui.warp.WarpGenerate
+import app.rawline.mobile.ui.warp.setFieldText
 
 /** MASQUE endpoint: the TLS camouflage (no Reality, masque.cpp strips it) and QUIC blocks; the rest through Raw JSON. */
 class MasqueSettingsActivity : BindingSettingsActivity<Masque>() {

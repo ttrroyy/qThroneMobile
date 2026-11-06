@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -16,8 +16,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.*
-import app.qthrone.mobile.R
-import app.qthrone.mobile.deploy.*
+import app.rawline.mobile.R
+import app.rawline.mobile.deploy.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import moe.matsuri.nb4a.ui.SimpleMenuPreference

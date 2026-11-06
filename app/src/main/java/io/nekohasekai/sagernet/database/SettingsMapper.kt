@@ -1,21 +1,21 @@
-package app.qthrone.mobile.database
+package app.rawline.mobile.database
 
-import app.qthrone.mobile.Key
-import app.qthrone.mobile.SagerNet
-import app.qthrone.mobile.outbound.BuildContext
-import app.qthrone.mobile.outbound.Outbound
-import app.qthrone.mobile.outbound.OutboundFactory
-import app.qthrone.mobile.outbound.config.GeneratorSettings
-import app.qthrone.mobile.outbound.config.MemberCheck
-import app.qthrone.mobile.outbound.config.RoutingInput
-import app.qthrone.mobile.outbound.config.SelectorGroup
-import app.qthrone.mobile.outbound.config.SelectorMember
-import app.qthrone.mobile.outbound.config.SelectorStore
-import app.qthrone.mobile.outbound.json.JsonArray
-import app.qthrone.mobile.outbound.json.jsonObjectOf
-import app.qthrone.mobile.outbound.types.AutoSelector
-import app.qthrone.mobile.outbound.types.Custom
-import app.qthrone.mobile.route.RouteDns
+import app.rawline.mobile.Key
+import app.rawline.mobile.SagerNet
+import app.rawline.mobile.outbound.BuildContext
+import app.rawline.mobile.outbound.Outbound
+import app.rawline.mobile.outbound.OutboundFactory
+import app.rawline.mobile.outbound.config.GeneratorSettings
+import app.rawline.mobile.outbound.config.MemberCheck
+import app.rawline.mobile.outbound.config.RoutingInput
+import app.rawline.mobile.outbound.config.SelectorGroup
+import app.rawline.mobile.outbound.config.SelectorMember
+import app.rawline.mobile.outbound.config.SelectorStore
+import app.rawline.mobile.outbound.json.JsonArray
+import app.rawline.mobile.outbound.json.jsonObjectOf
+import app.rawline.mobile.outbound.types.AutoSelector
+import app.rawline.mobile.outbound.types.Custom
+import app.rawline.mobile.route.RouteDns
 import app.qthrone.core.mobile.Mobile
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
@@ -33,7 +33,7 @@ object SettingsMapper {
      * The route profile of current_route_id (the first profile when it is gone), the rule-set list, the tracked
      * groups of auto-selectors and, in :bg, the core's member check.
      */
-    fun routingInput(profile: app.qthrone.mobile.route.RouteProfile = RouteManager.current()): RoutingInput = RoutingInput(
+    fun routingInput(profile: app.rawline.mobile.route.RouteProfile = RouteManager.current()): RoutingInput = RoutingInput(
         profile,
         RouteManager.catalog(),
         selectorStore(),
@@ -84,8 +84,8 @@ object SettingsMapper {
             perAppEnabled = DataStore.proxyApps,
             perAppBypass = DataStore.bypass,
             perAppPackages = GeneratorSettings.splitLines(DataStore.individual),
-            perAppAllowedUids = if(DataStore.proxyApps) app.qthrone.mobile.outbound.config.VpnAppGuard.allowedUids(
-                app.qthrone.mobile.utils.PackageCache.snapshot().uidMap,
+            perAppAllowedUids = if(DataStore.proxyApps) app.rawline.mobile.outbound.config.VpnAppGuard.allowedUids(
+                app.rawline.mobile.utils.PackageCache.snapshot().uidMap,
                 GeneratorSettings.splitLines(DataStore.individual).toSet(),DataStore.bypass) else emptyList(),
             httpProxyEnabled = DataStore.appendHttpProxy,
             httpProxyBypassDomains = GeneratorSettings.splitLines(DataStore.httpProxyBypass),
@@ -262,8 +262,8 @@ object SettingsMapper {
 
     /** "192.168.1.0/24" for each IPv4 address of the underlying network. */
     private fun localLanCidrs(): List<String> = runCatching {
-        val network = app.qthrone.mobile.SagerNet.underlyingNetwork ?: return emptyList()
-        app.qthrone.mobile.SagerNet.connectivity.getLinkProperties(network)?.linkAddresses.orEmpty()
+        val network = app.rawline.mobile.SagerNet.underlyingNetwork ?: return emptyList()
+        app.rawline.mobile.SagerNet.connectivity.getLinkProperties(network)?.linkAddresses.orEmpty()
             .filter { it.address is java.net.Inet4Address && it.prefixLength in 8..32 }
             .map { link ->
                 val bits = java.nio.ByteBuffer.wrap(link.address.address).int and (-1 shl (32 - link.prefixLength))

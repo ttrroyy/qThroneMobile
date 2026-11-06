@@ -2,13 +2,13 @@ package moe.matsuri.nb4a.utils
 
 import android.content.Context
 import android.os.Build
-import app.qthrone.mobile.BuildConfig
-import app.qthrone.mobile.Key
-import app.qthrone.mobile.SagerNet
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.ProfileManager
-import app.qthrone.mobile.database.SettingsRegistry
-import app.qthrone.mobile.update.UpdateChecker
+import app.rawline.mobile.BuildConfig
+import app.rawline.mobile.Key
+import app.rawline.mobile.SagerNet
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.ProfileManager
+import app.rawline.mobile.database.SettingsRegistry
+import app.rawline.mobile.update.UpdateChecker
 import java.io.File
 import java.io.Writer
 import java.text.SimpleDateFormat
@@ -38,7 +38,7 @@ object LogExport {
         SettingsRegistry.CURRENT_ROUTE_ID,
     ).map { it.key } + listOf(Key.PROXY_APPS, Key.BYPASS_MODE, Key.METERED_NETWORK)
 
-    fun fileName(): String = "qThrone-log-${SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())}.txt"
+    fun fileName(): String = "Rawline-log-${SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())}.txt"
 
     /** Writes cacheDir/log/<[fileName]> (shared through the FileProvider). Blocking: call it off the main thread. */
     fun build(context: Context, redact: Boolean, hideDestinations: Boolean): File {
@@ -50,7 +50,7 @@ object LogExport {
         val redactor = if (redact) LogRedactor(hideDestinations) else null
         // The logcat snapshot takes up to seconds; it runs while core.log is redacted.
         val logcat = java.util.concurrent.FutureTask { logcat() }
-        Thread(logcat, "qThrone-logcat-export").apply { isDaemon = true; start() }
+        Thread(logcat, "Rawline-logcat-export").apply { isDaemon = true; start() }
         file.bufferedWriter().use { out ->
             out.write(header(context, redact, hideDestinations))
             section(out, "core.log", String(CoreLog.read(0)), redactor)
@@ -84,13 +84,13 @@ object LogExport {
             else -> "on (best effort: review before sharing)"
         }
         return buildString {
-            appendLine("===== qThrone log export =====")
+            appendLine("===== Rawline log export =====")
             appendLine("exported  : ${utc.format(Date())}")
             appendLine(
                 "app       : ${SagerNet.appVersionNameForDisplay} (versionCode ${BuildConfig.VERSION_CODE}), " +
                         "flavor ${BuildConfig.FLAVOR}, $buildType, package ${BuildConfig.APPLICATION_ID}"
             )
-            appendLine("core      : ThroneCore ${BuildConfig.THRONE_CORE_REF} (versions: the \"core:\" line of core.log)")
+            appendLine("core      : RawlineCore ${BuildConfig.THRONE_CORE_REF} (versions: the \"core:\" line of core.log)")
             appendLine(
                 "android   : ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT}), " +
                         "security patch ${Build.VERSION.SECURITY_PATCH}"
@@ -114,7 +114,7 @@ object LogExport {
             .redirectErrorStream(true)
             .start()
         val read=java.util.concurrent.FutureTask { process.inputStream.bufferedReader().use { it.readText() } }
-        Thread(read,"qThrone-logcat-export").apply { isDaemon=true;start() }
+        Thread(read,"Rawline-logcat-export").apply { isDaemon=true;start() }
         try { read.get(3,java.util.concurrent.TimeUnit.SECONDS) }
         catch(_: java.util.concurrent.TimeoutException) { "logcat snapshot timed out" }
         finally { process.destroy();read.cancel(true) }

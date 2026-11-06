@@ -1,4 +1,4 @@
-package app.qthrone.mobile.aidl
+package app.rawline.mobile.aidl
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

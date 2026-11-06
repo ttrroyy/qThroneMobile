@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.os.Bundle
 import android.view.KeyEvent
@@ -8,9 +8,9 @@ import androidx.core.view.GravityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.appbar.AppBarLayout
-import app.qthrone.mobile.R
-import app.qthrone.mobile.utils.Theme
-import app.qthrone.mobile.widget.applyTopInset
+import app.rawline.mobile.R
+import app.rawline.mobile.utils.Theme
+import app.rawline.mobile.widget.applyTopInset
 
 open class ToolbarFragment : Fragment {
 
@@ -18,7 +18,7 @@ open class ToolbarFragment : Fragment {
     constructor(contentLayoutId: Int) : super(contentLayoutId)
 
     override fun onCreateAnimator(transit: Int, enter: Boolean, nextAnim: Int): android.animation.Animator? =
-        app.qthrone.mobile.ui.MobileScreenMotion.create(this, nextAnim)
+        app.rawline.mobile.ui.MobileScreenMotion.create(this, nextAnim)
 
     // Null when the layout has no toolbar or the view is not created yet
     var toolbar: Toolbar? = null

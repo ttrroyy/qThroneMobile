@@ -43,7 +43,7 @@
             android:textSize="14sp"
             tools:text="Frankfurt 1" />
 
-        <app.qthrone.mobile.ui.test.SpeedBarsView
+        <app.rawline.mobile.ui.test.SpeedBarsView
             android:id="@+id/rank_bars"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

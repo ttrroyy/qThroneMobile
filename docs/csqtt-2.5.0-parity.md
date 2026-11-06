@@ -12,12 +12,12 @@ The packet bridge uses an app-private filesystem Unix socket to pass a connected
 
 | Area | Integration |
 | --- | --- |
-| New links | Original AES-GCM decoder/encoder and public key derivation; independent Rust-generated fixture, tampering, duplicate-key and malformed-link tests. The optional name is retained for qThrone profile sharing. |
+| New links | Original AES-GCM decoder/encoder and public key derivation; independent Rust-generated fixture, tampering, duplicate-key and malformed-link tests. The optional name is retained for Rawline profile sharing. |
 | Old links | Both plaintext `csqtt://password@host:port` and `csqtt://connect?v=2&...` remain importable. Stored JSON profiles remain readable. |
 | Hash modes | Manual, shared-binding Auto API, and original Auto JS. A token carried by a link uses that token rather than another account's binding. Bound account credentials are added only to the runtime copy. |
 | Workers | Original Android normalization: 5, then multiples of 10 through 100; the limit is independent of the number of manual hashes. Old stored worker counts are normalized on read. |
 | Transport | Original UDP and TCP/TLS, unified/audio/video obfuscation, WRAP/DTLS/automatic SRTP, browser TLS profiles, VK client IDs and custom TURN addresses. |
-| Captcha | Original Rust automatic chain, Rust slider solver and WebView request/result protocol; qThrone's restricted-domain WebView handles automatic and visible requests. |
+| Captcha | Original Rust automatic chain, Rust slider solver and WebView request/result protocol; Rawline's restricted-domain WebView handles automatic and visible requests. |
 | Tunnel configuration | Both the old five-field `TUNCONF` and 2.5.0's optional validated `workers=N` field are accepted. |
 | Session ownership | 2.5.0 owns an epoch by password, rather than the old device ID. Probes with the same server/password cannot replace the active session. Shutdown allows the wrapper's original VK cleanup window. |
 | Deployment | Original `deploy.sh` and architecture-specific servers extracted from the checksum-pinned published APK. Environment/overrides, Docker/systemd, SQLite migration and installer rollback remain original. |
@@ -28,7 +28,7 @@ The published APK SHA-256 is `bbc261eff2fce56b0ee774271416b0764b34ee16349e9e250c
 
 ## v2rayTun screenshot comparison
 
-qThrone already provides SOCKS/HTTP ports, VPN/proxy modes, proxy authentication, credential copying/reset and editable VPN IPv4/IPv6 CIDRs. Its default virtual IPv4 range is `172.19.0.1/24`; changing it is useful when another network uses that range. A preset list is not required to support those addresses.
+Rawline already provides SOCKS/HTTP ports, VPN/proxy modes, proxy authentication, credential copying/reset and editable VPN IPv4/IPv6 CIDRs. Its default virtual IPv4 range is `172.19.0.1/24`; changing it is useful when another network uses that range. A preset list is not required to support those addresses.
 
 The phone-address row intentionally copies interface addresses assigned by Android/Wi-Fi/mobile connectivity. It is distinct from the editable virtual VPN address. LAN sharing requires authentication; ordinary VPN mode does not expose a public proxy listener.
 

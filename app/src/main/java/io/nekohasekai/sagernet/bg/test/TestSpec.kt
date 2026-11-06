@@ -1,4 +1,4 @@
-package app.qthrone.mobile.bg.test
+package app.rawline.mobile.bg.test
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

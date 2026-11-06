@@ -17,10 +17,10 @@ import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.setPadding
 import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.utils.Theme
+import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
+import app.rawline.mobile.R
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.utils.Theme
 import kotlin.math.roundToInt
 
 class ColorPickerPreference
@@ -44,9 +44,9 @@ class ColorPickerPreference
         if (!inited) {
             inited = true
 
-            val previewColor = if (Theme.usingMonetTheme()) app.qthrone.mobile.ui.MobilePalette.accent(context)
+            val previewColor = if (Theme.usingMonetTheme()) app.rawline.mobile.ui.MobilePalette.accent(context)
                 else context.resources.getIntArray(R.array.material_colors).getOrNull(DataStore.appTheme - 1)
-                    ?: app.qthrone.mobile.ui.MobilePalette.accent(context)
+                    ?: app.rawline.mobile.ui.MobilePalette.accent(context)
             val preview = getNekoImageViewAtColor(previewColor, 48, 0)
             widgetFrame.addView(preview)
             widgetFrame.visibility = View.VISIBLE

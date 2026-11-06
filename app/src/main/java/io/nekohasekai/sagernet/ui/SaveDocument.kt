@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.app.Activity
 import android.content.ContentValues
@@ -12,14 +12,14 @@ import android.os.Looper
 import android.provider.MediaStore
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
-import app.qthrone.mobile.R
-import app.qthrone.mobile.ktx.Logs
+import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
+import app.rawline.mobile.R
+import app.rawline.mobile.ktx.Logs
 import java.io.File
 
 /**
  * CreateDocument that still saves on devices without a document picker (Android TV builds without DocumentsUI): the
- * callback gets a file in Download/Throne (the app's external files folder before Android 10) and a dialog names it.
+ * callback gets a file in Download/Rawline (the app's external files folder before Android 10) and a dialog names it.
  */
 class SaveDocument(private val mime: String) : ActivityResultContract<String, Uri?>() {
 
@@ -50,7 +50,7 @@ class SaveDocument(private val mime: String) : ActivityResultContract<String, Ur
 
     private fun fallback(context: Context, name: String): Pair<Uri, String>? {
         if (Build.VERSION.SDK_INT >= 29) {
-            val folder = "${Environment.DIRECTORY_DOWNLOADS}/Throne"
+            val folder = "${Environment.DIRECTORY_DOWNLOADS}/Rawline"
             val values = ContentValues().apply {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, name)
                 put(MediaStore.MediaColumns.MIME_TYPE, mime)

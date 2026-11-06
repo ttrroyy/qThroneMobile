@@ -1,4 +1,4 @@
-package app.qthrone.mobile.deploy
+package app.rawline.mobile.deploy
 
 import com.jcraft.jsch.ChannelExec
 import com.jcraft.jsch.HostKey
@@ -146,7 +146,7 @@ class WdttPlusAdmin(private val server: DeployServer) {
         val ports = access.ports.ifBlank { state.server.optString("default_ports", "56000,56001,9000") }.split(',').map { it.trim().toIntOrNull() }
         if (ports.size != 3 || ports.any { it == null || it !in 1..65535 }) return null
         val host = state.server.optString("effective_public_ip").ifBlank { state.server.optString("public_ip") }.ifBlank { server["host"] }
-        return app.qthrone.mobile.outbound.types.WdttPlus().apply {
+        return app.rawline.mobile.outbound.types.WdttPlus().apply {
             this.server = host; serverPort = ports[0]!!; wgPort = ports[1]!!; localPort = ports[2]!!
             password = access.password; hashes = access.hashes; name = access.title
         }.exportToLink()

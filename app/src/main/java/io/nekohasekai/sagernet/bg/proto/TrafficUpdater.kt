@@ -1,4 +1,4 @@
-package app.qthrone.mobile.bg.proto
+package app.rawline.mobile.bg.proto
 
 import app.qthrone.core.mobile.Instance
 

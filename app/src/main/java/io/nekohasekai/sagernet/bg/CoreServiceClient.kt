@@ -1,12 +1,12 @@
-package app.qthrone.mobile.bg
+package app.rawline.mobile.bg
 
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
-import app.qthrone.mobile.aidl.ICoreService
-import app.qthrone.mobile.ktx.app
+import app.rawline.mobile.aidl.ICoreService
+import app.rawline.mobile.ktx.app
 import kotlinx.coroutines.CompletableDeferred
 
 // Main-process client of the :bg CoreService; each call binds for its own duration.

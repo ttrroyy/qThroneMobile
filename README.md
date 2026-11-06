@@ -1,12 +1,12 @@
 <div align="center">
 
-<img src="docs/screenshots/icon.png" width="128" alt="qThroneMobile">
+<img src="docs/screenshots/icon.png" width="128" alt="RawlineMobile">
 
-# qThroneMobile
+# RawlineMobile
 
 **Android-клиент на ядрах sing-box и Xray**
 
-Форк [ThroneForAndroid](https://github.com/throneproj/ThroneForAndroid)
+Форк [RawlineForAndroid](https://github.com/throneproj/ThroneForAndroid)
 
 ![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
 ![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)
@@ -67,8 +67,8 @@ APK собирает CI: [`.github/workflows/ci.yml`](.github/workflows/ci.yml),
 
 ## Благодарности
 
-- Ядра: [SagerNet/sing-box](https://github.com/SagerNet/sing-box), [XTLS/Xray-core](https://github.com/XTLS/Xray-core), [ThroneCore](https://github.com/ttrroyy/qThrone)
-- Основа клиента: [ThroneForAndroid](https://github.com/throneproj/ThroneForAndroid), [NekoBoxForAndroid](https://github.com/MatsuriDayo/NekoBoxForAndroid), [SagerNet](https://github.com/SagerNet/SagerNet)
+- Ядра: [SagerNet/sing-box](https://github.com/SagerNet/sing-box), [XTLS/Xray-core](https://github.com/XTLS/Xray-core), [RawlineCore](https://github.com/ttrroyy/qThrone)
+- Основа клиента: [RawlineForAndroid](https://github.com/throneproj/ThroneForAndroid), [NekoBoxForAndroid](https://github.com/MatsuriDayo/NekoBoxForAndroid), [SagerNet](https://github.com/SagerNet/SagerNet)
 - VK и WebRTC: [proxy-turn-vk-android](https://github.com/SpaceNeuroX/proxy-turn-vk-android), [amurcanov/csqtt](https://github.com/amurcanov/csqtt), [olcRTC](https://github.com/openlibrecommunity/olcrtc), [OpenFlux](https://github.com/p1neappleXpress/OpenFlux)
 - DNS-туннели: [dnstt](https://www.bamsoftware.com/software/dnstt/), [VayDNS](https://github.com/net2share/vaydns), [slipstream-rust](https://github.com/Mygod/slipstream-rust), [MasterDnsVPN](https://github.com/masterking32/MasterDnsVPN), [CottenDNS](https://github.com/TaJirax/cottenDNS), [Soar](https://github.com/getlantern/soar), [dnst-url-spec](https://github.com/net2share/dnst-url-spec), [SlipNet](https://github.com/anonvector/SlipNet), [WhiteDNS](https://github.com/WhiteDNS/WhiteDNS-Android)
 - S3 Bypass и TrustTunnel: [s3-bypass](https://github.com/SpaceNeuroX/s3-bypass), [Xray-core-fedarisha](https://github.com/Fedarisha/Xray-core-fedarisha), [sing-trusttunnel](https://github.com/xchacha20-poly1305/sing-trusttunnel), [TrustTunnelClient](https://github.com/TrustTunnel/TrustTunnelClient)

@@ -1,5 +1,5 @@
-name: qThroneMobile release
-run-name: qThroneMobile release
+name: RawlineMobile release
+run-name: RawlineMobile release
 on:
   # Explicitly authorized fallback releases when the local GitHub API is unavailable.
   push:
@@ -13,7 +13,7 @@ on:
       - 'v1.3.8'
   # Every green CI run on stable publishes its VERSION_NAME once.
   workflow_run:
-    workflows: [qThroneMobile CI]
+    workflows: [RawlineMobile CI]
     types: [completed]
     branches: [stable]
   workflow_dispatch:
@@ -102,7 +102,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: qThroneMobile-release-test-reports
+          name: RawlineMobile-release-test-reports
           path: app/build/reports/tests/
           if-no-files-found: ignore
       - name: Release assets
@@ -111,7 +111,7 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' && !inputs.publish }}
         uses: actions/upload-artifact@v7
         with:
-          name: qThroneMobile-${{ steps.version.outputs.tag }}
+          name: RawlineMobile-${{ steps.version.outputs.tag }}
           path: dist/
           if-no-files-found: error
           retention-days: 14

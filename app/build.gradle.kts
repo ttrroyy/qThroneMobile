@@ -34,7 +34,7 @@ android {
         viewBinding = true
         aidl = true
     }
-    namespace = "app.qthrone.mobile"
+    namespace = "app.rawline.mobile"
     packaging {
         jniLibs {
             useLegacyPackaging = true

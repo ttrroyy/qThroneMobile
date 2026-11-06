@@ -1,14 +1,14 @@
-package app.qthrone.mobile.utils
+package app.rawline.mobile.utils
 
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.ktx.app
-import app.qthrone.mobile.ui.MobilePalette
-import app.qthrone.mobile.ui.MobileStyle
+import app.rawline.mobile.R
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.ktx.app
+import app.rawline.mobile.ui.MobilePalette
+import app.rawline.mobile.ui.MobileStyle
 
 object Theme {
 
@@ -57,7 +57,7 @@ object Theme {
         applyAmoledOverlay(context)
         context.theme.applyStyle(R.style.MobileControls, true)
         applyStyleShapes(context)
-        if(context is app.qthrone.mobile.ui.SubscriptionEditorActivity)
+        if(context is app.rawline.mobile.ui.SubscriptionEditorActivity)
             context.theme.applyStyle(R.style.MobileSubscriptionEditorWindow, true)
     }
 

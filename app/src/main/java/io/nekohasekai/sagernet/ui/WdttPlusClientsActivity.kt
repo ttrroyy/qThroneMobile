@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.os.Bundle
 import android.text.Editable
@@ -15,10 +15,10 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
-import app.qthrone.mobile.R
-import app.qthrone.mobile.deploy.DeployStore
-import app.qthrone.mobile.deploy.WdttPlusAdmin
-import app.qthrone.mobile.outbound.types.VkCallHash
+import app.rawline.mobile.R
+import app.rawline.mobile.deploy.DeployStore
+import app.rawline.mobile.deploy.WdttPlusAdmin
+import app.rawline.mobile.outbound.types.VkCallHash
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -148,7 +148,7 @@ class WdttPlusClientsActivity : ServerScreenActivity() {
                 })
                 if (access.label.isNotBlank()) addView(ui.text(access.password, 13f, MobilePalette.muted, mono = true))
             }, LinearLayout.LayoutParams(0, -2, 1f))
-            addView(ui.iconButton(R.drawable.ic_mobile_copy_outline, "Скопировать пароль") { app.qthrone.mobile.SagerNet.trySetPrimaryClip(access.password) },
+            addView(ui.iconButton(R.drawable.ic_mobile_copy_outline, "Скопировать пароль") { app.rawline.mobile.SagerNet.trySetPrimaryClip(access.password) },
                 LinearLayout.LayoutParams(ui.dp(44), ui.dp(44)))
         })
         addView(LinearLayout(context).apply {

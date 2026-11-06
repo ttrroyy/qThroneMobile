@@ -1,16 +1,16 @@
-package app.qthrone.mobile.outbound.types
+package app.rawline.mobile.outbound.types
 
-import app.qthrone.mobile.outbound.BuildContext
-import app.qthrone.mobile.outbound.import.ClashProxy
-import app.qthrone.mobile.outbound.BuildResult
-import app.qthrone.mobile.outbound.Outbound
-import app.qthrone.mobile.outbound.common.Multiplex
-import app.qthrone.mobile.outbound.common.Tls
-import app.qthrone.mobile.outbound.common.Transport
-import app.qthrone.mobile.outbound.common.XrayStreamSetting
-import app.qthrone.mobile.outbound.json.JsonObject
-import app.qthrone.mobile.outbound.link.LinkBuilder
-import app.qthrone.mobile.outbound.link.LinkParser
+import app.rawline.mobile.outbound.BuildContext
+import app.rawline.mobile.outbound.import.ClashProxy
+import app.rawline.mobile.outbound.BuildResult
+import app.rawline.mobile.outbound.Outbound
+import app.rawline.mobile.outbound.common.Multiplex
+import app.rawline.mobile.outbound.common.Tls
+import app.rawline.mobile.outbound.common.Transport
+import app.rawline.mobile.outbound.common.XrayStreamSetting
+import app.rawline.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.link.LinkBuilder
+import app.rawline.mobile.outbound.link.LinkParser
 
 /** Trojan (include/configs/outbounds/trojan.h, src/configs/outbounds/trojan.cpp). */
 class Trojan : Outbound("trojan") {

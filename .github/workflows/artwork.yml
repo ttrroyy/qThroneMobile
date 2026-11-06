@@ -1,5 +1,5 @@
-name: qThroneMobile artwork
-run-name: qThroneMobile artwork
+name: RawlineMobile artwork
+run-name: RawlineMobile artwork
 on:
   workflow_dispatch:
 permissions:

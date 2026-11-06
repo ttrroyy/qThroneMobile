@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
@@ -24,12 +24,12 @@ class MobilePreferenceDialog : EditTextPreferenceDialogFragmentCompat() {
                     val row=android.widget.LinearLayout(requireContext()).apply { tag="hash-input-row";gravity=android.view.Gravity.CENTER_VERTICAL }
                     row.addView(input,android.widget.LinearLayout.LayoutParams(0,-2,1f))
                     row.addView(android.widget.ImageButton(requireContext()).apply {
-                        setImageResource(app.qthrone.mobile.R.drawable.ic_mobile_copy_outline)
+                        setImageResource(app.rawline.mobile.R.drawable.ic_mobile_copy_outline)
                         contentDescription="Скопировать хеш VK"
                         background=null
                         imageTintList=android.content.res.ColorStateList.valueOf(MobilePalette.accent(requireContext()))
                         setPadding((12*density).toInt(),(12*density).toInt(),(12*density).toInt(),(12*density).toInt())
-                        setOnClickListener { input.text.toString().takeIf(String::isNotBlank)?.let { app.qthrone.mobile.SagerNet.trySetPrimaryClip(it) } }
+                        setOnClickListener { input.text.toString().takeIf(String::isNotBlank)?.let { app.rawline.mobile.SagerNet.trySetPrimaryClip(it) } }
                     },android.widget.LinearLayout.LayoutParams((48*density).toInt(),(48*density).toInt()))
                     parent.addView(row,position,oldParams)
                 }

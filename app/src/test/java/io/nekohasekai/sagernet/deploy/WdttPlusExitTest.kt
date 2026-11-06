@@ -1,4 +1,4 @@
-package app.qthrone.mobile.deploy
+package app.rawline.mobile.deploy
 
 import org.json.JSONObject
 import org.junit.Assert.*

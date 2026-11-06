@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui.profiles
+package app.rawline.mobile.ui.profiles
 
 import android.os.SystemClock
 import android.transition.ChangeBounds

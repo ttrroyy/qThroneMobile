@@ -1,17 +1,17 @@
-package app.qthrone.mobile.bg
+package app.rawline.mobile.bg
 
 import android.graphics.drawable.Icon
 import android.service.quicksettings.Tile
 import androidx.annotation.RequiresApi
-import app.qthrone.mobile.R
-import app.qthrone.mobile.SagerNet
-import app.qthrone.mobile.aidl.ISagerNetService
-import app.qthrone.mobile.database.SagerDatabase
+import app.rawline.mobile.R
+import app.rawline.mobile.SagerNet
+import app.rawline.mobile.aidl.ISagerNetService
+import app.rawline.mobile.database.SagerDatabase
 import android.service.quicksettings.TileService as BaseTileService
 
 @RequiresApi(24)
 class TileService : BaseTileService(), SagerConnection.Callback {
-    private val tileIcon by lazy { Icon.createWithResource(this, R.drawable.ic_throne_tile) }
+    private val tileIcon by lazy { Icon.createWithResource(this, R.drawable.ic_rawline_tile) }
     private var tapPending = false
 
     private val connection = SagerConnection(SagerConnection.CONNECTION_ID_TILE)

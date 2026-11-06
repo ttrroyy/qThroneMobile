@@ -1,9 +1,9 @@
-package app.qthrone.mobile.bg.autoselector
+package app.rawline.mobile.bg.autoselector
 
-import app.qthrone.mobile.outbound.json.JsonArray
-import app.qthrone.mobile.outbound.json.JsonInput
-import app.qthrone.mobile.outbound.json.JsonObject
-import app.qthrone.mobile.outbound.json.jsonObjectOf
+import app.rawline.mobile.outbound.json.JsonArray
+import app.rawline.mobile.outbound.json.JsonInput
+import app.rawline.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.json.jsonObjectOf
 
 /**
  * What the service reports about the auto-selector it runs (AutoSelectorView, AutoSelectorMonitor.hpp), carried as JSON

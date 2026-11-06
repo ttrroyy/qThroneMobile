@@ -1,19 +1,19 @@
-package app.qthrone.mobile.ui.profiles
+package app.rawline.mobile.ui.profiles
 
 import android.view.MenuItem
 import androidx.annotation.StringRes
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
-import app.qthrone.mobile.R
-import app.qthrone.mobile.SagerNet
-import app.qthrone.mobile.bg.test.TestSpec
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.GroupRepo
-import app.qthrone.mobile.database.ProfileManager
-import app.qthrone.mobile.database.ProxyEntity
-import app.qthrone.mobile.ktx.confirmAction
-import app.qthrone.mobile.ktx.nameList
-import app.qthrone.mobile.ktx.snackbar
-import app.qthrone.mobile.ui.ConfigurationFragment
+import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
+import app.rawline.mobile.R
+import app.rawline.mobile.SagerNet
+import app.rawline.mobile.bg.test.TestSpec
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.GroupRepo
+import app.rawline.mobile.database.ProfileManager
+import app.rawline.mobile.database.ProxyEntity
+import app.rawline.mobile.ktx.confirmAction
+import app.rawline.mobile.ktx.nameList
+import app.rawline.mobile.ktx.snackbar
+import app.rawline.mobile.ui.ConfigurationFragment
 
 /**
  * Multi-selection in the current tab (the desktop's selected rows): long press starts it, taps toggle, the toolbar
@@ -100,8 +100,8 @@ class SelectionMode(private val host: ConfigurationFragment) {
             R.id.action_selection_delete -> delete(ids)
             R.id.action_selection_clear_results -> clearResults(ids)
             R.id.action_selection_move -> moveToGroup(ids)
-            R.id.action_selection_copy_links -> copyLinks(ids, throne = false)
-            R.id.action_selection_copy_throne -> copyLinks(ids, throne = true)
+            R.id.action_selection_copy_links -> copyLinks(ids, rawline = false)
+            R.id.action_selection_copy_rawline -> copyLinks(ids, rawline = true)
             else -> return false
         }
         return true
@@ -175,13 +175,13 @@ class SelectionMode(private val host: ConfigurationFragment) {
             .show()
     }
 
-    /** on_menu_copy_links (share link, the Throne link when there is none) / on_menu_copy_links_nkr. */
-    private fun copyLinks(ids: List<Long>, throne: Boolean) {
+    /** on_menu_copy_links (share link, the Rawline link when there is none) / on_menu_copy_links_nkr. */
+    private fun copyLinks(ids: List<Long>, rawline: Boolean) {
         finish()
         host.launchIo {
             val position = ids.withIndex().associate { it.value to it.index }
             val links = ProfileManager.getProfiles(ids).sortedBy { position[it.id] }.mapNotNull { profile ->
-                val link = if (throne) profile.exportJsonLink() else profile.exportLink().ifEmpty { profile.exportJsonLink() }
+                val link = if (rawline) profile.exportJsonLink() else profile.exportLink().ifEmpty { profile.exportJsonLink() }
                 link.takeIf { it.isNotEmpty() }
             }
             if (links.isEmpty()) return@launchIo

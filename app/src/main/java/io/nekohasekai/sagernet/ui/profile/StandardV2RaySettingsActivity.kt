@@ -1,12 +1,12 @@
-package app.qthrone.mobile.ui.profile
+package app.rawline.mobile.ui.profile
 
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
-import app.qthrone.mobile.R
-import app.qthrone.mobile.outbound.Outbound
-import app.qthrone.mobile.outbound.types.Trojan
-import app.qthrone.mobile.outbound.types.Vless
-import app.qthrone.mobile.outbound.types.Vmess
+import app.rawline.mobile.R
+import app.rawline.mobile.outbound.Outbound
+import app.rawline.mobile.outbound.types.Trojan
+import app.rawline.mobile.outbound.types.Vless
+import app.rawline.mobile.outbound.types.Vmess
 
 /**
  * One screen for the three sing-box V2Ray-family types (vmess, vless, trojan): the same transport, TLS and

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui.test
+package app.rawline.mobile.ui.test
 
 import android.content.Context
 import android.graphics.Canvas
@@ -8,8 +8,8 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
 import androidx.annotation.ColorInt
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.ProxyEntity
+import app.rawline.mobile.R
+import app.rawline.mobile.database.ProxyEntity
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt

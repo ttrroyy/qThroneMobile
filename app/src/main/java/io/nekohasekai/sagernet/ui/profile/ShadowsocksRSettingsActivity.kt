@@ -1,8 +1,8 @@
-package app.qthrone.mobile.ui.profile
+package app.rawline.mobile.ui.profile
 
 import androidx.preference.PreferenceFragmentCompat
-import app.qthrone.mobile.R
-import app.qthrone.mobile.outbound.types.ShadowsocksR
+import app.rawline.mobile.R
+import app.rawline.mobile.outbound.types.ShadowsocksR
 import moe.matsuri.nb4a.ui.SimpleMenuPreference
 
 class ShadowsocksRSettingsActivity : BindingSettingsActivity<ShadowsocksR>() {

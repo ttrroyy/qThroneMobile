@@ -1,4 +1,4 @@
-package app.qthrone.mobile.deploy
+package app.rawline.mobile.deploy
 
 /** CSQTT 2.5.0 Legacy DeployOperations.kt environment and installer result contract. */
 internal object CsqttDeployPolicy {

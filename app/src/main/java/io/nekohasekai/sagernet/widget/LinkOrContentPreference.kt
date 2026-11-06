@@ -1,4 +1,4 @@
-package app.qthrone.mobile.widget
+package app.rawline.mobile.widget
 
 import android.content.Context
 import android.net.Uri
@@ -7,10 +7,10 @@ import androidx.core.content.res.TypedArrayUtils
 import androidx.core.widget.addTextChangedListener
 import androidx.preference.EditTextPreference
 import com.google.android.material.textfield.TextInputLayout
-import app.qthrone.mobile.R
-import app.qthrone.mobile.group.ProviderLinks
-import app.qthrone.mobile.ktx.app
-import app.qthrone.mobile.ktx.readableMessage
+import app.rawline.mobile.R
+import app.rawline.mobile.group.ProviderLinks
+import app.rawline.mobile.ktx.app
+import app.rawline.mobile.ktx.readableMessage
 import okhttp3.HttpUrl.Companion.toHttpUrl
 
 class LinkOrContentPreference

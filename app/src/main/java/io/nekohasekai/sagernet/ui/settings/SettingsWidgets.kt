@@ -1,13 +1,13 @@
-package app.qthrone.mobile.ui.settings
+package app.rawline.mobile.ui.settings
 
 import android.content.Context
 import android.util.AttributeSet
 import androidx.core.content.res.TypedArrayUtils
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.SettingValidators
-import app.qthrone.mobile.database.preference.SettingsStore
+import app.rawline.mobile.R
+import app.rawline.mobile.database.SettingValidators
+import app.rawline.mobile.database.preference.SettingsStore
 
 /**
  * A multi-line editor over a string-list setting: one item per line on screen, a compact JSON array in the

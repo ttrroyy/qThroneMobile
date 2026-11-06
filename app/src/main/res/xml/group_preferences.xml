@@ -3,7 +3,7 @@
     <PreferenceCategory app:title="@string/grp_common" app:key="groupCommon">
         <EditTextPreference app:icon="@drawable/ic_social_emoji_symbols" app:key="groupName" app:title="@string/grp_name" app:useSimpleSummaryProvider="true" />
         <moe.matsuri.nb4a.ui.SimpleMenuPreference app:defaultValue="0" app:entries="@array/group_types" app:entryValues="@array/int_array_2" app:icon="@drawable/ic_baseline_layers_24" app:key="groupType" app:title="@string/grp_type" app:useSimpleSummaryProvider="true" />
-        <app.qthrone.mobile.widget.LinkOrContentPreference app:icon="@drawable/ic_baseline_link_24" app:key="subscriptionLink" app:title="@string/grp_url" app:useSimpleSummaryProvider="true" />
+        <app.rawline.mobile.widget.LinkOrContentPreference app:icon="@drawable/ic_baseline_link_24" app:key="subscriptionLink" app:title="@string/grp_url" app:useSimpleSummaryProvider="true" />
         <moe.matsuri.nb4a.ui.SimpleMenuPreference app:icon="@drawable/baseline_wrap_text_24" app:key="groupServerSortRule" app:title="@string/sub_settings_sort_rule" app:entries="@array/sub_settings_sort_rules" app:entryValues="@array/int_array_3" app:defaultValue="0" app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
     <PreferenceCategory app:key="groupEditOptions" app:title="@string/group_edit_options">

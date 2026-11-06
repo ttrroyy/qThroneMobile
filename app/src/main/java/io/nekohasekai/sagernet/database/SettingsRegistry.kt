@@ -1,9 +1,9 @@
-package app.qthrone.mobile.database
+package app.rawline.mobile.database
 
-import app.qthrone.mobile.Key
-import app.qthrone.mobile.SpeedTestSettings
-import app.qthrone.mobile.database.preference.SettingsStore
-import app.qthrone.mobile.outbound.link.Hosts
+import app.rawline.mobile.Key
+import app.rawline.mobile.SpeedTestSettings
+import app.rawline.mobile.database.preference.SettingsStore
+import app.rawline.mobile.outbound.link.Hosts
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -144,7 +144,7 @@ object SettingsRegistry {
     /** The selected group tab; resolved through GroupRepo (0 or a missing group = the first group). */
     @JvmField val CURRENT_GROUP = long("current_group", 0L) { it >= 0 }
     @JvmField val SHOW_CONFIG_SECURITY = bool("show_config_security", false)
-    @JvmField val ALLOW_BETA_UPDATE = bool("allow_beta_update", app.qthrone.mobile.BuildConfig.VERSION_NAME.contains("-beta."))
+    @JvmField val ALLOW_BETA_UPDATE = bool("allow_beta_update", app.rawline.mobile.BuildConfig.VERSION_NAME.contains("-beta."))
 
     // ------------------------------------------------------------------------------------------------ inbound
 
@@ -194,7 +194,7 @@ object SettingsRegistry {
     // ------------------------------------------------------------------------------------------------ dns
 
     // Missing rows adopt this default on upgrade; an explicitly saved resolver always wins.
-    @JvmField val REMOTE_DNS = string("remote_dns", app.qthrone.mobile.outbound.config.DnsDefaults.REMOTE)
+    @JvmField val REMOTE_DNS = string("remote_dns", app.rawline.mobile.outbound.config.DnsDefaults.REMOTE)
     @JvmField val REMOTE_DNS_DISABLE_IPV6 = bool("remote_dns_disable_ipv6", false)
     @JvmField val DIRECT_DNS = string("direct_dns", "localhost")
     @JvmField val DIRECT_DNS_DISABLE_IPV6 = bool("direct_dns_disable_ipv6", false)
@@ -466,7 +466,7 @@ object SettingValidators {
     /** Hosts-file lines `address name…` (ParsePredefinedDNS). */
     @JvmStatic
     fun isPredefinedDns(lines: List<String>): Boolean =
-        app.qthrone.mobile.outbound.config.PredefinedDns.parse(lines) != null
+        app.rawline.mobile.outbound.config.PredefinedDns.parse(lines) != null
 
     /** Non-blank lines of a multi-line editor. */
     @JvmStatic

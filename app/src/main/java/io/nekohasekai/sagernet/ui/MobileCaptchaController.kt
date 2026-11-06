@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
@@ -17,7 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import app.qthrone.mobile.ui.MobileSheetDialog as BottomSheetDialog
+import app.rawline.mobile.ui.MobileSheetDialog as BottomSheetDialog
 
 /** The captcha remains on its real HTTPS address in a bottom sheet. */
 class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable {
@@ -60,7 +60,7 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
     }
     private val lifecycleObserver=androidx.lifecycle.LifecycleEventObserver { _,event ->
         if(event==androidx.lifecycle.Lifecycle.Event.ON_RESUME) host.lifecycleScope.launch {
-            val pending=withContext(Dispatchers.IO) { app.qthrone.mobile.bg.carrier.CarrierUiRequests.pending() }
+            val pending=withContext(Dispatchers.IO) { app.rawline.mobile.bg.carrier.CarrierUiRequests.pending() }
             if(pending!=null && host.lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))
                 receiver.onReceive(host,pending)
         }
@@ -77,7 +77,7 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
     @SuppressLint("SetJavaScriptEnabled")
     private fun show(id: String,url: String,turn: Boolean=false,oauthState: String?=null,automatic: Boolean=false,client: String="qwdtt") {
         val plus=client=="wdttplus"
-        if(app.qthrone.mobile.bg.carrier.CarrierUiRequests.pending()?.getStringExtra("id")!=id) return
+        if(app.rawline.mobile.bg.carrier.CarrierUiRequests.pending()?.getStringExtra("id")!=id) return
         val previousSheet=dialog
         cleanupWeb?.invoke()
         previousSheet?.dismiss()
@@ -89,7 +89,7 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
         val header=LinearLayout(host).apply { gravity=android.view.Gravity.CENTER_VERTICAL }
         header.addView(TextView(host).apply { text=if(turn || oauthState!=null) "VK · Авторизация" else "VK · Captcha";textSize=19f;setTextColor(MobilePalette.text);setPadding(24,20,24,20) },LinearLayout.LayoutParams(0,-2,1f))
         header.addView(android.widget.ImageButton(host).apply {
-            setImageResource(app.qthrone.mobile.R.drawable.ic_navigation_close)
+            setImageResource(app.rawline.mobile.R.drawable.ic_navigation_close)
             imageTintList=android.content.res.ColorStateList.valueOf(MobilePalette.accent(host))
             background=null;contentDescription="Закрыть капчу"
             setOnClickListener { sheet.dismiss() }
@@ -118,8 +118,8 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
             webChromeClient=android.webkit.WebChromeClient()
             android.webkit.CookieManager.getInstance().setAcceptThirdPartyCookies(this,true)
             if(turn || oauthState!=null) {
-                settings.userAgentString=app.qthrone.mobile.bg.carrier.VkRelayAccount.sessionUserAgent().ifBlank {
-                    app.qthrone.mobile.bg.carrier.VkRelayLogin.userAgent(android.webkit.WebSettings.getDefaultUserAgent(host),0)
+                settings.userAgentString=app.rawline.mobile.bg.carrier.VkRelayAccount.sessionUserAgent().ifBlank {
+                    app.rawline.mobile.bg.carrier.VkRelayLogin.userAgent(android.webkit.WebSettings.getDefaultUserAgent(host),0)
                 }
             }
             val hook=if(turn) VkTurnScripts.INTERCEPTOR else CaptchaAutoScripts.intercept
@@ -134,7 +134,7 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
             if(turn && androidx.webkit.WebViewFeature.isFeatureSupported(androidx.webkit.WebViewFeature.WEB_MESSAGE_LISTENER))
                 androidx.webkit.WebViewCompat.addWebMessageListener(this,"QThroneVkTurn",
                     setOf("https://vk.ru","https://*.vk.ru","https://vk.com","https://*.vk.com")) { _,message,origin,_,_ ->
-                    val trusted=runCatching { app.qthrone.mobile.bg.carrier.VkRelayOAuth.trustedHttps(java.net.URI(origin.toString())) }.getOrDefault(false)
+                    val trusted=runCatching { app.rawline.mobile.bg.carrier.VkRelayOAuth.trustedHttps(java.net.URI(origin.toString())) }.getOrDefault(false)
                     val payload=if(trusted) runCatching { message.data }.getOrNull()?.let { VkTurnPayload.encode(url,it) } else null
                     if(payload!=null && currentId==id) {
                         reply(id,payload);currentId=null;cleanupWeb?.invoke();sheet.dismiss()
@@ -149,7 +149,7 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
                 }
                 private fun deliverToken(address: String): Boolean {
                     val state=oauthState ?: return false
-                    val token=app.qthrone.mobile.bg.carrier.VkRelayOAuth.tokenFields(address,state) ?: return false
+                    val token=app.rawline.mobile.bg.carrier.VkRelayOAuth.tokenFields(address,state) ?: return false
                     if(currentId==id) {
                         reply(id,org.json.JSONObject().put("token",token.first).put("expires",token.second).toString())
                         currentId=null;cleanupWeb?.invoke();sheet.dismiss()
@@ -260,7 +260,7 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
             expiry.removeCallbacks(expire)
             web.removeCallbacks(polling)
             web.removeCallbacks(fallback)
-            if(currentId==id) { reply(id,app.qthrone.mobile.bg.carrier.NativeCaptchaPolicy.dismissal(automatic));currentId=null }
+            if(currentId==id) { reply(id,app.rawline.mobile.bg.carrier.NativeCaptchaPolicy.dismissal(automatic));currentId=null }
             if(automatic) (body.parent as? android.view.ViewGroup)?.removeView(body)
             web.stopLoading();web.destroy()
             if(dialog===sheet) dialog=null
@@ -283,15 +283,15 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
             (host.window.decorView as android.view.ViewGroup).addView(body,
                 android.view.ViewGroup.LayoutParams(host.resources.displayMetrics.widthPixels,
                     (host.resources.displayMetrics.heightPixels*.65f).toInt()))
-            web.postDelayed(fallback,app.qthrone.mobile.bg.carrier.NativeCaptchaPolicy.automaticTimeout(client))
+            web.postDelayed(fallback,app.rawline.mobile.bg.carrier.NativeCaptchaPolicy.automaticTimeout(client))
         } else if(turn) web.postDelayed(fallback,22_000) else {
-            if(oauthState==null) expiry.postDelayed(expire,app.qthrone.mobile.bg.carrier.NativeCaptchaPolicy.visibleTimeout(client))
+            if(oauthState==null) expiry.postDelayed(expire,app.rawline.mobile.bg.carrier.NativeCaptchaPolicy.visibleTimeout(client))
             showOnResume=true
             if(host.lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) sheet.show()
         }
         val startUrl=if(turn) VkTurnScripts.joinUrlCandidates(url).first() else url
         web.onResume()
-        val cookiePairs=if(turn || oauthState!=null) app.qthrone.mobile.bg.carrier.VkRelayAccount.sessionCookies().filterKeys(::allowed)
+        val cookiePairs=if(turn || oauthState!=null) app.rawline.mobile.bg.carrier.VkRelayAccount.sessionCookies().filterKeys(::allowed)
             .flatMap { (address,header) -> header.split(';').map { address to it.trim() }.filter { it.second.isNotEmpty() } } else emptyList()
         // Original qWDTT clears VK's captcha cookies before every visible captcha (CSQTT does not); the account binding keeps its own.
         val stale=if(!automatic && !turn && oauthState==null && client=="qwdtt") captchaCookieHosts.flatMap { address ->
@@ -322,7 +322,7 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
      */
     @SuppressLint("SetJavaScriptEnabled")
     private fun showOpenFlux(id: String,url: String) {
-        if(app.qthrone.mobile.bg.carrier.CarrierUiRequests.pending()?.getStringExtra("id")!=id) return
+        if(app.rawline.mobile.bg.carrier.CarrierUiRequests.pending()?.getStringExtra("id")!=id) return
         val previousSheet=dialog
         cleanupWeb?.invoke()
         previousSheet?.dismiss()
@@ -409,7 +409,7 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
         sheet.setOnDismissListener { cleanup() }
         sheet.setCancelable(false)
         sheet.setContentView(body)
-        expiry.postDelayed(expire,app.qthrone.mobile.bg.carrier.NativeCaptchaPolicy.visibleTimeout("openflux"))
+        expiry.postDelayed(expire,app.rawline.mobile.bg.carrier.NativeCaptchaPolicy.visibleTimeout("openflux"))
         if(host.lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) sheet.show()
         web.onResume()
         web.loadUrl(url)
@@ -423,7 +423,7 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
      */
     @SuppressLint("SetJavaScriptEnabled")
     private fun showOpenFluxKey(id: String,url: String) {
-        if(app.qthrone.mobile.bg.carrier.CarrierUiRequests.pending()?.getStringExtra("id")!=id) return
+        if(app.rawline.mobile.bg.carrier.CarrierUiRequests.pending()?.getStringExtra("id")!=id) return
         val previousSheet=dialog
         cleanupWeb?.invoke()
         previousSheet?.dismiss()
@@ -436,7 +436,7 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
         val header=LinearLayout(host).apply { gravity=android.view.Gravity.CENTER_VERTICAL }
         header.addView(TextView(host).apply { text="Решите проверку, чтобы продолжить";textSize=19f;setTextColor(MobilePalette.text);setPadding(ui.dp(16),ui.dp(14),ui.dp(8),ui.dp(10)) },LinearLayout.LayoutParams(0,-2,1f))
         header.addView(android.widget.ImageButton(host).apply {
-            setImageResource(app.qthrone.mobile.R.drawable.ic_navigation_close)
+            setImageResource(app.rawline.mobile.R.drawable.ic_navigation_close)
             imageTintList=android.content.res.ColorStateList.valueOf(MobilePalette.accent(host))
             background=null;contentDescription="Закрыть проверку"
             setOnClickListener { sheet.dismiss() }
@@ -511,7 +511,7 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
         sheet.setOnDismissListener { cleanup() }
         sheet.setCancelable(false)
         sheet.setContentView(body)
-        expiry.postDelayed(expire,app.qthrone.mobile.bg.carrier.NativeCaptchaPolicy.visibleTimeout("openfluxkey"))
+        expiry.postDelayed(expire,app.rawline.mobile.bg.carrier.NativeCaptchaPolicy.visibleTimeout("openfluxkey"))
         if(host.lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) sheet.show()
         web.onResume()
         web.loadUrl(url)

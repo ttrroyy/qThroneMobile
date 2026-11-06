@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.content.ClipboardManager
 import android.content.Context
@@ -19,20 +19,20 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.lifecycleScope
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
-import app.qthrone.mobile.bg.test.TestSpec
-import app.qthrone.mobile.ui.test.TestSessionClient
+import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
+import app.rawline.mobile.bg.test.TestSpec
+import app.rawline.mobile.ui.test.TestSessionClient
 import androidx.room.InvalidationTracker
-import app.qthrone.mobile.R
-import app.qthrone.mobile.Key
-import app.qthrone.mobile.BuildConfig
-import app.qthrone.mobile.TrafficFormat
-import app.qthrone.mobile.SagerNet
-import app.qthrone.mobile.database.*
-import app.qthrone.mobile.group.SubscriptionClient
-import app.qthrone.mobile.ui.profile.profileSettingsIntent
-import app.qthrone.mobile.update.UpdateActivity
-import app.qthrone.mobile.update.UpdateDiscovery
+import app.rawline.mobile.R
+import app.rawline.mobile.Key
+import app.rawline.mobile.BuildConfig
+import app.rawline.mobile.TrafficFormat
+import app.rawline.mobile.SagerNet
+import app.rawline.mobile.database.*
+import app.rawline.mobile.group.SubscriptionClient
+import app.rawline.mobile.ui.profile.profileSettingsIntent
+import app.rawline.mobile.update.UpdateActivity
+import app.rawline.mobile.update.UpdateDiscovery
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -40,16 +40,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** Mobile dashboard backed by the existing Room repositories and subscription queue. */
-private const val SHEET_PEEK = 88
 
 class MobileHomeFragment : ToolbarFragment() {
-    private var nativeConnection:app.qthrone.mobile.bg.carrier.NativeConnectionStatus.Snapshot?=null
-    private var nativeTest:app.qthrone.mobile.bg.carrier.NativeConnectionStatus.Snapshot?=null
+    private var nativeConnection:app.rawline.mobile.bg.carrier.NativeConnectionStatus.Snapshot?=null
+    private var nativeTest:app.rawline.mobile.bg.carrier.NativeConnectionStatus.Snapshot?=null
     private var nativeReceiverRegistered=false
     private val nativeStatusReceiver=object:android.content.BroadcastReceiver() {
         override fun onReceive(context:Context,intent:Intent) {
-            val stage=runCatching { app.qthrone.mobile.bg.carrier.NativeConnectionStage.valueOf(intent.getStringExtra("stage").orEmpty()) }.getOrNull() ?: return
-            val snapshot=app.qthrone.mobile.bg.carrier.NativeConnectionStatus.Snapshot(intent.getLongExtra("profileId",0),stage,
+            val stage=runCatching { app.rawline.mobile.bg.carrier.NativeConnectionStage.valueOf(intent.getStringExtra("stage").orEmpty()) }.getOrNull() ?: return
+            val snapshot=app.rawline.mobile.bg.carrier.NativeConnectionStatus.Snapshot(intent.getLongExtra("profileId",0),stage,
                 intent.getIntExtra("active",0),intent.getIntExtra("total",0))
             if(intent.getBooleanExtra("testing",false)) nativeTest=snapshot else nativeConnection=snapshot
             updateState()
@@ -72,10 +71,28 @@ class MobileHomeFragment : ToolbarFragment() {
     private var updatesTile: ImageButton? = null
     /** Standard tiles have no updates tile: a found version shows as a button between Settings and Add, one tap to update. */
     private var updateBanner: TextView? = null
+    private var homeTitle: TextView? = null
+    private var modeSwitches: Map<String,androidx.appcompat.widget.SwitchCompat> = emptyMap()
+    private var restartAfterStop = false
+    private fun homeSwitchesOn()=!MobileStyle.new && DataStore.configurationStore.getString("qmobileHomeControl")=="switches"
+    /** A switch starts or stops its own mode; turning on the other one moves the running connection over. */
+    private fun pickMode(mode: String) {
+        val state=DataStore.serviceState
+        if(powerCovered() || state==app.rawline.mobile.bg.BaseService.State.Stopping) return
+        if(state.canStop) {
+            restartAfterStop=DataStore.serviceMode!=mode
+            SagerNet.stopService()
+            DataStore.serviceMode=mode
+        } else {
+            DataStore.serviceMode=mode
+            host().toggleService()
+        }
+    }
     private fun updateReleaseBanner() {
         val offer = UpdateDiscovery.available.value?.takeIf { DataStore.updateCheckAuto }
         updateBanner?.apply {
             visibility = if (offer == null) View.GONE else View.VISIBLE
+            homeTitle?.visibility = if (offer == null) View.VISIBLE else View.GONE
             text = if (offer == null) "" else getString(R.string.update_home_banner, offer.versionName)
             contentDescription = if (offer == null) "" else getString(R.string.update_home_banner_description, offer.versionName)
             setOnClickListener { offer?.let { UpdateActivity.start(requireContext(), it) } }
@@ -101,7 +118,7 @@ class MobileHomeFragment : ToolbarFragment() {
     private var geoProgress: ProgressBar? = null
     private var geoCheck: ImageView? = null
     private fun updateGeoStatus() {
-        val states = app.qthrone.mobile.route.ProviderGeoAssets.states.value.values
+        val states = app.rawline.mobile.route.ProviderGeoAssets.states.value.values
         val active = states.firstOrNull { !it.complete } ?: states.lastOrNull()
         geoBanner?.visibility = if (active == null) View.GONE else View.VISIBLE
         geoProgress?.visibility = if (active != null && !active.complete && active.error.isBlank()) View.VISIBLE else View.GONE
@@ -368,7 +385,14 @@ class MobileHomeFragment : ToolbarFragment() {
     }
     private fun iconAction(icon: Int, description: String, color: Int = Color.TRANSPARENT, callback: () -> Unit) = ImageButton(requireContext()).apply {
         setImageResource(icon); imageTintList=android.content.res.ColorStateList.valueOf(foregroundColor); setBackgroundColor(color); setPadding(dp(12),dp(12),dp(12),dp(12))
-        contentDescription=description; setOnClickListener { callback() }; MobileFeedback.apply(this, circle=true)
+        contentDescription=description; setOnClickListener { callback() }
+        if(MobileStyle.new && color!=Color.TRANSPARENT) {
+            background=MobilePalette.actionShape(context,color)
+            imageTintList=android.content.res.ColorStateList.valueOf(color)
+            MobileFeedback.apply(this)
+            // A background's insets replace the view's padding.
+            setPadding(dp(20),dp(12),dp(20),dp(12))
+        } else MobileFeedback.apply(this, circle=true)
     }
     private fun View.showUpdating(updating: Boolean) {
         val previous = tag as? android.animation.ObjectAnimator
@@ -411,14 +435,15 @@ class MobileHomeFragment : ToolbarFragment() {
             background=GradientDrawable().apply { setColor(toolbarColor);cornerRadius=dp(if(MobileStyle.new) 10 else 7).toFloat() };clipToOutline=true
         }
     }
-    private var serverSheet: com.google.android.material.bottomsheet.BottomSheetBehavior<View>? = null
-    private var sheetSlot: LinearLayout? = null
-    private var sheetExpanded = false
     private var groupChip: TextView? = null
     private var groupTabs: View? = null
     private var pickerGroups: List<ProxyGroup> = emptyList()
     private var sheetDown: TextView? = null
     private var sheetUp: TextView? = null
+    private var sheetSpeed: View? = null
+    private var lastDown = 0L
+    private var lastUp = 0L
+    private fun rateText(value: Long) = android.text.format.Formatter.formatShortFileSize(requireContext(),value)+"/s"
     private fun revealGroupTabs(show: Boolean) {
         val tabs=groupTabs ?: return
         android.animation.ValueAnimator.ofInt(tabs.height,if(show) dp(54) else 0).apply {
@@ -435,73 +460,61 @@ class MobileHomeFragment : ToolbarFragment() {
         val handle=View(requireContext()).apply { background=GradientDrawable().apply { setColor(muted);cornerRadius=dp(2).toFloat() } }
         body.addView(handle,LinearLayout.LayoutParams(dp(36),dp(4)).apply { gravity=Gravity.CENTER_HORIZONTAL;bottomMargin=dp(14) })
         val list=LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL }
+        val scroller=androidx.core.widget.NestedScrollView(requireContext()).apply { isVerticalScrollBarEnabled=false;addView(list) }
+        val drag=MobileReorder(list,scroller,{ reorderActive(it) },{ saveReorder(null,it) },{ first,second -> (first in pinnedGroups())==(second in pinnedGroups()) })
+        var opened: MobileSwipeTile?=null
         pickerGroups.forEachIndexed { index,group ->
-            list.addView(LinearLayout(requireContext()).apply {
+            val row=LinearLayout(requireContext()).apply {
                 orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER_VERTICAL;minimumHeight=dp(60);setPadding(dp(16),dp(8),dp(12),dp(8))
                 background=tile(group.id==current);isFocusable=true
                 addView(text(group.displayName(),15f).apply { setTypeface(typeface,Typeface.BOLD);setPadding(0,0,0,dp(2));maxLines=1;ellipsize=android.text.TextUtils.TruncateAt.END })
                 addView(text(getString(if(group.isSubscription) R.string.subscription else R.string.group_basic),12f,muted).apply { setPadding(0,0,0,0) })
                 setOnClickListener { sheet.dismiss();selectGroup(group.id) }
                 MobileFeedback.apply(this)
-                alpha=0f;translationY=dp(10).toFloat()
-                animate().alpha(1f).translationY(0f).setStartDelay(30L*index.coerceAtMost(8)).setDuration(260).start()
-            },LinearLayout.LayoutParams(-1,-2).apply { if(index>0) topMargin=dp(6) })
+            }
+            val swipe=MobileSwipeTile(requireContext(),row,null,
+                iconAction(R.drawable.ic_mobile_copy_outline,getString(R.string.action_copy),Color.rgb(60,132,190)) { opened?.let { shareGroup(group,it) } },
+                iconAction(R.drawable.ic_mobile_delete,getString(R.string.qmobile_delete),Color.rgb(220,66,61)) {
+                    val tile=opened
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        val deleted=withContext(Dispatchers.IO) { GroupRepo.delete(group.id,groupAfterRemoval(renderedGroupOrder,group.id)) }
+                        if(!deleted) { Toast.makeText(requireContext(),R.string.qmobile_delete_failed,Toast.LENGTH_LONG).show();tile?.closeActions() }
+                        else {
+                            list.removeView(tile);drag.prune()
+                            if(list.childCount==0) sheet.dismiss()
+                        }
+                    }
+                }).apply { onOpened={ tile -> opened?.takeIf { it!==tile }?.closeActions();opened=tile } }
+            drag.bind(row,swipe,group.id)
+            swipe.alpha=0f;swipe.translationY=dp(10).toFloat()
+            swipe.animate().alpha(1f).translationY(0f).setStartDelay(30L*index.coerceAtMost(8)).setDuration(260).start()
+            list.addView(swipe,LinearLayout.LayoutParams(-1,-2).apply { if(index>0) topMargin=dp(6) })
         }
-        body.addView(ScrollView(requireContext()).apply { isVerticalScrollBarEnabled=false;addView(list) },LinearLayout.LayoutParams(-1,-2,1f))
+        body.addView(scroller,LinearLayout.LayoutParams(-1,-2,1f))
         body.addView(LinearLayout(requireContext()).apply {
+            isBaselineAligned=false
             fun action(label: String, callback: (View) -> Unit)=text(label,14f).apply {
-                gravity=Gravity.CENTER;setPadding(dp(8),0,dp(8),0);background=tile();isFocusable=true
+                gravity=Gravity.CENTER;minHeight=dp(52);setPadding(dp(10),dp(8),dp(10),dp(8));background=tile();isFocusable=true
                 setOnClickListener(callback);MobileFeedback.apply(this)
             }
-            addView(action(getString(R.string.qmobile_add)) { addMenu(it) },LinearLayout.LayoutParams(0,dp(52),1f).apply { marginEnd=dp(6) })
-            addView(action(getString(R.string.qmobile_manage_groups)) { subscriptionsMenu(it) },LinearLayout.LayoutParams(0,dp(52),1f).apply { marginStart=dp(6) })
+            addView(action(getString(R.string.qmobile_add)) { sheet.dismiss();addMenu(groupChip ?: it) },LinearLayout.LayoutParams(0,-1,1f).apply { marginEnd=dp(6) })
+            addView(action(getString(R.string.qmobile_manage_groups)) { sheet.dismiss();subscriptionsMenu(groupChip ?: it) },LinearLayout.LayoutParams(0,-1,1f).apply { marginStart=dp(6) })
         },LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(12) })
         sheet.setContentView(body)
         sheet.show()
     }
     /** Live speed in the closed sheet, like the classic notification shows it. */
     fun updateSpeed(down: Long, up: Long) {
-        val rate={ value: Long -> android.text.format.Formatter.formatShortFileSize(requireContext(),value)+"/s" }
         if(!isAdded) return
-        sheetDown?.text="↓ "+rate(down)
-        sheetUp?.text="↑ "+rate(up)
+        lastDown=down;lastUp=up
+        sheetSpeed?.visibility=View.VISIBLE
+        sheetDown?.text="↓ "+rateText(down)
+        sheetUp?.text="↑ "+rateText(up)
     }
     private var risenGroup = Long.MIN_VALUE
-    private val sheetBack = object: androidx.activity.OnBackPressedCallback(false) {
-        override fun handleOnBackPressed() { serverSheet?.state=com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED }
-    }
-    /** The screen behind the server sheet draws back as the sheet rises. */
-    private fun recedeStage(stage: View, offset: Float) {
-        stage.alpha=1f-.75f*offset
-        stage.scaleX=1f-.06f*offset; stage.scaleY=stage.scaleX
-        stage.translationY=-dp(24)*offset
-        if(android.os.Build.VERSION.SDK_INT>=31) stage.setRenderEffect(if(offset>.02f) android.graphics.RenderEffect.createBlurEffect(18f*offset*resources.displayMetrics.density,18f*offset*resources.displayMetrics.density,android.graphics.Shader.TileMode.CLAMP) else null)
-    }
-    /** What the closed sheet shows: the server that is chosen now. */
-    private fun updateSheetPeek() {
-        val slot=sheetSlot ?: return
-        viewLifecycleOwner.lifecycleScope.launch {
-            val profile=withContext(Dispatchers.IO) { SagerDatabase.proxyDao.getById(DataStore.selectedProxy) }
-            if(sheetSlot!==slot) return@launch
-            slot.removeAllViews()
-            val name=profile?.displayName()?.trim().orEmpty()
-            slot.addView(flagBadge(name),LinearLayout.LayoutParams(dp(36),dp(36)).apply { marginEnd=dp(12) })
-            val labels=LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL }
-            labels.addView(text(name.removePrefix(MobileCountryFlags.leading(name)).trimStart().ifEmpty { getString(R.string.qmobile_more) },16f).apply { setTypeface(typeface,Typeface.BOLD);setPadding(0,0,0,dp(2));maxLines=1;ellipsize=android.text.TextUtils.TruncateAt.END })
-            profile?.let { labels.addView(text(it.displayProtocol(),13f,muted).apply { setPadding(0,0,0,0);maxLines=1;ellipsize=android.text.TextUtils.TruncateAt.END }) }
-            slot.addView(labels,LinearLayout.LayoutParams(0,-2,1f))
-            val running=DataStore.serviceState.connected
-            slot.addView(LinearLayout(requireContext()).apply {
-                orientation=LinearLayout.VERTICAL;gravity=Gravity.END;visibility=if(running) View.VISIBLE else View.GONE
-                sheetDown=text("↓ 0 B/s",12f,muted).apply { setPadding(0,0,0,dp(2)) }
-                sheetUp=text("↑ 0 B/s",12f,muted).apply { setPadding(0,0,0,0) }
-                addView(sheetDown);addView(sheetUp)
-            },LinearLayout.LayoutParams(-2,-2).apply { marginStart=dp(10) })
-        }
-    }
-    override fun onHiddenChanged(hidden: Boolean) {
-        super.onHiddenChanged(hidden)
-        if(hidden) serverSheet?.state=com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
+    private fun powerCovered(): Boolean {
+        return power?.hasWindowFocus()==false ||
+            android.os.SystemClock.uptimeMillis()-MobileSheetDialog.closedAt<350
     }
     private fun host() = requireActivity() as MainActivity
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View {
@@ -538,13 +551,12 @@ class MobileHomeFragment : ToolbarFragment() {
     }
     override fun onViewCreated(view: View, state: Bundle?) {
         super.onViewCreated(view, state)
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,sheetBack)
         androidx.core.content.ContextCompat.registerReceiver(requireContext(),nativeStatusReceiver,
-            android.content.IntentFilter(app.qthrone.mobile.bg.carrier.NativeConnectionStatus.action()),requireContext().packageName+".SERVICE",null,
+            android.content.IntentFilter(app.rawline.mobile.bg.carrier.NativeConnectionStatus.action()),requireContext().packageName+".SERVICE",null,
             androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED)
         nativeReceiverRegistered=true
         viewLifecycleOwner.lifecycleScope.launch {
-            val snapshots=withContext(Dispatchers.IO) { app.qthrone.mobile.bg.carrier.NativeConnectionStatus.read() to app.qthrone.mobile.bg.carrier.NativeConnectionStatus.read(true) }
+            val snapshots=withContext(Dispatchers.IO) { app.rawline.mobile.bg.carrier.NativeConnectionStatus.read() to app.rawline.mobile.bg.carrier.NativeConnectionStatus.read(true) }
             nativeConnection=snapshots.first;nativeTest=snapshots.second;updateState()
         }
         collapsed.clear()
@@ -557,7 +569,7 @@ class MobileHomeFragment : ToolbarFragment() {
         }.also { SagerDatabase.instance.invalidationTracker.addObserver(it) }
         GroupRepo.addListener(groupListener)
         viewLifecycleOwner.lifecycleScope.launch { SubscriptionClient.states.collect { updateSubscriptionButtons() } }
-        viewLifecycleOwner.lifecycleScope.launch { app.qthrone.mobile.route.ProviderGeoAssets.states.collect { updateGeoStatus() } }
+        viewLifecycleOwner.lifecycleScope.launch { app.rawline.mobile.route.ProviderGeoAssets.states.collect { updateGeoStatus() } }
         viewLifecycleOwner.lifecycleScope.launch { UpdateDiscovery.available.collect { updateUpdatesBadge();updateReleaseBanner() } }
         viewLifecycleOwner.lifecycleScope.launch { TestSessionClient.queuedProfiles.collect { updateLatencies() } }
         viewLifecycleOwner.lifecycleScope.launch { TestSessionClient.state.collect {
@@ -602,7 +614,7 @@ class MobileHomeFragment : ToolbarFragment() {
         activeProfileDrag?.cancel()
         if(nativeReceiverRegistered) { requireContext().unregisterReceiver(nativeStatusReceiver);nativeReceiverRegistered=false }
         groupReorder?.cancel();groupReorder=null;profileReorders.values.forEach { it.cancel() };profileReorders.clear();reordering=false
-        serverSheet = null; sheetSlot = null; groupChip = null; groupTabs = null; sheetDown = null; sheetUp = null
+        groupChip = null; groupTabs = null; sheetDown = null; sheetUp = null
         geoBanner = null; updatesTile = null; updateBanner = null; geoStatus = null; geoProgress = null; geoCheck = null
         GroupRepo.removeListener(groupListener)
         observer?.let { SagerDatabase.instance.invalidationTracker.removeObserver(it) }
@@ -666,7 +678,7 @@ class MobileHomeFragment : ToolbarFragment() {
             val column = content ?: return@launch
             groups.forEach { (group, _) -> knownGroups.add(group.id) }
             val tilesBottom=tilesAtBottom()
-            val tilesKey="${extendedTiles()}:$tilesBottom:$byGroups"
+            val tilesKey="${extendedTiles()}:$tilesBottom:$byGroups:${homeSwitchesOn()}"
             // A moved tile bar rebuilds the screen even when the server list is the same.
             val unchanged=withContext(Dispatchers.Default) { previousStructure == structure } && renderedGroupId==focusedGroup && chromeKey?.endsWith(":$tilesKey")!=false
             if (unchanged) {
@@ -679,7 +691,7 @@ class MobileHomeFragment : ToolbarFragment() {
                 return@launch
             }
             val hasServers = byGroups || groups.any { it.second.isNotEmpty() || it.first.isSubscription }
-            val hwid = app.qthrone.mobile.group.RequestIdentity.applyCustomHwidParams(app.qthrone.mobile.group.DeviceDetails.get(),DataStore.subCustomHwidParams).hwid
+            val hwid = app.rawline.mobile.group.RequestIdentity.applyCustomHwidParams(app.rawline.mobile.group.DeviceDetails.get(),DataStore.subCustomHwidParams).hwid
             val nextChromeKey="$surface:$blue:$hasServers:$hwid:$tilesKey"
             if(chromeKey != nextChromeKey) {
                 chromeKey=nextChromeKey
@@ -690,48 +702,9 @@ class MobileHomeFragment : ToolbarFragment() {
                 val landscape=resources.configuration.orientation==android.content.res.Configuration.ORIENTATION_LANDSCAPE
                 column.orientation=if(landscape) LinearLayout.HORIZONTAL else LinearLayout.VERTICAL
                 val side0=if(landscape) LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL } else column
-                val sheetMode=MobileStyle.new && !landscape && hasServers
-                val stage=if(sheetMode) LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL; setPadding(dp(16),dp(8),dp(16),dp(SHEET_PEEK+12)) } else null
-                val sheet=if(sheetMode) LinearLayout(requireContext()).apply {
-                    orientation=LinearLayout.VERTICAL; setPadding(dp(12),0,dp(12),0); elevation=dp(12).toFloat()
-                    isClickable=true
-                    background=GradientDrawable().apply {
-                        setColor(MobilePalette.frosted); setStroke(1,MobilePalette.outline)
-                        val round=dp(MobilePalette.cardDp+4).toFloat()
-                        cornerRadii=floatArrayOf(round,round,round,round,0f,0f,0f,0f)
-                    }
-                } else null
-                val body=if(landscape) LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL } else sheet ?: column
-                val side=stage ?: side0
-                if(sheet!=null) {
-                    column.setPadding(0,0,0,0)
-                    val coordinator=androidx.coordinatorlayout.widget.CoordinatorLayout(requireContext())
-                    coordinator.addView(stage,androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams(-1,-1))
-                    val behavior=com.google.android.material.bottomsheet.BottomSheetBehavior<View>().apply {
-                        isFitToContents=false; isHideable=false; peekHeight=dp(SHEET_PEEK); expandedOffset=dp(60)
-                        state=if(sheetExpanded) com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED else com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
-                        addBottomSheetCallback(object: com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback() {
-                            override fun onStateChanged(view: View, state: Int) {
-                                sheetExpanded=state==com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
-                                sheetBack.isEnabled=sheetExpanded
-                            }
-                            override fun onSlide(view: View, offset: Float) = recedeStage(stage!!,offset.coerceIn(0f,1f))
-                        })
-                    }
-                    serverSheet=behavior
-                    recedeStage(stage!!,if(sheetExpanded) 1f else 0f)
-                    sheetBack.isEnabled=sheetExpanded
-                    coordinator.addView(sheet,androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams(-1,-1).apply { this.behavior=behavior })
-                    column.addView(coordinator,LinearLayout.LayoutParams(-1,-1))
-                    val toggle={ behavior.state=if(behavior.state==com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED) com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED else com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED }
-                    val peek=LinearLayout(requireContext()).apply {
-                        orientation=LinearLayout.VERTICAL; isFocusable=true; setOnClickListener { toggle() }
-                        addView(View(requireContext()).apply { background=GradientDrawable().apply { setColor(muted);cornerRadius=dp(2).toFloat() } },LinearLayout.LayoutParams(dp(36),dp(4)).apply { gravity=Gravity.CENTER_HORIZONTAL;topMargin=dp(10);bottomMargin=dp(10) })
-                    }
-                    sheetSlot=LinearLayout(requireContext()).apply { gravity=Gravity.CENTER_VERTICAL;minimumHeight=dp(56);setPadding(dp(4),0,dp(4),dp(8)) }
-                    peek.addView(sheetSlot,LinearLayout.LayoutParams(-1,-2))
-                    sheet.addView(peek,LinearLayout.LayoutParams(-1,-2))
-                }
+                val body=if(landscape) LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL } else column
+                val side=side0
+                sheetSpeed=null
                 if(landscape) {
                     column.addView(side,LinearLayout.LayoutParams(dp(280),-1))
                     column.addView(body,LinearLayout.LayoutParams(0,-1,1f).apply { marginStart=dp(12) })
@@ -743,7 +716,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     contentDescription = description; androidx.appcompat.widget.TooltipCompat.setTooltipText(this,description); setOnClickListener { callback(it) }; MobileFeedback.apply(this)
                 }
                 val extended=extendedTiles()
-                updatesTile=null;updateBanner=null
+                updatesTile=null;updateBanner=null;homeTitle=null;modeSwitches=emptyMap()
                 val settingsTile=headerIcon(R.drawable.ic_mobile_settings, getString(R.string.qmobile_settings)) { host().displayFragmentWithId(R.id.nav_settings) }
                 val addTile=headerIcon(R.drawable.ic_mobile_add, getString(R.string.qmobile_add)) { addMenu(it) }
                 val quick = if(extended && !MobileStyle.new) listOf(
@@ -764,11 +737,12 @@ class MobileHomeFragment : ToolbarFragment() {
                 val tiles = if(quickMenu!=null) listOf(quickMenu, settingsTile) else if(extended) listOf(settingsTile) + quick + addTile else listOf(settingsTile, addTile)
                 tiles.forEachIndexed { index, button ->
                     header.addView(button, LinearLayout.LayoutParams(0, dp(48), 1f).apply {
-                        if (index < tiles.lastIndex) marginEnd = dp(8)
+                        if (index < tiles.lastIndex && extended && !MobileStyle.new) marginEnd = dp(8)
                     })
                     // Standard: the two tiles sit in the corners.
                     if ((!extended || MobileStyle.new) && index == 0) header.addView(FrameLayout(requireContext()).apply {
-                        if(MobileStyle.new) addView(text(getString(R.string.app_name),18f).apply { setTypeface(typeface,Typeface.BOLD); gravity=Gravity.CENTER; setPadding(0,0,0,0) },FrameLayout.LayoutParams(-2,-2,Gravity.CENTER))
+                        homeTitle=text(getString(R.string.app_name),18f).apply { setTypeface(typeface,Typeface.BOLD); gravity=Gravity.CENTER; setPadding(0,0,0,0); maxLines=1 }
+                        addView(homeTitle,FrameLayout.LayoutParams(-2,-2,Gravity.CENTER))
                         if(!extended && !MobileStyle.new) updateBanner = text("", 12f, blue).apply {
                             gravity = Gravity.CENTER
                             minHeight = dp(48)
@@ -812,26 +786,47 @@ class MobileHomeFragment : ToolbarFragment() {
                         setCompoundDrawablesRelative(null,null,android.graphics.drawable.RotateDrawable().apply { drawable=arrow;fromDegrees=90f;toDegrees=90f;level=1;setBounds(0,0,dp(22),dp(22)) },null)
                         setOnClickListener { groupPicker() };MobileFeedback.apply(this)
                     }
-                    addView(groupChip,LinearLayout.LayoutParams(0,dp(56),1f).apply { marginEnd=dp(8) })
-                    addView(addTile,LinearLayout.LayoutParams(dp(56),dp(56)))
+                    addView(groupChip,LinearLayout.LayoutParams(0,dp(48),1f).apply { marginEnd=dp(8) })
+                    addView(addTile,LinearLayout.LayoutParams(dp(48),dp(48)))
                 },LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(14) })
                 val centre = FrameLayout(requireContext())
-                power = action("") { host().toggleService() }.apply {
+                var statusRow: LinearLayout?=null
+                if(homeSwitchesOn()) {
+                    val rows=LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL }
+                    val switches=listOf(Triple(Key.MODE_VPN,R.string.service_mode_vpn,R.drawable.ic_mobile_tun),Triple(Key.MODE_PROXY,R.string.service_mode_proxy,R.drawable.ic_mobile_globe)).mapIndexed { index,(mode,label,icon) ->
+                        // The switch only shows the state of the service, so a declined VPN request leaves it off.
+                        val switch=androidx.appcompat.widget.SwitchCompat(requireContext()).apply { isClickable=false;isFocusable=false }
+                        rows.addView(LinearLayout(requireContext()).apply {
+                            gravity=Gravity.CENTER_VERTICAL;minimumHeight=dp(52);setPadding(dp(14),dp(2),dp(10),dp(2));background=tile();isFocusable=true
+                            addView(ImageView(requireContext()).apply { setImageResource(icon);imageTintList=android.content.res.ColorStateList.valueOf(blue);importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO },LinearLayout.LayoutParams(dp(24),dp(24)).apply { marginEnd=dp(12) })
+                            addView(text(getString(label),15f).apply { setPadding(0,dp(6),dp(8),dp(6)) },LinearLayout.LayoutParams(0,-2,1f))
+                            addView(switch)
+                            setOnClickListener { pickMode(mode) }
+                            MobileFeedback.apply(this)
+                        },LinearLayout.LayoutParams(-1,-2).apply { if(index>0) topMargin=dp(6) })
+                        mode to switch
+                    }
+                    modeSwitches=switches.toMap()
+                    power=text("",13f,muted).apply { gravity=Gravity.CENTER;maxLines=2;ellipsize=android.text.TextUtils.TruncateAt.END }
+                    rows.addView(power,LinearLayout.LayoutParams(-1,-2))
+                    side.addView(rows,LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(10) })
+                } else {
+                power = action("") { if(!powerCovered()) host().toggleService() }.apply {
                     contentDescription = getString(R.string.qmobile_connect)
                     background = if(MobileStyle.new) MobileOrbArtwork(requireContext(),getString(R.string.qmobile_orb_idle)) else MobilePowerArtwork(blue)
                     var pressAnimator: android.animation.ValueAnimator? = null
                     setOnTouchListener { _, event ->
                         val artwork=background as? MobilePowerArtwork
                         val target=when(event.actionMasked) {
-                            android.view.MotionEvent.ACTION_DOWN -> if(MobileStyle.new) .9f else .94f
+                            android.view.MotionEvent.ACTION_DOWN -> if(MobileStyle.new) .92f else .94f
                             android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> 1f
                             else -> null
                         }
                         if(artwork!=null && target!=null) {
                             pressAnimator?.cancel()
                             pressAnimator=android.animation.ValueAnimator.ofFloat(artwork.pressScale,target).apply {
-                                duration=if(MobileStyle.new) (if(target<1f) 140 else 480) else if(target<1f) 90 else 150
-                                interpolator=if(MobileStyle.new && target>=1f) android.view.animation.OvershootInterpolator(3.5f) else android.view.animation.DecelerateInterpolator()
+                                duration=if(target<1f) 90 else 150
+                                interpolator=android.view.animation.DecelerateInterpolator()
                                 addUpdateListener { artwork.pressScale=it.animatedValue as Float }
                                 start()
                             }
@@ -840,15 +835,18 @@ class MobileHomeFragment : ToolbarFragment() {
                     }
                 }
                 if(MobileStyle.new) {
-                    centre.addView(power, FrameLayout.LayoutParams(dp(300), dp(300), Gravity.CENTER))
-                    power?.apply {
-                        alpha=0f; scaleX=.86f; scaleY=.86f
-                        animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(520).setInterpolator(android.view.animation.PathInterpolator(.2f,0f,0f,1f)).start()
-                    }
-                    side.addView(centre, if(landscape) LinearLayout.LayoutParams(-1, 0, 1f) else LinearLayout.LayoutParams(-1, if(sheetMode) 0 else dp(300), if(sheetMode) 1f else 0f))
+                    // A smaller button right under the subscription: the servers and the subscription's actions keep the screen.
+                    centre.addView(power, FrameLayout.LayoutParams(dp(190), dp(190), Gravity.CENTER))
+                    side.addView(centre, LinearLayout.LayoutParams(-1, dp(190)).apply { topMargin=dp(4) })
+                    sheetDown=text("↓ "+rateText(lastDown),12f,muted).apply { setPadding(dp(6),dp(2),dp(6),dp(2));maxLines=1 }
+                    sheetUp=text("↑ "+rateText(lastUp),12f,muted).apply { setPadding(dp(6),dp(2),dp(6),dp(2));maxLines=1 }
+                    statusRow=LinearLayout(requireContext()).apply { gravity=Gravity.CENTER;addView(sheetDown);addView(sheetUp) }
+                    sheetSpeed=statusRow
+                    side.addView(statusRow,LinearLayout.LayoutParams(-1,-2))
                 } else {
                 centre.addView(power, FrameLayout.LayoutParams(dp(188), dp(188), Gravity.TOP or Gravity.CENTER_HORIZONTAL).apply { topMargin=dp(8) })
                 side.addView(centre, LinearLayout.LayoutParams(-1, dp(206)))
+                }
                 }
                 updateState()
                 val imports = LinearLayout(requireContext())
@@ -881,7 +879,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     visibility = View.GONE
                     // A tap hides the card; a new download shows it again.
                     contentDescription = getString(R.string.update_action_hide)
-                    setOnClickListener { app.qthrone.mobile.route.ProviderGeoAssets.dismiss() }
+                    setOnClickListener { app.rawline.mobile.route.ProviderGeoAssets.dismiss() }
                 }
                 geoStatus = text("",14f).apply { setPadding(0,0,dp(12),0) }
                 geoProgress = ProgressBar(requireContext()).apply { isIndeterminate = true; indeterminateTintList = android.content.res.ColorStateList.valueOf(blue); importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO }
@@ -890,12 +888,12 @@ class MobileHomeFragment : ToolbarFragment() {
                 geoBanner!!.addView(geoProgress,LinearLayout.LayoutParams(dp(24),dp(24)))
                 geoBanner!!.addView(geoCheck,LinearLayout.LayoutParams(dp(24),dp(24)))
                 // Under the decoration, right above the subscriptions it is about.
-                // In the sheet the check sits under the button, on the stage.
-                subscriptionTop?.let { if(sheetMode) { (it as FrameLayout).layoutParams=LinearLayout.LayoutParams(-1,-2); side.addView(it) } else body.addView(it) }
+                // In the new style the check sits beside the speed, under the button.
+                subscriptionTop?.let { if(statusRow!=null) { it.layoutParams=LinearLayout.LayoutParams(-2,-2); statusRow?.addView(it) } else body.addView(it) }
                 if(!byGroups) body.addView(geoBanner,LinearLayout.LayoutParams(-1,-2).apply { bottomMargin=dp(6) })
                 updateGeoStatus()
                 val serverPanel=if(byGroups) LinearLayout(requireContext()).apply {
-                    orientation=LinearLayout.VERTICAL;if(!sheetMode) background=tile();clipToOutline=true
+                    orientation=LinearLayout.VERTICAL;if(!MobileStyle.new) background=tile();clipToOutline=true
                 } else body
                 if(byGroups) {
                     val area=FrameLayout(requireContext()).also { serverDropArea=it }
@@ -944,7 +942,6 @@ class MobileHomeFragment : ToolbarFragment() {
                 val serverScroll=ScrollView(requireContext()).apply {
                     isVerticalScrollBarEnabled=false; isHorizontalScrollBarEnabled=false
                     clipToPadding=byGroups
-                    if(sheetMode) isNestedScrollingEnabled=true
                     if(byGroups) setPadding(0,dp(8),0,0)
                     addView(serverColumn,FrameLayout.LayoutParams(-1,-2))
                     setOnScrollChangeListener { _, _, y, _, _ ->
@@ -971,7 +968,6 @@ class MobileHomeFragment : ToolbarFragment() {
                     side.addView(header, LinearLayout.LayoutParams(-1, -2).apply { topMargin=dp(10) })
                 }
             }
-            updateSheetPeek()
             pickerGroups=groups.map { it.first }
             groupChip?.text=pickerGroups.firstOrNull { it.id==focusedGroup }?.displayName().orEmpty()
             val serverColumn=serverRows ?: return@launch
@@ -1130,7 +1126,6 @@ class MobileHomeFragment : ToolbarFragment() {
                             DataStore.selectedProxy = profile.id
                             if (DataStore.serviceState.canStop) SagerNet.reloadService()
                             this@MobileHomeFragment.profileRows.forEach { (id,view) -> view.background=tile(id==profile.id); MobileFeedback.apply(view) }
-                            updateSheetPeek()
                         }
                     }
                     nextProfileRows[profile.id]=row
@@ -1157,9 +1152,9 @@ class MobileHomeFragment : ToolbarFragment() {
                             viewLifecycleOwner.lifecycleScope.launch {
                                 val result=withContext(Dispatchers.IO) { ProfileManager.batchDeleteProfiles(listOf(profile.id),stopRunning=true) }
                                 if(!result.ok) Toast.makeText(requireContext(),R.string.qmobile_delete_failed,Toast.LENGTH_LONG).show()
-                                else if(profile.type=="qwdtt" && profile.id !in result.kept) app.qthrone.mobile.ktx.runOnDefaultDispatcher {
-                                    if(app.qthrone.mobile.deploy.QwdttProfileApi.releaseDeleted(listOf(profile))>0) withContext(Dispatchers.Main) {
-                                        Toast.makeText(app.qthrone.mobile.ktx.app,"Устройство отвязано от сервера",Toast.LENGTH_SHORT).show()
+                                else if(profile.type=="qwdtt" && profile.id !in result.kept) app.rawline.mobile.ktx.runOnDefaultDispatcher {
+                                    if(app.rawline.mobile.deploy.QwdttProfileApi.releaseDeleted(listOf(profile))>0) withContext(Dispatchers.Main) {
+                                        Toast.makeText(app.rawline.mobile.ktx.app,"Устройство отвязано от сервера",Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             }
@@ -1259,36 +1254,43 @@ class MobileHomeFragment : ToolbarFragment() {
             currentPingConnectionAt=if(state.connected) DataStore.mobileConnectedAt else 0L
             currentCheck?.text=getString(R.string.qmobile_check_connection)
         }
-        power?.isEnabled = state != app.qthrone.mobile.bg.BaseService.State.Stopping
+        power?.isEnabled = state != app.rawline.mobile.bg.BaseService.State.Stopping
+        if(restartAfterStop && !state.canStop && state!=app.rawline.mobile.bg.BaseService.State.Stopping) {
+            restartAfterStop=false
+            host().toggleService()
+        }
+        sheetSpeed?.visibility=if(state.connected) View.VISIBLE else View.GONE
+        if(!state.connected) { lastDown=0L;lastUp=0L }
+        modeSwitches.forEach { (mode,switch) -> switch.isChecked=(state.canStop || restartAfterStop) && DataStore.serviceMode==mode }
         val test=TestSessionClient.state.value
         val testing=test.running && test.kind==TestSpec.KIND_URL
         val snapshot=if(testing && !test.testCurrent) nativeTest?.takeIf {
-            test.rows.containsKey(it.profileId) && test.rows[it.profileId]?.phase!=app.qthrone.mobile.ui.test.RowPhase.DONE
+            test.rows.containsKey(it.profileId) && test.rows[it.profileId]?.phase!=app.rawline.mobile.ui.test.RowPhase.DONE
         } else nativeConnection?.takeIf {
             it.profileId==(if(state.connected) DataStore.currentProfile else DataStore.selectedProxy)
         }
         val stage=if(testing && test.testCurrent) null else snapshot?.stage
-        val caption=if(state == app.qthrone.mobile.bg.BaseService.State.Stopping) getString(R.string.stopping)
+        val caption=if(state == app.rawline.mobile.bg.BaseService.State.Stopping) getString(R.string.stopping)
         else if(testing || state.canStop || state.connected) getString(when(stage) {
-            app.qthrone.mobile.bg.carrier.NativeConnectionStage.AUTHORIZING -> R.string.qmobile_vk_authorizing
-            app.qthrone.mobile.bg.carrier.NativeConnectionStage.CAPTCHA -> R.string.qmobile_vk_captcha
-            app.qthrone.mobile.bg.carrier.NativeConnectionStage.WAITING_VK -> R.string.qmobile_vk_waiting
-            app.qthrone.mobile.bg.carrier.NativeConnectionStage.RECONNECTING -> R.string.qmobile_reconnecting
-            app.qthrone.mobile.bg.carrier.NativeConnectionStage.PREPARING, app.qthrone.mobile.bg.carrier.NativeConnectionStage.CONNECTING -> R.string.qmobile_connecting
+            app.rawline.mobile.bg.carrier.NativeConnectionStage.AUTHORIZING -> R.string.qmobile_vk_authorizing
+            app.rawline.mobile.bg.carrier.NativeConnectionStage.CAPTCHA -> R.string.qmobile_vk_captcha
+            app.rawline.mobile.bg.carrier.NativeConnectionStage.WAITING_VK -> R.string.qmobile_vk_waiting
+            app.rawline.mobile.bg.carrier.NativeConnectionStage.RECONNECTING -> R.string.qmobile_reconnecting
+            app.rawline.mobile.bg.carrier.NativeConnectionStage.PREPARING, app.rawline.mobile.bg.carrier.NativeConnectionStage.CONNECTING -> R.string.qmobile_connecting
             else -> if(testing || currentTestArmed) R.string.qmobile_ping_checking else if(state.connected) R.string.qmobile_connected else R.string.qmobile_connecting
         }) else ""
         val description=getString(R.string.qmobile_connect) + ", " + caption.ifEmpty { getString(R.string.qmobile_disconnected) }
         if(power?.contentDescription != description) power?.contentDescription=description
         power?.setTextColor(if (state.connected) Color.rgb(128,192,139) else blue)
         (power?.background as? MobilePowerArtwork)?.connected=state.connected
-        (power?.background as? MobilePowerArtwork)?.connecting=state==app.qthrone.mobile.bg.BaseService.State.Connecting
+        (power?.background as? MobilePowerArtwork)?.connecting=state==app.rawline.mobile.bg.BaseService.State.Connecting
         currentCheck?.visibility=if(state.connected) View.VISIBLE else View.GONE
         val button=power
         if(!state.connected || pulseTarget!==button) {
             powerPulse?.cancel();powerPulse=null;pulseTarget=null
             button?.scaleX=1f;button?.scaleY=1f
         }
-        if(state.connected && button!=null && powerPulse==null && !MobileStyle.new) {
+        if(state.connected && button!=null && powerPulse==null && !MobileStyle.new && modeSwitches.isEmpty()) {
             pulseTarget=button
             powerPulse=android.animation.ObjectAnimator.ofPropertyValuesHolder(button,
                 android.animation.PropertyValuesHolder.ofFloat(View.SCALE_X,.995f,1.015f),
@@ -1298,8 +1300,13 @@ class MobileHomeFragment : ToolbarFragment() {
             }
         }
         power?.apply {
-            textSize=13f;gravity=Gravity.CENTER;setPadding(0,dp(75),0,0)
+            textSize=13f;gravity=Gravity.CENTER;setPadding(0,if(background is MobilePowerArtwork) dp(75) else dp(8),0,0)
             val seconds=((android.os.SystemClock.elapsedRealtime()-DataStore.mobileConnectedAt)/1000).coerceAtLeast(0)
+            if(background !is MobilePowerArtwork) {
+                val elapsed=String.format(java.util.Locale.ROOT,"%02d:%02d:%02d",seconds/3600,seconds/60%60,seconds%60)
+                val label=caption.ifEmpty { getString(R.string.qmobile_disconnected) }+if(state.connected) "  $elapsed" else ""
+                if(text.toString()!=label) text=label
+            }
             val fontSize=textSize
             (background as? MobilePowerArtwork)?.apply {
                 captionSize=fontSize
@@ -1314,7 +1321,7 @@ class MobileHomeFragment : ToolbarFragment() {
         val state=TestSessionClient.state.value
         latencyViews.forEach { (id, holder) ->
             val result=state.rows[id].takeUnless { state.testCurrent }
-            val busy=id in TestSessionClient.queuedProfiles.value || (state.running && result != null && result.phase != app.qthrone.mobile.ui.test.RowPhase.DONE)
+            val busy=id in TestSessionClient.queuedProfiles.value || (state.running && result != null && result.phase != app.rawline.mobile.ui.test.RowPhase.DONE)
             val latency=result?.takeIf { it.ok }?.latency ?: (holder.tag as? Int ?: 0)
             val unavailable=result?.failed==true || (result?.error?.isNotEmpty()==true && !ProxyEntity.isTestAborted(result.error))
             val label=if(unavailable) getString(R.string.qmobile_unavailable) else if(latency>0) "$latency ms" else ""
@@ -1348,21 +1355,42 @@ class MobileHomeFragment : ToolbarFragment() {
         else Toast.makeText(requireContext(), R.string.qmobile_clipboard_empty, Toast.LENGTH_SHORT).show()
     }
     private fun pinnedGroups() = DataStore.mobilePinnedGroups.split(',').mapNotNull { it.toLongOrNull() }.toSet()
-    private fun shareProfile(profile:ProxyEntity) {
-        val swipe=openSwipe ?: return
-        fun option(label:String,icon:Int,callback:()->Unit):View {
-            return LinearLayout(requireContext()).apply {
-                orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER;isFocusable=true;contentDescription=label;setBackgroundColor(Color.rgb(105,93,176))
-                setOnClickListener { swipe.closeActions();callback() }
-                addView(ImageView(requireContext()).apply { setImageResource(icon);imageTintList=android.content.res.ColorStateList.valueOf(Color.WHITE);importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO },LinearLayout.LayoutParams(dp(23),dp(23)))
-                addView(text(label,10f,Color.WHITE).apply { setPadding(0,dp(4),0,0);maxLines=1;includeFontPadding=false;gravity=Gravity.CENTER;importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO })
+    private fun shareChoice(swipe:MobileSwipeTile,label:String,icon:Int,callback:()->Unit):View {
+        val ink=if(MobileStyle.new) foregroundColor else Color.WHITE
+        return LinearLayout(requireContext()).apply {
+            orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER;isFocusable=true;contentDescription=label;if(MobileStyle.new) background=MobilePalette.actionShape(context,Color.rgb(105,93,176)) else setBackgroundColor(Color.rgb(105,93,176))
+            setOnClickListener { swipe.closeActions();callback() }
+            addView(ImageView(requireContext()).apply { setImageResource(icon);imageTintList=android.content.res.ColorStateList.valueOf(ink);importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO },LinearLayout.LayoutParams(dp(23),dp(23)))
+            addView(text(label,10f,ink).apply { setPadding(0,dp(4),0,0);maxLines=1;includeFontPadding=false;gravity=Gravity.CENTER;importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO })
+        }
+    }
+    /** The ways to pass a subscription on: its address, a QR code, or the profiles it holds. */
+    private fun shareGroup(group:ProxyGroup,swipe:MobileSwipeTile) {
+        fun copy(value:String) { Toast.makeText(requireContext(),if(SagerNet.trySetPrimaryClip(value)) R.string.action_export_msg else R.string.action_export_err,Toast.LENGTH_SHORT).show() }
+        fun copyLinks(deep:Boolean) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                copy(withContext(Dispatchers.IO) {
+                    ProfileManager.members(group.id).map { if(deep) it.exportJsonLink() else it.exportLink() }.filter { it.isNotEmpty() }.joinToString("\n")
+                })
             }
         }
+        val choices=mutableListOf<View>()
+        if(group.isSubscription && group.url.isNotBlank()) {
+            choices+=shareChoice(swipe,"URL",R.drawable.ic_mobile_link) { copy(group.url) }
+            choices+=shareChoice(swipe,getString(R.string.qmobile_qr),R.drawable.ic_mobile_qr) { app.rawline.mobile.widget.QRCodeDialog(group.url,group.displayName()).show(parentFragmentManager,"group-qr") }
+        }
+        choices+=shareChoice(swipe,getString(R.string.qmobile_group_profiles),R.drawable.ic_mobile_copy_outline) { copyLinks(false) }
+        choices+=shareChoice(swipe,"JSON",R.drawable.ic_mobile_json) { copyLinks(true) }
+        swipe.showShareChoices(*choices.toTypedArray())
+    }
+    private fun shareProfile(profile:ProxyEntity) {
+        val swipe=openSwipe ?: return
+        fun option(label:String,icon:Int,callback:()->Unit)=shareChoice(swipe,label,icon,callback)
         fun copy(value:String) { Toast.makeText(requireContext(),if(SagerNet.trySetPrimaryClip(value)) R.string.action_export_msg else R.string.action_export_err,Toast.LENGTH_SHORT).show() }
         val link=profile.exportLink().ifBlank { profile.exportJsonLink() }
         swipe.showShareChoices(
             option("URL",R.drawable.ic_mobile_link) { copy(link) },
-            option(getString(R.string.qmobile_qr),R.drawable.ic_mobile_qr) { app.qthrone.mobile.widget.QRCodeDialog(link,profile.displayName()).show(parentFragmentManager,"profile-qr") },
+            option(getString(R.string.qmobile_qr),R.drawable.ic_mobile_qr) { app.rawline.mobile.widget.QRCodeDialog(link,profile.displayName()).show(parentFragmentManager,"profile-qr") },
             option("JSON",R.drawable.ic_mobile_json) { copy(org.json.JSONObject(profile.outbound.exportToJson().toCompact()).toString(2)) },
         )
     }
@@ -1401,7 +1429,7 @@ class MobileHomeFragment : ToolbarFragment() {
             viewLifecycleOwner.lifecycleScope.launch {
                 withContext(Dispatchers.IO) {
                     val ids=ProfileManager.memberIds(group.id).toLongArray()
-                    runCatching { host().connection.service?.resetTraffic(ids) }.onFailure { app.qthrone.mobile.ktx.Logs.w(it) }
+                    runCatching { host().connection.service?.resetTraffic(ids) }.onFailure { app.rawline.mobile.ktx.Logs.w(it) }
                     ProfileManager.resetTraffic(ids)
                 }
                 refresh()
@@ -1411,7 +1439,7 @@ class MobileHomeFragment : ToolbarFragment() {
         entry(getString(if(pinned) R.string.qmobile_unpin else R.string.qmobile_pin),R.drawable.ic_mobile_pin) { val ids=pinnedGroups().toMutableSet();if(pinned) ids.remove(group.id) else ids.add(group.id);DataStore.mobilePinnedGroups=ids.joinToString(",");refresh() }
         entry(getString(R.string.qmobile_delete),R.drawable.ic_mobile_delete) {
             viewLifecycleOwner.lifecycleScope.launch {
-                val previous=if(DataStore.mobileListMode=="groups") groupAfterRemoval(renderedGroupOrder,group.id) else 0L
+                val previous=if(DataStore.mobileListMode=="groups" || MobileStyle.new) groupAfterRemoval(renderedGroupOrder,group.id) else 0L
                 val deleted=withContext(Dispatchers.IO) { GroupRepo.delete(group.id,previous) }
                 if(!deleted) Toast.makeText(requireContext(),R.string.qmobile_delete_failed,Toast.LENGTH_LONG).show()
             }
@@ -1467,15 +1495,15 @@ class MobileHomeFragment : ToolbarFragment() {
                 popup.menu.add(1, android.view.Menu.NONE, android.view.Menu.NONE, route.name).apply {
                     isCheckable=true;isChecked=route.id==DataStore.currentRouteId
                     setOnMenuItemClickListener {
-                        app.qthrone.mobile.ui.route.RouteQuickSwitch.switchTo(route.id)
-                        app.qthrone.mobile.ui.route.RouteQuickSwitch.switched(this@MobileHomeFragment,route.name);true
+                        app.rawline.mobile.ui.route.RouteQuickSwitch.switchTo(route.id)
+                        app.rawline.mobile.ui.route.RouteQuickSwitch.switched(this@MobileHomeFragment,route.name);true
                     }
                 }
             }
             androidx.core.view.MenuCompat.setGroupDividerEnabled(popup.menu,true)
             popup.menu.add(2, android.view.Menu.NONE, android.view.Menu.NONE, R.string.warp_enable).apply {
                 isCheckable=true;isChecked=DataStore.enableWarp
-                setOnMenuItemClickListener { app.qthrone.mobile.ui.route.RouteQuickSwitch.setWarpEnabled(this@MobileHomeFragment,!isChecked);true }
+                setOnMenuItemClickListener { app.rawline.mobile.ui.route.RouteQuickSwitch.setWarpEnabled(this@MobileHomeFragment,!isChecked);true }
             }
             popup.menu.add(2, android.view.Menu.NONE, android.view.Menu.NONE, R.string.qmobile_enable_adblock).apply {
                 isCheckable=true;isChecked=DataStore.adblockEnable
@@ -1487,7 +1515,7 @@ class MobileHomeFragment : ToolbarFragment() {
             }
             popup.menu.add(3, android.view.Menu.NONE, android.view.Menu.NONE, R.string.settings).setOnMenuItemClickListener { host().displayFragmentWithId(R.id.nav_route);true }
             popup.menu.add(3, android.view.Menu.NONE, android.view.Menu.NONE, R.string.xray_geo_download_title).setOnMenuItemClickListener {
-                host().openSettingsScreen(app.qthrone.mobile.ui.settings.XrayGeoSettingsFragment::class.java.name, getString(R.string.xray_geo_download_title));true
+                host().openSettingsScreen(app.rawline.mobile.ui.settings.XrayGeoSettingsFragment::class.java.name, getString(R.string.xray_geo_download_title));true
             }
             popup.show()
         }
@@ -1631,7 +1659,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     sheet.dismiss()
                     viewLifecycleOwner.lifecycleScope.launch {
                         val target=withContext(Dispatchers.IO) { SubscribeFlows.targetGroupId() }
-                        startActivity(Intent(requireContext(),app.qthrone.mobile.ui.profile.settingsActivityFor(type))
+                        startActivity(Intent(requireContext(),app.rawline.mobile.ui.profile.settingsActivityFor(type))
                             .putExtra("qmobileProfileType",type).putExtra("qmobileGroupId",target))
                     }
                 }

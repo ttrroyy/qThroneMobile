@@ -1,7 +1,7 @@
-package app.qthrone.mobile.bg.test
+package app.rawline.mobile.bg.test
 
-import app.qthrone.mobile.outbound.types.Qwdtt
-import app.qthrone.mobile.outbound.types.Csqtt
+import app.rawline.mobile.outbound.types.Qwdtt
+import app.rawline.mobile.outbound.types.Csqtt
 import kotlinx.coroutines.*
 import org.junit.Assert.*
 import org.junit.Test

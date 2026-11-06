@@ -1,17 +1,17 @@
-package app.qthrone.mobile.bg
+package app.rawline.mobile.bg
 
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.ProfileManager
-import app.qthrone.mobile.database.ProxyEntity
-import app.qthrone.mobile.database.SettingsMapper
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.outbound.BuildContext
-import app.qthrone.mobile.outbound.OutboundFactory
-import app.qthrone.mobile.outbound.json.JsonArray
-import app.qthrone.mobile.outbound.json.JsonInput
-import app.qthrone.mobile.outbound.json.jsonObjectOf
-import app.qthrone.mobile.outbound.types.Chain
-import app.qthrone.mobile.outbound.types.Custom
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.ProfileManager
+import app.rawline.mobile.database.ProxyEntity
+import app.rawline.mobile.database.SettingsMapper
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.outbound.BuildContext
+import app.rawline.mobile.outbound.OutboundFactory
+import app.rawline.mobile.outbound.json.JsonArray
+import app.rawline.mobile.outbound.json.JsonInput
+import app.rawline.mobile.outbound.json.jsonObjectOf
+import app.rawline.mobile.outbound.types.Chain
+import app.rawline.mobile.outbound.types.Custom
 import app.qthrone.core.mobile.Mobile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -87,9 +87,9 @@ object ProfileValidator {
             return Verdict.VALID
         }
 
-        if(outbound is app.qthrone.mobile.bg.carrier.NativeCarrier) {
+        if(outbound is app.rawline.mobile.bg.carrier.NativeCarrier) {
             return try {
-                app.qthrone.mobile.bg.carrier.CarrierPlan.qwdtt(profile.id,outbound,withAccount=false)
+                app.rawline.mobile.bg.carrier.CarrierPlan.qwdtt(profile.id,outbound,withAccount=false)
                 Verdict.VALID
             } catch(_:IllegalArgumentException) { invalid("Invalid native transport configuration") }
         }
@@ -103,7 +103,7 @@ object ProfileValidator {
             if (outbound.subtype == Custom.CUSTOM_XRAY_FULL_CONFIG) {
                 val xrayConf = JsonInput.parseObjectOrNull(outbound.config)?.takeIf { it.isNotEmpty() }
                     ?: return invalid("Custom Xray full config is not valid JSON")
-                // Throne never runs these; it prepends its own bridge inbound instead.
+                // Rawline never runs these; it prepends its own bridge inbound instead.
                 xrayConf.remove("inbounds")
                 return check(xrayConf.toCompact(), xray = true) { error ->
                     // Left to fail at test time, where the missing geo asset is named.
@@ -128,7 +128,7 @@ object ProfileValidator {
     }
 
     /**
-     * IsValid's core check of a custom Xray full config (generate.cpp:2493-2510), the config as Throne runs it (without
+     * IsValid's core check of a custom Xray full config (generate.cpp:2493-2510), the config as Rawline runs it (without
      * its inbounds): the core's error, null when it passes. Geo asset errors are returned too, for the caller to name.
      */
     fun xrayFullConfigError(config: String): String? {

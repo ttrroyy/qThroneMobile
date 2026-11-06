@@ -1,6 +1,6 @@
-package app.qthrone.mobile.deploy
+package app.rawline.mobile.deploy
 
-import app.qthrone.mobile.outbound.types.Qwdtt
+import app.rawline.mobile.outbound.types.Qwdtt
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -61,11 +61,11 @@ object QwdttProfileApi {
      * After the user deleted [deleted] by hand: frees this phone's slot of each qWDTT password that no remaining
      * profile uses, so a deleted key no longer holds a device on the server. Returns how many were freed.
      */
-    fun releaseDeleted(deleted: List<app.qthrone.mobile.database.ProxyEntity>): Int {
+    fun releaseDeleted(deleted: List<app.rawline.mobile.database.ProxyEntity>): Int {
         fun key(q: Qwdtt) = listOf(q.server, q.serverPort.toString(), q.password, q.deviceId)
         val gone = deleted.mapNotNull { (runCatching { it.outbound }.getOrNull() as? Qwdtt)?.takeIf { q -> q.type == "qwdtt" } }.distinctBy(::key)
         if (gone.isEmpty()) return 0
-        val kept = app.qthrone.mobile.database.SagerDatabase.proxyDao.getAll().filter { it.type == "qwdtt" }
+        val kept = app.rawline.mobile.database.SagerDatabase.proxyDao.getAll().filter { it.type == "qwdtt" }
             .mapNotNull { runCatching { it.outbound as? Qwdtt }.getOrNull() }.map(::key).toSet()
         return gone.filter { key(it) !in kept }.count(::unbind)
     }

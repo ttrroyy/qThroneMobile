@@ -1,6 +1,6 @@
-package app.qthrone.mobile.bg.proto
+package app.rawline.mobile.bg.proto
 
-import app.qthrone.mobile.outbound.config.GeneratorSettings
+import app.rawline.mobile.outbound.config.GeneratorSettings
 import org.junit.Assert.*
 import org.junit.Test
 

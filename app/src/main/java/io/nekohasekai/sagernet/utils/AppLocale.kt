@@ -1,8 +1,8 @@
-package app.qthrone.mobile.utils
+package app.rawline.mobile.utils
 
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
-import app.qthrone.mobile.database.DataStore
+import app.rawline.mobile.database.DataStore
 
 object AppLocale {
 

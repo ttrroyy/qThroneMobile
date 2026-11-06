@@ -1,8 +1,8 @@
-package app.qthrone.mobile.bg.carrier
+package app.rawline.mobile.bg.carrier
 
-import app.qthrone.mobile.outbound.`import`.ProfileImport
-import app.qthrone.mobile.outbound.types.Qwdtt
-import app.qthrone.mobile.outbound.types.Csqtt
+import app.rawline.mobile.outbound.`import`.ProfileImport
+import app.rawline.mobile.outbound.types.Qwdtt
+import app.rawline.mobile.outbound.types.Csqtt
 import org.junit.Assert.*
 import org.junit.Test
 

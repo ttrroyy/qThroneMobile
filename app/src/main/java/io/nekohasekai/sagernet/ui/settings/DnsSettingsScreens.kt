@@ -1,17 +1,17 @@
-package app.qthrone.mobile.ui.settings
+package app.rawline.mobile.ui.settings
 
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.SwitchPreference
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.RouteManager
-import app.qthrone.mobile.database.SagerDatabase
-import app.qthrone.mobile.database.SettingValidators
-import app.qthrone.mobile.database.SettingsRegistry
-import app.qthrone.mobile.ktx.needReload
+import app.rawline.mobile.R
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.RouteManager
+import app.rawline.mobile.database.SagerDatabase
+import app.rawline.mobile.database.SettingValidators
+import app.rawline.mobile.database.SettingsRegistry
+import app.rawline.mobile.ktx.needReload
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

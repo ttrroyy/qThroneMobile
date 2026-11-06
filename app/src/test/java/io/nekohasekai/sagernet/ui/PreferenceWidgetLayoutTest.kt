@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
@@ -14,7 +14,7 @@ class PreferenceWidgetLayoutTest {
         val manifest=parse("src/main/AndroidManifest.xml")
         val activities=manifest.getElementsByTagName("activity")
         val editor=(0 until activities.length).map { activities.item(it) as Element }
-            .single { it.getAttributeNS(android,"name") == "app.qthrone.mobile.ui.SubscriptionEditorActivity" }
+            .single { it.getAttributeNS(android,"name") == "app.rawline.mobile.ui.SubscriptionEditorActivity" }
         val styles=parse("src/main/res/values/mobile_subscription_editor.xml")
         val definitions=styles.getElementsByTagName("style")
         val theme=(0 until definitions.length).map { definitions.item(it) as Element }

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -8,7 +8,7 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.os.SystemClock
 import android.view.View
-import app.qthrone.mobile.database.DataStore
+import app.rawline.mobile.database.DataStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.outbound.config
+package app.rawline.mobile.outbound.config
 
 /**
  * BuildConfigResult / BuildTestConfigResult (include/configs/generate.h:35-63) as the service layer consumes them:
@@ -7,7 +7,7 @@ package app.qthrone.mobile.outbound.config
  * - [coreConfig]: the sing-box config.
  * - [xrayConfig]: the Xray config when one is needed (generated, or the wrapped custom xrayfullconfig of a started
  *   profile), else null. [needXray] is `isXrayNeeded`.
- * - [xrayDnsStrategy]: `xray_outbound_dns_strategy` ([app.qthrone.mobile.outbound.BuildContext.xrayOutboundDomainStrategy])
+ * - [xrayDnsStrategy]: `xray_outbound_dns_strategy` ([app.rawline.mobile.outbound.BuildContext.xrayOutboundDomainStrategy])
  *   when any Xray instance runs, else "".
  * - [xrayFullConfigs]: opaque custom Xray full configs, one instance each: test candidates, or the members of a
  *   started auto-selector.
@@ -36,7 +36,7 @@ class GeneratedConfig(
     @JvmField val error: String?,
     @JvmField val involvedProfileIds: Set<Long> = emptySet(),
     @JvmField val autoSelector: AutoSelectorBuild? = null,
-    @JvmField val carrierPlans: List<app.qthrone.mobile.bg.carrier.CarrierPlan> = emptyList(),
+    @JvmField val carrierPlans: List<app.rawline.mobile.bg.carrier.CarrierPlan> = emptyList(),
 ) {
     val ok: Boolean get() = error == null
 

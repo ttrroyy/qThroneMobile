@@ -1,6 +1,6 @@
-package app.qthrone.mobile.outbound.types
+package app.rawline.mobile.outbound.types
 
-import app.qthrone.mobile.outbound.json.JsonInput
+import app.rawline.mobile.outbound.json.JsonInput
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

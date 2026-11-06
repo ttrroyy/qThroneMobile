@@ -1,8 +1,8 @@
-package app.qthrone.mobile.outbound.types
-import app.qthrone.mobile.outbound.*
-import app.qthrone.mobile.outbound.json.*
-import app.qthrone.mobile.outbound.link.*
-import app.qthrone.mobile.bg.carrier.*
+package app.rawline.mobile.outbound.types
+import app.rawline.mobile.outbound.*
+import app.rawline.mobile.outbound.json.*
+import app.rawline.mobile.outbound.link.*
+import app.rawline.mobile.bg.carrier.*
 import java.util.zip.Inflater
 import java.util.zip.Deflater
 

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.bg
+package app.rawline.mobile.bg
 
 import android.annotation.SuppressLint
 import android.app.Notification
@@ -8,10 +8,10 @@ import android.content.pm.ServiceInfo
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import app.qthrone.mobile.R
-import app.qthrone.mobile.SagerNet
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.app
+import app.rawline.mobile.R
+import app.rawline.mobile.SagerNet
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.app
 
 /**
  * Reference-counted foreground promotion of [CoreService] (type dataSync) while test sessions
@@ -138,7 +138,7 @@ object CoreForeground {
     private fun content(): Notification {
         val reason = displayed()
         return contents[reason] ?: NotificationCompat.Builder(app, CHANNEL)
-            .setSmallIcon(R.drawable.ic_throne_tile)
+            .setSmallIcon(R.drawable.ic_rawline_tile)
             .setContentTitle(app.getString(R.string.app_name))
             .setContentText(app.getString(R.string.test_engine_fg_busy))
             .setProgress(0, 0, true)

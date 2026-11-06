@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.os.Bundle
 import android.content.Intent
@@ -11,14 +11,14 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.*
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.*
-import app.qthrone.mobile.ktx.needReload
-import app.qthrone.mobile.ktx.readableMessage
-import app.qthrone.mobile.TrafficFormat
-import app.qthrone.mobile.route.ProviderGeoAssets
-import app.qthrone.mobile.outbound.json.*
-import app.qthrone.mobile.route.ProviderRouting
+import app.rawline.mobile.R
+import app.rawline.mobile.database.*
+import app.rawline.mobile.ktx.needReload
+import app.rawline.mobile.ktx.readableMessage
+import app.rawline.mobile.TrafficFormat
+import app.rawline.mobile.route.ProviderGeoAssets
+import app.rawline.mobile.outbound.json.*
+import app.rawline.mobile.route.ProviderRouting
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -80,7 +80,7 @@ class ProviderRoutingActivity : ThemedActivity() {
         private fun build() {
             val options = group!!.subOptions
             document = JsonInput.parseObjectOrNull(options.providerRouting)?.let {
-                app.qthrone.mobile.route.ProviderRouteProfiles.tagged(it,app.qthrone.mobile.route.ProviderRouteProfiles.source(it,options.routingProvider))
+                app.rawline.mobile.route.ProviderRouteProfiles.tagged(it,app.rawline.mobile.route.ProviderRouteProfiles.source(it,options.routingProvider))
             } ?: JsonObject()
             preferenceScreen.removeAll(); controls.clear()
             val details = requireArguments().getBoolean("details")
@@ -109,14 +109,14 @@ class ProviderRoutingActivity : ThemedActivity() {
             })
             fun add(preference: Preference) { preference.isSingleLineTitle = false; preference.layoutResource = R.layout.provider_preference; preference.isPersistent = false; controls.add(preference); preferenceScreen.addPreference(preference) }
             val profiles = (JsonInput.parseValue(options.providerRoutingProfiles) as? JsonArray)?.filterIsInstance<JsonObject>().orEmpty()
-            val choices=app.qthrone.mobile.route.ProviderRouteProfiles.choices(profiles,document,options.routingProvider)
+            val choices=app.rawline.mobile.route.ProviderRouteProfiles.choices(profiles,document,options.routingProvider)
             val selectedChoice=choices.firstOrNull {
-                app.qthrone.mobile.route.ProviderRouteProfiles.key(document,options.routingProvider) in it.keys
+                app.rawline.mobile.route.ProviderRouteProfiles.key(document,options.routingProvider) in it.keys
             } ?: choices.firstOrNull()
             add(Preference(requireContext()).apply {
                 isIconSpaceReserved = false
                 key = "providerProfile"; title = getString(R.string.provider_routing_profile)
-                val selected=choices.indexOfFirst { app.qthrone.mobile.route.ProviderRouteProfiles.key(document,options.routingProvider) in it.keys }.coerceAtLeast(0)
+                val selected=choices.indexOfFirst { app.rawline.mobile.route.ProviderRouteProfiles.key(document,options.routingProvider) in it.keys }.coerceAtLeast(0)
                 summary = selectedChoice?.label
                     ?: document.string("Name").ifBlank { "Default" }
                 setOnPreferenceClickListener {
@@ -143,7 +143,7 @@ class ProviderRoutingActivity : ThemedActivity() {
                     MobileAlertDialogBuilder(requireContext()).setTitle(R.string.provider_routing_profile)
                         .setAdapter(adapter) { _,index ->
                             document=choices[index].document.copy();options.providerRouting=document.toCompact()
-                            options.routingProvider=app.qthrone.mobile.route.ProviderRouteProfiles.source(document,options.routingProvider)
+                            options.routingProvider=app.rawline.mobile.route.ProviderRouteProfiles.source(document,options.routingProvider)
                             options.providerRoutingManual=true
                             save();build()
                         }.show()
@@ -157,7 +157,7 @@ class ProviderRoutingActivity : ThemedActivity() {
                 widgetLayoutResource = R.layout.qmobile_preference_arrow
                 title = document.string("Name").ifBlank { "Default" }
                 summary = getString(R.string.provider_profile_source,selectedChoice?.providers
-                    ?: app.qthrone.mobile.route.ProviderRouteProfiles.source(document,options.routingProvider))
+                    ?: app.rawline.mobile.route.ProviderRouteProfiles.source(document,options.routingProvider))
                 setOnPreferenceClickListener {
                     startActivity(Intent(requireContext(),ProviderRoutingActivity::class.java).putExtra("groupId",group!!.id).putExtra("details",true)); true
                 }
@@ -207,13 +207,13 @@ class ProviderRoutingActivity : ThemedActivity() {
             if (section == "manual") {
                 add(EditTextPreference(requireContext()).apply {
                     key = "providerManual"; title = getString(R.string.provider_edit_rules)
-                    text = app.qthrone.mobile.route.ProviderRouteProfiles.externalDocument(document).toCompact()
+                    text = app.rawline.mobile.route.ProviderRouteProfiles.externalDocument(document).toCompact()
                     setOnBindEditTextListener { it.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE; it.setHorizontallyScrolling(false) }
                     setOnPreferenceChangeListener { _, next ->
                         val candidate = runCatching { ProviderRouting.parse(next as String,options.routingProvider).document }.getOrNull() ?: return@setOnPreferenceChangeListener false
                         if (runCatching { ProviderRouting.profile(candidate,options.routingProvider) }.isFailure) return@setOnPreferenceChangeListener false
-                        document = app.qthrone.mobile.route.ProviderRouteProfiles.tagged(candidate,
-                            app.qthrone.mobile.route.ProviderRouteProfiles.source(document,options.routingProvider)); update(); true
+                        document = app.rawline.mobile.route.ProviderRouteProfiles.tagged(candidate,
+                            app.rawline.mobile.route.ProviderRouteProfiles.source(document,options.routingProvider)); update(); true
                     }
                 })
                 field("DnsHosts",R.string.provider_routing_hosts,hosts = true)
@@ -303,7 +303,7 @@ class ProviderRoutingActivity : ThemedActivity() {
             val previous = JsonInput.parseObjectOrNull(options.providerRouting)
             val profiles = (JsonInput.parseValue(options.providerRoutingProfiles) as? JsonArray)?.filterIsInstance<JsonObject>()?.toMutableList() ?: mutableListOf()
             val index = profiles.indexOfFirst { previous!=null &&
-                app.qthrone.mobile.route.ProviderRouteProfiles.key(it,options.routingProvider)==app.qthrone.mobile.route.ProviderRouteProfiles.key(previous,options.routingProvider) }
+                app.rawline.mobile.route.ProviderRouteProfiles.key(it,options.routingProvider)==app.rawline.mobile.route.ProviderRouteProfiles.key(previous,options.routingProvider) }
             if (index >= 0) profiles[index] = document.copy() else profiles.add(document.copy())
             options.providerRoutingProfiles = JsonArray().apply { profiles.forEach { add(it) } }.toCompact()
             options.providerRouting = document.toCompact(); options.providerRoutingManual=true; save()
@@ -316,7 +316,7 @@ class ProviderRoutingActivity : ThemedActivity() {
                     var changed=false
                     SagerDatabase.instance.runInTransaction {
                         val latest = GroupRepo.get(gid) ?: return@runInTransaction
-                        changed=app.qthrone.mobile.route.ProviderRouteProfiles.requiresReload(
+                        changed=app.rawline.mobile.route.ProviderRouteProfiles.requiresReload(
                             latest.subOptions.providerRoutingEnabled,options.providerRoutingEnabled,
                             latest.subOptions.providerRouting,options.providerRouting)
                         latest.subOptions.routingProvider = options.routingProvider

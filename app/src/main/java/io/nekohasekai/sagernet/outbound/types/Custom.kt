@@ -1,21 +1,21 @@
-package app.qthrone.mobile.outbound.types
+package app.rawline.mobile.outbound.types
 
-import app.qthrone.mobile.outbound.BuildContext
-import app.qthrone.mobile.outbound.BuildResult
-import app.qthrone.mobile.outbound.Outbound
-import app.qthrone.mobile.outbound.OutboundFactory
-import app.qthrone.mobile.outbound.SecurityInfo
-import app.qthrone.mobile.outbound.SecurityLevel
-import app.qthrone.mobile.outbound.displayTransportName
-import app.qthrone.mobile.outbound.withPrivateServer
-import app.qthrone.mobile.outbound.common.xrayNetworks
-import app.qthrone.mobile.outbound.json.JsonArray
-import app.qthrone.mobile.outbound.json.JsonInput
-import app.qthrone.mobile.outbound.json.JsonObject
-import app.qthrone.mobile.outbound.json.JsonValues
-import app.qthrone.mobile.outbound.json.JsonWriter
-import app.qthrone.mobile.outbound.json.jsonObjectOf
-import app.qthrone.mobile.outbound.link.Hosts
+import app.rawline.mobile.outbound.BuildContext
+import app.rawline.mobile.outbound.BuildResult
+import app.rawline.mobile.outbound.Outbound
+import app.rawline.mobile.outbound.OutboundFactory
+import app.rawline.mobile.outbound.SecurityInfo
+import app.rawline.mobile.outbound.SecurityLevel
+import app.rawline.mobile.outbound.displayTransportName
+import app.rawline.mobile.outbound.withPrivateServer
+import app.rawline.mobile.outbound.common.xrayNetworks
+import app.rawline.mobile.outbound.json.JsonArray
+import app.rawline.mobile.outbound.json.JsonInput
+import app.rawline.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.json.JsonValues
+import app.rawline.mobile.outbound.json.JsonWriter
+import app.rawline.mobile.outbound.json.jsonObjectOf
+import app.rawline.mobile.outbound.link.Hosts
 
 /**
  * Custom (include/configs/outbounds/custom.h, src/configs/outbounds/custom.cpp): raw JSON in one of four shapes.
@@ -239,7 +239,7 @@ class Custom : Outbound("custom") {
 
         /**
          * SubscriptionParser.cpp:396-402: one element of an Xray config array; its `inbounds` are dropped because
-         * Throne injects its own bridge inbound. Null without `outbounds`.
+         * Rawline injects its own bridge inbound. Null without `outbounds`.
          */
         @JvmStatic
         fun fromXrayFullConfig(cfg: JsonObject): Custom? {

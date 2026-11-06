@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.annotation.SuppressLint
 import android.graphics.Color
@@ -18,12 +18,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.databinding.LayoutLogcatBinding
-import app.qthrone.mobile.ktx.*
-import app.qthrone.mobile.widget.applyListInsets
+import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
+import app.rawline.mobile.R
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.databinding.LayoutLogcatBinding
+import app.rawline.mobile.ktx.*
+import app.rawline.mobile.widget.applyListInsets
 import moe.matsuri.nb4a.utils.CoreLog
 import moe.matsuri.nb4a.utils.LogExport
 import moe.matsuri.nb4a.utils.SendLog

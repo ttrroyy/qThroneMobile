@@ -1,17 +1,17 @@
-package app.qthrone.mobile.outbound.config
+package app.rawline.mobile.outbound.config
 
-import app.qthrone.mobile.outbound.BuildContext
-import app.qthrone.mobile.outbound.Outbound
-import app.qthrone.mobile.outbound.json.JsonArray
-import app.qthrone.mobile.outbound.json.JsonInput
-import app.qthrone.mobile.outbound.json.JsonObject
-import app.qthrone.mobile.outbound.json.JsonValues
-import app.qthrone.mobile.outbound.json.jsonObjectOf
-import app.qthrone.mobile.outbound.types.AutoSelector
-import app.qthrone.mobile.route.OutboundIds
-import app.qthrone.mobile.route.RouteProfile
-import app.qthrone.mobile.route.RuleSets
-import app.qthrone.mobile.route.RuleType
+import app.rawline.mobile.outbound.BuildContext
+import app.rawline.mobile.outbound.Outbound
+import app.rawline.mobile.outbound.json.JsonArray
+import app.rawline.mobile.outbound.json.JsonInput
+import app.rawline.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.json.JsonValues
+import app.rawline.mobile.outbound.json.jsonObjectOf
+import app.rawline.mobile.outbound.types.AutoSelector
+import app.rawline.mobile.route.OutboundIds
+import app.rawline.mobile.route.RouteProfile
+import app.rawline.mobile.route.RuleSets
+import app.rawline.mobile.route.RuleType
 
 /**
  * The desktop's config generator (src/configs/generate.cpp) for the Android app: [build] is BuildSingBoxConfig

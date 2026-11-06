@@ -1,17 +1,17 @@
-package app.qthrone.mobile.widget
+package app.rawline.mobile.widget
 
 import android.os.SystemClock
-import app.qthrone.mobile.bg.BaseService
-import app.qthrone.mobile.bg.proto.exitsThroughVpn
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.ProfileManager
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.appHttpClient
-import app.qthrone.mobile.ktx.appUserAgent
-import app.qthrone.mobile.ktx.readableMessage
-import app.qthrone.mobile.ktx.runOnMainDispatcher
-import app.qthrone.mobile.outbound.json.JsonInput
-import app.qthrone.mobile.ui.test.TestFormat
+import app.rawline.mobile.bg.BaseService
+import app.rawline.mobile.bg.proto.exitsThroughVpn
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.ProfileManager
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.appHttpClient
+import app.rawline.mobile.ktx.appUserAgent
+import app.rawline.mobile.ktx.readableMessage
+import app.rawline.mobile.ktx.runOnMainDispatcher
+import app.rawline.mobile.outbound.json.JsonInput
+import app.rawline.mobile.ui.test.TestFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
@@ -153,8 +153,9 @@ object ExitIp {
     private fun lookup(active: () -> Boolean): Info? {
         // "Only route advertised network" rejects this probe.
         if (exitsThroughVpn(ProfileManager.getProfile(DataStore.currentProfile))) return null
-        val client = client()
         val fetch = coreFetch
+        // The core's own proxy outbound first: the local inbound obeys the route rules, and "direct except chosen apps" would show the real country.
+        val client = if (fetch == null) client() else null
         if (client == null && fetch == null) return null
         val selected = DataStore.exitLookupProvider
         val chain = PROVIDERS.find { it.id == selected }?.let { listOf(it) } ?: AUTO_CHAIN

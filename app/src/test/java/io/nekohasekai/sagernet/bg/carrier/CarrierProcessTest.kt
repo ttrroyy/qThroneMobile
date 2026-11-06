@@ -1,4 +1,4 @@
-package app.qthrone.mobile.bg.carrier
+package app.rawline.mobile.bg.carrier
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -83,11 +83,11 @@ class CarrierProcessTest {
                     File(root,name).apply { writeText("fixture");setExecutable(true) }
                 val source="""{"peer":"192.0.2.1:46000","password":"fixture-secret","device_id":"old-phone","hashes":["manual_hash_12345678"],"workers":18}"""
                 val configuration=NativeSessionPolicy.probeConfig(CarrierKind.CSQTT,source,interactive)
-                val launches=mutableListOf<app.qthrone.mobile.outbound.json.JsonObject>()
+                val launches=mutableListOf<app.rawline.mobile.outbound.json.JsonObject>()
                 val failure=runCatching {
                     CarrierProcess.start(CarrierKind.CSQTT,root,File(root,"configs"),35,configuration,12345,
                         CarrierBridgeCredentials.fresh(),allowInteractions=interactive) { builder ->
-                        val config=app.qthrone.mobile.outbound.json.JsonInput.parseObject(File(builder.command()[2]).readText())
+                        val config=app.rawline.mobile.outbound.json.JsonInput.parseObject(File(builder.command()[2]).readText())
                         launches.add(config)
                         val output="FATAL_PROTOCOL: fixture mismatch\n"
                         object:Process() {
@@ -259,7 +259,7 @@ class CarrierProcessTest {
             val configs=File(root,"configs")
             val error=runCatching {
                 CarrierProcess.start(CarrierKind.QWDTT,root,configs,35,privateJson,12345,CarrierBridgeCredentials.fresh()) { builder ->
-                    val config=app.qthrone.mobile.outbound.json.JsonInput.parseObject(File(builder.command()[2]).readText())
+                    val config=app.rawline.mobile.outbound.json.JsonInput.parseObject(File(builder.command()[2]).readText())
                     attempted.add(config.array("hashes").strings().first())
                     val line=if(attempted.size==1) "Call not found (error_code=951)" else "FATAL_AUTH: private-secret"
                     object:Process() {

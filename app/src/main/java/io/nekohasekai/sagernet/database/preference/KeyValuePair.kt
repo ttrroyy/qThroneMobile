@@ -1,4 +1,4 @@
-package app.qthrone.mobile.database.preference
+package app.rawline.mobile.database.preference
 
 import android.os.Parcel
 import android.os.Parcelable

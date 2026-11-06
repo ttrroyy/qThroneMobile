@@ -1,5 +1,5 @@
-name: qThroneMobile UI tour
-run-name: qThroneMobile UI tour
+name: RawlineMobile UI tour
+run-name: RawlineMobile UI tour
 on:
   workflow_dispatch:
     inputs:
@@ -19,7 +19,7 @@ on:
       artifact_name:
         description: APK artifact to test (debug or signed release)
         required: true
-        default: qThroneMobile-debug
+        default: RawlineMobile-debug
 permissions:
   contents: read
   actions: read
@@ -76,7 +76,7 @@ jobs:
       - name: Download UI tour test
         uses: actions/download-artifact@v8
         with:
-          name: qThroneMobile-security-tests
+          name: RawlineMobile-security-tests
           path: ui-regression-apk
           run-id: ${{ inputs.build_run }}
           github-token: ${{ github.token }}
@@ -95,7 +95,7 @@ jobs:
           "$ADB" shell pm grant "$PACKAGE" android.permission.POST_NOTIFICATIONS || true
           for VARIANT in ${{ inputs.variants }}; do
             for N in ${{ inputs.numbers }}; do
-              "$ADB" shell am instrument -w -e class app.qthrone.mobile.UiTourTest -e screen "$N" -e style "${VARIANT%:*}" -e night "${VARIANT#*:}" "$TEST_PACKAGE/androidx.test.runner.AndroidJUnitRunner" | grep -E 'OK \(|Failures|Exception|Error' | head -4 | tr -d '\r' | sed "s/^/$VARIANT $N: /" >> ui-tour/results.txt || true
+              "$ADB" shell am instrument -w -e class app.rawline.mobile.UiTourTest -e screen "$N" -e style "${VARIANT%:*}" -e night "${VARIANT#*:}" "$TEST_PACKAGE/androidx.test.runner.AndroidJUnitRunner" | grep -E 'OK \(|Failures|Exception|Error' | head -4 | tr -d '\r' | sed "s/^/$VARIANT $N: /" >> ui-tour/results.txt || true
             done
           done
           for IMAGE in $("$ADB" shell run-as "$PACKAGE" ls files | tr -d '\r' | grep '^tour-'); do
@@ -105,6 +105,6 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: qThroneMobile-ui-tour
+          name: RawlineMobile-ui-tour
           path: ui-tour/
           if-no-files-found: error

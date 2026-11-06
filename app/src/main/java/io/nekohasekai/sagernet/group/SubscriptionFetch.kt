@@ -1,13 +1,13 @@
-package app.qthrone.mobile.group
+package app.rawline.mobile.group
 
 import androidx.core.net.toUri
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.SubUserInfo
-import app.qthrone.mobile.ktx.HttpGetOptions
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.app
-import app.qthrone.mobile.ktx.httpGet
-import app.qthrone.mobile.ktx.readableMessage
+import app.rawline.mobile.R
+import app.rawline.mobile.database.SubUserInfo
+import app.rawline.mobile.ktx.HttpGetOptions
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.app
+import app.rawline.mobile.ktx.httpGet
+import app.rawline.mobile.ktx.readableMessage
 import java.io.ByteArrayOutputStream
 
 /** GroupUpdater::fetch (GroupUpdater.cpp:448-463), plus the Android `content://` subscription URLs. */

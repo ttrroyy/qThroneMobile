@@ -5,8 +5,8 @@ import android.util.AttributeSet
 import android.text.InputType
 import android.widget.EditText
 import androidx.preference.ListPreference
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
-import app.qthrone.mobile.R
+import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
+import app.rawline.mobile.R
 
 class MTUPreference @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyle: Int = R.attr.dropdownPreferenceStyle
@@ -16,7 +16,7 @@ class MTUPreference @JvmOverloads constructor(
     override fun onClick() {
         val options=arrayOf("1500", "9000", context.getString(R.string.qmobile_mtu_manual))
         val selected=when(value) { "1500" -> 0; "9000" -> 1; else -> 2 }
-        app.qthrone.mobile.ui.MobileSelector.showAt(anchor ?: return,options.toList(),selected) { index ->
+        app.rawline.mobile.ui.MobileSelector.showAt(anchor ?: return,options.toList(),selected) { index ->
             if(index == 2) showCustom() else save(options[index])
         }
     }
@@ -34,8 +34,8 @@ class MTUPreference @JvmOverloads constructor(
             background?.getPadding(inset)
             setPadding(inset.left, vertical, inset.right, vertical)
         }
-        input.setTextColor(app.qthrone.mobile.ui.MobilePalette.text)
-        input.backgroundTintList=android.content.res.ColorStateList.valueOf(app.qthrone.mobile.ui.MobilePalette.accent(context))
+        input.setTextColor(app.rawline.mobile.ui.MobilePalette.text)
+        input.backgroundTintList=android.content.res.ColorStateList.valueOf(app.rawline.mobile.ui.MobilePalette.accent(context))
         val padding=(24*context.resources.displayMetrics.density).toInt()
         val body=android.widget.LinearLayout(context).apply { setPadding(padding,0,padding,padding/2);addView(input,android.widget.LinearLayout.LayoutParams(-1,-2)) }
         val dialog=MobileAlertDialogBuilder(context).setTitle("MTU").setView(body)
@@ -48,7 +48,7 @@ class MTUPreference @JvmOverloads constructor(
                     input.error=context.getString(R.string.qmobile_mtu_range)
                 } else { save(mtu.toString()); dialog.dismiss() }
             }
-            for(button in listOf(-1,-2)) dialog.getButton(button).setTextColor(app.qthrone.mobile.ui.MobilePalette.accent(context))
+            for(button in listOf(-1,-2)) dialog.getButton(button).setTextColor(app.rawline.mobile.ui.MobilePalette.accent(context))
         }
         dialog.show()
     }

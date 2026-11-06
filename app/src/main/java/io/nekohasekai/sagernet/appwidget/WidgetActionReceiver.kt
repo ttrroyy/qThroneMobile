@@ -1,11 +1,11 @@
-package app.qthrone.mobile.appwidget
+package app.rawline.mobile.appwidget
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.ProfileOrder
-import app.qthrone.mobile.ktx.runOnDefaultDispatcher
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.ProfileOrder
+import app.rawline.mobile.ktx.runOnDefaultDispatcher
 
 /**
  * Previous/next from the status widget, non-exported in :bg: a running service switches in place, a stopped one only

@@ -1,18 +1,18 @@
-package app.qthrone.mobile.database
+package app.rawline.mobile.database
 
 import android.os.Binder
 import androidx.preference.PreferenceDataStore
-import app.qthrone.mobile.Key
-import app.qthrone.mobile.bg.BaseService
-import app.qthrone.mobile.bg.VpnService
-import app.qthrone.mobile.database.preference.OnPreferenceDataStoreChangeListener
-import app.qthrone.mobile.database.preference.RoomPreferenceDataStore
-import app.qthrone.mobile.database.preference.SettingsStore
-import app.qthrone.mobile.ktx.boolean
-import app.qthrone.mobile.ktx.int
-import app.qthrone.mobile.ktx.long
-import app.qthrone.mobile.ktx.string
-import app.qthrone.mobile.ktx.stringToInt
+import app.rawline.mobile.Key
+import app.rawline.mobile.bg.BaseService
+import app.rawline.mobile.bg.VpnService
+import app.rawline.mobile.database.preference.OnPreferenceDataStoreChangeListener
+import app.rawline.mobile.database.preference.RoomPreferenceDataStore
+import app.rawline.mobile.database.preference.SettingsStore
+import app.rawline.mobile.ktx.boolean
+import app.rawline.mobile.ktx.int
+import app.rawline.mobile.ktx.long
+import app.rawline.mobile.ktx.string
+import app.rawline.mobile.ktx.stringToInt
 import moe.matsuri.nb4a.TempDatabase
 import java.util.UUID
 
@@ -72,7 +72,7 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var networkChangeResetConnections by configurationStore.boolean(Key.NETWORK_CHANGE_RESET_CONNECTIONS) { true }
     var wakeResetConnections by configurationStore.boolean(Key.WAKE_RESET_CONNECTIONS) { true }
 
-    var appTheme by configurationStore.int(Key.APP_THEME) { app.qthrone.mobile.utils.Theme.GREY }
+    var appTheme by configurationStore.int(Key.APP_THEME) { app.rawline.mobile.utils.Theme.GREY }
     var useSystemTheme by configurationStore.boolean(Key.USE_SYSTEM_THEME)
     var nightTheme by configurationStore.stringToInt(Key.NIGHT_THEME) { 1 }
     var amoledTheme by configurationStore.boolean(Key.AMOLED_THEME)
@@ -166,7 +166,7 @@ object DataStore : OnPreferenceDataStoreChangeListener {
         get() = !SettingsRegistry.isLoopbackAddress(inboundAddress)
 
     fun initGlobal() {
-        if(inboundUser.isEmpty()) inboundUser="qthrone_"+java.util.UUID.randomUUID().toString().take(8)
+        if(inboundUser.isEmpty()) inboundUser="rawline_"+java.util.UUID.randomUUID().toString().take(8)
         if(inboundPass.isEmpty()) inboundPass=java.util.UUID.randomUUID().toString().replace("-", "")
         if(!configurationStore.contains(SettingsRegistry.INBOUND_AUTH.key)) inboundAuth=true
         if (!configurationStore.contains(SettingsRegistry.INBOUND_SOCKS_PORT.key)) {

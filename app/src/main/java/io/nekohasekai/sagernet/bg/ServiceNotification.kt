@@ -1,4 +1,4 @@
-package app.qthrone.mobile.bg
+package app.rawline.mobile.bg
 
 import android.app.PendingIntent
 import android.app.Service
@@ -12,24 +12,24 @@ import android.text.format.Formatter
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import app.qthrone.mobile.Action
-import app.qthrone.mobile.Key
-import app.qthrone.mobile.R
-import app.qthrone.mobile.SagerNet
-import app.qthrone.mobile.aidl.SpeedDisplayData
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.ProfileOrder
-import app.qthrone.mobile.database.ProxyEntity
-import app.qthrone.mobile.database.SagerDatabase
+import app.rawline.mobile.Action
+import app.rawline.mobile.Key
+import app.rawline.mobile.R
+import app.rawline.mobile.SagerNet
+import app.rawline.mobile.aidl.SpeedDisplayData
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.ProfileOrder
+import app.rawline.mobile.database.ProxyEntity
+import app.rawline.mobile.database.SagerDatabase
 import app.qthrone.core.mobile.Mobile
-import app.qthrone.mobile.ktx.app
-import app.qthrone.mobile.ktx.appUserAgent
-import app.qthrone.mobile.ktx.getColorAttr
-import app.qthrone.mobile.ktx.runOnMainDispatcher
-import app.qthrone.mobile.ui.SwitchActivity
-import app.qthrone.mobile.ui.test.TestFormat
-import app.qthrone.mobile.widget.ExitIp
-import app.qthrone.mobile.utils.Theme
+import app.rawline.mobile.ktx.app
+import app.rawline.mobile.ktx.appUserAgent
+import app.rawline.mobile.ktx.getColorAttr
+import app.rawline.mobile.ktx.runOnMainDispatcher
+import app.rawline.mobile.ui.SwitchActivity
+import app.rawline.mobile.ui.test.TestFormat
+import app.rawline.mobile.widget.ExitIp
+import app.rawline.mobile.utils.Theme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -198,7 +198,7 @@ class ServiceNotification(
         .setContentTitle(title)
         .setOnlyAlertOnce(true)
         .setContentIntent(SagerNet.configureIntent(service))
-        .setSmallIcon(R.drawable.ic_throne_tile)
+        .setSmallIcon(R.drawable.ic_rawline_tile)
         .setCategory(NotificationCompat.CATEGORY_SERVICE)
         .setPriority(if (visible) NotificationCompat.PRIORITY_LOW else NotificationCompat.PRIORITY_MIN)
 

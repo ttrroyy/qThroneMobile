@@ -1,6 +1,6 @@
-package app.qthrone.mobile.bg.carrier
+package app.rawline.mobile.bg.carrier
 
-import app.qthrone.mobile.outbound.json.JsonInput
+import app.rawline.mobile.outbound.json.JsonInput
 
 internal object NativeSessionPolicy {
     // The CSQTT wrapper waits for Rust's VK creator/bot leave operations before it exits.
@@ -12,7 +12,7 @@ internal object NativeSessionPolicy {
                 val args=it.array("args").strings().toMutableList()
                 val count=args.indexOf("-n")
                 if(count >= 0 && count+1 < args.size) args[count+1]="9"
-                it["args"]=app.qthrone.mobile.outbound.json.JsonArray.of(*args.toTypedArray())
+                it["args"]=app.rawline.mobile.outbound.json.JsonArray.of(*args.toTypedArray())
             }.toCompact()
         }
         if((interactive && !latencyProbe) || kind !in listOf(CarrierKind.QWDTT,CarrierKind.CSQTT)) return privateJson
@@ -40,7 +40,7 @@ internal object NativeSessionPolicy {
         val hashes=config.array("hashes").strings()
         if(hashes.isEmpty()) return privateJson
         val offset=attempt%hashes.size
-        config["hashes"]=app.qthrone.mobile.outbound.json.JsonArray().also { array ->
+        config["hashes"]=app.rawline.mobile.outbound.json.JsonArray().also { array ->
             (hashes.drop(offset)+hashes.take(offset)).forEach { array.add(it) }
         }
         return config.toCompact()
@@ -50,7 +50,7 @@ internal object NativeSessionPolicy {
         if(firstKind==CarrierKind.OPENFLUX && secondKind==CarrierKind.OPENFLUX) {
             // An OpenFlux exit serves one client at a time: a second one on any shared carrier takes the session over.
             fun carriers(json:String)=JsonInput.parseObject(json).array("transports")
-                .filterIsInstance<app.qthrone.mobile.outbound.json.JsonObject>()
+                .filterIsInstance<app.rawline.mobile.outbound.json.JsonObject>()
                 .map { it.string("type")+" "+it.string(if(it.string("type")=="direct") "dial" else "url").trim() }.toSet()
             return carriers(first).intersect(carriers(second)).isNotEmpty()
         }
@@ -69,7 +69,7 @@ internal object NativeSessionPolicy {
         if(firstKind==CarrierKind.CSQTT) return a.string("peer").isNotBlank() && a.string("password").isNotEmpty() &&
             a.string("peer")==b.string("peer") && a.string("password")==b.string("password")
         if(firstKind == CarrierKind.WDTTPLUS) {
-            fun value(json: app.qthrone.mobile.outbound.json.JsonObject, flag: String): String {
+            fun value(json: app.rawline.mobile.outbound.json.JsonObject, flag: String): String {
                 val args=json.array("args").strings(); val index=args.indexOf(flag)
                 return if(index >= 0) args.getOrNull(index+1).orEmpty() else ""
             }

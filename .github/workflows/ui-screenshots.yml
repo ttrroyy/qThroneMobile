@@ -1,5 +1,5 @@
-name: qThroneMobile UI
-run-name: qThroneMobile UI
+name: RawlineMobile UI
+run-name: RawlineMobile UI
 on:
   workflow_dispatch:
     inputs:
@@ -10,7 +10,7 @@ on:
       artifact_name:
         description: APK artifact to test (debug or signed release)
         required: true
-        default: qThroneMobile-debug
+        default: RawlineMobile-debug
       full_ui:
         description: Capture every settings screen before the VPN checks
         type: boolean
@@ -78,7 +78,7 @@ jobs:
       - name: Download UI regression tests
         uses: actions/download-artifact@v8
         with:
-          name: qThroneMobile-security-tests
+          name: RawlineMobile-security-tests
           path: ui-regression-apk
           run-id: ${{ inputs.build_run }}
           github-token: ${{ github.token }}
@@ -91,7 +91,7 @@ jobs:
           "$ADB" install "$APK"
           TEST_PACKAGE=$("$ADB" shell pm list packages | sed -n 's/^package:\(app.qthrone.mobile[^[:space:]]*\.test\).*/\1/p' | tr -d '\r')
           PACKAGE=${TEST_PACKAGE%.test}
-          "$ADB" shell am instrument -w -e class app.qthrone.mobile.LogsAndAuthRegressionTest,app.qthrone.mobile.LargeSubscriptionUiRegressionTest,app.qthrone.mobile.LocalProxySecurityTest "$TEST_PACKAGE/androidx.test.runner.AndroidJUnitRunner" | tee ui-screenshots/logs-auth-regression.txt
+          "$ADB" shell am instrument -w -e class app.rawline.mobile.LogsAndAuthRegressionTest,app.rawline.mobile.LargeSubscriptionUiRegressionTest,app.rawline.mobile.LocalProxySecurityTest "$TEST_PACKAGE/androidx.test.runner.AndroidJUnitRunner" | tee ui-screenshots/logs-auth-regression.txt
           grep -F 'OK (4 tests)' ui-screenshots/logs-auth-regression.txt
           for IMAGE in openconnect-auth-form.png openconnect-auth-groups.png logs-follow-bottom.png large-subscription-collapsed.png large-subscription-expanded.png; do
             "$ADB" exec-out run-as "$PACKAGE" cat "files/$IMAGE" > "ui-screenshots/$IMAGE"
@@ -108,6 +108,6 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: qThroneMobile-ui-screenshots
+          name: RawlineMobile-ui-screenshots
           path: ui-screenshots/
           if-no-files-found: error

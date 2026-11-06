@@ -1,30 +1,30 @@
-package app.qthrone.mobile.ui.profiles
+package app.rawline.mobile.ui.profiles
 
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
-import app.qthrone.mobile.ui.SaveDocument
+import app.rawline.mobile.ui.SaveDocument
 import androidx.appcompat.widget.PopupMenu
-import app.qthrone.mobile.R
-import app.qthrone.mobile.SagerNet
-import app.qthrone.mobile.bg.test.TestSpec
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.ProfileManager
-import app.qthrone.mobile.database.ProxyEntity
-import app.qthrone.mobile.database.ProxyGroup
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.confirmAction
-import app.qthrone.mobile.ktx.needReload
-import app.qthrone.mobile.ktx.readableMessage
-import app.qthrone.mobile.ktx.showAllowingStateLoss
-import app.qthrone.mobile.ktx.snackbar
-import app.qthrone.mobile.ktx.isIpAddress
-import app.qthrone.mobile.group.SubscriptionClient
-import app.qthrone.mobile.ktx.startFilesForResult
-import app.qthrone.mobile.ui.ConfigurationFragment
-import app.qthrone.mobile.ui.profile.ProfileConfigExport
-import app.qthrone.mobile.ui.profile.ProfileSettingsActivity
-import app.qthrone.mobile.ui.profile.profileSettingsIntent
-import app.qthrone.mobile.widget.QRCodeDialog
+import app.rawline.mobile.R
+import app.rawline.mobile.SagerNet
+import app.rawline.mobile.bg.test.TestSpec
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.ProfileManager
+import app.rawline.mobile.database.ProxyEntity
+import app.rawline.mobile.database.ProxyGroup
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.confirmAction
+import app.rawline.mobile.ktx.needReload
+import app.rawline.mobile.ktx.readableMessage
+import app.rawline.mobile.ktx.showAllowingStateLoss
+import app.rawline.mobile.ktx.snackbar
+import app.rawline.mobile.ktx.isIpAddress
+import app.rawline.mobile.group.SubscriptionClient
+import app.rawline.mobile.ktx.startFilesForResult
+import app.rawline.mobile.ui.ConfigurationFragment
+import app.rawline.mobile.ui.profile.ProfileConfigExport
+import app.rawline.mobile.ui.profile.ProfileSettingsActivity
+import app.rawline.mobile.ui.profile.profileSettingsIntent
+import app.rawline.mobile.widget.QRCodeDialog
 
 /** The actions of one profile row: edit, share, the ⋮ menu (tests, move up/down, delete). */
 class ProfileItemMenu(private val host: ConfigurationFragment) {
@@ -61,12 +61,12 @@ class ProfileItemMenu(private val host: ConfigurationFragment) {
         menu.add(R.string.connection_test_clear_results).setOnMenuItemClickListener {
             host.launchIo {
                 ProfileManager.clearTestResults(listOf(profile.id))
-                app.qthrone.mobile.database.GroupRepo.postReload(profile.groupId)
+                app.rawline.mobile.database.GroupRepo.postReload(profile.groupId)
             }
             true
         }
         menu.add(R.string.clear_traffic_statistics).setOnMenuItemClickListener {
-            val service = (host.activity as? app.qthrone.mobile.ui.MainActivity)?.connection?.service
+            val service = (host.activity as? app.rawline.mobile.ui.MainActivity)?.connection?.service
             val ids = longArrayOf(profile.id)
             host.launchIo {
                 runCatching { service?.resetTraffic(ids) }.onFailure { Logs.w(it) }

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 internal class MobileGroupDrag {
     data class Origin(val groupId: Long, val scrollY: Int)

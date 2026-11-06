@@ -1,4 +1,4 @@
-package app.qthrone.mobile.outbound.link
+package app.rawline.mobile.outbound.link
 
 /**
  * Percent-encoding/decoding with the exact per-component behaviour of Qt's QUrl (TolerantMode parsing,

@@ -1,5 +1,5 @@
-name: qThroneMobile preview
-run-name: qThroneMobile preview
+name: RawlineMobile preview
+run-name: RawlineMobile preview
 on:
   workflow_dispatch:
 concurrency:
@@ -56,7 +56,7 @@ jobs:
         if: steps.version.outputs.skip != 'true'
         uses: actions/upload-artifact@v7
         with:
-          name: qThroneMobile-${{ steps.version.outputs.tag }}
+          name: RawlineMobile-${{ steps.version.outputs.tag }}
           path: dist/
           if-no-files-found: error
           retention-days: 14

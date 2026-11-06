@@ -107,7 +107,7 @@ threading.Thread(target=server.serve_forever,daemon=True).start()
 subprocess.check_call([adb,'reverse','tcp:8868','tcp:8868'])
 packages=[v.split(':',1)[1].strip() for v in shell('pm','list','packages').splitlines() if v.startswith('package:app.qthrone.mobile')]
 assert len(packages)==1
-package=packages[0]; activity=package+'/app.qthrone.mobile.ui.MainActivity'
+package=packages[0]; activity=package+'/app.rawline.mobile.ui.MainActivity'
 (out/'tested-build-run.txt').write_text(os.environ.get('TESTED_BUILD_RUN',''))
 (out/'tested-package.txt').write_text(shell('dumpsys','package',package))
 # Only this disposable CI emulator's application data is reset.
@@ -121,7 +121,7 @@ shell('settings','put','global','animator_duration_scale','0')
 shell('am','start','-n',activity,'-a','android.intent.action.VIEW','-d','socks5://127.0.0.1:8868#VPN-smoke')
 time.sleep(5); tap('Yes'); confirm_import_group()
 # A clean installation also asks about background battery restrictions.
-if 'Keep Throne running' in xml(): tap('Not now')
+if 'Keep Rawline running' in xml(): tap('Not now')
 wait_for('VPN-smoke')
 shell('am','start','-n',activity,'-a','android.intent.action.VIEW','-d','socks5://127.0.0.1:8868#VPN-queued')
 time.sleep(3);tap('Yes');confirm_import_group();wait_for('VPN-queued')

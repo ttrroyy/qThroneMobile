@@ -1,4 +1,4 @@
-package app.qthrone.mobile.group
+package app.rawline.mobile.group
 
 import android.content.Context
 import androidx.work.Constraints
@@ -12,19 +12,19 @@ import androidx.work.multiprocess.RemoteListenableWorker
 import androidx.work.multiprocess.RemoteWorkManager
 import androidx.work.multiprocess.RemoteWorkerService
 import com.google.common.util.concurrent.ListenableFuture
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.RouteManager
-import app.qthrone.mobile.database.RouteRepo
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.app
-import app.qthrone.mobile.ktx.fetchText
-import app.qthrone.mobile.ktx.readableMessage
-import app.qthrone.mobile.ktx.runOnDefaultDispatcher
-import app.qthrone.mobile.ktx.runOnIoDispatcher
-import app.qthrone.mobile.route.RouteProfile
-import app.qthrone.mobile.route.RouteShare
-import app.qthrone.mobile.route.RuleSets
-import app.qthrone.mobile.route.RuleType
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.RouteManager
+import app.rawline.mobile.database.RouteRepo
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.app
+import app.rawline.mobile.ktx.fetchText
+import app.rawline.mobile.ktx.readableMessage
+import app.rawline.mobile.ktx.runOnDefaultDispatcher
+import app.rawline.mobile.ktx.runOnIoDispatcher
+import app.rawline.mobile.route.RouteProfile
+import app.rawline.mobile.route.RouteShare
+import app.rawline.mobile.route.RuleSets
+import app.rawline.mobile.route.RuleType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -38,7 +38,8 @@ object RemoteRouteUpdater {
     /** route_auto_update is sign-encoded minutes and only takes effect from 30 (mainwindow_setup.cpp:1095-1096). */
     const val MIN_INTERVAL_MINUTES = 30
 
-    private const val WORK_NAME = "RemoteRouteUpdater"
+    private const val WORK_NAME = "RawlineRemoteRouteUpdater"
+    private const val OLD_WORK_NAME = "RemoteRouteUpdater"
 
     /**
      * RouteUpdate::UpdateProfile (RouteUpdater.cpp:12-51) without saving: fetches [p]'s URL through the rule-set
@@ -144,6 +145,7 @@ object RemoteRouteUpdater {
             val workManager = RemoteWorkManager.getInstance(app)
             val interval = DataStore.routeAutoUpdate
             try {
+                workManager.cancelUniqueWork(OLD_WORK_NAME).await()
                 if (interval < MIN_INTERVAL_MINUTES) {
                     workManager.cancelUniqueWork(WORK_NAME).await()
                     return@runOnDefaultDispatcher

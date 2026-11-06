@@ -1,6 +1,6 @@
-package app.qthrone.mobile.outbound.config
+package app.rawline.mobile.outbound.config
 
-import app.qthrone.mobile.outbound.link.Hosts
+import app.rawline.mobile.outbound.link.Hosts
 
 /** The prefix arithmetic of generate.cpp:249-328 (prefixesOverlap, parsePrefix, prefixContains, subtractPrefix). */
 internal object Cidrs {

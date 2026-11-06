@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.graphics.Color
 import android.graphics.Typeface
@@ -35,19 +35,19 @@ object MobileSettingsStyle {
                 }
                 if(fragment is SettingsPreferenceFragment && preference !is PreferenceCategory) {
                     val icon=when {
-                        preference.key=="qmobileLogs" -> app.qthrone.mobile.R.drawable.ic_mobile_logs
-                        preference.key=="qmobileVkRelay" -> app.qthrone.mobile.R.drawable.ic_mobile_vk
-                        preference.key=="qmobileTun" -> app.qthrone.mobile.R.drawable.ic_mobile_tun
-                        preference.key=="qmobileCore" -> app.qthrone.mobile.R.drawable.ic_mobile_core
-                        preference.key=="settingsBackup" -> app.qthrone.mobile.R.drawable.ic_mobile_backup
-                        preference.fragment?.contains("UpdateSettings")==true -> app.qthrone.mobile.R.drawable.ic_mobile_update
-                        preference.fragment?.contains("Appearance")==true -> app.qthrone.mobile.R.drawable.ic_mobile_pumpkin
-                        preference.fragment?.contains("Testing")==true -> app.qthrone.mobile.R.drawable.ic_mobile_test
-                        preference.key=="qmobileRouting" -> app.qthrone.mobile.R.drawable.ic_mobile_route
-                        preference.fragment?.contains("Dns")==true -> app.qthrone.mobile.R.drawable.ic_mobile_globe
-                        preference.fragment?.contains("Subscription")==true -> app.qthrone.mobile.R.drawable.ic_mobile_subscriptions
-                        preference.key=="qmobileUpdate" -> app.qthrone.mobile.R.drawable.ic_mobile_refresh
-                        else -> app.qthrone.mobile.R.drawable.ic_mobile_settings
+                        preference.key=="qmobileLogs" -> app.rawline.mobile.R.drawable.ic_mobile_logs
+                        preference.key=="qmobileVkRelay" -> app.rawline.mobile.R.drawable.ic_mobile_vk
+                        preference.key=="qmobileTun" -> app.rawline.mobile.R.drawable.ic_mobile_tun
+                        preference.key=="qmobileCore" -> app.rawline.mobile.R.drawable.ic_mobile_core
+                        preference.key=="settingsBackup" -> app.rawline.mobile.R.drawable.ic_mobile_backup
+                        preference.fragment?.contains("UpdateSettings")==true -> app.rawline.mobile.R.drawable.ic_mobile_update
+                        preference.fragment?.contains("Appearance")==true -> app.rawline.mobile.R.drawable.ic_mobile_pumpkin
+                        preference.fragment?.contains("Testing")==true -> app.rawline.mobile.R.drawable.ic_mobile_test
+                        preference.key=="qmobileRouting" -> app.rawline.mobile.R.drawable.ic_mobile_route
+                        preference.fragment?.contains("Dns")==true -> app.rawline.mobile.R.drawable.ic_mobile_globe
+                        preference.fragment?.contains("Subscription")==true -> app.rawline.mobile.R.drawable.ic_mobile_subscriptions
+                        preference.key=="qmobileUpdate" -> app.rawline.mobile.R.drawable.ic_mobile_refresh
+                        else -> app.rawline.mobile.R.drawable.ic_mobile_settings
                     }
                     preference.setIcon(icon)
                 }
@@ -69,7 +69,6 @@ object MobileSettingsStyle {
         list.setPadding((16*density).toInt(), (4*density).toInt(), (16*density).toInt(), (16*density).toInt())
         list.clipToPadding=false
         // One entrance when a settings screen opens, rows rising in turn.
-        if(MobileStyle.new) list.layoutAnimation=android.view.animation.LayoutAnimationController(android.view.animation.AnimationUtils.loadAnimation(list.context,app.qthrone.mobile.R.anim.row_soft_in),.06f)
         list.addItemDecoration(object: RecyclerView.ItemDecoration() {
             override fun getItemOffsets(outRect: android.graphics.Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
                 val position=parent.getChildAdapterPosition(view)
@@ -108,13 +107,13 @@ object MobileSettingsStyle {
                     val widget=container.findViewById<android.view.ViewGroup>(android.R.id.widget_frame)
                     widget?.visibility=View.VISIBLE
                     widget?.addView(android.widget.ImageButton(list.context).apply {
-                        tag="socks-copy";contentDescription=list.context.getString(app.qthrone.mobile.R.string.action_copy)
-                        setImageResource(app.qthrone.mobile.R.drawable.ic_mobile_clipboard)
+                        tag="socks-copy";contentDescription=list.context.getString(app.rawline.mobile.R.string.action_copy)
+                        setImageResource(app.rawline.mobile.R.drawable.ic_mobile_clipboard)
                         imageTintList=if(preference?.key == "vkRelayAccount" && preference.icon is androidx.core.graphics.drawable.RoundedBitmapDrawable) null else dimmedWhenDisabled(accent)
                         setBackgroundColor(Color.TRANSPARENT)
                         setOnClickListener {
-                            val value=if(preference?.key=="inbound_user") app.qthrone.mobile.database.DataStore.inboundUser else app.qthrone.mobile.database.DataStore.inboundPass
-                            app.qthrone.mobile.SagerNet.trySetPrimaryClip(value)
+                            val value=if(preference?.key=="inbound_user") app.rawline.mobile.database.DataStore.inboundUser else app.rawline.mobile.database.DataStore.inboundPass
+                            app.rawline.mobile.SagerNet.trySetPrimaryClip(value)
                         }
                     },android.view.ViewGroup.LayoutParams((40*density).toInt(),(40*density).toInt()))
                 }

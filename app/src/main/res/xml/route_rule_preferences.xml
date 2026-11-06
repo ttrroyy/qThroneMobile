@@ -58,15 +58,15 @@
             app:icon="@drawable/ic_baseline_grid_3x3_24"
             app:key="ip_cidr"
             app:title="@string/route_rule_ip_cidr" />
-        <app.qthrone.mobile.widget.StringLinesPreference
+        <app.rawline.mobile.widget.StringLinesPreference
             app:icon="@drawable/ic_baseline_rule_folder_24"
             app:key="rule_set"
             app:title="@string/route_rule_rule_sets" />
-        <app.qthrone.mobile.widget.StringLinesPreference
+        <app.rawline.mobile.widget.StringLinesPreference
             app:icon="@drawable/ic_navigation_apps"
             app:key="package_name"
             app:title="@string/route_rule_apps" />
-        <app.qthrone.mobile.widget.StringLinesPreference
+        <app.rawline.mobile.widget.StringLinesPreference
             app:icon="@drawable/ic_hardware_router"
             app:key="network_type"
             app:title="@string/route_rule_network_type" />

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui.test
+package app.rawline.mobile.ui.test
 
 import android.content.Context
 import android.text.format.Formatter
@@ -6,10 +6,10 @@ import android.util.TypedValue
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
-import app.qthrone.mobile.R
-import app.qthrone.mobile.bg.proto.SpeedTestSnapshot
-import app.qthrone.mobile.bg.test.TestSpec
-import app.qthrone.mobile.database.ProxyEntity
+import app.rawline.mobile.R
+import app.rawline.mobile.bg.proto.SpeedTestSnapshot
+import app.rawline.mobile.bg.test.TestSpec
+import app.rawline.mobile.database.ProxyEntity
 import java.text.DecimalFormat
 import java.util.Locale
 

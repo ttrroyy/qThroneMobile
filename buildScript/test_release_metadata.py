@@ -24,7 +24,7 @@ class ReleaseMetadataTest(unittest.TestCase):
     def manifest(self, directory):
         assets = {}
         for abi in ABIS + ["universal"]:
-            apk = directory / ("qThroneMobile-2.4.2-" + abi + ".apk")
+            apk = directory / ("RawlineMobile-2.4.2-" + abi + ".apk")
             apk.write_bytes(("signed APK " + abi).encode())
             assets[abi] = dict(name=apk.name, size=apk.stat().st_size, sha256=sha256(apk))
         return dict(schema=1, packageName="app.qthrone.mobile", channel="stable",

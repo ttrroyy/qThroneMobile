@@ -17,6 +17,7 @@
 <string name="qmobile_disconnected">Not connected</string>
 <string name="qmobile_clipboard_empty">Clipboard is empty</string>
 <string name="qmobile_collapse_all">Collapse / expand all</string>
+<string name="qmobile_group_profiles">Profiles</string>
 <string name="qmobile_share">Share profile</string>
 <string name="qmobile_delete">Delete</string>
 <string name="qmobile_delete_failed">Could not delete the profile.</string>
@@ -25,7 +26,7 @@
 <string name="qmobile_tests">Testing</string>
 <string name="qmobile_stop">Stop</string>
 <!-- Opaque: HyperOS draws a transparent icon backdrop late while an app closes into it. -->
-<color name="qmobile_launcher_background">#FF1E1E1E</color>
+<color name="qmobile_launcher_background">#FF050506</color>
 <string name="qmobile_routing">Split routing</string>
 <string name="qmobile_route_default">Default traffic destination</string>
 <string name="qmobile_route_add">Add a rule</string>

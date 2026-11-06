@@ -1,7 +1,7 @@
-package app.qthrone.mobile.deploy
+package app.rawline.mobile.deploy
 
-import app.qthrone.mobile.outbound.link.Hosts
-import app.qthrone.mobile.outbound.link.LinkBuilder
+import app.rawline.mobile.outbound.link.Hosts
+import app.rawline.mobile.outbound.link.LinkBuilder
 import org.json.JSONObject
 
 /** Links in the original apps' formats: qWDTT's admin link and the CSQTT panel's v2 link. */
@@ -14,7 +14,7 @@ object DeployConfig {
     fun link(config: JSONObject, ownDeviceId: String? = null): String {
         val kind=config.getString("type")
         require(kind in listOf("qwdtt","csqtt"))  // WDTT Plus stores its wdtt://connect link itself
-        if(kind=="csqtt") return app.qthrone.mobile.outbound.link.formatCsqttLink(
+        if(kind=="csqtt") return app.rawline.mobile.outbound.link.formatCsqttLink(
             config.getString("server"),config.getInt("server_port"),config.getString("password"),name=config.optString("name"))
         val url=LinkBuilder(kind).apply { host=if(kind=="qwdtt") "config" else "connect";plusAsEscape=true }
         if(kind=="qwdtt") {

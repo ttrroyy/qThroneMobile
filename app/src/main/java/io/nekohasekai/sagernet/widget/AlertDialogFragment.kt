@@ -1,4 +1,4 @@
-package app.qthrone.mobile.widget
+package app.rawline.mobile.widget
 
 import android.app.Activity
 import android.content.DialogInterface
@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
+import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import kotlinx.parcelize.Parcelize
 
 /** The argument or result of a dialog that carries neither. */

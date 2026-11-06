@@ -1,4 +1,4 @@
-package app.qthrone.mobile.bg.carrier
+package app.rawline.mobile.bg.carrier
 
 import java.io.File
 import java.net.InetSocketAddress
@@ -115,7 +115,7 @@ class CarrierProcess private constructor(private val process: Process, private v
             onWorkers: (Int, Int) -> Unit = { _, _ -> },
             launch: (ProcessBuilder) -> Process = { it.start() },
         ): CarrierProcess {
-            val hashes=app.qthrone.mobile.outbound.json.JsonInput.parseObject(privateJson).array("hashes").size
+            val hashes=app.rawline.mobile.outbound.json.JsonInput.parseObject(privateJson).array("hashes").size
             val attempts=if(kind==CarrierKind.QWDTT) hashes.coerceIn(1,4) else 1
             val deadline=System.nanoTime()+NativeSessionPolicy.startupTimeoutMs(kind,timeoutMs)*1_000_000
             var attempt=0
@@ -174,7 +174,7 @@ class CarrierProcess private constructor(private val process: Process, private v
                     if (kind == CarrierKind.CSQTT) {
                         check(File(nativeDirectory, "libcsqtt_transport.so").canExecute()) { "CSQTT transport client is not installed" }
                         // The profile picks the client: 2.5.0+ (legacy) or the original device-bound 2.1.9 (compat).
-                        val compatible=app.qthrone.mobile.outbound.json.JsonInput.parseObject(privateJson).string("protocol_variant")=="compat"
+                        val compatible=app.rawline.mobile.outbound.json.JsonInput.parseObject(privateJson).string("protocol_variant")=="compat"
                         check(!compatible || File(nativeDirectory,"libcsqtt_compat.so").canExecute()) { "CSQTT 2.1.9 transport is not installed" }
                     }
                     if (kind == CarrierKind.SLIPSTREAM) {
@@ -194,12 +194,12 @@ class CarrierProcess private constructor(private val process: Process, private v
                             val args = launchConfig.getJSONArray("args")
                             val flags = (0 until args.length()).map { args.getString(it) }
                             val masque = if ("-rt-masque=true" in flags) {
-                                val state = File(app.qthrone.mobile.ktx.app.noBackupFilesDir,"wdttplus")
+                                val state = File(app.rawline.mobile.ktx.app.noBackupFilesDir,"wdttplus")
                                 check(state.isDirectory || state.mkdirs()) { "Cannot create private WDTT Plus state" }
                                 val masqueConfig=File(state,"rt-masque-v1.json")
                                 val bootstrap = if(WdttPlusBootstrapPolicy.needed(true,launchConfig.optBoolean("masque_server_bootstrap"),masqueConfig.exists())) {
                                     val peerIndex=flags.indexOf("-peer")
-                                    val peer=app.qthrone.mobile.outbound.link.LinkParser.parse("udp://"+flags.getOrNull(peerIndex+1).orEmpty())
+                                    val peer=app.rawline.mobile.outbound.link.LinkParser.parse("udp://"+flags.getOrNull(peerIndex+1).orEmpty())
                                     if(peerIndex >= 0 && peer.isValid) WdttPlusBootstrapRelay.start(peer.host,peer.port(56000)) else null
                                 } else null
                                 pendingBootstrap=bootstrap
@@ -230,7 +230,7 @@ class CarrierProcess private constructor(private val process: Process, private v
                                 android.util.Base64.URL_SAFE or android.util.Base64.NO_PADDING or android.util.Base64.NO_WRAP)
                             val line = "START_CONFIG|" + start + '\n'
                             synchronized(child) { child.outputStream.write(line.toByteArray(Charsets.UTF_8)); child.outputStream.flush() }
-                            running.wdttLifecycle = WdttPlusLifecycle(app.qthrone.mobile.ktx.app) { command ->
+                            running.wdttLifecycle = WdttPlusLifecycle(app.rawline.mobile.ktx.app) { command ->
                                 synchronized(child) { runCatching {
                                     child.outputStream.write((command+'\n').toByteArray(Charsets.UTF_8)); child.outputStream.flush()
                                 } }
@@ -249,7 +249,7 @@ class CarrierProcess private constructor(private val process: Process, private v
                                 NativeSessionPolicy.startupFailure(line)?.let { running.startupFailure.compareAndSet(null,it) }
                                 redactor.redact(line)?.let { safe -> moe.matsuri.nb4a.utils.CoreLog.write("[Info] [${kind.name}] $safe") }
                             }
-                        } }.also { running.captcha.close() } }, "qThrone-carrier-output").apply { isDaemon = true; start() }
+                        } }.also { running.captcha.close() } }, "Rawline-carrier-output").apply { isDaemon = true; start() }
                         var deadline = System.nanoTime() + timeoutMs * 1_000_000
                         var lastWaitTick=System.nanoTime()
                         var interactionBudget=20L*60*1_000_000_000L

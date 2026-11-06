@@ -1,4 +1,4 @@
-package app.qthrone.mobile.widget
+package app.rawline.mobile.widget
 
 import android.view.View
 import android.view.ViewGroup
@@ -7,7 +7,7 @@ import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.appbar.AppBarLayout
-import app.qthrone.mobile.R
+import app.rawline.mobile.R
 import kotlin.math.max
 
 /*

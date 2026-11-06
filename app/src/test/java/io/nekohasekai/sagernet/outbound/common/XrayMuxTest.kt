@@ -1,7 +1,7 @@
-package app.qthrone.mobile.outbound.common
+package app.rawline.mobile.outbound.common
 
-import app.qthrone.mobile.outbound.BuildContext
-import app.qthrone.mobile.outbound.json.JsonObject
+import app.rawline.mobile.outbound.BuildContext
+import app.rawline.mobile.outbound.json.JsonObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -37,7 +37,7 @@ class XrayMuxTest {
 
     @Test fun xdriveSurvivesJson() {
         val stream = XrayStreamSetting()
-        stream.parseFromJson(app.qthrone.mobile.outbound.json.JsonInput.parseObject(
+        stream.parseFromJson(app.rawline.mobile.outbound.json.JsonInput.parseObject(
             """{"network":"xdrive","security":"none","address":"front.example","port":443,
             "xdriveSettings":{"service":"Google Drive","remoteFolder":"q","secrets":["a","b","c"],"pollIntervalMs":250}}"""
         ))

@@ -1,4 +1,4 @@
-package app.qthrone.mobile.bg.autoselector
+package app.rawline.mobile.bg.autoselector
 
 import app.qthrone.core.mobile.Instance
 import app.qthrone.core.mobile.AutoSelectorStatus as CoreStatus

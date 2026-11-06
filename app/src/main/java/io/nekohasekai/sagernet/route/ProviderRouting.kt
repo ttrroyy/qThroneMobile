@@ -1,8 +1,8 @@
-package app.qthrone.mobile.route
+package app.rawline.mobile.route
 
-import app.qthrone.mobile.outbound.json.*
-import app.qthrone.mobile.outbound.link.Base64Strict
-import app.qthrone.mobile.outbound.config.GeneratorSettings
+import app.rawline.mobile.outbound.json.*
+import app.rawline.mobile.outbound.link.Base64Strict
+import app.rawline.mobile.outbound.config.GeneratorSettings
 
 /** Happ and Incy routing documents are kept with their subscription, including unknown fields. */
 object ProviderRouting {

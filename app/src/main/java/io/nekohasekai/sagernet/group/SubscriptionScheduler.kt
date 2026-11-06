@@ -1,4 +1,4 @@
-package app.qthrone.mobile.group
+package app.rawline.mobile.group
 
 import android.content.Context
 import androidx.work.Constraints
@@ -14,12 +14,12 @@ import androidx.work.multiprocess.RemoteListenableWorker
 import androidx.work.multiprocess.RemoteWorkManager
 import androidx.work.multiprocess.RemoteWorkerService
 import com.google.common.util.concurrent.ListenableFuture
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.GroupRepo
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.app
-import app.qthrone.mobile.ktx.runOnDefaultDispatcher
+import app.rawline.mobile.R
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.GroupRepo
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.app
+import app.rawline.mobile.ktx.runOnDefaultDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -38,7 +38,8 @@ object SubscriptionScheduler {
 
     const val MIN_INTERVAL_MINUTES = 30
 
-    private const val WORK_NAME = "SubscriptionScheduler"
+    private const val WORK_NAME = "RawlineSubscriptionScheduler"
+    private const val OLD_WORK_NAME = "SubscriptionScheduler"
 
     /** The per-group updater of v11 and older, whose worker class is gone. */
     private const val LEGACY_WORK_NAME = "SubscriptionUpdater"
@@ -72,7 +73,7 @@ object SubscriptionScheduler {
      * sub_auto_update; null when it is not updated automatically. The server period only replaces the common one, so
      * it never turns automatic updates on by itself, and it is kept within [MIN_INTERVAL_MINUTES] and a week.
      */
-    fun intervalOf(group: app.qthrone.mobile.database.ProxyGroup): Int? {
+    fun intervalOf(group: app.rawline.mobile.database.ProxyGroup): Int? {
         if (group.url.isEmpty() || group.archive || group.skipAutoUpdate) return null
         group.subOptions.autoUpdateMinutes.takeIf { it >= MIN_INTERVAL_MINUTES }?.let { return it }
         val common = DataStore.subAutoUpdate.takeIf { it >= MIN_INTERVAL_MINUTES } ?: return null
@@ -87,7 +88,7 @@ object SubscriptionScheduler {
     private fun shortestInterval(): Int = GroupRepo.all().mapNotNull(::intervalOf).minOrNull() ?: 0
 
     /** A run a little early (WorkManager timing) still counts, so a period is never skipped whole. */
-    private fun due(group: app.qthrone.mobile.database.ProxyGroup, interval: Int, now: Long) =
+    private fun due(group: app.rawline.mobile.database.ProxyGroup, interval: Int, now: Long) =
         now - group.subLastUpdate >= interval * 60L * 9 / 10
 
     /**
@@ -100,6 +101,7 @@ object SubscriptionScheduler {
             try {
                 val interval = shortestInterval()
                 workManager.cancelUniqueWork(LEGACY_WORK_NAME).await()
+                workManager.cancelUniqueWork(OLD_WORK_NAME).await()
                 if (interval < MIN_INTERVAL_MINUTES) {
                     workManager.cancelUniqueWork(WORK_NAME).await()
                     return@runOnDefaultDispatcher

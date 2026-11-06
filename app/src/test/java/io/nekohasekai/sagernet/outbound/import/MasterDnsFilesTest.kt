@@ -1,6 +1,6 @@
-package app.qthrone.mobile.outbound.`import`
+package app.rawline.mobile.outbound.`import`
 
-import app.qthrone.mobile.outbound.types.DnsTunnel
+import app.rawline.mobile.outbound.types.DnsTunnel
 import org.junit.Assert.*
 import org.junit.Test
 

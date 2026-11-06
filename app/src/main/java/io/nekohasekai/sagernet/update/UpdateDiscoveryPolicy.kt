@@ -1,4 +1,4 @@
-package app.qthrone.mobile.update
+package app.rawline.mobile.update
 
 /** Foreground release discovery: avoid repeated requests, but retry a temporary network failure soon. */
 object UpdateDiscoveryPolicy {

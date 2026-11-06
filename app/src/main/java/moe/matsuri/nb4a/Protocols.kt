@@ -1,9 +1,9 @@
 package moe.matsuri.nb4a
 
 import android.content.Context
-import app.qthrone.mobile.R
-import app.qthrone.mobile.ktx.app
-import app.qthrone.mobile.ktx.getColorAttr
+import app.rawline.mobile.R
+import app.rawline.mobile.ktx.app
+import app.rawline.mobile.ktx.getColorAttr
 
 // Settings for all protocols
 object Protocols {

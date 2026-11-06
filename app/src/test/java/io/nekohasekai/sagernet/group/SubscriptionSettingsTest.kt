@@ -1,8 +1,8 @@
-package app.qthrone.mobile.group
+package app.rawline.mobile.group
 
-import app.qthrone.mobile.database.ServerSortRule
-import app.qthrone.mobile.database.SettingsRegistry
-import app.qthrone.mobile.database.SubscriptionOptions
+import app.rawline.mobile.database.ServerSortRule
+import app.rawline.mobile.database.SettingsRegistry
+import app.rawline.mobile.database.SubscriptionOptions
 import org.junit.Assert.*
 import org.junit.Test
 

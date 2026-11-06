@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.annotation.SuppressLint
 import android.app.ActivityManager
@@ -21,42 +21,42 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.updatePaddingRelative
 import androidx.core.view.WindowCompat
 import androidx.preference.PreferenceDataStore
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
+import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
-import app.qthrone.mobile.BuildConfig
-import app.qthrone.mobile.Key
-import app.qthrone.mobile.R
-import app.qthrone.mobile.SagerNet
-import app.qthrone.mobile.aidl.ISagerNetService
-import app.qthrone.mobile.aidl.SpeedDisplayData
-import app.qthrone.mobile.aidl.TrafficDataBatch
-import app.qthrone.mobile.bg.BaseService
-import app.qthrone.mobile.bg.SagerConnection
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.SettingsRegistry
-import app.qthrone.mobile.database.ProfileManager
-import app.qthrone.mobile.database.preference.OnPreferenceDataStoreChangeListener
-import app.qthrone.mobile.database.backup.BackupEntry
-import app.qthrone.mobile.databinding.LayoutMainBinding
-import app.qthrone.mobile.ktx.alert
-import app.qthrone.mobile.ktx.isPreview
-import app.qthrone.mobile.ktx.launchCustomTab
-import app.qthrone.mobile.ktx.onMainDispatcher
-import app.qthrone.mobile.ui.profile.ProfileTextImport
-import app.qthrone.mobile.ui.route.RouteImports
-import app.qthrone.mobile.ui.settings.DnsSettingsFragment
-import app.qthrone.mobile.ui.settings.XrayGeoSettingsFragment
-import app.qthrone.mobile.ktx.readableMessage
-import app.qthrone.mobile.ktx.runOnDefaultDispatcher
-import app.qthrone.mobile.ui.MessageStore
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.database.RouteManager
-import app.qthrone.mobile.utils.AppShortcuts
-import app.qthrone.mobile.utils.PlatformNotifications
-import app.qthrone.mobile.utils.Theme
-import app.qthrone.mobile.utils.WifiStateAccess
-import app.qthrone.mobile.widget.bars
+import app.rawline.mobile.BuildConfig
+import app.rawline.mobile.Key
+import app.rawline.mobile.R
+import app.rawline.mobile.SagerNet
+import app.rawline.mobile.aidl.ISagerNetService
+import app.rawline.mobile.aidl.SpeedDisplayData
+import app.rawline.mobile.aidl.TrafficDataBatch
+import app.rawline.mobile.bg.BaseService
+import app.rawline.mobile.bg.SagerConnection
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.SettingsRegistry
+import app.rawline.mobile.database.ProfileManager
+import app.rawline.mobile.database.preference.OnPreferenceDataStoreChangeListener
+import app.rawline.mobile.database.backup.BackupEntry
+import app.rawline.mobile.databinding.LayoutMainBinding
+import app.rawline.mobile.ktx.alert
+import app.rawline.mobile.ktx.isPreview
+import app.rawline.mobile.ktx.launchCustomTab
+import app.rawline.mobile.ktx.onMainDispatcher
+import app.rawline.mobile.ui.profile.ProfileTextImport
+import app.rawline.mobile.ui.route.RouteImports
+import app.rawline.mobile.ui.settings.DnsSettingsFragment
+import app.rawline.mobile.ui.settings.XrayGeoSettingsFragment
+import app.rawline.mobile.ktx.readableMessage
+import app.rawline.mobile.ktx.runOnDefaultDispatcher
+import app.rawline.mobile.ui.MessageStore
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.database.RouteManager
+import app.rawline.mobile.utils.AppShortcuts
+import app.rawline.mobile.utils.PlatformNotifications
+import app.rawline.mobile.utils.Theme
+import app.rawline.mobile.utils.WifiStateAccess
+import app.rawline.mobile.widget.bars
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.drawerlayout.widget.DrawerLayout
@@ -85,10 +85,10 @@ class MainActivity : ThemedActivity(),
         // Update discovery while the app is on screen; the 15-minute interval decides when a request is sent.
         lifecycleScope.launch {
             repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
-                app.qthrone.mobile.update.UpdateDiscovery.refresh(opened = true)
+                app.rawline.mobile.update.UpdateDiscovery.refresh(opened = true)
                 while (true) {
                     kotlinx.coroutines.delay(60_000)
-                    app.qthrone.mobile.update.UpdateDiscovery.refresh()
+                    app.rawline.mobile.update.UpdateDiscovery.refresh()
                 }
             }
         }
@@ -279,14 +279,14 @@ class MainActivity : ThemedActivity(),
 
     /**
      * Files go to the backup restore or the text import; subscription links show the Groups screen and ask; route and
-     * other throne:// commands follow the desktop's deep links; profile links are confirmed before the import.
+     * other rawline:// commands follow the desktop's deep links; profile links are confirmed before the import.
      */
     private fun openLink(uri: Uri) {
         val scheme = uri.scheme?.lowercase()
         if (scheme == "content" || scheme == "file") return openFile(uri)
         val link = uri.toString()
         if (SubscribeFlows.subscribeLink(link) != null) displayFragmentWithId(R.id.nav_mobile_home)
-        if (scheme == "happ" || scheme == "incy" || scheme == "http" || scheme == "https" || scheme == "clash" || scheme == "throne" && !uri.host.equals("add", ignoreCase = true)) {
+        if (scheme == "happ" || scheme == "incy" || scheme == "http" || scheme == "https" || scheme == "clash" || (scheme == "rawline" || scheme == "throne") && !uri.host.equals("add", ignoreCase = true)) {
             SubscribeFlows.importText(this, link)
         } else {
             runOnDefaultDispatcher { importProfile(uri) }
@@ -300,7 +300,7 @@ class MainActivity : ThemedActivity(),
         }
     }
 
-    /** throne://route and throne://remoteroute links (deep link, QR code, clipboard); the Routes screen shows the result. */
+    /** rawline://route and rawline://remoteroute links (deep link, QR code, clipboard); the Routes screen shows the result. */
     fun importRouteLink(text: String) {
         RouteImports.importLink(this, text) { displayFragmentWithId(R.id.nav_route) }
     }
@@ -476,11 +476,11 @@ class MainActivity : ThemedActivity(),
     private fun showServiceError(message: String) {
         if (errorBar?.isShownOrQueued == true && errorShown == message) return
         errorShown = message
-        val warpTransportError = message.contains(app.qthrone.mobile.outbound.config.WarpHop.TCP_ONLY_ERROR)
+        val warpTransportError = message.contains(app.rawline.mobile.outbound.config.WarpHop.TCP_ONLY_ERROR)
         val bar = snackbar(if (warpTransportError) getString(R.string.warp_tcp_only_error) else message).setDuration(Snackbar.LENGTH_LONG)
         if (warpTransportError) {
             bar.setAction(R.string.warp_settings) {
-                openSettingsScreen(app.qthrone.mobile.ui.settings.WarpSettingsFragment::class.java.name, getString(R.string.warp_settings))
+                openSettingsScreen(app.rawline.mobile.ui.settings.WarpSettingsFragment::class.java.name, getString(R.string.warp_settings))
             }
         } else if (DataStore.serviceErrorDns) {
             bar.setAction(R.string.settings_dns) {
@@ -562,7 +562,7 @@ class MainActivity : ThemedActivity(),
 
     fun toggleService() {
         if (DataStore.serviceState.canStop) SagerNet.stopService() else {
-            app.qthrone.mobile.ui.test.TestSessionClient.stop()
+            app.rawline.mobile.ui.test.TestSessionClient.stop()
             startFromUi()
         }
     }

@@ -1,6 +1,6 @@
-package app.qthrone.mobile.outbound.json
+package app.rawline.mobile.outbound.json
 
-import app.qthrone.mobile.outbound.QtStrings
+import app.rawline.mobile.outbound.QtStrings
 import java.math.BigDecimal
 import java.math.BigInteger
 

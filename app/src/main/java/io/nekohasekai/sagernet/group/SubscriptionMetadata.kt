@@ -1,8 +1,8 @@
-package app.qthrone.mobile.group
+package app.rawline.mobile.group
 
-import app.qthrone.mobile.database.SubUserInfo
-import app.qthrone.mobile.outbound.`import`.ProfileImport
-import app.qthrone.mobile.outbound.link.Base64Strict
+import app.rawline.mobile.database.SubUserInfo
+import app.rawline.mobile.outbound.`import`.ProfileImport
+import app.rawline.mobile.outbound.link.Base64Strict
 
 /**
  * What a subscription says about itself (GroupUpdater::fetch, GroupUpdater.cpp:615-697): the response headers
@@ -96,9 +96,9 @@ internal object SubscriptionMetadata {
             }
             true
         }
-        val native = app.qthrone.mobile.outbound.json.JsonInput.parseObjectOrNull(body)
+        val native = app.rawline.mobile.outbound.json.JsonInput.parseObjectOrNull(body)
         if(native != null && native.isArray("profiles") && native.array("profiles").any { item ->
-            item is app.qthrone.mobile.outbound.json.JsonObject && (item.contains("peer") || item.string("type") in listOf("qwdtt","wdtt","csqtt"))
+            item is app.rawline.mobile.outbound.json.JsonObject && (item.contains("peer") || item.string("type") in listOf("qwdtt","wdtt","csqtt"))
         }) {
             if(info.title.isBlank()) info.title = native.string("subscriptionName").ifEmpty { native.string("groupName") }
             if(info.announce.isBlank()) info.announce = native.string("description").ifEmpty { native.string("info") }

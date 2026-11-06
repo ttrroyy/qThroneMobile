@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">qThrone</string>
-    <string name="app_name_long" translatable="false">qThroneMobile</string>
+    <string name="app_name" translatable="false">Rawline</string>
+    <string name="app_name_long" translatable="false">Rawline</string>
     <string name="app_desc">The universal proxy toolchain for Android, written in Kotlin.</string>
     <string name="project">Project</string>
     <string name="github">Source code</string>
@@ -513,7 +513,7 @@
     <string name="action_openvpn">OpenVPN</string>
     <string name="action_openconnect">OpenConnect</string>
     <string name="action_sstp">SSTP</string>
-    <string name="throne_link">Throne link</string>
+    <string name="rawline_link">Rawline link</string>
     <string name="edit_as_json">Edit as JSON</string>
     <string name="raw_json_invalid">The JSON is not a valid profile of this type</string>
     <string name="project_website">Project website</string>
@@ -543,7 +543,7 @@
     <string name="settings_core">Core</string>
     <string name="settings_core_sum">Logging, statistics, Clash API, security, NTP</string>
     <string name="settings_backup">Backup &amp; restore</string>
-    <string name="settings_backup_sum">.thrbackup files shared with qThrone Desktop, local and WebDAV</string>
+    <string name="settings_backup_sum">.rwlbackup files shared with Rawline Desktop, local and WebDAV</string>
     <string name="setting_default">Default</string>
     <string name="setting_default_value">Default (%s)</string>
     <string name="cag_connection">Connection</string>
@@ -782,7 +782,7 @@
     <string name="route_import_clipboard_profile">Import routing profile \"%s\" from the clipboard?</string>
     <string name="route_import_clipboard_rules">Import a routing rule list from the clipboard?</string>
     <string name="route_import_paste_title">Import routing profile</string>
-    <string name="route_import_paste_hint">Paste a Throne route link, a remoteRoute link, a base64 blob, or a JSON rule array</string>
+    <string name="route_import_paste_hint">Paste a Rawline route link, a remoteRoute link, a base64 blob, or a JSON rule array</string>
     <string name="route_import_invalid_title">Invalid input</string>
     <string name="route_import_invalid">Could not import this routing profile:\n%s</string>
     <string name="route_import_warnings_title">Imported with warnings</string>
@@ -829,7 +829,7 @@
     <string name="route_profile_default_outbound">Default outbound</string>
     <string name="route_profile_remote_source">Remote source</string>
     <string name="route_profile_url">URL</string>
-    <string name="route_profile_url_hint">https://… (throne://route link, base64, or JSON)</string>
+    <string name="route_profile_url_hint">https://… (rawline://route link, base64, or JSON)</string>
     <string name="route_profile_auto_update">Auto update</string>
     <string name="route_profile_auto_update_sum">Re-fetch this profile from the URL when remote profiles auto-update. Your local edits are overwritten on each update.</string>
     <string name="route_profile_fetch">Fetch now</string>
@@ -1197,7 +1197,7 @@
     </plurals>
     <string name="profiles_copy_links">Copy links</string>
     <string name="profiles_copy_share_links">Share links</string>
-    <string name="profiles_copy_throne_links">Throne links</string>
+    <string name="profiles_copy_rawline_links">Rawline links</string>
     <plurals name="profiles_copied">
         <item quantity="one">Copied %d item</item>
         <item quantity="other">Copied %d items</item>
@@ -1624,20 +1624,20 @@
     <string name="json_show_problems">Show problems</string>
     <string name="xray_finalmask">Finalmask</string>
 
-    <!-- backup (.thrbackup) -->
-    <!-- Tools › Backup (the desktop's .thrbackup, dialog_basic_settings.cpp) -->
+    <!-- backup (.rwlbackup) -->
+    <!-- Tools › Backup (the desktop's .rwlbackup, dialog_basic_settings.cpp) -->
     <string name="backup_part_profiles">Profiles (groups and proxies)</string>
     <string name="backup_part_routes">Routing profiles</string>
     <string name="backup_part_settings">Settings</string>
     <string name="backup_part_otp">OTP profiles (not restored on Android)</string>
-    <string name="backup_local_summary">Backups use the qThrone Desktop format (.thrbackup): either app restores them. WebDAV credentials stay on this device.</string>
+    <string name="backup_local_summary">Backups use the Rawline Desktop format (.rwlbackup): either app restores them. WebDAV credentials stay on this device.</string>
     <string name="backup_create">Create backup</string>
     <string name="backup_restore">Restore</string>
     <string name="backup_select_part">Select at least one part to include in the backup.</string>
     <string name="backup_creating">Creating backup…</string>
     <string name="backup_created">Backup created. Included: %s</string>
     <string name="backup_failed">Failed to create the backup: %s</string>
-    <string name="backup_open_label">Restore Throne backup</string>
+    <string name="backup_open_label">Restore Rawline backup</string>
 
     <string name="backup_restore_title">Restore backup</string>
     <string name="backup_restore_header">Backup created on %1$s (%2$s).\nSelect which parts to restore:</string>
@@ -1647,15 +1647,15 @@
     <string name="backup_platform_linux">Linux</string>
     <string name="backup_platform_macos">macOS</string>
     <string name="backup_platform_unknown">unknown platform</string>
-    <string name="backup_restore_warning">Each selected part replaces the current data. This cannot be undone.\nThrone will restart to complete the restore.</string>
+    <string name="backup_restore_warning">Each selected part replaces the current data. This cannot be undone.\nRawline will restart to complete the restore.</string>
     <string name="backup_restore_select_part">Select at least one part to restore.</string>
     <string name="backup_reading">Reading the backup…</string>
     <string name="backup_restoring">Restoring…</string>
-    <string name="backup_restored">Backup restored successfully. Throne will now restart for the changes to take effect.</string>
-    <string name="backup_restored_warnings">Backup restored. Throne will now restart for the changes to take effect.\n\nNotes:\n%s</string>
+    <string name="backup_restored">Backup restored successfully. Rawline will now restart for the changes to take effect.</string>
+    <string name="backup_restored_warnings">Backup restored. Rawline will now restart for the changes to take effect.\n\nNotes:\n%s</string>
     <string name="backup_restore_failed">Restore failed: %s</string>
 
-    <string name="backup_error_not_backup">Not a valid Throne backup file.</string>
+    <string name="backup_error_not_backup">Not a valid Rawline backup file.</string>
     <string name="backup_error_version">Unsupported backup format version: %d.\nThis backup may have been created with a newer version of the application.</string>
     <string name="backup_error_corrupt">The backup file is damaged or incomplete.</string>
     <string name="backup_error_nothing">This backup file does not contain any restorable data.</string>
@@ -1672,20 +1672,20 @@
     <string name="backup_warn_unlisted_profiles">%d profiles missing from their group\'s list were added at its end.</string>
     <string name="backup_warn_orphan_rules">%d rules of missing routing profiles were skipped.</string>
     <string name="backup_warn_unsupported_rules">%1$d routing rules were skipped because they use fields this app does not support (%2$s).</string>
-    <string name="backup_warn_raw_routes">%d raw routing profiles from qThrone Desktop are kept read-only; Android cannot use them.</string>
+    <string name="backup_warn_raw_routes">%d raw routing profiles from Rawline Desktop are kept read-only; Android cannot use them.</string>
     <string name="backup_warn_lan_access">The backup lets other devices connect (inbound address %s); this was turned off. Turn it on again in the inbound settings if you need it.</string>
 
     <string name="webdav_choose_backup">Choose a backup</string>
-    <string name="webdav_no_backups">No .thrbackup files were found in %s.</string>
+    <string name="webdav_no_backups">No .rwlbackup files were found in %s.</string>
     <string name="webdav_listing">Reading the WebDAV folder…</string>
     <string name="webdav_uploading">Uploading to WebDAV…</string>
     <string name="webdav_downloading">Downloading from WebDAV…</string>
 
     <!-- Desktop raw routing profiles: carried verbatim, never used -->
-    <string name="route_raw_summary">Raw (qThrone Desktop) · read-only</string>
+    <string name="route_raw_summary">Raw (Rawline Desktop) · read-only</string>
     <string name="route_raw_view">View</string>
-    <string name="route_raw_not_usable">Raw routing profiles from qThrone Desktop cannot be used on Android.</string>
-    <string name="route_raw_notice">This raw routing profile was made on qThrone Desktop. It is kept unchanged so that backups give it back to the desktop; Android cannot edit or use it.</string>
+    <string name="route_raw_not_usable">Raw routing profiles from Rawline Desktop cannot be used on Android.</string>
+    <string name="route_raw_notice">This raw routing profile was made on Rawline Desktop. It is kept unchanged so that backups give it back to the desktop; Android cannot edit or use it.</string>
     <plurals name="route_endpoints_notice">
         <item quantity="one">%d desktop endpoint profile (OpenVPN / OpenConnect) is kept with this routing profile but not run on Android.</item>
         <item quantity="other">%d desktop endpoint profiles (OpenVPN / OpenConnect) are kept with this routing profile but not run on Android.</item>
@@ -1697,7 +1697,7 @@
     <string name="update_channel_stable">Channel: stable releases</string>
     <string name="update_channel_beta">Channel: stable and pre-releases</string>
     <string name="update_checking">Checking for updates…</string>
-    <string name="update_up_to_date">qThrone is up to date</string>
+    <string name="update_up_to_date">Rawline is up to date</string>
     <string name="update_check_failed">Could not check for updates</string>
     <string name="update_current_version">Current version: %s</string>
     <string name="update_new_version">New version: %s</string>
@@ -1715,7 +1715,7 @@
     <string name="update_action_close">Close</string>
     <string name="update_action_skip">Skip this version</string>
     <string name="update_downloading">Downloading the update</string>
-    <string name="update_downloading_x">Downloading Throne %s</string>
+    <string name="update_downloading_x">Downloading Rawline %s</string>
     <string name="update_progress">%1$s / %2$s</string>
     <string name="update_verifying">Verifying the update…</string>
     <string name="update_installing">Installing the update…</string>
@@ -1727,13 +1727,13 @@
     <string name="update_error_package">The download is not an update of this app.</string>
     <string name="update_error_version">The download does not have the expected version.</string>
     <string name="update_error_signature">The download is signed with a different key than this build, so Android cannot install it as an update. Back up, uninstall this build and install the release from GitHub.</string>
-    <string name="update_error_pin">The download is not signed with the Throne release key.</string>
+    <string name="update_error_pin">The download is not signed with the Rawline release key.</string>
     <string name="update_install_cancelled">The installation was cancelled.</string>
     <string name="update_install_failed">The installation failed: %s</string>
     <string name="update_permission_title">Allow installing updates</string>
-    <string name="update_permission_message">To update itself, Throne needs the permission to install apps. Enable it for Throne on the next screen, then come back.</string>
+    <string name="update_permission_message">To update itself, Rawline needs the permission to install apps. Enable it for Rawline on the next screen, then come back.</string>
     <string name="update_notification_channel">App updates</string>
-    <string name="update_notification_available">qThrone %s is available</string>
+    <string name="update_notification_available">Rawline %s is available</string>
     <string name="update_notification_available_text">Tap to see the update</string>
     <string name="update_notification_ready">The update is ready</string>
     <string name="update_notification_tap_install">Tap to install</string>
@@ -1753,7 +1753,7 @@
     <string name="log_saved">Logs saved</string>
     <string name="log_export_failed">Log export failed: %s</string>
     <string name="log_export_preparing">Preparing the log…</string>
-    <string name="log_crash_title">qThrone crashed</string>
+    <string name="log_crash_title">Rawline crashed</string>
 
     <!-- platform: Wi-Fi rules, notification, battery, widgets, package pickers -->
     <string name="not_now">Not now</string>
@@ -1761,8 +1761,8 @@
 
     <!-- Wi-Fi rules -->
     <string name="wifi_permission_title">Wi-Fi rules</string>
-    <string name="wifi_permission_message">Rules that match a Wi-Fi name (SSID) or access point (BSSID) need precise location access: Android hides the connected Wi-Fi from apps without it. Throne only reads the connected network, never your location.</string>
-    <string name="wifi_permission_background_message">The VPN keeps running while Throne is closed, so Wi-Fi rules also need location access all the time. Choose \"Allow all the time\" on the next screen.</string>
+    <string name="wifi_permission_message">Rules that match a Wi-Fi name (SSID) or access point (BSSID) need precise location access: Android hides the connected Wi-Fi from apps without it. Rawline only reads the connected network, never your location.</string>
+    <string name="wifi_permission_background_message">The VPN keeps running while Rawline is closed, so Wi-Fi rules also need location access all the time. Choose \"Allow all the time\" on the next screen.</string>
     <string name="wifi_location_off_message">Location is turned off, and Android hides the Wi-Fi name while it is off. Turn location on for Wi-Fi rules to match.</string>
     <string name="wifi_permission_settings_message">Location access is denied. Allow it in the app settings for Wi-Fi rules to match.</string>
     <string name="wifi_permission_continue">Continue</string>
@@ -1781,11 +1781,11 @@
     <string name="notification_permission">Notifications</string>
     <string name="notification_permission_allowed">Allowed</string>
     <string name="notification_permission_blocked">Blocked: the service notification and its buttons are hidden. Tap to allow.</string>
-    <string name="notification_permission_rationale">Throne shows a notification while the VPN runs, with buttons to stop it and to switch servers. Allow notifications to see it.</string>
+    <string name="notification_permission_rationale">Rawline shows a notification while the VPN runs, with buttons to stop it and to switch servers. Allow notifications to see it.</string>
 
     <!-- Battery -->
-    <string name="battery_prompt_title">Keep Throne running</string>
-    <string name="battery_prompt_message">Android may stop or delay apps in the background to save battery. Let Throne run without battery optimization so the VPN stays connected with the screen off and switching servers from the notification, tile or widget keeps working.</string>
+    <string name="battery_prompt_title">Keep Rawline running</string>
+    <string name="battery_prompt_message">Android may stop or delay apps in the background to save battery. Let Rawline run without battery optimization so the VPN stays connected with the screen off and switching servers from the notification, tile or widget keeps working.</string>
     <string name="battery_prompt_allow">Allow</string>
     <string name="battery_prompt_later">You can allow this later in Settings › General › Battery optimization</string>
     <string name="battery_optimization">Battery optimization</string>
@@ -1794,22 +1794,22 @@
     <string name="battery_state_restricted">Restricted by the system: background starts are blocked</string>
     <string name="battery_settings_missing">This device has no battery optimization settings</string>
     <string name="oem_background">Background &amp; auto-start</string>
-    <string name="oem_background_summary">Device-specific settings that can stop Throne in the background</string>
+    <string name="oem_background_summary">Device-specific settings that can stop Rawline in the background</string>
 
     <!-- Always-on VPN -->
     <string name="always_on_vpn">Kill switch</string>
     <string name="always_on_vpn_off">Off. Set it in the system VPN settings</string>
-    <string name="always_on_vpn_on">On: Android starts Throne in VPN mode by itself</string>
+    <string name="always_on_vpn_on">On: Android starts Rawline in VPN mode by itself</string>
     <string name="always_on_vpn_lockdown">On, blocking connections without VPN</string>
     <string name="always_on_vpn_unknown">Set it in the system VPN settings</string>
     <string name="always_on_vpn_no_profile">Kill switch has no profile</string>
-    <string name="always_on_vpn_no_profile_text">Select a profile in Throne; until then the kill switch cannot connect.</string>
+    <string name="always_on_vpn_no_profile_text">Select a profile in Rawline; until then the kill switch cannot connect.</string>
     <string name="auto_connect_superseded">Superseded by the always-on VPN</string>
     <string name="vpn_settings_missing">This device has no VPN settings screen</string>
 
     <!-- VPN consent -->
     <string name="vpn_dialog_missing_title">VPN confirmation unavailable</string>
-    <string name="vpn_dialog_missing_message">This device has no screen to confirm VPN access, so Throne cannot ask for it. Grant it once over adb:\n\nadb shell appops set %1$s ACTIVATE_VPN allow\n\nor switch the service mode to \"Proxy only\".</string>
+    <string name="vpn_dialog_missing_message">This device has no screen to confirm VPN access, so Rawline cannot ask for it. Grant it once over adb:\n\nadb shell appops set %1$s ACTIVATE_VPN allow\n\nor switch the service mode to \"Proxy only\".</string>
     <string name="vpn_dialog_use_proxy">Use proxy mode</string>
     <string name="vpn_dialog_copy_command">Copy command</string>
 
@@ -1890,7 +1890,7 @@
     <string name="exit_ip_summary_location">Exit IP: %1$s (%2$s)</string>
     <string name="provider_routing_title">Subscription routing</string>
     <string name="provider_routing_use">Use %1$s routing</string>
-    <string name="provider_routing_use_summary">On: servers of this subscription use only its rules; the common qThrone routing is not applied and does not combine with them. Off: the common routing applies. The per-app list works in both cases.</string>
+    <string name="provider_routing_use_summary">On: servers of this subscription use only its rules; the common Rawline routing is not applied and does not combine with them. Off: the common routing applies. The per-app list works in both cases.</string>
     <string name="provider_routing_profile">Routing profile</string>
     <string name="provider_routing_global">Proxy by default</string>
     <string name="provider_routing_fake_dns">FakeDNS</string>

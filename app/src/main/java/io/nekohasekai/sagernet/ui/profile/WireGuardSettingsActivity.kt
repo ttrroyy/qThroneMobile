@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui.profile
+package app.rawline.mobile.ui.profile
 
 import android.text.InputType
 import android.widget.FrameLayout
@@ -7,16 +7,16 @@ import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
-import app.qthrone.mobile.R
-import app.qthrone.mobile.bg.CoreServiceClient
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.dp2px
-import app.qthrone.mobile.outbound.json.JsonInput
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder
-import app.qthrone.mobile.outbound.types.WireGuard
-import app.qthrone.mobile.ui.warp.WarpClient
-import app.qthrone.mobile.ui.warp.WarpGenerate
-import app.qthrone.mobile.ui.warp.setFieldText
+import app.rawline.mobile.R
+import app.rawline.mobile.bg.CoreServiceClient
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.dp2px
+import app.rawline.mobile.outbound.json.JsonInput
+import app.rawline.mobile.ui.MobileAlertDialogBuilder
+import app.rawline.mobile.outbound.types.WireGuard
+import app.rawline.mobile.ui.warp.WarpClient
+import app.rawline.mobile.ui.warp.WarpGenerate
+import app.rawline.mobile.ui.warp.setFieldText
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.CancellationException

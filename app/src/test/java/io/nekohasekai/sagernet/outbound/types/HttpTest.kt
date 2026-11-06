@@ -1,7 +1,7 @@
-package app.qthrone.mobile.outbound.types
+package app.rawline.mobile.outbound.types
 
-import app.qthrone.mobile.outbound.BuildContext
-import app.qthrone.mobile.outbound.OutboundFactory
+import app.rawline.mobile.outbound.BuildContext
+import app.rawline.mobile.outbound.OutboundFactory
 import org.junit.Assert.*
 import org.junit.Test
 

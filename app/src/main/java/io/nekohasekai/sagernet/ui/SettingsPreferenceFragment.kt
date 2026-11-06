@@ -1,17 +1,17 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.os.Bundle
 import android.view.View
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.ktx.FixedLinearLayoutManager
-import app.qthrone.mobile.ktx.confirmAction
-import app.qthrone.mobile.ktx.triggerFullRestart
+import app.rawline.mobile.R
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.ktx.FixedLinearLayoutManager
+import app.rawline.mobile.ktx.confirmAction
+import app.rawline.mobile.ktx.triggerFullRestart
 
 /**
- * The settings root: one entry per sub-screen (app.qthrone.mobile.ui.settings, opened by [SettingsFragment]),
+ * The settings root: one entry per sub-screen (app.rawline.mobile.ui.settings, opened by [SettingsFragment]),
  * the backup screen and the reset action.
  */
 open class SettingsPreferenceFragment(private val advanced: Boolean = false) : PreferenceFragmentCompat() {
@@ -23,7 +23,7 @@ open class SettingsPreferenceFragment(private val advanced: Boolean = false) : P
         super.onViewCreated(view, savedInstanceState)
 
         listView.layoutManager = FixedLinearLayoutManager(listView)
-        app.qthrone.mobile.ui.MobileSettingsStyle.apply(this, view)
+        app.rawline.mobile.ui.MobileSettingsStyle.apply(this, view)
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -33,7 +33,7 @@ open class SettingsPreferenceFragment(private val advanced: Boolean = false) : P
             (activity as? MainActivity)?.displayFragment(LogcatFragment())
             true
         }
-        findPreference<Preference>("qmobileUpdate")?.setOnPreferenceClickListener { startActivity(android.content.Intent(requireContext(),app.qthrone.mobile.update.UpdateActivity::class.java));true }
+        findPreference<Preference>("qmobileUpdate")?.setOnPreferenceClickListener { startActivity(android.content.Intent(requireContext(),app.rawline.mobile.update.UpdateActivity::class.java));true }
 
         findPreference<Preference>(KEY_BACKUP)!!.setOnPreferenceClickListener {
             (activity as? MainActivity)?.displayFragmentWithId(R.id.nav_tools)

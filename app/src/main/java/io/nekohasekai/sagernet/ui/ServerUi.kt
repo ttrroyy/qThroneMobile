@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.content.Context
 import android.content.res.ColorStateList
@@ -13,7 +13,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.graphics.ColorUtils
-import app.qthrone.mobile.R
+import app.rawline.mobile.R
 
 /** The building blocks of the server screens, in the look of the deploy list and editor. */
 internal class ServerUi(private val context: Context) {
@@ -103,7 +103,7 @@ internal class ServerUi(private val context: Context) {
                 maxLines = lines; ellipsize = android.text.TextUtils.TruncateAt.END; setTextIsSelectable(true)
                 setPadding(dp(12), dp(10), dp(12), dp(10)); background = well()
             }, LinearLayout.LayoutParams(0, -2, 1f))
-            addView(copyButton("Скопировать: ${label ?: "ссылку"}") { app.qthrone.mobile.SagerNet.trySetPrimaryClip(value) },
+            addView(copyButton("Скопировать: ${label ?: "ссылку"}") { app.rawline.mobile.SagerNet.trySetPrimaryClip(value) },
                 LinearLayout.LayoutParams(dp(44), dp(44)).apply { marginStart = dp(4) })
         })
     }
@@ -119,7 +119,7 @@ internal class ServerUi(private val context: Context) {
     }
 
     fun qr(link: String, size: Int = 220) = ImageView(context).apply {
-        setImageBitmap(app.qthrone.mobile.widget.QrBitmap.encode(link, dp(size))); contentDescription = "QR-код подключения"
+        setImageBitmap(app.rawline.mobile.widget.QrBitmap.encode(link, dp(size))); contentDescription = "QR-код подключения"
         setPadding(dp(8), dp(8), dp(8), dp(8))
         background = GradientDrawable().apply { setColor(android.graphics.Color.WHITE); cornerRadius = dp(12).toFloat() }
     }
@@ -128,12 +128,12 @@ internal class ServerUi(private val context: Context) {
     fun copyQr(link: String): Boolean = runCatching {
         val dir = java.io.File(context.cacheDir, "qr").apply { mkdirs() }
         val file = java.io.File(dir, "qr.png")
-        val bitmap = app.qthrone.mobile.widget.QrBitmap.encode(link, 720)
+        val bitmap = app.rawline.mobile.widget.QrBitmap.encode(link, 720)
         val framed = android.graphics.Bitmap.createBitmap(bitmap.width + 80, bitmap.height + 80, android.graphics.Bitmap.Config.ARGB_8888).apply {
             android.graphics.Canvas(this).apply { drawColor(android.graphics.Color.WHITE); drawBitmap(bitmap, 40f, 40f, null) }
         }
         file.outputStream().use { framed.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
-        val uri = androidx.core.content.FileProvider.getUriForFile(context, app.qthrone.mobile.BuildConfig.APPLICATION_ID + ".cache", file)
+        val uri = androidx.core.content.FileProvider.getUriForFile(context, app.rawline.mobile.BuildConfig.APPLICATION_ID + ".cache", file)
         val clipboard = context.getSystemService(android.content.ClipboardManager::class.java)
         // The picture for apps that paste images, the link itself for text paste and the home screen's clipboard import.
         clipboard.setPrimaryClip(android.content.ClipData(android.content.ClipDescription("QR-код", arrayOf("image/png", "text/plain")),

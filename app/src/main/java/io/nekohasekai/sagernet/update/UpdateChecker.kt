@@ -1,14 +1,14 @@
-package app.qthrone.mobile.update
+package app.rawline.mobile.update
 
 import android.content.Context
 import android.os.Build
-import app.qthrone.mobile.BuildConfig
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.USER_AGENT
-import app.qthrone.mobile.ktx.newHttpClient
-import app.qthrone.mobile.ktx.readableMessage
+import app.rawline.mobile.BuildConfig
+import app.rawline.mobile.R
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.USER_AGENT
+import app.rawline.mobile.ktx.newHttpClient
+import app.rawline.mobile.ktx.readableMessage
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONArray
@@ -18,7 +18,7 @@ import java.io.IOException
 import java.io.InputStream
 
 /**
- * GitHub releases of ThroneForAndroid (the desktop's CheckUpdate: `allow_beta_update` admits pre-releases). A release
+ * GitHub releases of RawlineForAndroid (the desktop's CheckUpdate: `allow_beta_update` admits pre-releases). A release
  * built by CI carries verification metadata in its body; legacy JSON assets remain supported.
  */
 object UpdateChecker {

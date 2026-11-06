@@ -54,7 +54,7 @@
         android:required="false" />
 
     <application
-        android:name="app.qthrone.mobile.SagerNet"
+        android:name="app.rawline.mobile.SagerNet"
         android:allowBackup="false"
         android:autoRevokePermissions="allowed"
         android:banner="@drawable/tv_banner"
@@ -81,14 +81,14 @@
         <activity android:name=".ui.ProviderRouteActivity" android:exported="false" />
         <activity android:name=".ui.ProviderRoutingActivity" android:exported="false" />
         <activity
-            android:name="app.qthrone.mobile.ui.BlankActivity"
+            android:name="app.rawline.mobile.ui.BlankActivity"
             android:configChanges="uiMode" />
 
-        <activity
+        <!-- Launchers remember this component: under the old name, an icon on the home screen survives the update from qThrone. -->
+        <activity-alias
             android:name="app.qthrone.mobile.ui.MainActivity"
-            android:configChanges="uiMode"
-            android:exported="true"
-            android:launchMode="singleTask">
+            android:targetActivity="app.rawline.mobile.ui.MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -100,11 +100,18 @@
 
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
+        </activity-alias>
+
+        <activity
+            android:name="app.rawline.mobile.ui.MainActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
             </intent-filter>
 
-            <!-- .thrbackup files (BackupEntry checks the "THRN" magic, so a mismatch is harmless) -->
+            <!-- .rwlbackup files (BackupEntry checks the "THRN" magic, so a mismatch is harmless) -->
             <intent-filter android:label="@string/backup_open_label">
                 <action android:name="android.intent.action.VIEW" />
 
@@ -114,9 +121,13 @@
                 <data android:scheme="file" />
                 <data android:host="*" />
                 <data android:mimeType="*/*" />
+                <data android:pathPattern=".*\\.rwlbackup" />
                 <data android:pathPattern=".*\\.thrbackup" />
+                <data android:pathPattern=".*\\..*\\.rwlbackup" />
                 <data android:pathPattern=".*\\..*\\.thrbackup" />
+                <data android:pathPattern=".*\\..*\\..*\\.rwlbackup" />
                 <data android:pathPattern=".*\\..*\\..*\\.thrbackup" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.rwlbackup" />
                 <data android:pathPattern=".*\\..*\\..*\\..*\\.thrbackup" />
             </intent-filter>
             <intent-filter android:label="@string/backup_open_label">
@@ -127,9 +138,13 @@
                 <data android:scheme="content" />
                 <data android:scheme="file" />
                 <data android:host="*" />
+                <data android:pathPattern=".*\\.rwlbackup" />
                 <data android:pathPattern=".*\\.thrbackup" />
+                <data android:pathPattern=".*\\..*\\.rwlbackup" />
                 <data android:pathPattern=".*\\..*\\.thrbackup" />
+                <data android:pathPattern=".*\\..*\\..*\\.rwlbackup" />
                 <data android:pathPattern=".*\\..*\\..*\\.thrbackup" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.rwlbackup" />
                 <data android:pathPattern=".*\\..*\\..*\\..*\\.thrbackup" />
             </intent-filter>
             <intent-filter android:label="@string/backup_open_label">
@@ -199,6 +214,7 @@
                 <data android:scheme="wg" />
                 <data android:scheme="awg" />
                 <data android:scheme="tt" />
+                <data android:scheme="rawline" />
                 <data android:scheme="throne" />
                 <data android:scheme="happ" />
                 <data android:scheme="incy" />
@@ -208,113 +224,113 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="app.qthrone.mobile.ui.VpnRequestActivity"
+            android:name="app.rawline.mobile.ui.VpnRequestActivity"
             android:excludeFromRecents="true"
             android:taskAffinity="" />
         <activity
-            android:name="app.qthrone.mobile.ui.json.JsonEditorActivity"
+            android:name="app.rawline.mobile.ui.json.JsonEditorActivity"
             android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.SocksSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.SocksSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.HttpSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.HttpSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.ShadowsocksSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.ShadowsocksSettingsActivity"
             android:configChanges="uiMode" />
-        <activity android:name="app.qthrone.mobile.ui.profile.ShadowsocksRSettingsActivity" android:configChanges="uiMode" />
+        <activity android:name="app.rawline.mobile.ui.profile.ShadowsocksRSettingsActivity" android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.VMessSettingsActivity"
-            android:configChanges="uiMode" />
-        <activity
-            android:name="app.qthrone.mobile.ui.profile.VlessSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.VMessSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.XrayVlessSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.VlessSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.TrojanSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.XrayVlessSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.MieruSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.TrojanSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.NaiveSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.MieruSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.HysteriaSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.NaiveSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.SSHSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.HysteriaSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.WireGuardSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.SSHSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.TuicSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.WireGuardSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.JuicitySettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.TuicSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.SnellSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.JuicitySettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.AnyTLSSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.SnellSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.ShadowTLSSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.AnyTLSSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.TrustTunnelSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.ShadowTLSSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.DirectSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.TrustTunnelSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.MasqueSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.DirectSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.OpenVpnSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.MasqueSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.OpenConnectSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.OpenVpnSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.ChainSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.OpenConnectSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.AutoSelectorSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.ChainSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.AutoSelectorStatusActivity"
+            android:name="app.rawline.mobile.ui.profile.AutoSelectorSettingsActivity"
+            android:configChanges="uiMode" />
+        <activity
+            android:name="app.rawline.mobile.ui.AutoSelectorStatusActivity"
             android:configChanges="uiMode"
-            android:parentActivityName="app.qthrone.mobile.ui.MainActivity" />
-        <activity android:name="app.qthrone.mobile.ui.profile.NativeTransportSettingsActivity" android:exported="false" />
+            android:parentActivityName="app.rawline.mobile.ui.MainActivity" />
+        <activity android:name="app.rawline.mobile.ui.profile.NativeTransportSettingsActivity" android:exported="false" />
         <activity
-            android:name="app.qthrone.mobile.ui.profile.CustomSettingsActivity"
+            android:name="app.rawline.mobile.ui.profile.CustomSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.GroupSettingsActivity"
+            android:name="app.rawline.mobile.ui.GroupSettingsActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.SubscriptionEditorActivity"
+            android:name="app.rawline.mobile.ui.SubscriptionEditorActivity"
             android:theme="@style/Theme.SagerNet.SubscriptionEditor"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.AppListActivity"
+            android:name="app.rawline.mobile.ui.AppListActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.route.RouteProfileActivity"
+            android:name="app.rawline.mobile.ui.route.RouteProfileActivity"
             android:configChanges="uiMode"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name="app.qthrone.mobile.ui.route.RouteRuleActivity"
+            android:name="app.rawline.mobile.ui.route.RouteRuleActivity"
             android:configChanges="uiMode" />
         <activity
-            android:name="app.qthrone.mobile.ui.route.RuleSetPickerActivity"
+            android:name="app.rawline.mobile.ui.route.RuleSetPickerActivity"
             android:configChanges="uiMode" />
         <activity
             android:name=".QuickToggleShortcut"
@@ -330,7 +346,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="app.qthrone.mobile.ui.QuickEnableShortcut"
+            android:name="app.rawline.mobile.ui.QuickEnableShortcut"
             android:excludeFromRecents="true"
             android:exported="true"
             android:label="@string/quick_enable"
@@ -339,7 +355,7 @@
             android:taskAffinity=""
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
-            android:name="app.qthrone.mobile.ui.QuickDisableShortcut"
+            android:name="app.rawline.mobile.ui.QuickDisableShortcut"
             android:excludeFromRecents="true"
             android:exported="true"
             android:label="@string/quick_disable"
@@ -348,34 +364,34 @@
             android:taskAffinity=""
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
-            android:name="app.qthrone.mobile.ui.AppManagerActivity"
+            android:name="app.rawline.mobile.ui.AppManagerActivity"
             android:configChanges="uiMode"
             android:excludeFromRecents="true"
             android:label="@string/proxied_apps"
             android:launchMode="singleTask"
             android:parentActivityName=".ui.MainActivity" />
         <activity
-            android:name="app.qthrone.mobile.ui.ScannerActivity"
+            android:name="app.rawline.mobile.ui.ScannerActivity"
             android:configChanges="uiMode"
             android:excludeFromRecents="true"
             android:exported="true"
             android:label="@string/add_profile_methods_scan_qr_code"
             android:launchMode="singleTask"
-            android:parentActivityName="app.qthrone.mobile.ui.MainActivity" />
+            android:parentActivityName="app.rawline.mobile.ui.MainActivity" />
         <activity
-            android:name="app.qthrone.mobile.ui.ProfileSelectActivity"
+            android:name="app.rawline.mobile.ui.ProfileSelectActivity"
             android:configChanges="uiMode"
             android:label="@string/select_profile"
             android:launchMode="singleTask"
-            android:parentActivityName="app.qthrone.mobile.ui.MainActivity" />
+            android:parentActivityName="app.rawline.mobile.ui.MainActivity" />
         <activity
-            android:name="app.qthrone.mobile.ui.SwitchActivity"
+            android:name="app.rawline.mobile.ui.SwitchActivity"
             android:configChanges="uiMode"
             android:excludeFromRecents="true"
             android:launchMode="singleInstance"
             android:theme="@style/Theme.SagerNet.Dialog" />
         <activity
-            android:name="app.qthrone.mobile.update.UpdateActivity"
+            android:name="app.rawline.mobile.update.UpdateActivity"
             android:configChanges="uiMode"
             android:launchMode="singleTop"
             android:theme="@style/Theme.SagerNet.Dialog" />
@@ -387,14 +403,14 @@
             android:theme="@style/Theme.SagerNet" />
 
         <service
-            android:name="app.qthrone.mobile.bg.ProxyService"
+            android:name="app.rawline.mobile.bg.ProxyService"
             android:exported="false"
             android:foregroundServiceType="systemExempted"
             android:process=":bg"
             tools:ignore="ForegroundServicePermission" />
 
         <service
-            android:name="app.qthrone.mobile.bg.VpnService"
+            android:name="app.rawline.mobile.bg.VpnService"
             android:exported="false"
             android:foregroundServiceType="systemExempted"
             android:label="@string/app_name"
@@ -408,16 +424,16 @@
         </service>
 
         <service
-            android:name="app.qthrone.mobile.bg.CoreService"
+            android:name="app.rawline.mobile.bg.CoreService"
             android:exported="false"
             android:foregroundServiceType="dataSync"
             android:process=":bg" />
 
         <service
-            android:name="app.qthrone.mobile.bg.TileService"
+            android:name="app.rawline.mobile.bg.TileService"
             android:exported="true"
             android:foregroundServiceType="systemExempted"
-            android:icon="@drawable/ic_throne_tile"
+            android:icon="@drawable/ic_rawline_tile"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
             android:process=":bg"
@@ -447,7 +463,7 @@
             tools:node="remove" />
 
         <receiver
-            android:name="app.qthrone.mobile.BootReceiver"
+            android:name="app.rawline.mobile.BootReceiver"
             android:enabled="false"
             android:exported="true"
             android:process=":bg">
@@ -458,7 +474,7 @@
         </receiver>
 
         <receiver
-            android:name="app.qthrone.mobile.PackageReplacedReceiver"
+            android:name="app.rawline.mobile.PackageReplacedReceiver"
             android:exported="false"
             android:process=":bg">
             <intent-filter>
@@ -467,12 +483,12 @@
         </receiver>
 
         <receiver
-            android:name="app.qthrone.mobile.update.UpdateReceiver"
+            android:name="app.rawline.mobile.update.UpdateReceiver"
             android:exported="false" />
 
         <!-- Widgets live in :bg, the only process that knows the service state. -->
         <receiver
-            android:name="app.qthrone.mobile.appwidget.ToggleWidgetProvider"
+            android:name="app.rawline.mobile.appwidget.ToggleWidgetProvider"
             android:exported="false"
             android:label="@string/widget_toggle_name"
             android:process=":bg">
@@ -484,7 +500,7 @@
                 android:resource="@xml/appwidget_toggle" />
         </receiver>
         <receiver
-            android:name="app.qthrone.mobile.appwidget.StatusWidgetProvider"
+            android:name="app.rawline.mobile.appwidget.StatusWidgetProvider"
             android:exported="false"
             android:label="@string/widget_status_name"
             android:process=":bg">
@@ -496,7 +512,7 @@
                 android:resource="@xml/appwidget_status" />
         </receiver>
         <receiver
-            android:name="app.qthrone.mobile.appwidget.WidgetActionReceiver"
+            android:name="app.rawline.mobile.appwidget.WidgetActionReceiver"
             android:exported="false"
             android:process=":bg" />
 

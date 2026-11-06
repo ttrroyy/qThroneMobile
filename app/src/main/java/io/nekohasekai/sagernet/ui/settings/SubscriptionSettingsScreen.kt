@@ -1,16 +1,16 @@
-package app.qthrone.mobile.ui.settings
+package app.rawline.mobile.ui.settings
 
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.SwitchPreference
-import app.qthrone.mobile.R
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.SettingsRegistry
-import app.qthrone.mobile.database.preference.EditTextPreferenceModifiers
-import app.qthrone.mobile.group.DeviceDetails
-import app.qthrone.mobile.group.RequestIdentity
-import app.qthrone.mobile.group.SubscriptionScheduler
-import app.qthrone.mobile.ktx.USER_AGENT
+import app.rawline.mobile.R
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.SettingsRegistry
+import app.rawline.mobile.database.preference.EditTextPreferenceModifiers
+import app.rawline.mobile.group.DeviceDetails
+import app.rawline.mobile.group.RequestIdentity
+import app.rawline.mobile.group.SubscriptionScheduler
+import app.rawline.mobile.ktx.USER_AGENT
 import kotlin.math.abs
 
 /**
@@ -21,7 +21,7 @@ class SubscriptionSettingsFragment : SettingsScreenFragment(R.xml.settings_subsc
 
     override fun bind() {
         pref<Preference>("subManageGroups").setOnPreferenceClickListener {
-            (activity as? app.qthrone.mobile.ui.MainActivity)?.displayFragmentWithId(R.id.nav_group); true
+            (activity as? app.rawline.mobile.ui.MainActivity)?.displayFragmentWithId(R.id.nav_group); true
         }
         val userAgent = pref<EditTextPreference>(SettingsRegistry.USER_AGENT2.key)
         userAgent.summaryProvider = DefaultSummaryProvider(USER_AGENT)

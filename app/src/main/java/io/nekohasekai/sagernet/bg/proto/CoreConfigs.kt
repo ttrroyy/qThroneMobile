@@ -1,19 +1,19 @@
-package app.qthrone.mobile.bg.proto
+package app.rawline.mobile.bg.proto
 
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.ProxyEntity
-import app.qthrone.mobile.database.ProxyGroup
-import app.qthrone.mobile.database.RouteManager
-import app.qthrone.mobile.database.SagerDatabase
-import app.qthrone.mobile.database.SettingsMapper
-import app.qthrone.mobile.outbound.Outbound
-import app.qthrone.mobile.outbound.config.ConfigGenerator
-import app.qthrone.mobile.outbound.config.GeneratedConfig
-import app.qthrone.mobile.outbound.config.GeneratorSettings
-import app.qthrone.mobile.outbound.config.ProfileProvider
-import app.qthrone.mobile.outbound.config.RoutingInput
-import app.qthrone.mobile.outbound.config.TestCandidate
-import app.qthrone.mobile.route.RouteDns
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.ProxyEntity
+import app.rawline.mobile.database.ProxyGroup
+import app.rawline.mobile.database.RouteManager
+import app.rawline.mobile.database.SagerDatabase
+import app.rawline.mobile.database.SettingsMapper
+import app.rawline.mobile.outbound.Outbound
+import app.rawline.mobile.outbound.config.ConfigGenerator
+import app.rawline.mobile.outbound.config.GeneratedConfig
+import app.rawline.mobile.outbound.config.GeneratorSettings
+import app.rawline.mobile.outbound.config.ProfileProvider
+import app.rawline.mobile.outbound.config.RoutingInput
+import app.rawline.mobile.outbound.config.TestCandidate
+import app.rawline.mobile.route.RouteDns
 
 /**
  * The config generator wired to the app: profiles come from the profile table, the settings and the build-time
@@ -24,7 +24,7 @@ import app.qthrone.mobile.route.RouteDns
 object CoreConfigs {
 
     /** Stored profiles by id, each row parsed once per generation. */
-    private class DatabaseProfiles(private val geoFallback: app.qthrone.mobile.outbound.json.JsonObject = app.qthrone.mobile.outbound.json.JsonObject()) : ProfileProvider {
+    private class DatabaseProfiles(private val geoFallback: app.rawline.mobile.outbound.json.JsonObject = app.rawline.mobile.outbound.json.JsonObject()) : ProfileProvider {
         private val cache = HashMap<Long, Outbound?>()
         override fun get(id: Long): Outbound? = cache.getOrPut(id) {
             SagerDatabase.proxyDao.getById(id)?.let { prepareOutbound(it, geoFallback) }
@@ -32,16 +32,16 @@ object CoreConfigs {
     }
 
     /** Geo sources belong to the subscription even when its routing switch is off. */
-    fun prepareOutbound(profile: ProxyEntity, fallback: app.qthrone.mobile.outbound.json.JsonObject = app.qthrone.mobile.outbound.json.JsonObject()): Outbound {
+    fun prepareOutbound(profile: ProxyEntity, fallback: app.rawline.mobile.outbound.json.JsonObject = app.rawline.mobile.outbound.json.JsonObject()): Outbound {
         val outbound = profile.outbound
-        if (outbound !is app.qthrone.mobile.outbound.types.Custom || !outbound.isXrayFullConfig()) return outbound
+        if (outbound !is app.rawline.mobile.outbound.types.Custom || !outbound.isXrayFullConfig()) return outbound
         val options = SagerDatabase.groupDao.getById(profile.groupId)?.subOptions
         val document = options?.takeIf { it.routingProvider.isNotBlank() }?.let {
-            app.qthrone.mobile.route.ProviderRouteProfiles.sourceDocument(it.providerRouting, it.providerRoutingProfiles)
+            app.rawline.mobile.route.ProviderRouteProfiles.sourceDocument(it.providerRouting, it.providerRoutingProfiles)
         }?.takeIf { it.isNotEmpty() } ?: fallback
-        return app.qthrone.mobile.outbound.types.Custom().apply {
+        return app.rawline.mobile.outbound.types.Custom().apply {
             parseFromJson(outbound.exportToJson())
-            config = app.qthrone.mobile.route.ProviderGeoAssets.xrayConfig(document, config)
+            config = app.rawline.mobile.route.ProviderGeoAssets.xrayConfig(document, config)
         }
     }
 
@@ -63,9 +63,9 @@ object CoreConfigs {
         val bound = options?.takeIf { it.routingProvider.isNotBlank() && it.providerRoutingEnabled }
         val route = when {
             chosenRoute != null -> chosenRoute.copy()
-            bound?.providerRouting == "off" -> app.qthrone.mobile.route.RouteProfile.defaultProfile()
-            bound != null -> app.qthrone.mobile.route.ProviderRouting.profile(
-                app.qthrone.mobile.outbound.json.JsonInput.parseObjectOrNull(bound.providerRouting) ?: app.qthrone.mobile.outbound.json.JsonObject(), bound.routingProvider)
+            bound?.providerRouting == "off" -> app.rawline.mobile.route.RouteProfile.defaultProfile()
+            bound != null -> app.rawline.mobile.route.ProviderRouting.profile(
+                app.rawline.mobile.outbound.json.JsonInput.parseObjectOrNull(bound.providerRouting) ?: app.rawline.mobile.outbound.json.JsonObject(), bound.routingProvider)
             else -> RouteManager.current().copy()
         }
         // Provider routing below still wins over the routing profile's own DNS, which wins over Settings > DNS.
@@ -73,24 +73,24 @@ object CoreConfigs {
         var settings = SettingsMapper.generatorSettings(dns).copy(deferRuleSets = deferRuleSets)
         var routing = SettingsMapper.routingInput(route)
         val fullJson = profile.outbound.isXrayFullConfig()
-        val providerRouting=app.qthrone.mobile.route.ProviderRouting.stored(route)
-        app.qthrone.mobile.route.ProviderGeoAssets.dropInstalledCopies()
-        val profiles = DatabaseProfiles(providerRouting?.second ?: app.qthrone.mobile.outbound.json.JsonObject())
+        val providerRouting=app.rawline.mobile.route.ProviderRouting.stored(route)
+        app.rawline.mobile.route.ProviderGeoAssets.dropInstalledCopies()
+        val profiles = DatabaseProfiles(providerRouting?.second ?: app.rawline.mobile.outbound.json.JsonObject())
         providerRouting?.let { (_, document) ->
             if (fullJson) {
-                val tunnel = app.qthrone.mobile.route.ProviderRouting.settings(document,settings)
+                val tunnel = app.rawline.mobile.route.ProviderRouting.settings(document,settings)
                 settings = settings.copy(remoteDns = tunnel.remoteDns, dnsPredefinedRules = tunnel.dnsPredefinedRules, fakeDns = false)
-                routing = SettingsMapper.routingInput(app.qthrone.mobile.route.RouteProfile.defaultProfile())
+                routing = SettingsMapper.routingInput(app.rawline.mobile.route.RouteProfile.defaultProfile())
             } else {
-                settings = app.qthrone.mobile.route.ProviderRouting.settings(document, settings)
-                val catalog = app.qthrone.mobile.route.ProviderGeoAssets.resolve(route, document, routing.catalog)
+                settings = app.rawline.mobile.route.ProviderRouting.settings(document, settings)
+                val catalog = app.rawline.mobile.route.ProviderGeoAssets.resolve(route, document, routing.catalog)
                 routing = RoutingInput(route, catalog, routing.selectors, routing.memberCheck)
             }
         }
         var context = SettingsMapper.buildContext(dns)
-        if (app.qthrone.mobile.outbound.config.TransportIpPolicy.ipv4Only(profile.outbound, profiles)) {
-            settings = app.qthrone.mobile.outbound.config.TransportIpPolicy.settings(settings)
-            context = app.qthrone.mobile.outbound.config.TransportIpPolicy.context(context)
+        if (app.rawline.mobile.outbound.config.TransportIpPolicy.ipv4Only(profile.outbound, profiles)) {
+            settings = app.rawline.mobile.outbound.config.TransportIpPolicy.settings(settings)
+            context = app.rawline.mobile.outbound.config.TransportIpPolicy.context(context)
             moe.matsuri.nb4a.utils.CoreLog.write("[Info] ${profile.outbound.displayType()} uses IPv4-only tunnel and DNS; saved IPv6 preference is unchanged")
         }
         moe.matsuri.nb4a.utils.CoreLog.write("[Info] "+DnsDiagnostics.summary(settings,providerRouting!=null))
@@ -108,8 +108,8 @@ object CoreConfigs {
             TestCandidate(id, landing, front)
         }
         val dns = RouteManager.customDns(DataStore.currentRouteId)
-        val fallback = app.qthrone.mobile.route.ProviderRouting.stored(RouteManager.current())?.second
-            ?: app.qthrone.mobile.outbound.json.JsonObject()
+        val fallback = app.rawline.mobile.route.ProviderRouting.stored(RouteManager.current())?.second
+            ?: app.rawline.mobile.outbound.json.JsonObject()
         return ConfigGenerator(DatabaseProfiles(fallback), SettingsMapper.generatorSettings(dns), SettingsMapper.buildContext(dns)).buildTest(candidates)
     }
 

@@ -1,7 +1,7 @@
-package app.qthrone.mobile.outbound.config
+package app.rawline.mobile.outbound.config
 
-import app.qthrone.mobile.outbound.types.AutoSelector
-import app.qthrone.mobile.outbound.types.Shadowsocks
+import app.rawline.mobile.outbound.types.AutoSelector
+import app.rawline.mobile.outbound.types.Shadowsocks
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -27,7 +27,7 @@ class SelectorCountriesTest {
             warpPublicKey="peer",warpIfcAddrs=listOf("10.0.0.2/32"),warpAmneziaPackets=listOf("<b 0x010203>"))
         assertFalse(WarpHop.missing(settings))
         assertTrue(WarpHop.missing(settings.copy(warpAmneziaPackets=emptyList())))
-        val outbound = WarpHop.outbound(settings) as app.qthrone.mobile.outbound.types.WireGuard
+        val outbound = WarpHop.outbound(settings) as app.rawline.mobile.outbound.types.WireGuard
         assertTrue(outbound.enable_amnezia)
         assertEquals("1",outbound.h1)
         assertEquals("<b 0x010203>",outbound.i1)

@@ -6,7 +6,7 @@
 - Verification metadata moves into a hidden GitHub release-body comment; SHA-256, package, versionCode and APK signer checks remain.
 - Release v2.4.1 acts as a one-time bridge: add the 2.4.2 APKs and update its JSON after all APKs are uploaded. Old APK assets remain available.
 - Keep the bridge visible to old clients, whose updater only requests the latest 20 releases.
-- Preserve the signing key, app.qthrone.mobile package and strictly increasing versionCode (2.4.2: 69999).
+- Preserve the signing key, app.rawline.mobile package and strictly increasing versionCode (2.4.2: 69999).
 - Subscription editor: one continuous sheet background, no navigation cross; content gestures scroll, only the top handle drags the sheet.
 - Automatic CSQTT protocol choice: Legacy first, then a separate device-bound transport after explicit protocol rejection or the existing zero-worker WRAP timeout verdict.
 - No protocol selector in the product UI. Preserve device ID, password, hashes and per-launch epoch across the retry.

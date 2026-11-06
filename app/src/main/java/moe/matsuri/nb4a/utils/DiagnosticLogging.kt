@@ -1,6 +1,6 @@
 package moe.matsuri.nb4a.utils
 
-import app.qthrone.mobile.database.DataStore
+import app.rawline.mobile.database.DataStore
 
 object DiagnosticLogging {
     /** Upgrade the former warning-only defaults once; subsequent user choices are respected. */

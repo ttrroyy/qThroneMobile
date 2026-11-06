@@ -1,7 +1,7 @@
-package app.qthrone.mobile.group
+package app.rawline.mobile.group
 
 import com.google.gson.JsonParser
-import app.qthrone.mobile.outbound.link.Base64Strict
+import app.rawline.mobile.outbound.link.Base64Strict
 import org.bouncycastle.crypto.modes.ChaCha20Poly1305
 import org.bouncycastle.crypto.params.AEADParameters
 import org.bouncycastle.crypto.params.KeyParameter

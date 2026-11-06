@@ -6,7 +6,7 @@ The Settings root opens VK relay between subscriptions and appearance. Account b
 
 - qWDTT reference commit 684769a74531a8e0454eb347b041bc7c29d897a3; official release v1.4.4. Original deploy.sh matches the released APK byte-for-byte. APK SHA256 ff5b2d1f265b0c4253cdf54ebf1f8a5d64afd1424086aa8b8be754b5c14df6a7. Server ELF machine 62, x86_64 only.
 - CSQTT reference commit 71712b07dbabe16fa43f5a248dc69e1ab9f3a270; official release v2.1.9 universal APK. SHA256 49771d60a53d731452f3301e53dbe6bdee9142876e6b295dbf88f59f0b5aaf82. Released deploy.sh includes additional Docker prerequisite cleanup compared with the reference checkout. Binaries are assets/csqtt-linux-amd64, csqtt-linux-arm64, csqtt-linux-armv7.
-- qWDTT is GPL-3.0. CSQTT upstream files carry PolyForm-Noncommercial-1.0.0. Upstream scripts/binaries are obtained from official pinned APKs at runtime; they are not bundled or relicensed as qThrone source. Keep upstream license conditions when porting or distributing those assets.
+- qWDTT is GPL-3.0. CSQTT upstream files carry PolyForm-Noncommercial-1.0.0. Upstream scripts/binaries are obtained from official pinned APKs at runtime; they are not bundled or relicensed as Rawline source. Keep upstream license conditions when porting or distributing those assets.
 
 ## Install protocol
 
@@ -25,7 +25,7 @@ The server editor uses paired host/login and DNS fields, a password/key selector
 
 The qWDTT legacy-server guard is preserved: reject /etc/wireguard or wg0 without wdtt0 in the official server asset. Runtime scripts/binaries remain the pinned official assets described above. Login mirrors upstream mobile-login/mobile-home/desktop-login fallback, including desktop UA, language headers, third-party cookies and Unknown method error detection. TLS verification remains enabled. Auto hashes for qWDTT, CSQTT and WDTT Plus use calls created by the shared qWDTT account binding, one call per 27 workers. CSQTT and WDTT Plus join these calls with their native anonymous authorization; their own account-login flows are not used. Account calls live only in the encrypted account cache and launch-only profile copies. Stored manual hash fields remain intact when Auto is selected or VK is unlinked.
 
-Server records and SSH secrets: Android Keystore AES-GCM in noBackupFilesDir; not included in .thrbackup or subscription/profile exports. Host and key modifications require renewed trust. Operation state survives activity recreation in process, with bounded logs, last result and configuration. UI shows known stages; installer stage is indeterminate, not an invented completion percentage.
+Server records and SSH secrets: Android Keystore AES-GCM in noBackupFilesDir; not included in .rwlbackup or subscription/profile exports. Host and key modifications require renewed trust. Operation state survives activity recreation in process, with bounded logs, last result and configuration. UI shows known stages; installer stage is indeterminate, not an invented completion percentage.
 
 ## Validation limits
 

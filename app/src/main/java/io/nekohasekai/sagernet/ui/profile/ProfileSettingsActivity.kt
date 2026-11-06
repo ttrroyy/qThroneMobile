@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui.profile
+package app.rawline.mobile.ui.profile
 
 import android.annotation.SuppressLint
 import android.content.DialogInterface
@@ -23,28 +23,28 @@ import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
-import app.qthrone.mobile.widget.AlertDialogFragment
-import app.qthrone.mobile.widget.Empty
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
-import app.qthrone.mobile.Key
-import app.qthrone.mobile.utils.ShortcutAuthorization
-import app.qthrone.mobile.QuickToggleShortcut
-import app.qthrone.mobile.R
-import app.qthrone.mobile.SagerNet
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.database.ProfileManager
-import app.qthrone.mobile.database.SagerDatabase
-import app.qthrone.mobile.database.preference.OnPreferenceDataStoreChangeListener
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.onMainDispatcher
-import app.qthrone.mobile.ktx.runOnDefaultDispatcher
-import app.qthrone.mobile.ktx.runOnMainDispatcher
-import app.qthrone.mobile.outbound.Outbound
-import app.qthrone.mobile.outbound.json.JsonInput
-import app.qthrone.mobile.ui.ThemedActivity
-import app.qthrone.mobile.ui.json.JsonEditorActivity
-import app.qthrone.mobile.ui.json.ProfileJson
-import app.qthrone.mobile.widget.ListListener
+import app.rawline.mobile.widget.AlertDialogFragment
+import app.rawline.mobile.widget.Empty
+import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
+import app.rawline.mobile.Key
+import app.rawline.mobile.utils.ShortcutAuthorization
+import app.rawline.mobile.QuickToggleShortcut
+import app.rawline.mobile.R
+import app.rawline.mobile.SagerNet
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.database.ProfileManager
+import app.rawline.mobile.database.SagerDatabase
+import app.rawline.mobile.database.preference.OnPreferenceDataStoreChangeListener
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.onMainDispatcher
+import app.rawline.mobile.ktx.runOnDefaultDispatcher
+import app.rawline.mobile.ktx.runOnMainDispatcher
+import app.rawline.mobile.outbound.Outbound
+import app.rawline.mobile.outbound.json.JsonInput
+import app.rawline.mobile.ui.ThemedActivity
+import app.rawline.mobile.ui.json.JsonEditorActivity
+import app.rawline.mobile.ui.json.ProfileJson
+import app.rawline.mobile.widget.ListListener
 import kotlinx.parcelize.Parcelize
 import kotlin.properties.Delegates
 
@@ -150,8 +150,8 @@ abstract class ProfileSettingsActivity<T : Outbound>(
             runOnDefaultDispatcher {
                 if (editingId == 0L) {
                     val target = intent.getLongExtra("qmobileGroupId", 0L)
-                    DataStore.editingGroup = target.takeIf { app.qthrone.mobile.database.GroupRepo.get(it) != null }
-                        ?: app.qthrone.mobile.ui.SubscribeFlows.targetGroupId()
+                    DataStore.editingGroup = target.takeIf { app.rawline.mobile.database.GroupRepo.get(it) != null }
+                        ?: app.rawline.mobile.ui.SubscribeFlows.targetGroupId()
                     editingOutbound = createEntity()
                 } else {
                     val entity = proxyEntity
@@ -263,7 +263,7 @@ abstract class ProfileSettingsActivity<T : Outbound>(
         menuInflater.inflate(R.menu.profile_config_menu, menu)
         // Like the list: the started profile can be edited, not deleted.
         menu.findItem(R.id.action_delete)?.isVisible = false
-        menu.findItem(R.id.action_apply)?.apply { isVisible = DataStore.dirty; icon?.setTint(app.qthrone.mobile.ui.MobilePalette.accent(this@ProfileSettingsActivity)) }
+        menu.findItem(R.id.action_apply)?.apply { isVisible = DataStore.dirty; icon?.setTint(app.rawline.mobile.ui.MobilePalette.accent(this@ProfileSettingsActivity)) }
         menu.findItem(R.id.action_move)?.apply {
             if (DataStore.editingId != 0L // not new profile
                 && SagerDatabase.groupDao.getById(DataStore.editingGroup)?.isSubscription == false
@@ -316,7 +316,7 @@ abstract class ProfileSettingsActivity<T : Outbound>(
     }
 
     open fun PreferenceFragmentCompat.displayPreferenceDialog(preference: Preference): Boolean {
-        if(preference is androidx.preference.ListPreference) return app.qthrone.mobile.ui.MobileSelector.show(requireContext(),preference)
+        if(preference is androidx.preference.ListPreference) return app.rawline.mobile.ui.MobileSelector.show(requireContext(),preference)
         return false
     }
 
@@ -342,7 +342,7 @@ abstract class ProfileSettingsActivity<T : Outbound>(
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
-            app.qthrone.mobile.ui.MobileSettingsStyle.apply(this,view)
+            app.rawline.mobile.ui.MobileSettingsStyle.apply(this,view)
 
             ViewCompat.setOnApplyWindowInsetsListener(listView, ListListener)
 
@@ -429,7 +429,7 @@ abstract class ProfileSettingsActivity<T : Outbound>(
                 if (displayPreferenceDialog(preference)) return
             }
             if (preference is androidx.preference.EditTextPreference) {
-                app.qthrone.mobile.ui.MobilePreferenceDialog.show(this, preference)
+                app.rawline.mobile.ui.MobilePreferenceDialog.show(this, preference)
                 return
             }
             super.onDisplayPreferenceDialog(preference)

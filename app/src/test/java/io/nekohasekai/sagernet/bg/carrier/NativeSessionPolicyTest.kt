@@ -1,4 +1,4 @@
-package app.qthrone.mobile.bg.carrier
+package app.rawline.mobile.bg.carrier
 
 import org.junit.Assert.*
 import org.junit.Test
@@ -6,16 +6,16 @@ import org.junit.Test
 class NativeSessionPolicyTest {
     @Test fun nineWorkerProbeNeverChangesTheProfileOrAnInteractiveConnection() {
         val source="""{"peer":"192.0.2.1:56003","device_id":"phone","workers":108,"mode":"raw","hashes":["one","two","three"]}"""
-        val probe=app.qthrone.mobile.outbound.json.JsonInput.parseObject(NativeSessionPolicy.probeConfig(CarrierKind.QWDTT,source,false))
+        val probe=app.rawline.mobile.outbound.json.JsonInput.parseObject(NativeSessionPolicy.probeConfig(CarrierKind.QWDTT,source,false))
         assertEquals(9,probe.int("workers"))
         assertEquals("raw",probe.string("mode"))
         assertTrue(probe.bool("probe_only"))
         assertTrue(probe.bool("interactive_captcha"))
         assertEquals(source,NativeSessionPolicy.probeConfig(CarrierKind.QWDTT,source,true))
-        val speed=app.qthrone.mobile.outbound.json.JsonInput.parseObject(NativeSessionPolicy.probeConfig(CarrierKind.QWDTT,source,false,latencyProbe=false))
+        val speed=app.rawline.mobile.outbound.json.JsonInput.parseObject(NativeSessionPolicy.probeConfig(CarrierKind.QWDTT,source,false,latencyProbe=false))
         assertEquals(108,speed.int("workers"))
         assertTrue(speed.bool("probe_only"))
-        val cs=app.qthrone.mobile.outbound.json.JsonInput.parseObject(NativeSessionPolicy.probeConfig(CarrierKind.CSQTT,source,false))
+        val cs=app.rawline.mobile.outbound.json.JsonInput.parseObject(NativeSessionPolicy.probeConfig(CarrierKind.CSQTT,source,false))
         assertEquals(108,cs.int("workers"))
         assertTrue(cs.bool("interactive_captcha"))
     }
@@ -37,7 +37,7 @@ class NativeSessionPolicyTest {
         assertFalse(NativeSessionPolicy.unavailableCall("network timeout"))
         assertFalse(NativeSessionPolicy.unavailableCall("FATAL_AUTH: wrong password"))
         for(attempt in 0..2) {
-            val candidate=app.qthrone.mobile.outbound.json.JsonInput.parseObject(NativeSessionPolicy.rotatedHashes(source,attempt))
+            val candidate=app.rawline.mobile.outbound.json.JsonInput.parseObject(NativeSessionPolicy.rotatedHashes(source,attempt))
             assertEquals(listOf("closed","second","third")[attempt],candidate.array("hashes").strings().first())
             assertEquals(setOf("closed","second","third"),candidate.array("hashes").strings().toSet())
             assertEquals("fixture",candidate.string("password"))
@@ -64,7 +64,7 @@ class NativeSessionPolicyTest {
         assertTrue(NativeSessionPolicy.sharesRemoteSession(CarrierKind.WDTTPLUS,source,CarrierKind.WDTTPLUS,changed))
         assertFalse(NativeSessionPolicy.sharesRemoteSession(CarrierKind.WDTTPLUS,source,CarrierKind.WDTTPLUS,changed.replace("phone","other")))
         assertFalse(NativeSessionPolicy.sharesRemoteSession(CarrierKind.WDTTPLUS,source,CarrierKind.WDTTPLUS,changed.replace("192.0.2.1","192.0.2.2")))
-        val probe=app.qthrone.mobile.outbound.json.JsonInput.parseObject(NativeSessionPolicy.probeConfig(CarrierKind.WDTTPLUS,source,false))
+        val probe=app.rawline.mobile.outbound.json.JsonInput.parseObject(NativeSessionPolicy.probeConfig(CarrierKind.WDTTPLUS,source,false))
         val args=probe.array("args").strings()
         assertEquals("9",args[args.indexOf("-n")+1])
         assertEquals("a",probe.obj("start").string("vk_hashes"))

@@ -139,7 +139,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-            <app.qthrone.mobile.ui.profiles.TypeLineLayout
+            <app.rawline.mobile.ui.profiles.TypeLineLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="12dp"
@@ -185,7 +185,7 @@
                     android:textColor="?android:attr/textColorSecondary"
                     tools:text="19 kB↑ 35 kB↓" />
 
-            </app.qthrone.mobile.ui.profiles.TypeLineLayout>
+            </app.rawline.mobile.ui.profiles.TypeLineLayout>
 
             <TextView
                 android:id="@+id/profile_error"

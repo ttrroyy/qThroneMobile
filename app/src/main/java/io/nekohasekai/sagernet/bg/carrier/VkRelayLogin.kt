@@ -1,4 +1,4 @@
-package app.qthrone.mobile.bg.carrier
+package app.rawline.mobile.bg.carrier
 
 /** qWDTT's three login routes; VK ID's WebView error must advance the route once. */
 internal object VkRelayLogin {
@@ -21,7 +21,7 @@ internal object VkRelayLogin {
             window.__qthrone_login_watcher=true;
             function check() {
                 var t=((document.body && document.body.innerText)||'').toLowerCase();
-                if(t.indexOf('unknown method')!==-1) window.QThroneVkLogin.onLoginError();
+                if(t.indexOf('unknown method')!==-1) window.RawlineVkLogin.onLoginError();
             }
             setInterval(check,900);
             if(document.documentElement) new MutationObserver(check).observe(document.documentElement,

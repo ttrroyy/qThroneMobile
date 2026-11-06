@@ -1,10 +1,10 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.app.Activity
 import android.view.View
 import androidx.annotation.StringRes
 import com.google.android.material.snackbar.Snackbar
-import app.qthrone.mobile.ktx.Logs
+import app.rawline.mobile.ktx.Logs
 import java.lang.ref.WeakReference
 
 object MessageStore {

@@ -2,10 +2,10 @@ package moe.matsuri.nb4a.proxy
 
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.ktx.Logs
-import app.qthrone.mobile.ktx.readableMessage
-import app.qthrone.mobile.outbound.common.MuxStateModel
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.ktx.Logs
+import app.rawline.mobile.ktx.readableMessage
+import app.rawline.mobile.outbound.common.MuxStateModel
 import java.lang.reflect.Field
 import java.lang.reflect.ParameterizedType
 
@@ -21,7 +21,7 @@ object Type {
      */
     const val TriState = 4
 
-    /** The multiplex menu of [app.qthrone.mobile.outbound.common.MuxStateModel] stored as "0" to "3"; bind it last. */
+    /** The multiplex menu of [app.rawline.mobile.outbound.common.MuxStateModel] stored as "0" to "3"; bind it last. */
     const val MuxState = 5
 }
 

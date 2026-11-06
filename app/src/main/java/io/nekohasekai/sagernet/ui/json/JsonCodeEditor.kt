@@ -1,4 +1,4 @@
-package app.qthrone.mobile.ui.json
+package app.rawline.mobile.ui.json
 
 import android.content.Context
 import android.util.AttributeSet

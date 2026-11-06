@@ -1,11 +1,11 @@
-package app.qthrone.mobile.database.backup
+package app.rawline.mobile.database.backup
 
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteProgram
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteProgram
-import app.qthrone.mobile.SagerNet
+import app.rawline.mobile.SagerNet
 import java.io.File
 
 /** Rows of one table as the cursor typed them (Long, Double, String, ByteArray or null), copied column by name. */
@@ -79,7 +79,7 @@ internal fun SupportSQLiteDatabase.longQuery(sql: String, vararg args: Any?): Lo
 
 /** Temporary SQLite files next to the cache, removed with their journals by [deleteTemp]. */
 internal object BackupTemp {
-    const val EXPORT = "thrbackup-"
+    const val EXPORT = "rwlbackup-"
     const val RESTORE = "thrrestore-"
 
     fun newFile(prefix: String): File {

@@ -1,9 +1,9 @@
-package app.qthrone.mobile.ui
+package app.rawline.mobile.ui
 
 import android.content.Context
 import android.graphics.Color
-import app.qthrone.mobile.database.DataStore
-import app.qthrone.mobile.utils.Theme
+import app.rawline.mobile.database.DataStore
+import app.rawline.mobile.utils.Theme
 import com.google.android.material.color.MaterialColors
 
 object MobileStyle {
@@ -32,7 +32,10 @@ object MobilePalette {
     /** A screen's own colour: the new style's screens let the backdrop through. */
     val screen get() = if (MobileStyle.new) Color.TRANSPARENT else background
     /** Over content that must stay readable: notices, dialogs, sheets. */
-    val frosted get() = if (light) Color.argb(226,250,250,252) else Color.argb(232,8,8,9)
+    /** The blur behind sheets and dialogs: enough to lift them off the screen, while what is behind stays recognisable. */
+    const val BLUR_DP = 20
+    val windowDim get() = if (light) .35f else .6f
+    val frosted get() = if (light) Color.argb(248,250,250,252) else Color.argb(248,10,10,11)
     val outline get() = androidx.core.graphics.ColorUtils.setAlphaComponent(muted,55)
     fun accent(context: Context) = if (MobileStyle.new) text else if (!DataStore.useSystemTheme && DataStore.appTheme == Theme.CYAN) Color.rgb(87,190,229)
         else MaterialColors.getColor(context, androidx.appcompat.R.attr.colorAccent, Color.rgb(87,190,229))
@@ -49,6 +52,11 @@ object MobilePalette {
             setColor(androidx.core.graphics.ColorUtils.blendARGB(surface, color, .16f))
             cornerRadius = rowDp * density; setStroke(density.toInt().coerceAtLeast(1), color)
         }
+    }
+    /** A button revealed behind a swiped row: a drop of glass in [color], clear of its neighbours. */
+    fun actionShape(context: Context, color: Int): android.graphics.drawable.Drawable {
+        val density = context.resources.displayMetrics.density
+        return android.graphics.drawable.InsetDrawable(MobileGlass(rowDp * density, color), (4 * density).toInt())
     }
     /** A notice over the content behind it. */
     fun frostedShape(context: Context): android.graphics.drawable.Drawable = if (!MobileStyle.new) shape(context, cardDp) else android.graphics.drawable.GradientDrawable().apply {

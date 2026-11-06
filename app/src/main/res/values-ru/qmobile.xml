@@ -16,6 +16,7 @@
 <string name="qmobile_disconnected">Не подключено</string>
 <string name="qmobile_clipboard_empty">Буфер обмена пуст</string>
 <string name="qmobile_collapse_all">Скрыть / раскрыть все</string>
+<string name="qmobile_group_profiles">Профили</string>
 <string name="qmobile_share">Поделиться профилем</string>
 <string name="qmobile_delete">Удалить</string>
 <string name="qmobile_delete_failed">Не удалось удалить профиль.</string>

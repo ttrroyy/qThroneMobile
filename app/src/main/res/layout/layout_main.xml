@@ -29,13 +29,13 @@
             app:indicatorColor="?primaryOrTextSecondary"
             app:layout_anchor="@+id/fab"
             app:layout_anchorGravity="center"
-            app:layout_behavior="app.qthrone.mobile.widget.FabProgressBehavior"
+            app:layout_behavior="app.rawline.mobile.widget.FabProgressBehavior"
             app:trackCornerRadius="@dimen/mtrl_progress_track_thickness"
             app:trackThickness="8dp" />
 
         <!-- Anchored to the bar, the FAB must not dodge snackbars: the dodge offset fights the anchor and
              strands the FAB over the bar's status line (#47). "top" only because "none" becomes bottom. -->
-        <app.qthrone.mobile.widget.ServiceButton
+        <app.rawline.mobile.widget.ServiceButton
             android:id="@+id/fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
             app:pressedTranslationZ="6dp"
             app:srcCompat="@drawable/ic_service_idle" />
 
-        <app.qthrone.mobile.widget.StatsBar
+        <app.rawline.mobile.widget.StatsBar
             android:id="@+id/stats"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -62,7 +62,7 @@
             <!-- Three lines; one line in landscape (layout-land). -->
             <include layout="@layout/layout_stats_bar_content" />
 
-        </app.qthrone.mobile.widget.StatsBar>
+        </app.rawline.mobile.widget.StatsBar>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

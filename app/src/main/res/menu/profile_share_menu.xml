@@ -9,7 +9,7 @@
                 android:title="@string/standard" />
             <item
                 android:id="@+id/action_universal_qr"
-                android:title="@string/throne_link" />
+                android:title="@string/rawline_link" />
         </menu>
     </item>
     <item
@@ -21,7 +21,7 @@
                 android:title="@string/standard" />
             <item
                 android:id="@+id/action_universal_clipboard"
-                android:title="@string/throne_link" />
+                android:title="@string/rawline_link" />
         </menu>
     </item>
     <item

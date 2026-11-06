@@ -1,7 +1,7 @@
-package app.qthrone.mobile.ui.profile
+package app.rawline.mobile.ui.profile
 
-import app.qthrone.mobile.R
-import app.qthrone.mobile.outbound.types.Direct
+import app.rawline.mobile.R
+import app.rawline.mobile.outbound.types.Direct
 
 /** A direct outbound: a name and the dial fields only. */
 class DirectSettingsActivity : BindingSettingsActivity<Direct>() {
