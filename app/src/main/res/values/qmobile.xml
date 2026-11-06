@@ -1,6 +1,7 @@
 <resources>
 <item name="nav_mobile_home" type="id"/>
 <string name="qmobile_connect">Connect or disconnect VPN</string>
+<string name="qmobile_add_group">Add group or subscription</string>
 <string name="qmobile_clipboard">From clipboard</string>
 <string name="qmobile_qr">QR code</string>
 <string name="qmobile_profiles">Profiles and tests</string>

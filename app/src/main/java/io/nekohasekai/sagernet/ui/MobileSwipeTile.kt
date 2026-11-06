@@ -13,12 +13,31 @@ import android.widget.LinearLayout
 import kotlin.math.abs
 
 /** Horizontal swipe reveals actions; vertical drags continue scrolling the subscription list. */
-class MobileSwipeTile(context:Context, private val row:View, test:View?, share:View, delete:View, private val deleteOnly:Boolean=false):FrameLayout(context) {
+class MobileSwipeTile(context:Context, private val row:View, private val makeActions:() -> List<View?>, private val deleteOnly:Boolean=false):FrameLayout(context) {
+    constructor(context:Context, row:View, test:View?, share:View, delete:View, deleteOnly:Boolean=false):this(context,row,{ listOf(test,share,delete) },deleteOnly) { buildActions() }
+    private var built=false
+    /** A long list would hold three more buttons per row that are rarely seen: they appear on the first swipe. */
+    private fun buildActions() {
+        if(built) return
+        built=true
+        val actions=makeActions()
+        primaryActions=actions.dropLast(1).filterNotNull()
+        right=actions.last()!!.also {
+            it.visibility=View.INVISIBLE
+            it.importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+            // Under the row, which is drawn last.
+            addView(it,1,LayoutParams(actionWidth.toInt(),-1,android.view.Gravity.END))
+        }
+        addActions(primaryActions)
+        widthPx=actionWidth*primaryActions.size
+        left.layoutParams=left.layoutParams.apply { width=widthPx.toInt() }
+    }
     private var settling: ValueAnimator? = null
     var onOpened: ((MobileSwipeTile) -> Unit)? = null
-    private val primaryActions=listOfNotNull(test,share)
+    private var primaryActions=emptyList<View>()
     private val actionWidth=64*resources.displayMetrics.density
     fun showShareChoices(vararg choices:View) {
+        buildActions()
         left.removeAllViews()
         addActions(choices.toList())
         widthPx=actionWidth*choices.size
@@ -39,27 +58,23 @@ class MobileSwipeTile(context:Context, private val row:View, test:View?, share:V
     }
     fun closeActions() {
         left.importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
-        right.importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+        right?.importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
         settle(0f)
     }
-    private var widthPx=actionWidth*primaryActions.size
+    private var widthPx=0f
     private val slop=ViewConfiguration.get(context).scaledTouchSlop
     private var downX=0f; private var downY=0f; private var initial=0f
     private var dragging=false
     private var touchedRow=false
     private val direction: Float get() = if(layoutDirection==View.LAYOUT_DIRECTION_RTL) -1f else 1f
     private val left=LinearLayout(context)
-    private val right=delete
+    private var right:View?=null
     init {
-        addActions(primaryActions)
-        addView(left,LayoutParams(widthPx.toInt(),-1,android.view.Gravity.START))
-        addView(delete,LayoutParams(actionWidth.toInt(),-1,android.view.Gravity.END))
+        addView(left,LayoutParams(0,-1,android.view.Gravity.START))
         addView(row,LayoutParams(-1,-2))
         clipChildren=true
         left.visibility=View.INVISIBLE
-        right.visibility=View.INVISIBLE
         left.importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
-        right.importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
     }
     private fun settle(target: Float) {
         settling?.cancel()
@@ -71,7 +86,7 @@ class MobileSwipeTile(context:Context, private val row:View, test:View?, share:V
             row.translationX=it.animatedValue as Float
             val offset=row.translationX*direction
             left.visibility=if(offset>0f) View.VISIBLE else View.INVISIBLE
-            right.visibility=if(offset<0f) View.VISIBLE else View.INVISIBLE
+            right?.visibility=if(offset<0f) View.VISIBLE else View.INVISIBLE
             invalidate()
         }
         animation.addListener(object: AnimatorListenerAdapter() {
@@ -106,7 +121,7 @@ class MobileSwipeTile(context:Context, private val row:View, test:View?, share:V
             resolveSize(row.measuredHeight, heightMeasureSpec))
         val heightSpec=MeasureSpec.makeMeasureSpec(measuredHeight, MeasureSpec.EXACTLY)
         left.measure(MeasureSpec.makeMeasureSpec(widthPx.toInt(), MeasureSpec.EXACTLY),heightSpec)
-        right.measure(MeasureSpec.makeMeasureSpec(actionWidth.toInt(), MeasureSpec.EXACTLY),heightSpec)
+        right?.measure(MeasureSpec.makeMeasureSpec(actionWidth.toInt(), MeasureSpec.EXACTLY),heightSpec)
     }
     override fun onDetachedFromWindow() {
         settling?.cancel();settling=null
@@ -115,18 +130,20 @@ class MobileSwipeTile(context:Context, private val row:View, test:View?, share:V
     override fun onInterceptTouchEvent(e:MotionEvent):Boolean {
         if(e.actionMasked==MotionEvent.ACTION_DOWN) { settling?.cancel(); settling=null; downX=e.x;downY=e.y;initial=row.translationX*direction;dragging=false; touchedRow=e.x>=row.translationX && e.x<row.translationX+row.width; if(initial!=0f && touchedRow) return true }
         if(e.actionMasked==MotionEvent.ACTION_MOVE && abs(e.x-downX)>slop && abs(e.x-downX)>abs(e.y-downY)) {
+            buildActions()
             dragging=true;parent.requestDisallowInterceptTouchEvent(true);return true
         }
         if(e.actionMasked==MotionEvent.ACTION_UP && initial!=0f && !dragging && touchedRow) return true
         return super.onInterceptTouchEvent(e)
     }
     override fun onTouchEvent(e:MotionEvent):Boolean {
+        buildActions()
         when(e.actionMasked) {
             MotionEvent.ACTION_MOVE -> {
                 if(abs(e.x-downX)>slop && abs(e.x-downX)>abs(e.y-downY)) dragging=true
                 val offset=(initial+(e.x-downX)*direction).coerceIn(-actionWidth,if(deleteOnly) 0f else widthPx)
                 left.visibility=if(offset>0) View.VISIBLE else View.INVISIBLE
-                right.visibility=if(offset<0) View.VISIBLE else View.INVISIBLE
+                right?.visibility=if(offset<0) View.VISIBLE else View.INVISIBLE
                 row.translationX=offset*direction
                 invalidate()
             }
@@ -135,7 +152,7 @@ class MobileSwipeTile(context:Context, private val row:View, test:View?, share:V
                 val end=if(e.actionMasked==MotionEvent.ACTION_CANCEL || !dragging) 0f else if(x>widthPx*.35f) widthPx else if(x< -actionWidth*.4f) -actionWidth else 0f
                 if(end!=0f) onOpened?.invoke(this)
                 left.importantForAccessibility=if(end>0) View.IMPORTANT_FOR_ACCESSIBILITY_AUTO else View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
-                right.importantForAccessibility=if(end<0) View.IMPORTANT_FOR_ACCESSIBILITY_AUTO else View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+                right?.importantForAccessibility=if(end<0) View.IMPORTANT_FOR_ACCESSIBILITY_AUTO else View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
                 settle(end*direction)
                 parent.requestDisallowInterceptTouchEvent(false)
             }

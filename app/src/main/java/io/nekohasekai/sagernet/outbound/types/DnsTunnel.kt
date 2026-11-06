@@ -35,6 +35,7 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
         private const val PREFIX="dnst://"
         private val PUBLIC_RESOLVERS=listOf("8.8.8.8","1.1.1.1","9.9.9.9","77.88.8.8")
         private val WHITEDNS_SCHEMES=listOf("masterdns","stormdns","cottendns","soar")
+        val COTTEN_PRESETS=listOf("default","speed","survival","tcp-survival","master-storm")
         private val HEX64=Regex("[0-9a-fA-F]{64}")
 
         /** SlipNet's tunnel types that are DNS tunnels this client runs, by its export name. */
@@ -229,7 +230,7 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
         o["RESOLVER_UDP_CONNECTION_POOL_SIZE"]=64;o["STREAM_QUEUE_INITIAL_CAPACITY"]=128;o["ORPHAN_QUEUE_INITIAL_CAPACITY"]=32
         o["DNS_RESPONSE_FRAGMENT_STORE_CAPACITY"]=256;o["SOCKS_UDP_ASSOCIATE_READ_TIMEOUT_SECONDS"]=30.0
         fun choice(key:String,allowed:List<String>,fallback:String="preset")=s.string(key).trim().lowercase().takeIf { it in allowed } ?: fallback
-        val preset=choice("configPreset",listOf("default","speed","survival","tcp-survival","master-storm"),"default")
+        val preset=choice("configPreset",COTTEN_PRESETS,"default")
         val legacy=preset=="master-storm"
         val survival=preset=="survival"
         val transportMode=choice("transportMode",listOf("auto","udp","tcp","dot","doh","doh3","doq"))

@@ -82,8 +82,9 @@ class UiTourTest {
         })
         return group to SagerDatabase.proxyDao.getByGroup(group.id).first()
     }
-    private fun home(mode: String) {
+    private fun home(mode: String, control: String = "button") {
         val (group, _) = fixtures()
+        DataStore.configurationStore.putString("qmobileHomeControl", control)
         DataStore.mobileListMode = mode
         GroupRepo.setCurrent(group.id)
         open(MainActivity::class.java)
@@ -96,7 +97,7 @@ class UiTourTest {
         repeat(24) {
             instrumentation.runOnMainSync {
                 fun walk(view: android.view.View) {
-                    (view.background as? MobilePowerArtwork)?.let { it.connected = connected; it.connecting = !connected; it.statusText = if (connected) "Подключено" else "Подключение"; it.elapsedText = "00:12:49" }
+                    (view.background as? MobilePowerArtwork)?.let { it.connected = connected; it.connecting = !connected; it.statusText = if (connected) "Подключено" else "Подключение"; it.elapsedText = "00:12:49"; it.workersText = "27/27" }
                     if (view is android.view.ViewGroup) for (index in 0 until view.childCount) walk(view.getChildAt(index))
                 }
                 walk(resumed().window.decorView)
@@ -114,6 +115,13 @@ class UiTourTest {
         "home-list" to { home("list") },
         "home-connecting" to { orb(false) },
         "home-connected" to { orb(true) },
+        "home-switches" to { home("groups", "switches") },
+        "home-empty" to {
+            DataStore.configurationStore.putString("qmobileHomeControl", "button")
+            SagerDatabase.groupDao.allGroups().filter { it.name == "api.host-cloud.uk" }.forEach { SagerDatabase.groupDao.deleteById(it.id) }
+            open(MainActivity::class.java)
+            Thread.sleep(1000)
+        },
         "home-sheet" to { home("groups"); tap("ru-tcp-reality"); Thread.sleep(1500) },
         "home-picker" to { home("groups"); tapTopmost("api.host-cloud.uk") },
         "home-menu" to { home("groups"); tap(R.string.qmobile_quick_menu) },

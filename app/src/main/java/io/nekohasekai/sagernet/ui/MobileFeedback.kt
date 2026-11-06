@@ -11,6 +11,8 @@ object MobileFeedback {
     fun onTouchDown(root: View, event: android.view.MotionEvent) {
         if(!MobileStyle.new || event.actionMasked!=android.view.MotionEvent.ACTION_DOWN) return
         val target=controlAt(root,event.x,event.y) ?: return
+        // The connect button presses and animates by itself; a ripple around it would hide it from the home screen.
+        if(target.background is MobilePowerArtwork) return
         val density=target.resources.displayMetrics.density
         // Sheets and whole panels are clickable only to stop touches; the switch, inputs and lists have their own response.
         if(target.height>220*density || target is android.widget.EditText || target is android.widget.CompoundButton || target is android.widget.AbsListView) return

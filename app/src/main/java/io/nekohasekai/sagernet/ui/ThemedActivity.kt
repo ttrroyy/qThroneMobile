@@ -52,6 +52,7 @@ abstract class ThemedActivity : AppCompatActivity, androidx.preference.Preferenc
         super.onCreate(savedInstanceState)
         MobileScreenMotion.fullFrameRate(window)
         if (!isDialog) MobileScreenMotion.open(this)
+        if (!isDialog) window.decorView.post { MobileScreenMotion.fadeAfterRecreate(this) }
         if (MobileStyle.new && !isDialog) window.setBackgroundDrawable(MobileHomeBackdrop())
 
         supportFragmentManager.registerFragmentLifecycleCallbacks(object : androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks() {

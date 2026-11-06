@@ -99,6 +99,13 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
                 for((key,value) in mapOf("discovery" to true,"country" to "IR")) if(!soar.contains(key)) soar[key]=value
                 document["soar"]=soar
             }
+            if(type=="cottendns") {
+                // The other WhiteDNS settings of an imported profile stay as they came.
+                val cotten=document.obj("cotten")
+                val preset=cotten.string("configPreset").trim().lowercase()
+                cotten["configPreset"]=if(preset in app.rawline.mobile.outbound.types.DnsTunnel.COTTEN_PRESETS) preset else "default"
+                document["cotten"]=cotten
+            }
             if(!app.rawline.mobile.outbound.types.DnsTunnel.keyed(type)) {
                 val backend=document.obj("backend")
                 for(key in listOf("user","password","pk","method")) if(!backend.contains(key)) backend[key]=""
@@ -144,7 +151,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "dnstt" -> listOf("name","domain","pubkey","resolvers") + backendFields
             "vaydns" -> listOf("name","domain","pubkey","resolvers","record_type","dnstt_compat","clientid_size","idle_timeout","keepalive") + backendFields
             "slipstream" -> listOf("name","domain","cert","resolvers","authoritative","congestion_control","keep_alive_interval") + backendFields
-            "masterdns","cottendns" -> listOf("name","domain","mkey","encryption","resolvers","options")
+            "masterdns","cottendns" -> listOf("name","domain","mkey","encryption","cotten.configPreset","resolvers","options")
             "soar" -> listOf("name","domain","pubkey","resolvers","soar.discovery","soar.country")
             "sstp" -> listOf("name","server","server_port","username","password","sni","allow_insecure","use_server_dns")
             "openfluxkey" -> listOf("name","transport","doc_url","key_token","e2e_encryption")
@@ -280,7 +287,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "record_type" to "Тип DNS-записи", "dnstt_compat" to "Совместимость с DNSTT", "clientid_size" to "Размер ClientID, байт",
             "idle_timeout" to "Тайм-аут простоя", "keepalive" to "Интервал keepalive", "cert" to "Сертификат сервера (PEM)",
             "authoritative" to "Резолвер — авторитетный сервер", "congestion_control" to "Управление перегрузкой",
-            "keep_alive_interval" to "Keepalive QUIC, мс", "mkey" to "Ключ шифрования", "encryption" to "Шифрование",
+            "keep_alive_interval" to "Keepalive QUIC, мс", "mkey" to "Ключ шифрования", "encryption" to "Шифрование", "configPreset" to "Пресет CottenDNS",
             "discovery" to "Искать рабочие резолверы страны", "country" to "Страна сети",
             "use_server_dns" to getString(R.string.sstp_use_server_dns),
             "backend_type" to "Сервис на сервере", "user" to "Логин", "username" to "Имя пользователя", "sni" to "SNI (Server Name)", "allow_insecure" to "Разрешить недоверенный сертификат", "pk" to "Приватный ключ SSH", "method" to "Метод шифрования",
@@ -298,10 +305,11 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "video-qr-recovery" to listOf("low","medium","high","highest"),
             "backend_type" to listOf("socks","ssh","shadowsocks"), "record_type" to app.rawline.mobile.outbound.types.DnsTunnel.RECORD_TYPES,
             "congestion_control" to listOf("bbr","dcubic"), "encryption" to listOf("0","1","2","3","4","5"),
+            "configPreset" to app.rawline.mobile.outbound.types.DnsTunnel.COTTEN_PRESETS,
             "method" to listOf("chacha20-ietf-poly1305","aes-256-gcm","aes-128-gcm"),
             "engine" to listOf("wdttplus","qwdtt"), "csqtt_version" to listOf("2.5.0","2.1.9"))
         val captions=mutableMapOf("backend_type" to listOf("SOCKS5","SSH","Shadowsocks"),"record_type" to app.rawline.mobile.outbound.types.DnsTunnel.RECORD_TYPES.map { it.uppercase() },
-            "congestion_control" to listOf("BBR","DCUBIC"),"encryption" to listOf("Нет","XOR","ChaCha20","AES-128-GCM","AES-192-GCM","AES-256-GCM"),"hash_source" to listOf("Вручную","Созданные в клиенте"),"mode" to listOf("RAW","WG"),"turn_tcp" to listOf("UDP","TCP"),
+            "congestion_control" to listOf("BBR","DCUBIC"),"encryption" to listOf("Нет","XOR","ChaCha20","AES-128-GCM","AES-192-GCM","AES-256-GCM"),"configPreset" to listOf("Default","Speed","Survival","TCP Survival","Master/Storm"),"hash_source" to listOf("Вручную","Созданные в клиенте"),"mode" to listOf("RAW","WG"),"turn_tcp" to listOf("UDP","TCP"),
             "vk_anon_path" to listOf("Звонок VK","Капча"),"captcha_mode" to listOf("Автоматически, с переходом в браузер","Окно браузера","Автоматически"),
             "provider" to listOf("Jitsi","Телемост","WBStream"),"obfs" to listOf("Аудио","Видео"),
             "engine" to listOf("WDTT Plus","qWDTT"),"csqtt_version" to listOf("2.5.0 и новее","2.1.9"))

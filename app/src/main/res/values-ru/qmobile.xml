@@ -1,5 +1,6 @@
 <resources>
 <string name="qmobile_connect">Подключить или отключить VPN</string>
+<string name="qmobile_add_group">Добавить группу или подписку</string>
 <string name="qmobile_clipboard">Из буфера</string>
 <string name="qmobile_qr">QR-код</string>
 <string name="qmobile_profiles">Профили и тесты</string>

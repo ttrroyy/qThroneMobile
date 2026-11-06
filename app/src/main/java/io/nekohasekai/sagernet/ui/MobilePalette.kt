@@ -35,7 +35,7 @@ object MobilePalette {
     /** The blur behind sheets and dialogs: enough to lift them off the screen, while what is behind stays recognisable. */
     const val BLUR_DP = 20
     val windowDim get() = if (light) .35f else .6f
-    val frosted get() = if (light) Color.argb(248,250,250,252) else Color.argb(248,10,10,11)
+    val frosted get() = if (light) Color.argb(248,250,250,252) else Color.argb(248,0,0,0)
     val outline get() = androidx.core.graphics.ColorUtils.setAlphaComponent(muted,55)
     fun accent(context: Context) = if (MobileStyle.new) text else if (!DataStore.useSystemTheme && DataStore.appTheme == Theme.CYAN) Color.rgb(87,190,229)
         else MaterialColors.getColor(context, androidx.appcompat.R.attr.colorAccent, Color.rgb(87,190,229))

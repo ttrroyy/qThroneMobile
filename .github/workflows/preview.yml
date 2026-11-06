@@ -9,6 +9,8 @@ jobs:
   preview:
     name: APK
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
     env:
       SIGNING_KEYSTORE_B64: ${{ secrets.SIGNING_KEYSTORE_B64 }}
       SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
@@ -60,3 +62,61 @@ jobs:
           path: dist/
           if-no-files-found: error
           retention-days: 14
+  update-check:
+    name: Update over the last release
+    needs: preview
+    if: needs.preview.outputs.tag != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: RawlineMobile-${{ needs.preview.outputs.tag }}
+          path: new-apk
+      - name: Download the last published beta
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download v3.3.1-beta.3 -R "${{ github.repository }}" -p '*x86_64.apk' -D old-apk
+      - name: Install the new build over it
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ANDROID_USER_HOME="$RUNNER_TEMP/android"
+          export ANDROID_AVD_HOME="$ANDROID_USER_HOME/avd"
+          mkdir -p "$ANDROID_AVD_HOME" update-check
+          ADB="$ANDROID_HOME/platform-tools/adb"
+          SDK="$ANDROID_HOME/cmdline-tools/latest/bin"
+          yes | "$SDK/sdkmanager" 'system-images;android-35;google_apis;x86_64' 'emulator' 'platform-tools' > /dev/null || test -d "$ANDROID_HOME/system-images/android-35/google_apis/x86_64"
+          "$SDK/avdmanager" create avd -n update -k 'system-images;android-35;google_apis;x86_64' --device pixel_6 --path "$ANDROID_AVD_HOME/update.avd" --force
+          if test -e /dev/kvm; then sudo chmod a+rw /dev/kvm; fi
+          "$ANDROID_HOME/emulator/emulator" -avd update -no-window -no-audio -no-snapshot -no-boot-anim -gpu swiftshader_indirect > "$RUNNER_TEMP/emulator.log" 2>&1 &
+          timeout 180 "$ADB" wait-for-device
+          for attempt in $(seq 1 180); do
+            if test "$("$ADB" shell getprop sys.boot_completed | tr -d '\r')" = 1; then break; fi
+            sleep 3
+          done
+          sleep 30
+          PACKAGE=app.qthrone.mobile
+          launch() {
+            COMPONENT=$("$ADB" shell cmd package resolve-activity --brief -c android.intent.category.LAUNCHER "$PACKAGE" | tail -n 1 | tr -d '\r')
+            echo "launcher: $COMPONENT"
+            "$ADB" shell am start -W -n "$COMPONENT" | tee -a update-check/start-times.txt
+            sleep 20
+            "$ADB" shell pidof "$PACKAGE"
+          }
+          "$ADB" install "$(find old-apk -name '*.apk' -print -quit)"
+          launch
+          "$ADB" logcat -c
+          "$ADB" install -r "$(find new-apk -name '*x86_64*.apk' -print -quit)"
+          launch
+          "$ADB" shell dumpsys package "$PACKAGE" | grep -E 'versionName|versionCode' | tee update-check/version.txt
+          "$ADB" exec-out screencap -p > update-check/after-update.png
+          "$ADB" shell dumpsys gfxinfo "$PACKAGE" | sed -n '/Total frames/,/Number Slow UI/p' > update-check/frames.txt || true
+          "$ADB" logcat -d -b crash > update-check/crashes.txt || true
+          ! grep -q "$PACKAGE" update-check/crashes.txt
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: RawlineMobile-update-check
+          path: update-check/
+          if-no-files-found: ignore

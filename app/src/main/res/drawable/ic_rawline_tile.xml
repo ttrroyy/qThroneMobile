@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- The system tints tile and notification icons: one flat shape. -->
-<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="512" android:viewportHeight="512">
-    <path android:fillColor="@android:color/white" android:pathData="M140 436V96h170a96 96 0 0 1 0 192h-60v-56h60a40 40 0 0 0 0-80H196v284z M196 288h54l-54 56z M250 288h66l84 88 24-24v96H328l24-24z"/>
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="360" android:viewportHeight="360">
+    <group android:translateX="-102" android:translateY="-92"><path android:fillColor="@android:color/white" android:pathData="M140 436V96h170a96 96 0 0 1 0 192h-60v-56h60a40 40 0 0 0 0-80H196v284z M196 288h54l-54 56z M250 288h66l84 88 24-24v96H328l24-24z"/></group>
 </vector>

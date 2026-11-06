@@ -52,6 +52,14 @@ class MobileSheetDialog(context: Context) : BottomSheetDialog(context) {
                 setColor(if (MobileStyle.new) MobilePalette.frosted else MobilePalette.surface);cornerRadius=MobilePalette.cardDp*resources.displayMetrics.density
             }
             clipToOutline=true
+            // The behaviour puts its own elevated grey shape back on every layout, so that shape is what gets the colour.
+            if (MobileStyle.new) addOnLayoutChangeListener { view, _, _, _, _, _, _, _, _ ->
+                (view.background as? com.google.android.material.shape.MaterialShapeDrawable)?.apply {
+                    fillColor=android.content.res.ColorStateList.valueOf(MobilePalette.frosted);elevation=0f
+                    setStroke(view.resources.displayMetrics.density,MobilePalette.outline)
+                    setCornerSize(MobilePalette.cardDp*view.resources.displayMetrics.density)
+                }
+            }
         }
         if (MobileStyle.new) window?.setDimAmount(MobilePalette.windowDim)
         if (MobileStyle.new && android.os.Build.VERSION.SDK_INT >= 31) window?.let { window ->

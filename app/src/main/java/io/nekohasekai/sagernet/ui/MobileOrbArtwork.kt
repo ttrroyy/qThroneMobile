@@ -11,8 +11,8 @@ import app.rawline.mobile.R
 import kotlin.math.*
 
 /**
- * The new style's connect button: a disc whose edge turns into a slow wave once connected, with rings travelling out of it.
- * While connecting a bright stroke runs round the edge. Everything eases between the states; nothing jumps.
+ * The new style's connect button: a breathing disc with rings travelling out of it, brighter once connected.
+ * While connecting its edge turns into a rotating wave with a bright stroke round it. Everything eases between the states.
  */
 class MobileOrbArtwork(context: Context, private val idleText: String) : MobilePowerArtwork(0) {
     private val density = context.resources.displayMetrics.density
@@ -67,7 +67,6 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
         val now = SystemClock.uptimeMillis()
         val dt = if (lastFrame == 0L) 8f else (now - lastFrame).coerceIn(1, 100).toFloat()
         lastFrame = now
-        // Waves and rings belong to the connecting moment only; afterwards the edge settles into a still circle.
         val waveTo = if (connecting) 1f else 0f
         val spinTo = if (connecting) 1f else 0f
         val litTo = if (connected || connecting) 1f else 0f
@@ -76,62 +75,65 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
             wave = ease(wave, waveTo, dt, 420f); spin = ease(spin, spinTo, dt, 360f); lit = ease(lit, litTo, dt, 420f)
             angle = (angle + dt * (.14f + .24f * spin)) % 360f
             phase = (phase + dt * (.00035f + .001f * spin)) % (2f * PI.toFloat())
-        } else if (!animated) { wave = waveTo; spin = spinTo; lit = litTo }
+        } else { wave = waveTo; spin = spinTo; lit = litTo }
 
         val cx = bounds.exactCenterX()
-        val rest = minOf(bounds.width(), bounds.height()) * .25f
+        val rest = minOf(bounds.width(), bounds.height()) * .27f
         val base = rest * pressScale
-        val cy = bounds.exactCenterY() - rest * .34f
+        // The rings fade out inside the view: it clips whatever leaves it.
+        val cy = bounds.top + rest * 1.6f
         val ink = MobilePalette.text
         val day = MobilePalette.light
         shaders(cx, cy, base, day, ink)
 
-        // The rings leave the edge and fade before they reach the caption.
         if (animated) {
-            paint.style = Paint.Style.STROKE; paint.shader = null; paint.strokeWidth = density
-            val cycle = 3400f
+            paint.style = Paint.Style.STROKE; paint.shader = null; paint.strokeWidth = density * 1.2f
+            val cycle = 3000f
             for (index in 0 until 3) {
                 val travel = ((now % cycle.toLong()) / cycle + index / 3f) % 1f
-                paint.color = ColorUtils.setAlphaComponent(ink, ((1f - travel) * (1f - travel) * (22f + 18f * lit + 40f * wave)).toInt())
-                canvas.drawCircle(cx, cy, base * (1.08f + .62f * travel), paint)
+                paint.color = ColorUtils.setAlphaComponent(ink, ((1f - travel) * (1f - travel) * (70f + 50f * lit + 60f * wave)).toInt())
+                canvas.drawCircle(cx, cy, base * (1.08f + .5f * travel), paint)
             }
         }
         paint.color = Color.BLACK
-        // A soft light behind the disc grows with the connection.
+        val pulse = if (animated) sin(now / 900.0).toFloat() else 0f
+        // A soft light behind the disc grows with the connection and pulses with it.
         if (lit > .01f) {
             paint.style = Paint.Style.FILL
-            paint.shader = glow; paint.alpha = (255f * lit).toInt()
-            canvas.drawCircle(cx, cy, base * 1.7f, paint)
+            paint.shader = glow; paint.alpha = (255f * lit * (.8f + .2f * pulse)).toInt()
+            canvas.drawCircle(cx, cy, base * 1.55f, paint)
         }
-        // At rest the disc only breathes; the waves below belong to connecting.
-        val breath = 1f + .012f * sin(now / 1100.0).toFloat()
-        edge.rewind()
-        val steps = 96
-        for (step in 0..steps) {
-            val theta = step * 2.0 * PI / steps
-            val swell = 1f + wave * .022f * sin(6.0 * theta + phase * 6).toFloat() + wave * .012f * sin(3.0 * theta - phase * 3).toFloat()
-            val x = cx + base * breath * swell * cos(theta).toFloat(); val y = cy + base * breath * swell * sin(theta).toFloat()
-            if (step == 0) edge.moveTo(x, y) else edge.lineTo(x, y)
+        val radius = base * (1f + .03f * pulse)
+        // Only connecting bends the edge: a plain disc needs no new path on every frame.
+        val wavy = wave > .005f
+        if (wavy) {
+            edge.rewind()
+            val steps = 144
+            for (step in 0..steps) {
+                val theta = step * 2.0 * PI / steps
+                val swell = 1f + wave * (.075f * sin(6.0 * theta + phase * 6).toFloat() + .035f * sin(3.0 * theta - phase * 3).toFloat())
+                val x = cx + radius * swell * cos(theta).toFloat(); val y = cy + radius * swell * sin(theta).toFloat()
+                if (step == 0) edge.moveTo(x, y) else edge.lineTo(x, y)
+            }
+            edge.close()
         }
-        edge.close()
+        fun disc() { if (wavy) canvas.drawPath(edge, paint) else canvas.drawCircle(cx, cy, radius, paint) }
         paint.style = Paint.Style.FILL
         paint.shader = dropBody; paint.alpha = if (day) 255 else (127f + 128f * lit).toInt()
-        canvas.drawPath(edge, paint)
-        canvas.save(); canvas.clipPath(edge)
+        disc()
         paint.shader = caustic; paint.alpha = if (day) 255 else (108f + 147f * lit).toInt()
-        canvas.drawCircle(cx, cy, base * 1.2f, paint)
-        canvas.restore()
+        disc()
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = density * 1.2f
         paint.shader = rimShader; paint.alpha = 255
-        canvas.drawPath(edge, paint)
+        disc()
 
-        // The stroke that runs round while connecting.
+        // The stroke that runs round while connecting, outside the wave.
         if (spin > .01f) {
             canvas.save(); canvas.rotate(angle * 2f, cx, cy)
             paint.strokeWidth = 3f * density; paint.strokeCap = Paint.Cap.ROUND
             paint.shader = runner; paint.alpha = (255f * spin).toInt()
-            val ring = base * 1.14f
+            val ring = base * 1.22f
             box.set(cx - ring, cy - ring, cx + ring, cy + ring)
             canvas.drawArc(box, 0f, 225f, false, paint)
             canvas.restore()
@@ -146,25 +148,30 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
         canvas.drawArc(box, -55f, 290f, false, paint)
         canvas.drawLine(cx, cy - glyph * 1.3f, cx, cy - glyph * .15f, paint)
 
-        // Caption under the waves.
+        // Caption under the disc, with the workers of WDTT, qWDTT and CSQTT beside the time.
         paint.style = Paint.Style.FILL; paint.textAlign = Paint.Align.CENTER; paint.typeface = font
-        val top = cy + rest * 1.5f
+        val top = cy + rest + 26f * density
         paint.textSize = 13f * density
         paint.color = MobilePalette.muted
         canvas.drawText(statusText.ifEmpty { idleText }, cx, top, paint)
         if (connected) {
-            paint.textSize = 16f * density; paint.color = ink; paint.isFakeBoldText = true
-            canvas.drawText(if (workersText.isEmpty()) elapsedText else "$elapsedText   $workersText", cx, top + 22f * density, paint)
+            paint.textSize = 15f * density; paint.color = ink; paint.isFakeBoldText = true
+            canvas.drawText(if (workersText.isEmpty()) elapsedText else "$elapsedText   $workersText", cx, top + 19f * density, paint)
             paint.isFakeBoldText = false
         } else if (workersText.isNotEmpty()) {
             paint.textSize = 13f * density; paint.color = MobilePalette.muted
-            canvas.drawText(workersText, cx, top + 20f * density, paint)
+            canvas.drawText(workersText, cx, top + 19f * density, paint)
         }
-        // The next frame follows the screen's own rate. At rest, or with a window over it, nothing is drawn at all.
+        // The next frame follows the screen's own rate; a window over it or a screen change pauses it.
         if (animated) {
             unscheduleSelf(waitForFocus)
-            if ((callback as? android.view.View)?.hasWindowFocus() != false) invalidateSelf()
-            else scheduleSelf(waitForFocus, now + 300L)
+            if (!frozen && (callback as? android.view.View)?.hasWindowFocus() != false) invalidateSelf()
+            else scheduleSelf(waitForFocus, now + 150L)
         }
+    }
+
+    companion object {
+        /** A screen change draws through a layer; repainting that layer every frame is what makes it stutter. */
+        @JvmStatic var frozen = false
     }
 }
