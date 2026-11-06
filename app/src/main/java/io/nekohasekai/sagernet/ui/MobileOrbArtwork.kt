@@ -43,7 +43,7 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
         val now = SystemClock.uptimeMillis()
         val dt = if (lastFrame == 0L) 16f else (now - lastFrame).coerceIn(1, 100).toFloat()
         lastFrame = now
-        val waveTo = if (connected) 1f else if (connecting) .45f else 0f
+        val waveTo = if (connected) 1f else if (connecting) .6f else .3f
         val spinTo = if (connecting) 1f else 0f
         val litTo = if (connected || connecting) 1f else 0f
         if (moving()) {
@@ -58,7 +58,7 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
         val ink = MobilePalette.text
 
         // The rings leave the edge and fade before they reach the caption.
-        if (wave > .01f && moving()) {
+        if (lit > .01f && moving()) {
             paint.style = Paint.Style.STROKE; paint.shader = null; paint.strokeWidth = density
             val cycle = 3400f
             for (index in 0 until 3) {
@@ -92,7 +92,8 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
         canvas.drawPath(edge, paint)
         canvas.save(); canvas.clipPath(edge)
         // The bright patch high on the left, and the caustic glow under it.
-        paint.shader = RadialGradient(cx - base * .32f, cy - base * .62f, base * .8f, Color.argb(if (day) 200 else 60, 255, 255, 255), Color.TRANSPARENT, Shader.TileMode.CLAMP)
+        val glint = Math.toRadians(241.0 + MobileGlassLight.angle).toFloat()
+        paint.shader = RadialGradient(cx + base * .7f * cos(glint), cy + base * .7f * sin(glint), base * .8f, Color.argb(if (day) 200 else 60, 255, 255, 255), Color.TRANSPARENT, Shader.TileMode.CLAMP)
         canvas.drawCircle(cx, cy, base * 1.2f, paint)
         paint.shader = RadialGradient(cx, cy + base * 1.05f, base * .85f, ColorUtils.setAlphaComponent(if (day) Color.BLACK else Color.WHITE, if (day) 22 else 34 + (46 * lit).toInt()), Color.TRANSPARENT, Shader.TileMode.CLAMP)
         canvas.drawCircle(cx, cy, base * 1.2f, paint)
@@ -141,9 +142,9 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
             paint.textSize = 13f * density; paint.color = MobilePalette.muted
             canvas.drawText(workersText, cx, top + (if (connected) 52f else 22f) * density, paint)
         }
-        if (moving() && (wave != waveTo || spin != spinTo || lit != litTo || connected || connecting)) {
+        if (moving()) {
             unscheduleSelf(tick)
             scheduleSelf(tick, now + if (connecting || wave != waveTo) 16L else 32L)
-        } else lastFrame = 0L
+        }
     }
 }

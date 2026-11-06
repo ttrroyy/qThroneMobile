@@ -52,6 +52,10 @@ abstract class ThemedActivity : AppCompatActivity, androidx.preference.Preferenc
         super.onCreate(savedInstanceState)
         if (!isDialog) MobileScreenMotion.open(this)
         if (MobileStyle.new && !isDialog) window.setBackgroundDrawable(MobileHomeBackdrop())
+        if (MobileStyle.new) lifecycle.addObserver(object : androidx.lifecycle.DefaultLifecycleObserver {
+            override fun onResume(owner: androidx.lifecycle.LifecycleOwner) = MobileGlassLight.start(this@ThemedActivity)
+            override fun onPause(owner: androidx.lifecycle.LifecycleOwner) = MobileGlassLight.stop()
+        })
 
         supportFragmentManager.registerFragmentLifecycleCallbacks(object : androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks() {
             override fun onFragmentViewCreated(manager: androidx.fragment.app.FragmentManager, fragment: androidx.fragment.app.Fragment, view: android.view.View, state: Bundle?) {
