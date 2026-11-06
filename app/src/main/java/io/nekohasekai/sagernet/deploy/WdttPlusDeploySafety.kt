@@ -6,7 +6,7 @@ import org.json.JSONObject
 /*
  * WDTT Plus deploy safety, carried over verbatim from its app (ui/ServerUpdateSafety.kt, ui/DeployTab.kt,
  * VpnDns.kt, RemoteCommandLog.kt, ServerAdminClient.kt): ownership probe, rollback copy, database checks.
- * Deviations are marked "qThrone:".
+ * Deviations are marked "Rawline:".
  */
 
 
@@ -596,7 +596,7 @@ internal fun assertDeploymentMayBeUpdated(
     }
 }
 
-// qThrone: java.util.Base64 needs API 26; a 32-byte key is 43 base64 characters and optional padding.
+// Rawline: java.util.Base64 needs API 26; a 32-byte key is 43 base64 characters and optional padding.
 private fun String.isValidBase64Key(): Boolean = Regex("""^[A-Za-z0-9+/]{43}=?$""").matches(this)
 
 private fun String.isValidPortsSpec(): Boolean {
@@ -1191,7 +1191,7 @@ internal fun friendlyAdminSudoError(raw: String): String? {
 internal const val VPN_DNS_PROFILE_ID = "profile"
 internal const val VPN_DNS_CUSTOM_ID = "custom"
 internal const val MAX_CUSTOM_VPN_DNS_SERVERS = 2
-// qThrone: only the ids of WDTT Plus's vpnDnsPresets are needed to validate admin_profile.
+// Rawline: only the ids of WDTT Plus's vpnDnsPresets are needed to validate admin_profile.
 private val VPN_DNS_PRESET_IDS = setOf("cloudflare", "google", "quad9", "adguard", "xbox", "comss")
 
 internal fun normalizeVpnDnsSelectionId(value: String?): String {

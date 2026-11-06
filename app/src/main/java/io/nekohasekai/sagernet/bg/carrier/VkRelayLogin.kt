@@ -17,8 +17,8 @@ internal object VkRelayLogin {
     val headers = mapOf("Accept-Language" to "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7")
     val errorWatcher = """
         (function() {
-            if(window.__qthrone_login_watcher) return;
-            window.__qthrone_login_watcher=true;
+            if(window.__rawline_login_watcher) return;
+            window.__rawline_login_watcher=true;
             function check() {
                 var t=((document.body && document.body.innerText)||'').toLowerCase();
                 if(t.indexOf('unknown method')!==-1) window.RawlineVkLogin.onLoginError();

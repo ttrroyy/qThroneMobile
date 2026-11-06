@@ -4,7 +4,7 @@ import org.json.JSONObject
 
 /*
  * The remote steps of WDTT Plus's performDeploy/performUninstall (ui/DeployTab.kt) over the deploy console's
- * SSH session. Deviations are marked "qThrone:".
+ * SSH session. Deviations are marked "Rawline:".
  */
 
 internal enum class ServerUpdateRollbackAction { RestorePrevious, KeepCurrentAndDeleteBackup, CancelPreparation, ArchiveLegacyPreparation }
@@ -275,7 +275,7 @@ internal fun wdttPlusUninstallSteps(mode: ServerUninstallMode, sshPort: Int, dtl
                     "[ -f /etc/wdtt/passwords.json ] && chmod 600 /etc/wdtt/passwords.json; " +
                     "[ -f /etc/wdtt/wg-keys.dat ] && chmod 600 /etc/wdtt/wg-keys.dat"
             } else {
-                // qThrone: the original's `[ -d ] && [ ! -L ];` does not stop `rm -rf` on a symlinked /etc/wdtt; refuse it.
+                // Rawline: the original's `[ -d ] && [ ! -L ];` does not stop `rm -rf` on a symlinked /etc/wdtt; refuse it.
                 "if [ -L /etc/wdtt ]; then echo 'error: /etc/wdtt является символической ссылкой'; exit 1; fi; " +
                     "rm -rf /etc/wdtt; rm -rf /var/tmp/wdtt-plus-update-backup; " +
                     "rm -f /var/log/wdtt-install.log"

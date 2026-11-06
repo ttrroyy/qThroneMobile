@@ -124,7 +124,7 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
             }
             val hook=if(turn) VkTurnScripts.INTERCEPTOR else CaptchaAutoScripts.intercept
             if(!turn && oauthState==null && androidx.webkit.WebViewFeature.isFeatureSupported(androidx.webkit.WebViewFeature.WEB_MESSAGE_LISTENER))
-                androidx.webkit.WebViewCompat.addWebMessageListener(this,"QThroneCaptcha",
+                androidx.webkit.WebViewCompat.addWebMessageListener(this,"RawlineCaptcha",
                     setOf("https://vk.ru","https://*.vk.ru","https://vk.com","https://*.vk.com","https://ok.ru","https://*.ok.ru","https://*.okcdn.ru")) { _,message,origin,_,_ ->
                     val token=if(allowed(origin.toString())) runCatching { message.data }.getOrNull() else null
                     if(currentId==id && !token.isNullOrEmpty() && token.length<=16384 && token.none { it=='\n' || it=='\r' }) {
@@ -132,7 +132,7 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
                     }
                 }
             if(turn && androidx.webkit.WebViewFeature.isFeatureSupported(androidx.webkit.WebViewFeature.WEB_MESSAGE_LISTENER))
-                androidx.webkit.WebViewCompat.addWebMessageListener(this,"QThroneVkTurn",
+                androidx.webkit.WebViewCompat.addWebMessageListener(this,"RawlineVkTurn",
                     setOf("https://vk.ru","https://*.vk.ru","https://vk.com","https://*.vk.com")) { _,message,origin,_,_ ->
                     val trusted=runCatching { app.rawline.mobile.bg.carrier.VkRelayOAuth.trustedHttps(java.net.URI(origin.toString())) }.getOrDefault(false)
                     val payload=if(trusted) runCatching { message.data }.getOrNull()?.let { VkTurnPayload.encode(url,it) } else null
@@ -196,7 +196,7 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
                         autoClicked=true
                         web.postDelayed({ if(currentId==id) {
                             touchWdttPlus(web,target);clickedAt=android.os.SystemClock.uptimeMillis()
-                            web.postDelayed({ if(currentId==id) web.evaluateJavascript("!!window.__qthroneCheckSent") { sent -> if(sent!="true") fail("error:auto_check_not_sent") } },3_500)
+                            web.postDelayed({ if(currentId==id) web.evaluateJavascript("!!window.__rawlineCheckSent") { sent -> if(sent!="true") fail("error:auto_check_not_sent") } },3_500)
                             web.postDelayed({ fail("error:auto_no_result") },8_000)
                         } },CaptchaAutoScripts.wdttPlusThinkMs())
                     }
@@ -216,7 +216,7 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
                     web.evaluateJavascript(if(plus) CaptchaAutoScripts.wdttPlusSliderAfterClick else CaptchaAutoScripts.sliderAfterClick) { raw ->
                         if(raw=="true") fail(if(plus) "error:slider_detected" else "error:slider detected") }
                 if(turn && onCaptcha) web.evaluateJavascript(VkTurnScripts.AUTO_JOIN_TRY,null)
-                if(turn && onCaptcha) web.evaluateJavascript("window.__qthroneTurnServer || null") { raw ->
+                if(turn && onCaptcha) web.evaluateJavascript("window.__rawlineTurnServer || null") { raw ->
                     val token=runCatching { org.json.JSONTokener(raw).nextValue() as? String }.getOrNull()
                     val result=token?.let { VkTurnPayload.encode(url,it) }
                     if(!result.isNullOrEmpty() && currentId==id) { reply(id,result);currentId=null;cleanupWeb?.invoke();sheet.dismiss() }
@@ -576,8 +576,8 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
         val captchaCookieHosts=listOf("https://id.vk.ru","https://id.vk.com","https://vk.ru","https://vk.com")
         // Capture only the captcha API's success field, without exposing a Java interface to page frames.
         val INTERCEPT="""(() => {
-          if(window.__qthroneCaptchaHook) return; window.__qthroneCaptchaHook=true;
-          const receive=(text)=>{try {const result=JSON.parse(text);const token=result.response?.success_token;if(typeof token==='string') window.__qthroneCaptchaToken=token;}catch(e){}};
+          if(window.__rawlineCaptchaHook) return; window.__rawlineCaptchaHook=true;
+          const receive=(text)=>{try {const result=JSON.parse(text);const token=result.response?.success_token;if(typeof token==='string') window.__rawlineCaptchaToken=token;}catch(e){}};
           const fetchOriginal=window.fetch;
           window.fetch=async function(...args){const response=await fetchOriginal.apply(this,args);if(response.url.includes('captchaNotRobot.check')) response.clone().text().then(receive);return response;};
           const sendOriginal=XMLHttpRequest.prototype.send;

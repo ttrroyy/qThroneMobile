@@ -45,7 +45,7 @@ object CoreDiagnosticsDialog {
         dir.deleteRecursively()
         dir.mkdirs()
         val stamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
-        val file = File(dir, "qthrone-diagnostics-$stamp.zip")
+        val file = File(dir, "rawline-diagnostics-$stamp.zip")
         val progress = MobileAlertDialogBuilder(activity)
             .setTitle(R.string.diagnostics_title)
             .setMessage(R.string.diagnostics_running)

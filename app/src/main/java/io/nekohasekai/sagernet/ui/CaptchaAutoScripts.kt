@@ -21,30 +21,30 @@ internal object CaptchaAutoScripts {
     /** Watched for a while after the click, as the original does: a slider means the hidden attempt failed. */
     val sliderAfterClick = """(() => !!document.querySelector('[class*="SliderCaptcha"], [class*="Kaleidoscope"], .vkc__SwipeButton-module__track'))();"""
     val intercept = """(() => {
-        if(window.__qthroneCaptchaHook) return; window.__qthroneCaptchaHook=true;
+        if(window.__rawlineCaptchaHook) return; window.__rawlineCaptchaHook=true;
         const receive=text=>{try {
             const data=JSON.parse(text);
             const token=data.response?.success_token;
             if(typeof token==='string' && token.length>0) {
-                window.__qthroneCaptchaToken=token;
-                if(window.QThroneCaptcha) window.QThroneCaptcha.postMessage(token);
+                window.__rawlineCaptchaToken=token;
+                if(window.RawlineCaptcha) window.RawlineCaptcha.postMessage(token);
             } else {
-                if(data.response?.status) window.__qthroneCaptchaStatus=String(data.response.status);
-                if(data.response?.show_captcha_type==='slider') window.__qthroneCaptchaFailure='slider';
-                else if(data.error) window.__qthroneCaptchaFailure='error';
+                if(data.response?.status) window.__rawlineCaptchaStatus=String(data.response.status);
+                if(data.response?.show_captcha_type==='slider') window.__rawlineCaptchaFailure='slider';
+                else if(data.error) window.__rawlineCaptchaFailure='error';
             }
         }catch(e){}};
         const fetchOriginal=window.fetch;
         const isCheck=u=>String(u||'').includes('captchaNotRobot.check');
-        window.fetch=async function(...args){const input=args[0];if(isCheck(typeof input==='string'?input:(input&&input.url)))window.__qthroneCheckSent=true;const response=await fetchOriginal.apply(this,args);if(response.url.includes('captchaNotRobot.check')) response.clone().text().then(receive);return response;};
+        window.fetch=async function(...args){const input=args[0];if(isCheck(typeof input==='string'?input:(input&&input.url)))window.__rawlineCheckSent=true;const response=await fetchOriginal.apply(this,args);if(response.url.includes('captchaNotRobot.check')) response.clone().text().then(receive);return response;};
         const sendOriginal=XMLHttpRequest.prototype.send;
         const openOriginal=XMLHttpRequest.prototype.open;
-        XMLHttpRequest.prototype.open=function(method,url,...rest){this.__qthroneUrl=String(url||'');return openOriginal.call(this,method,url,...rest);};
-        XMLHttpRequest.prototype.send=function(...args){if(isCheck(this.__qthroneUrl))window.__qthroneCheckSent=true;this.addEventListener('load',()=>{if(this.responseURL.includes('captchaNotRobot.check') && (!this.responseType || this.responseType==='text')) receive(this.responseText);});return sendOriginal.apply(this,args);};
+        XMLHttpRequest.prototype.open=function(method,url,...rest){this.__rawlineUrl=String(url||'');return openOriginal.call(this,method,url,...rest);};
+        XMLHttpRequest.prototype.send=function(...args){if(isCheck(this.__rawlineUrl))window.__rawlineCheckSent=true;this.addEventListener('load',()=>{if(this.responseURL.includes('captchaNotRobot.check') && (!this.responseType || this.responseType==='text')) receive(this.responseText);});return sendOriginal.apply(this,args);};
         // VK's own close cross ends the request, like the original manual window.
-        document.addEventListener('click',e=>{if(e.target.closest && e.target.closest('.vkc__ModalCardBase-module__dismiss')) window.__qthroneCaptchaDismissed=true;},true);
+        document.addEventListener('click',e=>{if(e.target.closest && e.target.closest('.vkc__ModalCardBase-module__dismiss')) window.__rawlineCaptchaDismissed=true;},true);
     })();"""
-    val state = "JSON.stringify({token:window.__qthroneCaptchaToken||null,failure:window.__qthroneCaptchaFailure||null,dismissed:!!window.__qthroneCaptchaDismissed,checkSent:!!window.__qthroneCheckSent,status:window.__qthroneCaptchaStatus||''})"
+    val state = "JSON.stringify({token:window.__rawlineCaptchaToken||null,failure:window.__rawlineCaptchaFailure||null,dismissed:!!window.__rawlineCaptchaDismissed,checkSent:!!window.__rawlineCheckSent,status:window.__rawlineCaptchaStatus||''})"
 
     /** WDTT Plus's pauses: page settle 900-1700 ms, then 600-1300 ms before the touch. */
     fun wdttPlusSettleMs(random: kotlin.random.Random = kotlin.random.Random) = 900L + random.nextLong(0, 800)

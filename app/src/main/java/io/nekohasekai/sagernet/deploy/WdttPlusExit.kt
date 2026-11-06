@@ -70,7 +70,7 @@ private fun createSafeReadOnlySshSession(target: OutboundSshTarget): Session = t
  */
 private fun createCriticalSshSession(host: String, user: String, credentials: SshCredentials, port: Int): Session {
     val jsch = JSch()
-    if (credentials.privateKey.isNotBlank()) jsch.addIdentity("qThrone-exit", credentials.privateKey.toByteArray(), null,
+    if (credentials.privateKey.isNotBlank()) jsch.addIdentity("Rawline-exit", credentials.privateKey.toByteArray(), null,
         credentials.privateKeyPassphrase.takeIf { it.isNotEmpty() }?.toByteArray())
     return jsch.getSession(user, host, port).apply {
         setConfig("StrictHostKeyChecking", "no")

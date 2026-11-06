@@ -89,7 +89,7 @@ object DeployEngine {
     private suspend fun connect(server: DeployServer,stoppable: Boolean): Session {
         val jsch = JSch()
         val key = server["key"].toByteArray()
-        if(server["auth"] == "key") jsch.addIdentity("qThrone",key,null,server["keyPassword"].takeIf { it.isNotEmpty() }?.toByteArray())
+        if(server["auth"] == "key") jsch.addIdentity("Rawline",key,null,server["keyPassword"].takeIf { it.isNotEmpty() }?.toByteArray())
         // Host verification precedes sending a password or authenticating with the private key.
         jsch.hostKeyRepository = object : HostKeyRepository {
             override fun check(host: String, bytes: ByteArray): Int {
@@ -107,7 +107,7 @@ object DeployEngine {
             override fun add(hostkey: HostKey?,userinfo: UserInfo?) {}
             override fun remove(host: String?,type: String?) {}
             override fun remove(host: String?,type: String?,key: ByteArray?) {}
-            override fun getKnownHostsRepositoryID() = "qThrone encrypted servers"
+            override fun getKnownHostsRepositoryID() = "Rawline encrypted servers"
             override fun getHostKey(): Array<HostKey> = emptyArray()
             override fun getHostKey(host: String?,type: String?): Array<HostKey> = emptyArray()
         }

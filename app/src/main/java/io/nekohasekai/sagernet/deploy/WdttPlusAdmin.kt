@@ -41,7 +41,7 @@ class WdttPlusAdmin(private val server: DeployServer) {
 
     internal fun session(): Session {
         val jsch = JSch()
-        if (server["auth"] == "key") jsch.addIdentity("qThrone", server["key"].toByteArray(), null, server["keyPassword"].takeIf { it.isNotEmpty() }?.toByteArray())
+        if (server["auth"] == "key") jsch.addIdentity("Rawline", server["key"].toByteArray(), null, server["keyPassword"].takeIf { it.isNotEmpty() }?.toByteArray())
         // Only the key trusted during deploy is accepted here; a new key goes through the deploy editor.
         jsch.hostKeyRepository = object : HostKeyRepository {
             override fun check(host: String, bytes: ByteArray): Int {
@@ -52,7 +52,7 @@ class WdttPlusAdmin(private val server: DeployServer) {
             override fun add(hostkey: HostKey?, userinfo: UserInfo?) {}
             override fun remove(host: String?, type: String?) {}
             override fun remove(host: String?, type: String?, key: ByteArray?) {}
-            override fun getKnownHostsRepositoryID() = "qThrone encrypted servers"
+            override fun getKnownHostsRepositoryID() = "Rawline encrypted servers"
             override fun getHostKey(): Array<HostKey> = emptyArray()
             override fun getHostKey(host: String?, type: String?): Array<HostKey> = emptyArray()
         }

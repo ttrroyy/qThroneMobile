@@ -328,4 +328,4 @@ fun isLoopbackPortFree(port: Int): Boolean = try {
     false
 }
 
-const val USER_AGENT = "RawlineMobile/" + BuildConfig.VERSION_NAME + " (Android)"
+const val USER_AGENT = "qThroneMobile/" + BuildConfig.VERSION_NAME + " (Android)"

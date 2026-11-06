@@ -102,7 +102,7 @@ internal object HeadlessCaptcha {
                     aimed = true
                     later(CaptchaAutoScripts.wdttPlusThinkMs()) {
                         touchPlus(target); clickedAt = SystemClock.uptimeMillis()
-                        later(3_500) { web.evaluateJavascript("!!window.__qthroneCheckSent") { if (it != "true") finish("error:auto_check_not_sent") } }
+                        later(3_500) { web.evaluateJavascript("!!window.__rawlineCheckSent") { if (it != "true") finish("error:auto_check_not_sent") } }
                         later(8_000) { finish("error:auto_no_result") }
                     }
                 }
