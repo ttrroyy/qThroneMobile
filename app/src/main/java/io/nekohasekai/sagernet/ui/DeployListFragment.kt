@@ -32,7 +32,7 @@ class DeployListFragment : Fragment() {
     private var load: Job? = null
     private var cachedItems: List<DeployServer> = emptyList()
     private var openSwipe: MobileSwipeTile? = null
-    private val kind get() = arguments?.getString("kind").takeIf { it in listOf("qwdtt", "csqtt", "wdttplus") } ?: "qwdtt"
+    private val kind get() = arguments?.getString("kind").takeIf { it in listOf("qwdtt", "csqtt", "wdttplus", "freeturn") } ?: "qwdtt"
     private fun dp(n: Int) = (n * resources.displayMetrics.density).toInt()
     override fun onCreateAnimator(transit: Int, enter: Boolean, nextAnim: Int): android.animation.Animator? =
         MobileScreenMotion.create(this, nextAnim)

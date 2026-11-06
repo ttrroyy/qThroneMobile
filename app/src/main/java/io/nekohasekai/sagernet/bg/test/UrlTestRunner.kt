@@ -32,7 +32,7 @@ internal class UrlTestRunner(session: TestSession) : LatencySweep(session) {
     override suspend fun run(profiles:List<ProxyEntity>) = coroutineScope {
         val (all,regular)=profiles.partition { it.type in NATIVE_TYPES }
         // qWDTT and CSQTT both ask VK for credentials: one budget for the two, so a sweep stays below VK's limits.
-        val (vk,native)=all.partition { it.type in listOf("qwdtt","csqtt","wdttplus") }
+        val (vk,native)=all.partition { it.type in listOf("qwdtt","csqtt","wdttplus","freeturn") }
         launch { super.run(regular) }
         launch {
             runIndependentProbes(vk,MAX_PARALLEL_PROBES,{ session.cancelled },{ (it.outbound as? Qwdtt)?.probeSessionKey() },{ (it.outbound as? Qwdtt)?.vkCallKey() }) { profile ->
@@ -190,7 +190,7 @@ internal class UrlTestRunner(session: TestSession) : LatencySweep(session) {
         const val ERROR_NOT_RUNNING = "instance is not running"
 
         /** Profiles backed by a native client process instead of a sing-box outbound. */
-        val NATIVE_TYPES = listOf("qwdtt","csqtt","wdttplus","openflux","openfluxkey","olcrtc","dnstt","vaydns","slipstream","masterdns","cottendns","soar","s3bypass","sstp")
+        val NATIVE_TYPES = listOf("qwdtt","csqtt","wdttplus","freeturn","openflux","openfluxkey","olcrtc","dnstt","vaydns","slipstream","masterdns","cottendns","soar","s3bypass","sstp")
 
         /** VK access for a ping: hashes, credentials and an automatic check (the desktop's desktopPingAuthBudget). */
         const val QWDTT_AUTH_BUDGET_MS = 90_000L

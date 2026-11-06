@@ -26,7 +26,7 @@ object CarrierPool {
     }
     suspend fun acquire(plan:CarrierPlan, interactive: Boolean=true,latencyProbe:Boolean=!interactive,
         onStatus:(NativeConnectionStage)->Unit={},onWorkers:(Int,Int)->Unit={ _,_ -> }):Lease {
-        if(!interactive && plan.kind in listOf(CarrierKind.QWDTT,CarrierKind.CSQTT,CarrierKind.WDTTPLUS) && activePlan(plan.key)==null) {
+        if(!interactive && plan.kind in listOf(CarrierKind.QWDTT,CarrierKind.CSQTT,CarrierKind.WDTTPLUS,CarrierKind.FREETURN,CarrierKind.FREETURN_TCP) && activePlan(plan.key)==null) {
             // Do not publish a queued test entry: a user connection must not wait behind it.
             var lease:Lease?=null
             try {

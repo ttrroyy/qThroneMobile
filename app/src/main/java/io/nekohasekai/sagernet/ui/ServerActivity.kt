@@ -82,6 +82,10 @@ class ServerActivity : ServerScreenActivity() {
                     else Toast.makeText(this, "Доступно после установки сервера из приложения", Toast.LENGTH_LONG).show()
                 })
             }
+            "freeturn" -> body.addView(ui.tile("Клиенты", "Ссылки и WireGuard для каждого устройства", R.drawable.ic_baseline_vpn_key_24) {
+                if (app.rawline.mobile.deploy.FreeturnAdmin(server).available) startActivity(Intent(this, FreeturnClientsActivity::class.java).putExtra("server", server.id))
+                else Toast.makeText(this, "Доступно после установки сервера из приложения", Toast.LENGTH_SHORT).show()
+            })
             "csqtt" -> body.addView(ui.tile("Панель сервера", "Пароли, устройства и звонки в веб-панели CSQTT", R.drawable.baseline_public_24) {
                 startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(server.panelUrl())))
             })

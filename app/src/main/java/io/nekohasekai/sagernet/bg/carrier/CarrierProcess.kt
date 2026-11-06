@@ -26,10 +26,13 @@ enum class CarrierKind(val executable: String, val configFlag: String, val minim
     S3BYPASS("libs3bypass.so", "--rawline-config", 24),
     SSTP("libsstp.so", "--rawline-config", 24),
     // WDTT Plus takes flags and its secrets as START_CONFIG on stdin, as its own app starts it.
-    WDTTPLUS("libwdttplus.so", "", 24);
+    WDTTPLUS("libwdttplus.so", "", 24),
+    FREETURN("libfreeturn.so", "--rawline-config", 24),
+    // TCP mode forwards streams to the server's backend: nothing else can reach it through this hop.
+    FREETURN_TCP("libfreeturn.so", "--rawline-config", 24);
 
     // SOCKS payload capability: TURN over TCP still carries inner UDP in qWDTT, CSQTT and WDTT Plus.
-    val tcpOnly: Boolean get() = this in listOf(OLCRTC, DNSTT, VAYDNS, SLIPSTREAM, MASTERDNS, COTTENDNS, SOAR)
+    val tcpOnly: Boolean get() = this in listOf(OLCRTC, DNSTT, VAYDNS, SLIPSTREAM, MASTERDNS, COTTENDNS, SOAR, FREETURN_TCP)
 }
 
 /** Per-launch credentials, deliberately without a generated toString() containing secrets. */
@@ -51,7 +54,7 @@ class CarrierProcess private constructor(private val process: Process, private v
     private val unavailableCall = AtomicBoolean(false)
     private class UnavailableCall:IllegalStateException("VK: выбранный хеш недоступен; звонок не найден")
     private class TransientStartup:IllegalStateException("Временная ошибка авторизации VK; повторите подключение")
-    private val captcha=CarrierCaptchaBridge(process,allowUi=allowInteractions,client=when(kind) { CarrierKind.CSQTT -> "csqtt"; CarrierKind.WDTTPLUS -> "wdttplus"; CarrierKind.OPENFLUX -> "openflux"; CarrierKind.OPENFLUXKEY -> "openfluxkey"; else -> "qwdtt" })
+    private val captcha=CarrierCaptchaBridge(process,allowUi=allowInteractions,client=when(kind) { CarrierKind.CSQTT -> "csqtt"; CarrierKind.WDTTPLUS -> "wdttplus"; CarrierKind.OPENFLUX -> "openflux"; CarrierKind.OPENFLUXKEY -> "openfluxkey"; CarrierKind.FREETURN,CarrierKind.FREETURN_TCP -> "freeturn"; else -> "qwdtt" })
     private val health=NativeTransportHealth(minimumRecoveryPeak=if(kind==CarrierKind.CSQTT) 10 else 9)
     private var wdttLifecycle: WdttPlusLifecycle? = null
     private var wdttBootstrap: WdttPlusBootstrapRelay? = null
@@ -236,7 +239,18 @@ class CarrierProcess private constructor(private val process: Process, private v
                                 } }
                             }
                         }
-                        runCatching { onStatus(if (kind in listOf(CarrierKind.QWDTT, CarrierKind.CSQTT, CarrierKind.WDTTPLUS)) NativeConnectionStage.AUTHORIZING else NativeConnectionStage.CONNECTING) }
+                        if (kind == CarrierKind.FREETURN || kind == CarrierKind.FREETURN_TCP) {
+                            val send = { command: String -> synchronized(child) { runCatching { child.outputStream.write((command+'\n').toByteArray(Charsets.UTF_8)); child.outputStream.flush() } }; Unit }
+                            // The original's "operator DNS": without own servers the network's resolvers answer what the operator lets through.
+                            val ownDns = org.json.JSONObject(privateJson).getJSONObject("core").getJSONObject("dns").getJSONArray("servers").length() > 0
+                            fun networkDns() { if (!ownDns) physicalDns(app.rawline.mobile.ktx.app).takeIf { it.isNotEmpty() }?.let { send("DNS|$it") } }
+                            networkDns()
+                            running.wdttLifecycle = WdttPlusLifecycle(app.rawline.mobile.ktx.app) { command ->
+                                if (command == "CONNECTION_NETWORK") networkDns()
+                                send(command)
+                            }
+                        }
+                        runCatching { onStatus(if (kind in listOf(CarrierKind.QWDTT, CarrierKind.CSQTT, CarrierKind.WDTTPLUS, CarrierKind.FREETURN, CarrierKind.FREETURN_TCP)) NativeConnectionStage.AUTHORIZING else NativeConnectionStage.CONNECTING) }
                         val redactor = CarrierLogRedactor(privateJson, bridgeCredentials)
                         val totalWorkers = configuredWorkers(kind, privateJson)
                         moe.matsuri.nb4a.utils.CoreLog.write("[Info] [${kind.name}] Starting native transport")
@@ -307,10 +321,22 @@ class CarrierProcess private constructor(private val process: Process, private v
         }
 
         /** The worker count the client was started with: qWDTT/CSQTT "workers", WDTT Plus "-n"; 0 for other clients. */
+        /** The resolvers of the physical network, the VPN's own excluded. */
+        private fun physicalDns(context: android.content.Context): String {
+            val connectivity = context.getSystemService(android.net.ConnectivityManager::class.java) ?: return ""
+            val network = connectivity.allNetworks.firstOrNull {
+                val capabilities = connectivity.getNetworkCapabilities(it)
+                capabilities?.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET) == true &&
+                    capabilities.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
+            } ?: return ""
+            return connectivity.getLinkProperties(network)?.dnsServers.orEmpty().mapNotNull { it.hostAddress }.joinToString(",")
+        }
+
         internal fun configuredWorkers(kind: CarrierKind, privateJson: String): Int = runCatching {
             val json = org.json.JSONObject(privateJson)
             when (kind) {
                 CarrierKind.QWDTT, CarrierKind.CSQTT -> json.optInt("workers")
+                CarrierKind.FREETURN, CarrierKind.FREETURN_TCP -> json.getJSONObject("core").getJSONObject("turn").optInt("n")
                 CarrierKind.WDTTPLUS -> json.getJSONArray("args").let { args ->
                     (0 until args.length() - 1).firstOrNull { args.getString(it) == "-n" }?.let { args.getString(it + 1).toInt() } ?: 0
                 }

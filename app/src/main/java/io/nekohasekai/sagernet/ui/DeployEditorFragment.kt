@@ -202,6 +202,16 @@ open class DeployEditorFragment : Fragment() {
             setOnCheckedChangeListener { _,checked -> s[key]=checked.toString();refreshSaveAction();if(rebuild) build() }
         },LinearLayout.LayoutParams(-1,-2))
     }
+    /** One setting of a few values, in the look of the sign-in choice above it. */
+    private fun choice(parent: LinearLayout,s: DeployServer,key: String,title: String,options: List<Pair<String,String>>) {
+        heading(parent,title)
+        row(parent) { r ->
+            for((value,label) in options) button(r,label,pair=true) { s[key]=value;refreshSaveAction();build() }.apply {
+                if(MobileStyle.new) glassButton(this,s[key]==value)
+                else { strokeWidth=dp(1);strokeColor=android.content.res.ColorStateList.valueOf(if(s[key]==value) MobilePalette.accent(requireContext()) else MobilePalette.muted) }
+            }
+        }
+    }
     private fun secrets(s: DeployServer) {
         if(s.kind=="csqtt" && s["password"].isBlank()) { s["password"]=CsqttDeployPolicy.password();refreshSaveAction() }
         val c=column().apply { setPadding(dp(20),dp(8),dp(20),dp(16)) }
@@ -269,7 +279,7 @@ open class DeployEditorFragment : Fragment() {
             }
         }
         refreshSaveAction()
-        if(s.kind!="csqtt") {
+        if(s.kind!="csqtt" && s.kind!="freeturn") {
             button(body,if(s.kind=="qwdtt") "Секреты (бот, пароли)" else "Авторизация",R.drawable.ic_baseline_vpn_key_24) { secrets(s) }
         }
         val access=card()
@@ -306,10 +316,20 @@ open class DeployEditorFragment : Fragment() {
             setOnCheckedChangeListener { _,checked -> s["auth"]=if(checked) "key" else "password";build() }
         })
         if(s.kind=="qwdtt") { field(access,s,"dns1","DNS 1");field(access,s,"dns2","DNS 2") }
+        if(s.kind=="freeturn") {
+            choice(access,s,"ftBackend","VPN на сервере",listOf("new" to "Новый WireGuard","external" to "Уже установлен"))
+            if(s["ftBackend"]=="external") {
+                field(access,s,"ftConnect","Адрес VPN на сервере (хост:порт)")
+                choice(access,s,"ftMode","Протокол VPN",listOf("udp" to "UDP: WireGuard","tcp" to "TCP: Xray"))
+            }
+            choice(access,s,"ftMethod","Запуск",listOf("docker" to "Docker","systemd" to "systemd"))
+            choice(access,s,"ftObf","Обфускация",listOf("rtpopus3" to "rtpopus3","rtpopus2" to "rtpopus2","none" to "Нет"))
+        }
         switch(access,s,"manualPorts","Ручное управление портами",true)
         if(s.kind!="csqtt" && s["manualPorts"]=="true") {
             row(access) { r -> field(r,s,"peerPort","Порт туннеля",number=true,pair=true);field(r,s,"wgPort","Порт WG",number=true,pair=true) }
             if(s.kind=="wdttplus") field(access,s,"localPort","Локальный порт клиента",number=true)
+            if(s.kind=="freeturn") field(access,s,"sshPort","Порт SSH",number=true)
             if(s.kind=="qwdtt") {
                 row(access) { r -> field(r,s,"rawPort","Порт RAW",number=true,pair=true);field(r,s,"directPort","Прямой порт",number=true,pair=true) }
                 field(access,s,"adminPort","Порт админ-панели",number=true)

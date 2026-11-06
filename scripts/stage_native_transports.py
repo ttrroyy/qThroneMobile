@@ -142,6 +142,36 @@ for item in sstp['archives']:
     (license_dir / 'SSTP-SOURCES.txt').write_bytes(files['SOURCES.txt'])
     print('Verified SSTP transport:', item['abi'])
 
+assert 'freeturn' in lock, 'Build and pin FreeTurn before packaging this version'
+freeturn = lock['freeturn']
+source_paths = {p.relative_to(root).as_posix() for p in (root / 'carriers/freeturn').glob('*.go')}
+source_paths.add('scripts/build_freeturn.sh')
+assert source_paths == set(freeturn['inputs']), 'Rebuild FreeTurn after adding or removing source files'
+for name, expected in freeturn['inputs'].items():
+    assert hashlib.sha256((root / name).read_bytes()).hexdigest() == expected, 'Rebuild FreeTurn after changing ' + name
+assert {item['abi'] for item in freeturn['archives']} == {item['abi'] for item in lock['archives']}
+for item in freeturn['archives']:
+    with urllib.request.urlopen(item['url'], timeout=60) as response:
+        archive = response.read()
+    assert hashlib.sha256(archive).hexdigest() == item['sha256'], 'FreeTurn archive checksum mismatch'
+    files = {}
+    with tarfile.open(fileobj=io.BytesIO(archive), mode='r:gz') as tar:
+        for member in tar.getmembers():
+            assert member.isfile() and '/' not in member.name and '\' not in member.name
+            assert member.name not in files, 'Duplicate FreeTurn archive entry'
+            files[member.name] = tar.extractfile(member).read()
+    assert set(files) == {'libfreeturn.so', 'FreeTurn-LICENSE', 'FreeTurn.json', 'SOURCES.txt', 'SHA256SUMS'}
+    provenance = json.loads(files['FreeTurn.json'])
+    assert provenance == {'build_commit': freeturn['build_commit'], 'abi': item['abi'], 'inputs': freeturn['inputs']}, 'FreeTurn build provenance mismatch'
+    assert files['SOURCES.txt'].decode() == item['sources']
+    digest, binary = files['SHA256SUMS'].decode().split()
+    assert binary == 'libfreeturn.so' and hashlib.sha256(files[binary]).hexdigest() == digest, 'FreeTurn binary checksum mismatch'
+    (root / 'deployment/carriers' / item['abi'] / binary).write_bytes(files[binary])
+    license_dir = root / 'app/src/main/assets/carrier-licenses' / item['abi']
+    (license_dir / 'FreeTurn-LICENSE').write_bytes(files['FreeTurn-LICENSE'])
+    (license_dir / 'FreeTurn-SOURCES.txt').write_bytes(files['SOURCES.txt'])
+    print('Verified FreeTurn transport:', item['abi'])
+
 # CottenDNS, Soar, OpenFlux and OpenFlux Key are pinned apart from the other transports.
 assert 'dns_engines' in lock, 'Build and pin the DNS engines before packaging this version'
 dns = lock['dns_engines']

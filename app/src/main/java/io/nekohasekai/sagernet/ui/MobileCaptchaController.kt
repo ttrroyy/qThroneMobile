@@ -53,6 +53,11 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
                     if(client=="openflux") showOpenFlux(id,url) else showOpenFluxKey(id,url)
                     return
                 }
+                if(client=="freeturn") {
+                    // The client's own captcha proxy on this phone.
+                    if(!url.matches(Regex("http://127\\.0\\.0\\.1:[0-9]{1,5}(/.*)?"))) { reply(id,"error:invalid captcha address");return }
+                    showFreeturn(id,url);return
+                }
                 if(!allowed(url)) { reply(id,"error:invalid captcha address");return }
                 show(id,url,automatic=intent.getBooleanExtra("automatic",false),client=client)
             }
@@ -320,6 +325,43 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
      * on their own once the page has settled for 1.5 s on the document behind the check (a real browser is often
      * let through without one). One sheet at a time, like the VK captcha: a new request replaces the old one.
      */
+    /** The original's captcha dialog: the page talks to the client's local proxy, which closes this sheet when it has the answer. */
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun showFreeturn(id: String,url: String) {
+        if(app.rawline.mobile.bg.carrier.CarrierUiRequests.pending()?.getStringExtra("id")!=id) return
+        val previousSheet=dialog
+        cleanupWeb?.invoke()
+        previousSheet?.dismiss()
+        currentId=id
+        showOnResume=true
+        val sheet=BottomSheetDialog(host)
+        dialog=sheet
+        val body=LinearLayout(host).apply { orientation=LinearLayout.VERTICAL;setBackgroundColor(MobilePalette.solid) }
+        body.addView(TextView(host).apply {
+            text="VK · Captcha";textSize=19f;setTextColor(MobilePalette.text)
+            val pad=(16*host.resources.displayMetrics.density).toInt();setPadding(pad,pad,pad,pad)
+        })
+        val web=WebView(host).apply {
+            setBackgroundColor(MobilePalette.solid)
+            settings.javaScriptEnabled=true
+            settings.domStorageEnabled=true
+            loadUrl(url)
+        }
+        body.addView(web,LinearLayout.LayoutParams(-1,(host.resources.displayMetrics.heightPixels*.7f).toInt()))
+        var cleaned=false
+        val cleanup={
+            if(!cleaned) {
+                cleaned=true
+                if(currentId==id) { reply(id,"error:cancelled");currentId=null }
+                web.destroy()
+                cleanupWeb=null
+            }
+        }
+        cleanupWeb=cleanup
+        sheet.setOnDismissListener { cleanup() }
+        sheet.setContentView(body)
+        if(host.lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) sheet.show()
+    }
     @SuppressLint("SetJavaScriptEnabled")
     private fun showOpenFlux(id: String,url: String) {
         if(app.rawline.mobile.bg.carrier.CarrierUiRequests.pending()?.getStringExtra("id")!=id) return

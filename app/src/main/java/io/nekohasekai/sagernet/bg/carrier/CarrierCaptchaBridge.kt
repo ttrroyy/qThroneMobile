@@ -27,6 +27,8 @@ class CarrierCaptchaBridge(private val process: Process, private val onlyIfUiIdl
     val userCancelled: Boolean @Synchronized get() = cancelledByUser
     @Synchronized fun accept(line: String) {
         if(closed) return
+        // FreeTurn's page answers its local proxy by itself; the client says when it has what it needs.
+        if(client=="freeturn" && line.trim()=="CAPTCHA_DONE") { finishRequest();return }
         val turn=line.startsWith("VK_AUTH_REQUIRED|")
         if(!turn && !line.startsWith("CAPTCHA_SOLVE|")) return
         // WDTT Plus numbers its requests: CAPTCHA_SOLVE|id|mode|uri|token, answered as CAPTCHA_RESULT|id|value.

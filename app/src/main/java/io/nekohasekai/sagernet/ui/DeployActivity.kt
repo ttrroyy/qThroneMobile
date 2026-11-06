@@ -34,7 +34,7 @@ class DeployActivity : ServerScreenActivity() {
     private var shownQuestion: DeployQuestion? = null
     private var shownConfig = ""
     private var wasRunning = false
-    val kind get() = intent.getStringExtra("kind").orEmpty().takeIf { it in listOf("qwdtt","csqtt","wdttplus") } ?: "qwdtt"
+    val kind get() = intent.getStringExtra("kind").orEmpty().takeIf { it in listOf("qwdtt","csqtt","wdttplus","freeturn") } ?: "qwdtt"
     private val keyPicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if(uri != null) lifecycleScope.launch {
             val text = withContext(Dispatchers.IO) { runCatching {
@@ -135,6 +135,6 @@ class DeployActivity : ServerScreenActivity() {
     private fun showConsole() { screen()?.revealConsole() }
     class Screen : DeployEditorFragment()
     companion object {
-        fun title(kind: String) = when(kind) { "csqtt" -> "CSQTT"; "wdttplus" -> "WDTT Plus"; else -> "qWDTT" }
+        fun title(kind: String) = when(kind) { "csqtt" -> "CSQTT"; "wdttplus" -> "WDTT Plus"; "freeturn" -> "FreeTurn"; else -> "qWDTT" }
     }
 }

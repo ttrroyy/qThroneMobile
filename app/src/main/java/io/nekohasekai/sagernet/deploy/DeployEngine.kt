@@ -50,7 +50,7 @@ object DeployEngine {
         val copy = DeployServer(JSONObject(server.json.toString()))
         if(copy["manualPorts"] != "true") {
             copy["peerPort"]=if(copy.kind=="csqtt") "46000" else "56000";copy["localPort"]="9000"
-            copy["wgPort"]="56001";copy["directPort"]="56002";copy["rawPort"]="56003";copy["adminPort"]="56002";copy["webPort"]="46002"
+            copy["wgPort"]=if(copy.kind=="freeturn") "51820" else "56001";copy["directPort"]="56002";copy["rawPort"]="56003";copy["adminPort"]="56002";copy["webPort"]="46002"
         }
         state.value = DeployState(server.id,true,0,"Подключение",config=server["config"])
         job = scope.launch {
@@ -132,6 +132,7 @@ object DeployEngine {
         val ssh = connect(server,stoppable=true)
         val machine = exec(ssh,server,"uname -m",30_000).second.trim()
         if(server.kind == "wdttplus") { runWdttPlus(ssh,server,uninstall,removeData,machine);return }
+        if(server.kind == "freeturn") { runFreeturn(ssh,server,uninstall);return }
         val source = if(server.kind == "qwdtt") Pair("https://github.com/makriq-org/qwdtt/releases/download/v1.4.4/qWDTT_v1.4.4.apk","ff5b2d1f265b0c4253cdf54ebf1f8a5d64afd1424086aa8b8be754b5c14df6a7")
             else Pair("https://github.com/ttrroyy/MRTT/releases/download/v2.5.0-legacy/CSQTT-universal.apk","bbc261eff2fce56b0ee774271416b0764b34ee16349e9e250ce3c8d45d660d0f")
         update(5,"Загрузка официального установщика")
@@ -430,6 +431,32 @@ object DeployEngine {
             code != 0 -> output.trimEnd()+"\nerror: remote command exited with code $code\n"
             else -> output
         } }
+    }
+
+    /** FreeTurn's own installer, pinned to the release of the client this app carries; it answers in JSON and sets up the server. */
+    private suspend fun runFreeturn(ssh: Session,server: DeployServer,uninstall: Boolean) {
+        update(10,"Загрузка установщика FreeTurn")
+        val script=artifact(FreeturnRpc.INSTALLER,FreeturnRpc.INSTALLER_SHA256).readBytes()
+        val sftp=ssh.openChannel("sftp") as ChannelSftp
+        sftp.connect(30_000)
+        try { sftp.put(script.inputStream(),"/tmp/.freeturn-install.sh");sftp.chmod(384,"/tmp/.freeturn-install.sh") } finally { sftp.disconnect() }
+        val target=quote(FreeturnRpc.SCRIPT)
+        update(25,if(uninstall) "Удаление" else "Установка и запуск сервиса")
+        val prepare="install -D -m 0700 /tmp/.freeturn-install.sh $target && rm -f /tmp/.freeturn-install.sh && bash $target "
+        val arguments=if(uninstall) listOf("uninstall","--target=all","--purge") else listOf("apply")+FreeturnRpc.applyArguments(server)
+        // The answer holds the client's keys: only the script's log lines reach the console.
+        val result=exec(ssh,server,root(prepare+arguments.joinToString(" ") { quote(it) }),30*60_000L,quiet=true)
+        val data=try { FreeturnRpc.data(result.second) } catch(e: org.json.JSONException) { throw IllegalStateException("Не удалось прочитать ответ установщика FreeTurn") }
+        if(uninstall) {
+            server.recordUninstall();DeployStore.save(server)
+            state.update { it.copy(config="",configCleared=true) }
+        } else {
+            val link=data.getJSONObject("owner").getString("link")
+            server.recordInstallation(link);DeployStore.save(server)
+            state.update { it.copy(config=link) }
+            log("Сервер установлен. Добавьте ссылку на звонок VK в импортированный профиль.")
+        }
+        update(100,if(uninstall) "Удаление завершено" else "Установка завершена")
     }
 
     private suspend fun artifact(url: String,sha: String): File {

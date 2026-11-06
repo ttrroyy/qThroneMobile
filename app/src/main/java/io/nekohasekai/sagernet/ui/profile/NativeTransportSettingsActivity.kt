@@ -154,6 +154,8 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "masterdns","cottendns" -> listOf("name","domain","mkey","encryption","cotten.configPreset","resolvers","options")
             "soar" -> listOf("name","domain","pubkey","resolvers","soar.discovery","soar.country")
             "sstp" -> listOf("name","server","server_port","username","password","sni","allow_insecure","use_server_dns")
+            "freeturn" -> listOf("name","server","server_port","provider","links","wg_config","tunnel_mode","bond","relay_transport","threads","streams_per_cred",
+                "obf_profile","obf_key","obf_timing","client_id","dns_mode","dns_servers","manual_captcha","turn_host")
             "openfluxkey" -> listOf("name","transport","doc_url","key_token","e2e_encryption")
             "s3bypass" -> listOf("name") + listOf("endpoint","region","bucket","prefix","sessionsDir","accessKey","secretKey").map { "storage.$it" } +
                 listOf("pollIntervalMs","writeIntervalMs","idleTimeoutSec","maxFileSizeBytes").map { "tuning.$it" }
@@ -290,6 +292,10 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "keep_alive_interval" to "Keepalive QUIC, мс", "mkey" to "Ключ шифрования", "encryption" to "Шифрование", "configPreset" to "Пресет CottenDNS",
             "discovery" to "Искать рабочие резолверы страны", "country" to "Страна сети",
             "use_server_dns" to getString(R.string.sstp_use_server_dns),
+            "links" to "Ссылки на звонки VK", "wg_config" to "Конфигурация WireGuard или AmneziaWG", "tunnel_mode" to "Режим",
+            "bond" to "Объединять сессии (bond)", "relay_transport" to "Транспорт до TURN", "threads" to "Потоки", "streams_per_cred" to "Потоков на учётку",
+            "obf_profile" to "Обфускация", "obf_key" to "Ключ обфускации (64 HEX)", "obf_timing" to "Задержка обфускации, мс", "client_id" to "Client ID",
+            "dns_mode" to "DNS клиента", "dns_servers" to "DNS-серверы клиента", "manual_captcha" to "Ручная капча", "turn_host" to "TURN-сервер (необязательно)",
             "backend_type" to "Сервис на сервере", "user" to "Логин", "username" to "Имя пользователя", "sni" to "SNI (Server Name)", "allow_insecure" to "Разрешить недоверенный сертификат", "pk" to "Приватный ключ SSH", "method" to "Метод шифрования",
             "endpoint" to "Адрес хранилища (endpoint)", "region" to "Регион", "bucket" to "Корзина (bucket)", "prefix" to "Префикс",
             "sessionsDir" to "Каталог сессий", "accessKey" to "Access Key", "secretKey" to "Secret Key",
@@ -307,12 +313,18 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "congestion_control" to listOf("bbr","dcubic"), "encryption" to listOf("0","1","2","3","4","5"),
             "configPreset" to app.rawline.mobile.outbound.types.DnsTunnel.COTTEN_PRESETS,
             "method" to listOf("chacha20-ietf-poly1305","aes-256-gcm","aes-128-gcm"),
-            "engine" to listOf("wdttplus","qwdtt"), "csqtt_version" to listOf("2.5.0","2.1.9"))
+            "engine" to listOf("wdttplus","qwdtt"), "csqtt_version" to listOf("2.5.0","2.1.9"),
+            "tunnel_mode" to listOf("udp","tcp"), "relay_transport" to listOf("tcp","udp"),
+            "obf_profile" to app.rawline.mobile.outbound.types.Freeturn.OBF_PROFILES, "dns_mode" to listOf("auto","plain","doh"))
+        if(editingOutbound.type=="freeturn") choices["provider"]=listOf("vk","direct")
         val captions=mutableMapOf("backend_type" to listOf("SOCKS5","SSH","Shadowsocks"),"record_type" to app.rawline.mobile.outbound.types.DnsTunnel.RECORD_TYPES.map { it.uppercase() },
             "congestion_control" to listOf("BBR","DCUBIC"),"encryption" to listOf("Нет","XOR","ChaCha20","AES-128-GCM","AES-192-GCM","AES-256-GCM"),"configPreset" to listOf("Default","Speed","Survival","TCP Survival","Master/Storm"),"hash_source" to listOf("Вручную","Созданные в клиенте"),"mode" to listOf("RAW","WG"),"turn_tcp" to listOf("UDP","TCP"),
             "vk_anon_path" to listOf("Звонок VK","Капча"),"captcha_mode" to listOf("Автоматически, с переходом в браузер","Окно браузера","Автоматически"),
             "provider" to listOf("Jitsi","Телемост","WBStream"),"obfs" to listOf("Аудио","Видео"),
-            "engine" to listOf("WDTT Plus","qWDTT"),"csqtt_version" to listOf("2.5.0 и новее","2.1.9"))
+            "engine" to listOf("WDTT Plus","qWDTT"),"csqtt_version" to listOf("2.5.0 и новее","2.1.9"),
+            "tunnel_mode" to listOf("UDP: встроенный WireGuard","TCP: первое звено цепочки"),"relay_transport" to listOf("TCP/TLS","UDP"),
+            "dns_mode" to listOf("Автоматически","UDP/53","DNS-over-HTTPS"))
+        if(editingOutbound.type=="freeturn") captions["provider"]=listOf("Через TURN звонка VK","Напрямую к серверу")
         if(editingOutbound.type=="openfluxkey") {
             choices["transport"]=app.rawline.mobile.outbound.types.OpenFluxKey.TRANSPORTS
             captions["transport"]=listOf("Яндекс Документы","Яндекс Волга","MAX","Яндекс Доски","Mail.ru","МТС Линк","Телемост","Cups.online","Авито","Яндекс Документы, несколько")
@@ -418,7 +430,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
                         it.inputType = when {
                             value is Number -> InputType.TYPE_CLASS_NUMBER
                             key in listOf("password","secret") -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                            key in listOf("hashes","cert","pk") || value is JsonArray || value is JsonObject -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                            key in listOf("hashes","cert","pk","links","wg_config") || value is JsonArray || value is JsonObject -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
                             else -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
                         }
                     }

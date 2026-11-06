@@ -43,17 +43,22 @@ class DeployServer(val json: JSONObject) {
         require(get("user").matches(Regex("[A-Za-z0-9_.-]+"))) { "Укажите логин SSH" }
     }
     fun validate(install: Boolean) {
-        require(kind in listOf("qwdtt","csqtt","wdttplus"))
+        require(kind in listOf("qwdtt","csqtt","wdttplus","freeturn"))
         validateAddress()
         for(key in listOf("sshPort","peerPort")) port(key)
         when(kind) {
             "qwdtt" -> { port("wgPort"); port("rawPort"); port("adminPort"); port("directPort") }
             "wdttplus" -> { port("wgPort"); port("localPort") }
+            "freeturn" -> port("wgPort")
             else -> port("webPort")
         }
         if(get("auth") == "key") require(get("key").isNotBlank()) { "Загрузите SSH-ключ" }
         else require(get("sshPassword").isNotBlank()) { "Введите пароль SSH" }
         if(!install) return
+        if(kind == "freeturn") {
+            if(get("ftBackend") == "external") require(get("ftConnect").matches(Regex("""[A-Za-z0-9.:\[\]-]+:[0-9]{1,5}"""))) { "Укажите адрес VPN на сервере: хост:порт" }
+            return
+        }
         require(get("password").isNotBlank() && get("password").none { it == '|' }) { "Задайте пароль туннеля" }
         for(key in listOf("password","webUser","webPassword","botToken")) require(get(key).none { it == '\n' || it == '\r' || it == '\u0000' })
         if(kind == "wdttplus") {
@@ -77,6 +82,7 @@ class DeployServer(val json: JSONObject) {
             set("dns1","1.1.1.1");set("dns2","1.0.0.1");set("deviceId",java.util.UUID.randomUUID().toString())
             set("adminToken",java.util.UUID.randomUUID().toString()+java.util.UUID.randomUUID().toString())
             if(kind == "csqtt") set("secretPath",java.util.UUID.randomUUID().toString())
+            if(kind == "freeturn") { set("wgPort","51820");set("ftMethod","docker");set("ftBackend","new");set("ftMode","udp");set("ftObf","rtpopus3") }
         }
     }
 }

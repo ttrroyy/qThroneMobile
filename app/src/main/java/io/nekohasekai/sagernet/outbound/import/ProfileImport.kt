@@ -219,7 +219,7 @@ object ProfileImport {
                     if(outbound.parseFromJson(copy)) produce(outbound) else log("Invalid ShadowsocksR profile")
                     return
                 }
-                if (type in listOf("qwdtt","wdtt","csqtt","wdttplus","openflux","openfluxkey","olcrtc","dnstt","vaydns","slipstream","masterdns","cottendns","soar","s3bypass","sstp",
+                if (type in listOf("qwdtt","wdtt","csqtt","wdttplus","freeturn","openflux","openfluxkey","olcrtc","dnstt","vaydns","slipstream","masterdns","cottendns","soar","s3bypass","sstp",
                         "chain","autoselector","custom","xrayvless","ssr","shadowsocksr")) {
                     val outbound=OutboundFactory.newByType(type)
                     if(outbound.parseFromJson(doc)) produce(outbound) else log("Invalid $type profile")

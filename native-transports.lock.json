@@ -247,5 +247,41 @@
         "sources": "Rawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nCSQTT compatibility 446293aa2e873ac5323ef6fd2316d9b81d966c11\nAndroid ABI x86_64\nPrivate IPC 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\n"
       }
     ]
+  },
+  "freeturn": {
+    "build_commit": "5ad79ad8a965151168dbc3380ccae513b4e35647",
+    "inputs": {
+      "carriers/freeturn/bridge.go": "dc0cd6e2457f5ce94c2adccdb4a48b5e1ce3e905adcb98342943cebf2d9b4e3d",
+      "carriers/freeturn/dns.go": "0d8f9ec551147e05981c17d6b8c4d8a5262e6962c7800332efa7f79e1bfceb8a",
+      "carriers/freeturn/e2e_test.go": "96e37ed0d0dc4791043585af30ea6fcf7602c2f70ab1eee41ddfc2a3d09310f0",
+      "carriers/freeturn/main.go": "598dea09d29653f02cd16c5f9d3fa842e57af9f98a2f1adc91192a68b0a9bc1e",
+      "carriers/freeturn/pipe.go": "5ddf79a2543edb979e7ce95047ef03449ec8e751b8b6730a1bb528a976e1daf2",
+      "carriers/freeturn/socks5.go": "b10169b7acde8a6e1172ee4f55cfb9051d8f25ffe7c40f0b2b0b6351af4846f8",
+      "carriers/freeturn/stack.go": "637687cf8d32654c3810c5a0e82695711ded1d94691c8cee7b7cf7afc7b4d338",
+      "scripts/build_freeturn.sh": "4a04be030947bee38f4c687057dfc8dc18bb7dc3b3d6560388e3aecad665e84f"
+    },
+    "archives": [
+      {
+        "abi": "armeabi-v7a",
+        "name": "rawline-freeturn-5ad79ad8-armeabi-v7a.tar.gz",
+        "sha256": "a1fd72cf16dc278db90c5562e274bded154412d9961ee0ad98d0b3e1d3030811",
+        "sources": "RawlineMobile FreeTurn 5ad79ad8a965151168dbc3380ccae513b4e35647\nfree-turn-proxy 6d857e1e847a38fdee3e150314fb37009e3c37a6\nAndroid ABI armeabi-v7a\n",
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-freeturn-5ad79ad8-armeabi-v7a.tar.gz"
+      },
+      {
+        "abi": "arm64-v8a",
+        "name": "rawline-freeturn-5ad79ad8-arm64-v8a.tar.gz",
+        "sha256": "a823a5e12c7104c7ed4e81678c3f0addfd90dce68c88231a743fc008b47b18b6",
+        "sources": "RawlineMobile FreeTurn 5ad79ad8a965151168dbc3380ccae513b4e35647\nfree-turn-proxy 6d857e1e847a38fdee3e150314fb37009e3c37a6\nAndroid ABI arm64-v8a\n",
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-freeturn-5ad79ad8-arm64-v8a.tar.gz"
+      },
+      {
+        "abi": "x86_64",
+        "name": "rawline-freeturn-5ad79ad8-x86_64.tar.gz",
+        "sha256": "4311b8ef0e2f90d3f9830136cb4da3e7d102dada53b971ca835f233600a0778a",
+        "sources": "RawlineMobile FreeTurn 5ad79ad8a965151168dbc3380ccae513b4e35647\nfree-turn-proxy 6d857e1e847a38fdee3e150314fb37009e3c37a6\nAndroid ABI x86_64\n",
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-freeturn-5ad79ad8-x86_64.tar.gz"
+      }
+    ]
   }
 }

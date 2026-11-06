@@ -4,7 +4,7 @@ import app.rawline.mobile.outbound.json.JsonInput
 
 internal object NativeSessionPolicy {
     // The CSQTT wrapper waits for Rust's VK creator/bot leave operations before it exits.
-    fun shutdownGraceMs(kind: CarrierKind) = when(kind) { CarrierKind.CSQTT -> 20_000L; CarrierKind.SSTP -> 3_000L; else -> 1_000L }
+    fun shutdownGraceMs(kind: CarrierKind) = when(kind) { CarrierKind.CSQTT -> 20_000L; CarrierKind.SSTP,CarrierKind.FREETURN,CarrierKind.FREETURN_TCP -> 3_000L; else -> 1_000L }
     fun probeConfig(kind:CarrierKind,privateJson:String,interactive:Boolean,latencyProbe:Boolean=!interactive):String {
         if(kind == CarrierKind.WDTTPLUS) {
             if(!latencyProbe) return privateJson
@@ -24,7 +24,7 @@ internal object NativeSessionPolicy {
     }
 
     fun startupTimeoutMs(kind:CarrierKind,requested:Long):Long = when(kind) {
-        CarrierKind.QWDTT,CarrierKind.CSQTT,CarrierKind.WDTTPLUS -> requested.coerceAtLeast(300_000L)
+        CarrierKind.QWDTT,CarrierKind.CSQTT,CarrierKind.WDTTPLUS,CarrierKind.FREETURN,CarrierKind.FREETURN_TCP -> requested.coerceAtLeast(300_000L)
         // DNS tunnels measure MTU and handshake query by query; S3 Bypass waits for the bucket.
         CarrierKind.DNSTT,CarrierKind.VAYDNS,CarrierKind.SLIPSTREAM,CarrierKind.MASTERDNS,CarrierKind.COTTENDNS,CarrierKind.SOAR,CarrierKind.S3BYPASS,CarrierKind.SSTP -> requested.coerceAtLeast(120_000L)
         else -> requested
@@ -80,6 +80,7 @@ internal object NativeSessionPolicy {
             a.string("peer")==b.string("peer") && a.string("device_id")==b.string("device_id")
     }
     fun startupFailure(line:String):String? = when {
+        line.contains("FATAL_FREETURN:") -> "Ошибка FreeTurn: " + line.substringAfter("FATAL_FREETURN:").trim()
         line.contains("SSTP_AUTH_FAILED") -> "Сервер SSTP отклонил авторизацию: проверьте имя пользователя и пароль"
         line.contains("SSTP_TLS_FAILED") -> "Ошибка TLS SSTP: проверьте сертификат сервера и SNI"
         line.contains("FATAL_SSTP:") -> "Ошибка SSTP: " + line.substringAfter("FATAL_SSTP:").trim()
