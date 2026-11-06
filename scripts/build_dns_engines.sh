@@ -25,7 +25,7 @@ fetch_source() {
   test "$(git -C "$folder" rev-parse HEAD)" = "$revision"
 }
 FLAGS='-s -w -linkmode=external -extldflags=-Wl,-z,max-page-size=16384'
-COTTENDNS=7db7b73658c791cce62300d29647e4d369d6e1e4
+COTTENDNS=ac8e86ed83a5006ab320468daaebe759d9574da6
 fetch_source "$SOURCE/cottendns" https://github.com/TaJirax/cottenDNS.git "$COTTENDNS"
 mkdir -p "$SOURCE/cottendns/cmd/qthrone-cottendns"
 cp "$ROOT/carriers/cottendns/"*.go "$SOURCE/cottendns/cmd/qthrone-cottendns/"

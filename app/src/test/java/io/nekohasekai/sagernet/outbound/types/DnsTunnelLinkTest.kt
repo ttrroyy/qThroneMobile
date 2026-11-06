@@ -3,7 +3,8 @@ package app.qthrone.mobile.outbound.types
 import app.qthrone.mobile.bg.carrier.CarrierBridgeCredentials
 import app.qthrone.mobile.bg.carrier.CarrierKind
 import app.qthrone.mobile.outbound.import.ProfileImport
-import app.qthrone.mobile.outbound.json.JsonObject
+import app.qthrone.mobile.outbound.json.*
+import app.qthrone.mobile.outbound.link.*
 import org.junit.Assert.*
 import org.junit.Test
 import java.util.Base64
@@ -67,6 +68,23 @@ class DnsTunnelLinkTest {
         assertEquals("slipstream", slip.type)
         assertTrue(config(slip).bool("authoritative"))
         assertEquals("dcubic", config(slip).string("congestion_control"))
+    }
+
+    @Test fun cottenLinkWithoutSettingsStillGetsTheClientSettings() {
+        val json=jsonObjectOf("schema" to "whitedns.profile","version" to 1,"profile" to jsonObjectOf("name" to "x",
+            "server" to jsonObjectOf("domain" to "t.example.com","encryption_key" to "k","encryption_method" to 5)))
+        val tunnel=DnsTunnel()
+        assertTrue(tunnel.parseFromLink("cottendns://"+Base64Strict.encode(json.toCompact(),urlSafe=true,padding=false)))
+        val config=tunnel.privateConfig(1080,0,CarrierBridgeCredentials("u","p"))
+        val options=config.obj("options")
+        assertEquals(300,options.int("MIN_DOWNLOAD_MTU"))
+        assertEquals("resolvers",options.string("STARTUP_MODE"))
+        assertTrue(options.bool("FAST_CONNECT"))
+        assertTrue("8.8.8.8" in config.array("system_resolvers").strings())
+        // The profile's own options still win over the defaults.
+        val own=DnsTunnel()
+        assertTrue(own.parseFromJson(jsonObjectOf("type" to "cottendns","domain" to "t.example.com","mkey" to "k","encryption" to 5,"options" to jsonObjectOf("MIN_DOWNLOAD_MTU" to 900))))
+        assertEquals(900,own.privateConfig(1080,0,CarrierBridgeCredentials("u","p")).obj("options").int("MIN_DOWNLOAD_MTU"))
     }
 
     @Test fun whiteDnsMasterDnsLink() {

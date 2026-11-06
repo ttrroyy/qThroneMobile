@@ -33,6 +33,7 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
         val BACKENDS=listOf("socks","ssh","shadowsocks")
         val RECORD_TYPES=listOf("txt","cname","a","aaaa","mx","ns","srv","null","caa")
         private const val PREFIX="dnst://"
+        private val PUBLIC_RESOLVERS=listOf("8.8.8.8","1.1.1.1","9.9.9.9","77.88.8.8")
         private val WHITEDNS_SCHEMES=listOf("masterdns","stormdns","cottendns","soar")
         private val HEX64=Regex("[0-9a-fA-F]{64}")
 
@@ -220,7 +221,13 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
      */
     private fun cottenOptions(s:JsonObject):JsonObject {
         val o=JsonObject()
-        if(s.isEmpty()) return o
+        // The client settings WhiteDNS gives every profile: most links carry none, and the engine's own floor
+        // of a 1000-byte download MTU rejects most resolvers before the session starts.
+        o["STARTUP_MODE"]="resolvers"
+        o["MIN_UPLOAD_MTU"]=40;o["MIN_DOWNLOAD_MTU"]=300;o["MAX_UPLOAD_MTU"]=140;o["MAX_DOWNLOAD_MTU"]=3000
+        o["MTU_TEST_TIMEOUT_RESOLVERS"]=2.5;o["MTU_TEST_TIMEOUT_LOGS"]=2.5
+        o["RESOLVER_UDP_CONNECTION_POOL_SIZE"]=64;o["STREAM_QUEUE_INITIAL_CAPACITY"]=128;o["ORPHAN_QUEUE_INITIAL_CAPACITY"]=32
+        o["DNS_RESPONSE_FRAGMENT_STORE_CAPACITY"]=256;o["SOCKS_UDP_ASSOCIATE_READ_TIMEOUT_SECONDS"]=30.0
         fun choice(key:String,allowed:List<String>,fallback:String="preset")=s.string(key).trim().lowercase().takeIf { it in allowed } ?: fallback
         val preset=choice("configPreset",listOf("default","speed","survival","tcp-survival","master-storm"),"default")
         val legacy=preset=="master-storm"
@@ -386,7 +393,9 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
         it["type"]=type
         if(type=="soar") it["server_public_key"]=data.string("pubkey")
         if(type=="cottendns") { it.remove("cotten");it["options"]=cottenOptions(data.obj("cotten")).merge(data.obj("options")) }
-        it["system_resolvers"]=JsonArray.of(*systemResolvers().toTypedArray())
+        // Links of these two rarely name resolvers and one network's DNS may refuse the tunnel: the scan keeps what answers.
+        val public=if(type=="masterdns" || type=="cottendns") PUBLIC_RESOLVERS else emptyList()
+        it["system_resolvers"]=JsonArray.of(*(systemResolvers()+public).distinct().toTypedArray())
         it["socks"]="127.0.0.1:$port";it["socks_user"]=credentials.username;it["socks_pass"]=credentials.password
     }
 }
