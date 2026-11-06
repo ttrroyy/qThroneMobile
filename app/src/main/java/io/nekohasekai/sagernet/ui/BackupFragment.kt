@@ -105,7 +105,7 @@ class BackupFragment : Fragment(R.layout.layout_backup) {
             if(node is com.google.android.material.switchmaterial.SwitchMaterial) {
                 node.setTextColor(MobilePalette.text)
             } else if(node is com.google.android.material.button.MaterialButton) {
-                node.backgroundTintList=android.content.res.ColorStateList.valueOf(MobilePalette.surface)
+                node.backgroundTintList=android.content.res.ColorStateList.valueOf(if(MobileStyle.new) android.graphics.Color.TRANSPARENT else MobilePalette.surface)
                 node.iconTint=android.content.res.ColorStateList.valueOf(MobilePalette.accent(requireContext()))
                 node.setTextColor(MobilePalette.text)
             } else if(node is android.widget.Button) {

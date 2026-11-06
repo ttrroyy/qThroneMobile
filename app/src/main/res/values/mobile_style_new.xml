@@ -48,8 +48,8 @@
         <item name="colorOnPrimary">#f5f5f7</item>
         <item name="android:textColorPrimary">#f5f5f7</item>
         <item name="colorAccent">#f5f5f7</item>
-        <item name="qtWellColor">#1AFFFFFF</item>
-        <item name="qtSheetColor">#CE141417</item>
+        <item name="qtWellColor">#14FFFFFF</item>
+        <item name="qtSheetColor">#E8080809</item>
         <item name="colorPrimary">#00000000</item>
     </style>
     <style name="MobileSurfaceNewWhite" parent="MobileSurfaceWhite">

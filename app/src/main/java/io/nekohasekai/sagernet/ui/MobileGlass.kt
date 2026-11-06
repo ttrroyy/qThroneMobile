@@ -23,12 +23,12 @@ class MobileGlass(private val radius: Float, private val tint: Int? = null) : Dr
         box.set(bounds); box.inset(inset, inset)
         path.rewind(); path.addRoundRect(box, r, r, Path.Direction.CW)
         paint.style = Paint.Style.FILL
-        val high = tint?.let { ColorUtils.setAlphaComponent(it, 84) } ?: if (light) Color.argb(235, 255, 255, 255) else Color.argb(44, 255, 255, 255)
-        val low = tint?.let { ColorUtils.setAlphaComponent(it, 34) } ?: if (light) Color.argb(150, 246, 246, 250) else Color.argb(14, 255, 255, 255)
+        val high = tint?.let { ColorUtils.setAlphaComponent(it, if (light) 40 else 50) } ?: if (light) Color.argb(235, 255, 255, 255) else Color.argb(24, 255, 255, 255)
+        val low = tint?.let { ColorUtils.setAlphaComponent(it, if (light) 16 else 20) } ?: if (light) Color.argb(150, 246, 246, 250) else Color.argb(7, 255, 255, 255)
         paint.shader = LinearGradient(0f, top, 0f, top + h, high, low, Shader.TileMode.CLAMP)
         canvas.drawPath(path, paint)
         // The highlight along the top, fading before the middle.
-        paint.shader = LinearGradient(0f, top, 0f, top + h * .46f, Color.argb(if (light) 120 else 46, 255, 255, 255), Color.TRANSPARENT, Shader.TileMode.CLAMP)
+        paint.shader = LinearGradient(0f, top, 0f, top + h * .46f, Color.argb(if (light) 120 else 18, 255, 255, 255), Color.TRANSPARENT, Shader.TileMode.CLAMP)
         canvas.drawPath(path, paint)
         // The rim catches light above and below, and fades along the sides.
         paint.style = Paint.Style.STROKE

@@ -15,16 +15,16 @@ object MobilePalette {
     val light get() = !oled && !Theme.usingNightMode()
     val background get() = if (oled) Color.BLACK else if (light) (if (MobileStyle.new) Color.WHITE else Color.rgb(236,237,239)) else Color.rgb(30,30,30)
     /** Translucent in the new style: anything that has to hide what is under it uses [solid] or [frosted]. */
-    val surface get() = if (MobileStyle.new) (if (light) Color.argb(190,255,255,255) else Color.argb(28,255,255,255)) else solid
+    val surface get() = if (MobileStyle.new) (if (light) Color.argb(190,255,255,255) else Color.argb(18,255,255,255)) else solid
     val solid get() = if (MobileStyle.new) (if (light) Color.rgb(243,243,246) else Color.rgb(21,21,24))
         else if (oled) Color.rgb(15,15,15) else if (light) Color.rgb(248,249,250) else Color.rgb(49,51,54)
-    val toolbar get() = if (oled) Color.BLACK else if (light) (if (MobileStyle.new) Color.WHITE else Color.rgb(231,233,235)) else Color.rgb(34,35,37)
+    val toolbar get() = if (MobileStyle.new) Color.TRANSPARENT else if (oled) Color.BLACK else if (light) (if (MobileStyle.new) Color.WHITE else Color.rgb(231,233,235)) else Color.rgb(34,35,37)
     val text get() = if (MobileStyle.new) (if (light) Color.rgb(10,10,11) else Color.rgb(245,245,247))
         else if (light) Color.rgb(39,44,48) else Color.rgb(231,234,237)
     val muted get() = if (MobileStyle.new) (if (light) Color.rgb(105,105,112) else Color.rgb(142,142,150))
         else if (light) Color.rgb(100,110,119) else Color.rgb(173,182,191)
     /** The dark field inside a card; on true black a lighter one, or it would vanish. */
-    val well get() = if (MobileStyle.new) (if (light) Color.argb(16,0,0,0) else Color.argb(26,255,255,255)) else androidx.core.graphics.ColorUtils.blendARGB(surface, Color.BLACK, .14f)
+    val well get() = if (MobileStyle.new) (if (light) Color.argb(16,0,0,0) else Color.argb(20,255,255,255)) else androidx.core.graphics.ColorUtils.blendARGB(surface, Color.BLACK, .14f)
     /** Corner radii in dp: the new style is rounder throughout. */
     val rowDp get() = if (MobileStyle.new) 20 else 5
     val cardDp get() = if (MobileStyle.new) 28 else 12
@@ -32,7 +32,7 @@ object MobilePalette {
     /** A screen's own colour: the new style's screens let the backdrop through. */
     val screen get() = if (MobileStyle.new) Color.TRANSPARENT else background
     /** Over content that must stay readable: notices, dialogs, sheets. */
-    val frosted get() = if (light) Color.argb(226,250,250,252) else Color.argb(206,20,20,23)
+    val frosted get() = if (light) Color.argb(226,250,250,252) else Color.argb(232,8,8,9)
     val outline get() = androidx.core.graphics.ColorUtils.setAlphaComponent(muted,55)
     fun accent(context: Context) = if (MobileStyle.new) text else if (!DataStore.useSystemTheme && DataStore.appTheme == Theme.CYAN) Color.rgb(87,190,229)
         else MaterialColors.getColor(context, androidx.appcompat.R.attr.colorAccent, Color.rgb(87,190,229))
