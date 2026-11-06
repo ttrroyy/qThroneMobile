@@ -66,7 +66,7 @@ class FreeturnClientsActivity : ServerScreenActivity() {
         }
     }
 
-    private fun refresh() = request({ admin.clients() }) { clients ->
+    private fun refresh(): Unit = request({ admin.clients() }) { clients ->
         status.text = ""
         list.removeAllViews()
         clients.forEach { client ->
@@ -76,7 +76,7 @@ class FreeturnClientsActivity : ServerScreenActivity() {
         }
     }
 
-    private fun open(client: FreeturnAdmin.Client) = request({ admin.link(client.name) }) { link ->
+    private fun open(client: FreeturnAdmin.Client): Unit = request({ admin.link(client.name) }) { link ->
         val dialog = MobileAlertDialogBuilder(this).setTitle(client.name)
             .setView(ui.column(16).apply { addView(ui.linkRow("Ссылка freeturn://", link, lines = 4)) })
             .setPositiveButton(android.R.string.ok, null)
