@@ -30,7 +30,7 @@ class MobileSheetDialog(context: Context) : BottomSheetDialog(context) {
         super.onStart()
         findViewById<android.view.View>(com.google.android.material.R.id.design_bottom_sheet)?.apply {
             background=GradientDrawable().apply {
-                setColor(MobilePalette.surface);cornerRadius=MobilePalette.cardDp*resources.displayMetrics.density
+                setColor(if (MobileStyle.new) MobilePalette.background else MobilePalette.surface);cornerRadius=MobilePalette.cardDp*resources.displayMetrics.density
             }
             clipToOutline=true
         }

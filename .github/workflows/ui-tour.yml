@@ -10,9 +10,9 @@ on:
       locale:
         description: App language for the pictures
         default: en
-      screens:
-        description: Last screen number
-        default: '49'
+      numbers:
+        description: Screens to photograph, by number
+        default: '0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49'
       variants:
         description: Style and night mode of each pass (night 1 is dark, 2 is light)
         default: 'new:1 new:2'
@@ -94,7 +94,7 @@ jobs:
           "$ADB" shell pm disable-user --user 0 com.google.android.apps.nexuslauncher || true
           "$ADB" shell pm grant "$PACKAGE" android.permission.POST_NOTIFICATIONS || true
           for VARIANT in ${{ inputs.variants }}; do
-            for N in $(seq 0 ${{ inputs.screens }}); do
+            for N in ${{ inputs.numbers }}; do
               "$ADB" shell am instrument -w -e class app.qthrone.mobile.UiTourTest -e screen "$N" -e style "${VARIANT%:*}" -e night "${VARIANT#*:}" "$TEST_PACKAGE/androidx.test.runner.AndroidJUnitRunner" | grep -E 'OK \(|Failures|Exception|Error' | head -4 | tr -d '\r' | sed "s/^/$VARIANT $N: /" >> ui-tour/results.txt || true
             done
           done

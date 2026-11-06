@@ -44,6 +44,11 @@ class UiTourTest {
         instrumentation.runOnMainSync { (resumed() as MainActivity).displayFragmentWithId(id) }
         Thread.sleep(2500)
     }
+    private fun screen(fragment: String) {
+        open(MainActivity::class.java)
+        instrumentation.runOnMainSync { (resumed() as MainActivity).openSettingsScreen(fragment, "") }
+        Thread.sleep(2500)
+    }
     /** Taps by the label a person sees, in any window, popups included. */
     private fun tap(label: String) {
         val nodes = instrumentation.uiAutomation.rootInActiveWindow?.findAccessibilityNodeInfosByText(label).orEmpty()
@@ -71,14 +76,17 @@ class UiTourTest {
     }
     private fun orb(connected: Boolean) {
         home("groups")
-        instrumentation.runOnMainSync {
-            fun walk(view: android.view.View) {
-                (view.background as? MobilePowerArtwork)?.let { it.connected = connected; it.connecting = !connected; it.statusText = if (connected) "Подключено" else "Подключение"; it.elapsedText = "00:12:49" }
-                if (view is android.view.ViewGroup) for (index in 0 until view.childCount) walk(view.getChildAt(index))
+        // The home screen rewrites the state every second from the real service, so it is held here until the picture.
+        repeat(24) {
+            instrumentation.runOnMainSync {
+                fun walk(view: android.view.View) {
+                    (view.background as? MobilePowerArtwork)?.let { it.connected = connected; it.connecting = !connected; it.statusText = if (connected) "Подключено" else "Подключение"; it.elapsedText = "00:12:49" }
+                    if (view is android.view.ViewGroup) for (index in 0 until view.childCount) walk(view.getChildAt(index))
+                }
+                walk(resumed().window.decorView)
             }
-            walk(resumed().window.decorView)
+            Thread.sleep(100)
         }
-        Thread.sleep(1600)
     }
     private fun shot(name: String) {
         val bitmap = requireNotNull(instrumentation.uiAutomation.takeScreenshot())
@@ -104,11 +112,11 @@ class UiTourTest {
         "tools" to { main(R.id.nav_tools) },
         "backup" to { main(R.id.nav_settings); tap(R.string.qmobile_backup); tap("Локально") },
         "general" to { main(R.id.nav_settings); tap(R.string.qmobile_general) },
-        "dns" to { main(R.id.nav_settings); tap(R.string.qmobile_dns) },
-        "subscription-settings" to { main(R.id.nav_settings); tap(R.string.qmobile_subscriptions) },
-        "appearance" to { main(R.id.nav_settings); tap(R.string.settings_appearance) },
-        "style-menu" to { main(R.id.nav_settings); tap(R.string.settings_appearance); tap(R.string.qmobile_ui_style) },
-        "routing-settings" to { main(R.id.nav_settings); tap(R.string.qmobile_routes) },
+        "dns" to { screen("app.qthrone.mobile.ui.settings.DnsSettingsFragment") },
+        "subscription-settings" to { screen("app.qthrone.mobile.ui.settings.SubscriptionSettingsFragment") },
+        "appearance" to { screen("app.qthrone.mobile.ui.settings.AppearanceSettingsFragment") },
+        "style-menu" to { screen("app.qthrone.mobile.ui.settings.AppearanceSettingsFragment"); tap(R.string.qmobile_ui_style) },
+        "routing-settings" to { screen("app.qthrone.mobile.ui.settings.RoutingSettingsFragment") },
         "logs" to { main(R.id.nav_settings); tap(R.string.qmobile_logs) },
         "vk" to { open(VkRelayActivity::class.java) },
         "vk-hashes" to { open(VkHashesActivity::class.java) },
