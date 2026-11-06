@@ -35,6 +35,11 @@ abstract class ThemedActivity : AppCompatActivity, androidx.preference.Preferenc
     var lightStatusBar = false
         private set
 
+    /** The new style's icons live in res/drawable-mcc999: only its screens ask for that country code, notifications and widgets never do. */
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(if (MobileStyle.new) newBase.createConfigurationContext(Configuration(newBase.resources.configuration).apply { mcc = 999 }) else newBase)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         if (!isDialog) {
             Theme.apply(this)
