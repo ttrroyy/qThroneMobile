@@ -29,6 +29,7 @@ COTTENDNS=ac8e86ed83a5006ab320468daaebe759d9574da6
 fetch_source "$SOURCE/cottendns" https://github.com/TaJirax/cottenDNS.git "$COTTENDNS"
 mkdir -p "$SOURCE/cottendns/cmd/qthrone-cottendns"
 cp "$ROOT/carriers/cottendns/"*.go "$SOURCE/cottendns/cmd/qthrone-cottendns/"
+(cd "$SOURCE/cottendns"; env -u GOARM -u CC GOOS= GOARCH= CGO_ENABLED=0 go test ./cmd/qthrone-cottendns)
 (cd "$SOURCE/cottendns"; go build -trimpath -buildvcs=false -buildmode=pie -ldflags="$FLAGS" -o "$OUT/libcottendns.so" ./cmd/qthrone-cottendns)
 cp "$SOURCE/cottendns/LICENSE" "$OUT/CottenDNS-LICENSE"
 SOAR=fea80aae6c60a9f27d7358e5f967cbc9b57bb37d
