@@ -1,9 +1,34 @@
-<!-- The new style's knob with a group to stretch. Its circle leaves room in the viewport for the stretch. -->
+<!-- The new style's knob with a group to stretch: a raised drop, lit from the top left, with a soft shadow under it. Its circle leaves room in the viewport for the stretch. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="22dp" android:height="28dp"
     android:viewportWidth="22" android:viewportHeight="28">
     <group android:name="drop" android:pivotX="11" android:pivotY="14">
+        <path android:pathData="M11,5 A9.9,9.9 0 1,1 11,24.8 A9.9,9.9 0 1,1 11,5 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient android:type="radial" android:centerX="11" android:centerY="14.9" android:gradientRadius="9.9">
+                    <item android:offset="0.72" android:color="#50000000" />
+                    <item android:offset="1" android:color="#00000000" />
+                </gradient>
+            </aapt:attr>
+        </path>
         <path android:fillColor="?android:attr/textColorPrimary"
             android:pathData="M11,5 A9,9 0 1,1 11,23 A9,9 0 1,1 11,5 Z" />
+        <path android:pathData="M11,5 A9,9 0 1,1 11,23 A9,9 0 1,1 11,5 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient android:type="linear" android:startX="11" android:startY="5" android:endX="11" android:endY="23">
+                    <item android:offset="0.35" android:color="#00000000" />
+                    <item android:offset="1" android:color="#47000000" />
+                </gradient>
+            </aapt:attr>
+        </path>
+        <path android:pathData="M11,5 A9,9 0 1,1 11,23 A9,9 0 1,1 11,5 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient android:type="radial" android:centerX="8.2" android:centerY="9.4" android:gradientRadius="9">
+                    <item android:offset="0" android:color="#73FFFFFF" />
+                    <item android:offset="1" android:color="#00FFFFFF" />
+                </gradient>
+            </aapt:attr>
+        </path>
     </group>
 </vector>

@@ -23,11 +23,23 @@
         <item name="qtWellRadius">18dp</item>
         <item name="qtSwitchRadius">14dp</item>
         <item name="qtSwitchThumb">@drawable/mobile_switch_thumb_drop</item>
+        <item name="switchStyle">@style/MobileSwitchNew</item>
+        <item name="android:switchStyle">@style/MobilePlatformSwitchNew</item>
         <item name="android:fontFamily">@font/geologica</item>
         <item name="fontFamily">@font/geologica</item>
         <item name="toolbarStyle">@style/MobileToolbarNew</item>
         <item name="bottomSheetDialogTheme">@style/MobileSheetThemeNew</item>
         <item name="materialButtonStyle">@style/MobileButtonNew</item>
+    </style>
+    <style name="MobileSwitchNew" parent="MobileSwitch">
+        <item name="track">@drawable/mobile_switch_track_new</item>
+        <item name="thumbTint">@color/mobile_switch_thumb_alpha</item>
+        <item name="thumbTintMode">multiply</item>
+    </style>
+    <style name="MobilePlatformSwitchNew" parent="MobilePlatformSwitch">
+        <item name="android:track">@drawable/mobile_switch_track_new</item>
+        <item name="android:thumbTint">@color/mobile_switch_thumb_alpha</item>
+        <item name="android:thumbTintMode">multiply</item>
     </style>
     <!-- A shadow shows through translucent glass as a bar across the button. -->
     <style name="MobileButtonNew" parent="Widget.SagerNet.Button">

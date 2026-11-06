@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The new style's track, like its glass: a body, lighter at the top and darker below, inside one thin rim. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" android:paddingMode="stack">
+    <item>
+        <shape android:shape="rectangle">
+            <size android:width="48dp" android:height="28dp" />
+            <corners android:radius="?attr/qtSwitchRadius" />
+            <padding android:left="2dp" android:right="2dp" />
+            <solid android:color="@color/mobile_switch_track_fill_new" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="?attr/qtSwitchRadius" />
+            <gradient android:angle="270" android:startColor="#2EFFFFFF" android:centerColor="#00FFFFFF" android:endColor="#1F000000" />
+            <stroke android:width="1dp" android:color="@color/mobile_switch_track_tint_new" />
+        </shape>
+    </item>
+</layer-list>
