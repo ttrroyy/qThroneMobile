@@ -9,6 +9,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
 import app.qthrone.mobile.database.DataStore
+import app.qthrone.mobile.database.GroupRepo
 import app.qthrone.mobile.database.ProxyEntity
 import app.qthrone.mobile.database.ProxyGroup
 import app.qthrone.mobile.database.RouteManager
@@ -65,7 +66,7 @@ class UiTourTest {
     private fun home(mode: String) {
         val (group, _) = fixtures()
         DataStore.mobileListMode = mode
-        DataStore.selectedGroup = group.id
+        GroupRepo.setCurrent(group.id)
         open(MainActivity::class.java)
         ProviderGeoAssets.states.value = mapOf(group.id to ProviderGeoAssets.Status(complete = true))
         Thread.sleep(1000)
