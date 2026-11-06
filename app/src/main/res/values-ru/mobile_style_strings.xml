@@ -5,4 +5,10 @@
     <string-array name="qmobile_surface_themes_new"><item>Как в системе</item><item>OLED</item><item>Белая</item></string-array>
     <string name="qmobile_quick_menu">Быстрые действия</string>
     <string name="qmobile_orb_idle">Нажмите для подключения</string>
+    <string name="qmobile_edit_layout">Редактировать интерфейс</string>
+    <string name="qmobile_layout_hint_move">Зажмите элемент и перетащите его вверх или вниз.</string>
+    <string name="qmobile_layout_hint_tiles">Дважды нажмите на плитки, чтобы переключить расширенный и стандартный вид.</string>
+    <string name="qmobile_layout_tiles">Плитки</string>
+    <string name="qmobile_layout_chip">Строка подписки</string>
+    <string name="qmobile_layout_control">Управление подключением</string>
 </resources>

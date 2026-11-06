@@ -114,6 +114,22 @@ class UiTourTest {
             Thread.sleep(100)
         }
     }
+    private fun frameOf(title: Int): android.graphics.Rect {
+        val found = android.graphics.Rect()
+        instrumentation.runOnMainSync {
+            val views = java.util.ArrayList<android.view.View>()
+            resumed().window.decorView.findViewsWithText(views, context.getString(title), android.view.View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION)
+            views.first().getGlobalVisibleRect(found)
+        }
+        return found
+    }
+    private fun touch(action: Int, x: Float, y: Float, downAt: Long) =
+        instrumentation.sendPointerSync(android.view.MotionEvent.obtain(downAt, android.os.SystemClock.uptimeMillis(), action, x, y, 0))
+    private fun editor(reset: Boolean = true) {
+        fixtures()
+        if (reset) { MobileHomeLayout.tilesBottom = false; MobileHomeLayout.controlBottom = false; MobileHomeLayout.chipBottom = false; MobileHomeLayout.extendedTiles = false }
+        open(MobileLayoutEditorActivity::class.java)
+    }
     private fun shot(name: String) {
         val bitmap = requireNotNull(instrumentation.uiAutomation.takeScreenshot())
         try { File(context.filesDir, "tour-$name.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 90, it) } } finally { bitmap.recycle() }
@@ -186,7 +202,35 @@ class UiTourTest {
         },
     ) + listOf("vless", "trojan", "hysteria", "wireguard", "openvpn", "qwdtt", "csqtt", "wdttplus", "openflux", "chain", "autoselector").map { type ->
         "new-$type" to { fixtures(); open(settingsActivityFor(type)) { putExtra("qmobileProfileType", type); putExtra("qmobileGroupId", fixtures().first.id) } }
-    }
+    } + listOf(
+        "layout-editor" to { editor() },
+        "layout-editor-gestures" to {
+            editor()
+            val tiles = frameOf(R.string.qmobile_layout_tiles)
+            val x = tiles.exactCenterX(); val y = tiles.exactCenterY()
+            // Hold, drag past the list's middle, let go.
+            val downAt = android.os.SystemClock.uptimeMillis()
+            touch(android.view.MotionEvent.ACTION_DOWN, x, y, downAt)
+            Thread.sleep(900)
+            val end = context.resources.displayMetrics.heightPixels * .8f
+            for (step in 1..12) { touch(android.view.MotionEvent.ACTION_MOVE, x, y + (end - y) * step / 12, downAt); Thread.sleep(30) }
+            touch(android.view.MotionEvent.ACTION_UP, x, end, downAt)
+            Thread.sleep(600)
+            check(MobileHomeLayout.tilesBottom) { "dragging the tiles down did not move them" }
+            val moved = frameOf(R.string.qmobile_layout_tiles)
+            check(moved.top > y) { "the tiles are still drawn at the top" }
+            // Two quick taps.
+            repeat(2) {
+                val at = android.os.SystemClock.uptimeMillis()
+                touch(android.view.MotionEvent.ACTION_DOWN, moved.exactCenterX(), moved.exactCenterY(), at)
+                touch(android.view.MotionEvent.ACTION_UP, moved.exactCenterX(), moved.exactCenterY(), at)
+                Thread.sleep(90)
+            }
+            Thread.sleep(700)
+            check(MobileHomeLayout.extendedTiles) { "a double tap did not switch the tiles" }
+        },
+        "home-after-editor" to { open(MainActivity::class.java); Thread.sleep(1000) },
+    )
 
     @Test fun photographOneScreen() {
         val arguments = InstrumentationRegistry.getArguments()

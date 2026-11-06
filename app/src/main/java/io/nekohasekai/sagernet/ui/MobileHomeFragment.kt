@@ -74,10 +74,8 @@ class MobileHomeFragment : ToolbarFragment() {
     private var homeTitle: TextView? = null
     private var modeSwitches: Map<String,androidx.appcompat.widget.SwitchCompat> = emptyMap()
     private var restartAfterStop = false
-    /** Appearance, new style: the button or switches in a panel at the bottom, with the subscription and servers above them. */
-    private fun controlAtBottom()=MobileStyle.new && DataStore.configurationStore.getString("qmobileControlPosition")=="bottom"
-    /** Appearance, new style: the subscription row under the connect button or switches. */
-    private fun chipAtBottom()=MobileStyle.new && DataStore.configurationStore.getString("qmobileChipPosition")=="bottom"
+    private fun controlAtBottom()=MobileHomeLayout.controlBottom
+    private fun chipAtBottom()=MobileHomeLayout.chipBottom
     private fun homeSwitchesOn()=DataStore.configurationStore.getString("qmobileHomeControl")=="switches"
     /** A switch starts or stops its own mode; turning on the other one moves the running connection over. */
     private fun pickMode(mode: String) {
@@ -387,11 +385,9 @@ class MobileHomeFragment : ToolbarFragment() {
         }
     }
     private var chromeKey: String? = null
-    /** Appearance: the tile bar above the power button ("top", default) or under the server list ("bottom"). */
-    private fun tilesAtBottom()=if(MobileStyle.new) DataStore.configurationStore.getString("qmobileNewTilesPosition")=="bottom" else (DataStore.configurationStore.getString("qmobileTilesPosition")
-        ?: if(DataStore.configurationStore.getBoolean("qmobileTilesBottom",false)) "bottom" else "top")=="bottom"
-    /** Appearance: "extended" (default) shows every tile; "standard" only Settings and Add, in the corners. */
-    private fun extendedTiles()=if(MobileStyle.new) DataStore.configurationStore.getString("qmobileNewTiles")=="on" else DataStore.configurationStore.getString("qmobileHomeTilesMode")!="standard"
+    private fun tilesAtBottom()=MobileHomeLayout.tilesBottom
+    /** Every tile, or only the corner ones. */
+    private fun extendedTiles()=MobileHomeLayout.extendedTiles
     private data class ProfileContent(val id: Long, val type: String, val name: String?, val json: String)
     private data class GroupContent(val group: ProxyGroup, val profiles: List<ProfileContent>, val collapsed: Boolean, val page: Int, val colors: List<Int>)
     private val groupViews = mutableMapOf<Long, Pair<GroupContent, View>>()
@@ -897,7 +893,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     controlParent.addView(centre, LinearLayout.LayoutParams(-1, dp(if(dockBottom) 194 else 190)).apply { topMargin=dp(4) })
                 } else {
                 centre.addView(power, FrameLayout.LayoutParams(dp(188), dp(188), Gravity.TOP or Gravity.CENTER_HORIZONTAL).apply { topMargin=dp(8) })
-                side.addView(centre, LinearLayout.LayoutParams(-1, dp(206)))
+                controlParent.addView(centre, LinearLayout.LayoutParams(-1, dp(206)))
                 }
                 }
                 if(MobileStyle.new) {

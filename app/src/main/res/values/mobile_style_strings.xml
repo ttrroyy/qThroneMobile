@@ -7,4 +7,10 @@
     <string-array name="qmobile_surface_values_new" translatable="false"><item>system</item><item>oled</item><item>light</item></string-array>
     <string name="qmobile_quick_menu">Quick actions</string>
     <string name="qmobile_orb_idle">Tap to connect</string>
+    <string name="qmobile_edit_layout">Edit interface</string>
+    <string name="qmobile_layout_hint_move">Hold an element and drag it up or down.</string>
+    <string name="qmobile_layout_hint_tiles">Double-tap the tiles to switch between extended and standard.</string>
+    <string name="qmobile_layout_tiles">Tiles</string>
+    <string name="qmobile_layout_chip">Subscription row</string>
+    <string name="qmobile_layout_control">Connection control</string>
 </resources>

@@ -120,8 +120,10 @@ class AppearanceSettingsFragment : SettingsScreenFragment(R.xml.settings_appeara
         pref<SimpleMenuPreference>("qmobileUiStyle").setOnPreferenceChangeListener { _, _ -> applyThemeInstantly(); true }
         // The new style is black or white with one look: accent colours, seasonal art and a bottom tile bar mean nothing there.
         val modern = app.rawline.mobile.ui.MobileStyle.new
-        listOf(Key.APP_THEME, "seasonal_decoration", "qmobileTilesPosition", "qmobileHomeTilesMode", "qmobileListMode").forEach { pref<Preference>(it).isVisible = !modern }
-        listOf("qmobileControlPosition", "qmobileChipPosition", "qmobileNewTiles", "qmobileNewTilesPosition").forEach { pref<Preference>(it).isVisible = modern }
+        listOf(Key.APP_THEME, "seasonal_decoration", "qmobileListMode").forEach { pref<Preference>(it).isVisible = !modern }
+        pref<Preference>("qmobileEditLayout").setOnPreferenceClickListener {
+            startActivity(android.content.Intent(requireContext(), app.rawline.mobile.ui.MobileLayoutEditorActivity::class.java)); true
+        }
         pref<Preference>("seasonal_decoration").setOnPreferenceChangeListener { _, _ -> applyThemeInstantly(); true }
         pref<ColorPickerPreference>(Key.APP_THEME).setOnPreferenceChangeListener { _, _ ->
             DataStore.useSystemTheme = false
