@@ -84,7 +84,7 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
 
         toolbar?.inflateMenu(R.menu.logcat_menu)
         toolbar?.setOnMenuItemClickListener(this)
-        toolbar?.overflowIcon?.setTint(MobilePalette.text)
+        toolbar?.overflowIcon?.setTint(if(MobileStyle.new) androidx.core.graphics.ColorUtils.blendARGB(MobilePalette.text,MobilePalette.muted,.5f) else MobilePalette.text)
         toolbar?.menu?.let { menu ->
             for (i in 0 until menu.size()) menu.getItem(i).icon?.mutate()?.setTint(MobilePalette.accent(requireContext()))
         }

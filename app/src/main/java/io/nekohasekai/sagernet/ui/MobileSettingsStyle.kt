@@ -132,7 +132,9 @@ object MobileSettingsStyle {
             styledBackgrounds[view] = view.background
             view.findViewById<android.widget.ImageView>(android.R.id.icon)?.apply {
                 visibility=if(preference?.icon!=null) View.VISIBLE else View.GONE
-                imageTintList=if(preference?.key == "vkRelayAccount" && preference.icon is androidx.core.graphics.drawable.RoundedBitmapDrawable) null else android.content.res.ColorStateList.valueOf(accent)
+                imageTintList=if(preference?.key == "vkRelayAccount" && preference.icon is androidx.core.graphics.drawable.RoundedBitmapDrawable) null
+                    // A solid mark would stand out among the outlined icons.
+                    else android.content.res.ColorStateList.valueOf(if(MobileStyle.new && preference?.key?.startsWith("qmobileVk")==true) androidx.core.graphics.ColorUtils.blendARGB(MobilePalette.text,MobilePalette.muted,.5f) else accent)
                 // The new style sets each icon in its own small plate.
                 if(MobileStyle.new) {
                     layoutParams=layoutParams.apply { width=(38*density).toInt(); height=(38*density).toInt() }

@@ -41,7 +41,7 @@ class Transport {
             type = "http"
             method = "GET"
         }
-        // a link naming no transport (the throneExtra of a V2RayN link) keeps what the first parse found
+        // a link naming no transport (the rawlineExtra of a V2RayN link) keeps what the first parse found
         if (q.has("type") || rawHttp) rawHttpHeader = rawHttp
         if (q.has("host")) host = q.valueFully("host")
         if (q.has("path")) path = q.valueFully("path")

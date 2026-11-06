@@ -117,7 +117,7 @@ object DataStore : OnPreferenceDataStoreChangeListener {
         set(value) = configurationStore.putString(Key.WEBDAV_PASSWORD, value)
 
     var webdavPath: String?
-        get() = configurationStore.getString(Key.WEBDAV_PATH) ?: "Throne"
+        get() = configurationStore.getString(Key.WEBDAV_PATH) ?: "Rawline"
         set(value) = configurationStore.putString(Key.WEBDAV_PATH, value)
 
     // ------------------------------------------------------------------------------------------------ desktop keys

@@ -22,8 +22,8 @@ object MobileTopNotice {
             addView(TextView(activity).apply {
                 text = if(error) "!" else "✓"; textSize = 20f
                 setTextColor(if(error) android.graphics.Color.rgb(230,100,100) else android.graphics.Color.rgb(67,185,105))
-                gravity = Gravity.CENTER
-            }, LinearLayout.LayoutParams(dp(24), dp(24)))
+                gravity = Gravity.CENTER; includeFontPadding = false
+            }, LinearLayout.LayoutParams(dp(24), -2))
             addView(TextView(activity).apply {
                 text = message; textSize = 14f; setTextColor(MobilePalette.text)
                 setPadding(dp(10), 0, 0, 0); maxLines = 5

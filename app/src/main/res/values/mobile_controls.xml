@@ -1,5 +1,8 @@
 <resources>
     <style name="MobileControls">
+        <!-- Some phones draw a scroll bar beside any text a little taller than its box. -->
+        <item name="android:scrollbarThumbVertical">@android:color/transparent</item>
+        <item name="android:scrollbarThumbHorizontal">@android:color/transparent</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.SagerNet</item>
         <item name="switchStyle">@style/MobileSwitch</item>
         <item name="android:switchStyle">@style/MobilePlatformSwitch</item>

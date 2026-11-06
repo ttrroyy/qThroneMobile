@@ -11,7 +11,8 @@ import app.rawline.mobile.outbound.link.Base64Strict
 object RouteShare {
     const val ROUTE_LINK_PREFIX = "rawline://route/"
     const val REMOTE_ROUTE_LINK_PREFIX = "rawline://remoteroute/"
-    private const val KIND = "throne-route-profile"
+    private const val KIND = "rawline-route-profile"
+    private const val OLD_KIND = "throne-route-profile"
 
     /** Keys whose numbers the desktop writes (port lists, ip_version, override_port) and must read back (D12). */
     private val NUMERIC_KEYS = setOf("port", "source_port", "ip_version", "override_port")
@@ -125,7 +126,7 @@ object RouteShare {
     }
 
     private fun fromObject(root: JsonObject, warnings: MutableList<String>, profileIdByName: (String) -> Long?): Imported {
-        if (root.string("kind") != KIND) return failure("Unrecognized route object")
+        if (root.string("kind") != KIND && root.string("kind") != OLD_KIND) return failure("Unrecognized route object")
         if (root.bool("raw")) return failure("raw routing profiles are not supported on Android")
         val profile = RouteProfile()
         profile.name = root.string("name")

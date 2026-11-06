@@ -185,7 +185,7 @@ class WebDavBackup private constructor(private val base: HttpUrl, private val se
                 throw IOException("Invalid server URL: must start with http:// or https://")
             }
             val base = server.toHttpUrlOrNull() ?: throw IOException("Invalid server URL: $server")
-            val path = DataStore.webdavPath?.trim('/')?.takeIf { it.isNotBlank() } ?: "Throne"
+            val path = DataStore.webdavPath?.trim('/')?.takeIf { it.isNotBlank() } ?: "Rawline"
             return WebDavBackup(base, path.split('/').filter { it.isNotBlank() })
         }
 

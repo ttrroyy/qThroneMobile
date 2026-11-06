@@ -82,10 +82,12 @@ class UiTourTest {
         })
         return group to SagerDatabase.proxyDao.getByGroup(group.id).first()
     }
-    private fun home(mode: String, control: String = "button", bottom: Boolean = false) {
+    private fun home(mode: String, control: String = "button", bottom: Boolean = false, chip: String = "top", tiles: String = "off") {
         val (group, _) = fixtures()
         DataStore.configurationStore.putString("qmobileHomeControl", control)
-        DataStore.configurationStore.putBoolean("qmobileControlBottom", bottom)
+        DataStore.configurationStore.putString("qmobileControlPosition", if (bottom) "bottom" else "top")
+        DataStore.configurationStore.putString("qmobileChipPosition", chip)
+        DataStore.configurationStore.putString("qmobileNewTiles", tiles)
         DataStore.mobileListMode = mode
         GroupRepo.setCurrent(group.id)
         open(MainActivity::class.java)
@@ -126,9 +128,13 @@ class UiTourTest {
         "home-bottom" to { home("groups", bottom = true) },
         "home-bottom-connected" to { orb(true, true) },
         "home-bottom-switches" to { home("groups", "switches", true) },
+        "home-chip-bottom" to { home("groups", chip = "bottom", tiles = "on") },
+        "home-all-bottom" to { home("groups", "switches", true, "bottom") },
         "home-empty" to {
             DataStore.configurationStore.putString("qmobileHomeControl", "button")
-            DataStore.configurationStore.putBoolean("qmobileControlBottom", false)
+            DataStore.configurationStore.putString("qmobileControlPosition", "top")
+            DataStore.configurationStore.putString("qmobileChipPosition", "top")
+            DataStore.configurationStore.putString("qmobileNewTiles", "off")
             SagerDatabase.groupDao.allGroups().filter { it.name == "api.host-cloud.uk" }.forEach { SagerDatabase.groupDao.deleteById(it.id) }
             open(MainActivity::class.java)
             Thread.sleep(1000)

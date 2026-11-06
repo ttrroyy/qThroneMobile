@@ -75,7 +75,9 @@ class MobileHomeFragment : ToolbarFragment() {
     private var modeSwitches: Map<String,androidx.appcompat.widget.SwitchCompat> = emptyMap()
     private var restartAfterStop = false
     /** Appearance, new style: the button or switches in a panel at the bottom, with the subscription and servers above them. */
-    private fun controlAtBottom()=MobileStyle.new && DataStore.configurationStore.getBoolean("qmobileControlBottom",false)
+    private fun controlAtBottom()=MobileStyle.new && DataStore.configurationStore.getString("qmobileControlPosition")=="bottom"
+    /** Appearance, new style: the subscription row under the connect button or switches. */
+    private fun chipAtBottom()=MobileStyle.new && DataStore.configurationStore.getString("qmobileChipPosition")=="bottom"
     private fun homeSwitchesOn()=DataStore.configurationStore.getString("qmobileHomeControl")=="switches"
     /** A switch starts or stops its own mode; turning on the other one moves the running connection over. */
     private fun pickMode(mode: String) {
@@ -358,10 +360,10 @@ class MobileHomeFragment : ToolbarFragment() {
     }
     private var chromeKey: String? = null
     /** Appearance: the tile bar above the power button ("top", default) or under the server list ("bottom"). */
-    private fun tilesAtBottom()=(DataStore.configurationStore.getString("qmobileTilesPosition")
+    private fun tilesAtBottom()=if(MobileStyle.new) DataStore.configurationStore.getString("qmobileNewTilesPosition")=="bottom" else (DataStore.configurationStore.getString("qmobileTilesPosition")
         ?: if(DataStore.configurationStore.getBoolean("qmobileTilesBottom",false)) "bottom" else "top")=="bottom"
     /** Appearance: "extended" (default) shows every tile; "standard" only Settings and Add, in the corners. */
-    private fun extendedTiles()=DataStore.configurationStore.getString("qmobileHomeTilesMode")!="standard"
+    private fun extendedTiles()=if(MobileStyle.new) DataStore.configurationStore.getString("qmobileNewTiles")=="on" else DataStore.configurationStore.getString("qmobileHomeTilesMode")!="standard"
     private data class ProfileContent(val id: Long, val type: String, val name: String?, val json: String)
     private data class GroupContent(val group: ProxyGroup, val profiles: List<ProfileContent>, val collapsed: Boolean, val page: Int, val colors: List<Int>)
     private val groupViews = mutableMapOf<Long, Pair<GroupContent, View>>()
@@ -453,7 +455,7 @@ class MobileHomeFragment : ToolbarFragment() {
     private fun rateText(value: Long) = android.text.format.Formatter.formatShortFileSize(requireContext(),value)+"/s"
     private fun revealGroupTabs(show: Boolean) {
         val tabs=groupTabs ?: return
-        android.animation.ValueAnimator.ofInt(tabs.height,if(show) dp(54) else 0).apply {
+        android.animation.ValueAnimator.ofInt(tabs.height,if(show) dp(60) else 0).apply {
             duration=220;interpolator=android.view.animation.PathInterpolator(.2f,0f,0f,1f)
             addUpdateListener { tabs.layoutParams=tabs.layoutParams.apply { height=it.animatedValue as Int } }
             start()
@@ -524,15 +526,6 @@ class MobileHomeFragment : ToolbarFragment() {
             android.os.SystemClock.uptimeMillis()-MobileSheetDialog.closedAt<350
     }
     private fun host() = requireActivity() as MainActivity
-    /** The list a fresh install starts with stays out of the new style until something is put in it. */
-    private fun hiddenEmptyList(group: ProxyGroup)=MobileStyle.new && !group.isSubscription &&
-        group.name==SagerDatabase.defaultGroupName() && SagerDatabase.proxyDao.getByGroup(group.id).isEmpty()
-    private fun shownCurrentGroup(): Long {
-        val current=GroupRepo.currentId()
-        val all=GroupRepo.all()
-        if(all.firstOrNull { it.id==current }?.let(::hiddenEmptyList)!=true) return current
-        return all.firstOrNull { !hiddenEmptyList(it) }?.id?.also(GroupRepo::setCurrent) ?: current
-    }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View {
         readPalette()
         val scroll = FrameLayout(requireContext()).apply {
@@ -601,7 +594,8 @@ class MobileHomeFragment : ToolbarFragment() {
             updateLatencies()
             if(currentTestArmed && DataStore.serviceState.connected && it.testCurrent && !it.running) {
                 val ping=it.rows.values.firstOrNull { row -> row.ok && row.latency>0 }?.latency
-                currentPing=if(ping!=null && !it.cancelled) getString(R.string.qmobile_ping_success,ping) else getString(R.string.qmobile_unavailable)
+                // The number stays with its unit when the line wraps.
+                currentPing=if(ping!=null && !it.cancelled) getString(R.string.qmobile_ping_success,ping).let { text -> text.substringBeforeLast(' ')+'\u00A0'+text.substringAfterLast(' ') } else getString(R.string.qmobile_unavailable)
                 currentCheck?.text=currentPing
                 currentTestArmed=false
                 updateState()
@@ -681,13 +675,13 @@ class MobileHomeFragment : ToolbarFragment() {
             val nextProfileReorders=profileReorders.toMutableMap()
             try {
             val selected=withContext(Dispatchers.IO) { DataStore.selectedProxy }
-            val focusedGroup=withContext(Dispatchers.IO) { if(byGroups) previewGroup ?: shownCurrentGroup() else 0L }
+            val focusedGroup=withContext(Dispatchers.IO) { if(byGroups) previewGroup ?: GroupRepo.currentId() else 0L }
             val (groups,structure,windows)=withContext(Dispatchers.IO) {
                 val pinned=pinnedGroups()
                 val groups=GroupRepo.all().sortedBy { if(it.id in pinned) 0 else 1 }.map {
                     it to if(!byGroups || it.id==focusedGroup) SagerDatabase.proxyDao.getByGroup(it.id) else emptyList()
                 }.filterNot { (group,profiles) ->
-                    (!byGroups && !group.isSubscription && group.name==SagerDatabase.defaultGroupName() && profiles.isEmpty()) || hiddenEmptyList(group)
+                    !byGroups && !group.isSubscription && group.name==SagerDatabase.defaultGroupName() && profiles.isEmpty()
                 }
                 val windows=groups.associate { (group,profiles) -> group.id to MobileProfilePaging.window(profiles.map { it.id },pageSnapshot[group.id],selected) }
                 val keys=groups.map { (group,profiles) -> GroupContent(group.copy(subOptions=group.subOptions.copy()),profiles.map { ProfileContent(it.id,it.type,it.name,it.outboundJson) },!byGroups && group.subOptions.allowCollapse && group.id in collapsedSnapshot,windows.getValue(group.id).page,colors) }
@@ -704,7 +698,7 @@ class MobileHomeFragment : ToolbarFragment() {
             val column = content ?: return@launch
             groups.forEach { (group, _) -> knownGroups.add(group.id) }
             val tilesBottom=tilesAtBottom()
-            val tilesKey="${extendedTiles()}:$tilesBottom:$byGroups:${homeSwitchesOn()}:${controlAtBottom()}"
+            val tilesKey="${extendedTiles()}:$tilesBottom:$byGroups:${homeSwitchesOn()}:${controlAtBottom()}:${chipAtBottom()}"
             // A moved tile bar rebuilds the screen even when the server list is the same.
             val unchanged=withContext(Dispatchers.Default) { previousStructure == structure } && renderedGroupId==focusedGroup && chromeKey?.endsWith(":$tilesKey")!=false
             if (unchanged) {
@@ -716,7 +710,8 @@ class MobileHomeFragment : ToolbarFragment() {
                 completed=true
                 return@launch
             }
-            val hasServers = if(MobileStyle.new) groups.isNotEmpty() else byGroups || groups.any { it.second.isNotEmpty() || it.first.isSubscription }
+            // Both styles and both list modes: nothing to show is the lone server list with nothing in it.
+            val hasServers = (byGroups && groups.size>1) || groups.any { it.second.isNotEmpty() || it.first.isSubscription }
             val hwid = app.rawline.mobile.group.RequestIdentity.applyCustomHwidParams(app.rawline.mobile.group.DeviceDetails.get(),DataStore.subCustomHwidParams).hwid
             val nextChromeKey="$surface:$blue:$hasServers:$hwid:$tilesKey"
             if(chromeKey != nextChromeKey) {
@@ -745,14 +740,14 @@ class MobileHomeFragment : ToolbarFragment() {
                 updatesTile=null;updateBanner=null;homeTitle=null;modeSwitches=emptyMap();groupChip=null
                 val settingsTile=headerIcon(R.drawable.ic_mobile_settings, getString(R.string.qmobile_settings)) { host().displayFragmentWithId(R.id.nav_settings) }
                 val addTile=headerIcon(R.drawable.ic_mobile_add, getString(R.string.qmobile_add)) { addMenu(it) }
-                val quick = if(extended && !MobileStyle.new) listOf(
+                val quick = if(extended) listOf(
                     headerIcon(R.drawable.ic_mobile_tun, getString(R.string.service_mode)) { modeMenu(it) },
                     headerIcon(R.drawable.ic_mobile_route, getString(R.string.route_profile_quick_switch)) { routingMenu(it) },
                     headerIcon(R.drawable.ic_mobile_subscriptions, getString(R.string.qmobile_manage_groups)) { subscriptionsMenu(it) },
                     headerIcon(R.drawable.ic_mobile_update, getString(R.string.qmobile_updates)) { updatesMenu(it) }.also { updatesTile=it;updateUpdatesBadge() },
                 ) else emptyList()
                 // The new style has no tile bar: a corner menu reaches the same four menus, adding sits with the subscriptions.
-                val quickMenu=if(MobileStyle.new) headerIcon(R.drawable.ic_mobile_more, getString(R.string.qmobile_quick_menu)) { anchor ->
+                val quickMenu=if(MobileStyle.new && !extended) headerIcon(R.drawable.ic_mobile_more, getString(R.string.qmobile_quick_menu)) { anchor ->
                     val popup=androidx.appcompat.widget.PopupMenu(requireContext(),anchor)
                     popup.menu.add(R.string.service_mode).setOnMenuItemClickListener { modeMenu(anchor); true }
                     popup.menu.add(R.string.route_profile_quick_switch).setOnMenuItemClickListener { routingMenu(anchor); true }
@@ -760,13 +755,13 @@ class MobileHomeFragment : ToolbarFragment() {
                     popup.menu.add(R.string.qmobile_updates).setOnMenuItemClickListener { updatesMenu(anchor); true }
                     popup.show()
                 }.also { updatesTile=it;updateUpdatesBadge() } else null
-                val tiles = if(quickMenu!=null) listOf(quickMenu, settingsTile) else if(extended) listOf(settingsTile) + quick + addTile else listOf(settingsTile, addTile)
+                val tiles = if(quickMenu!=null) listOf(quickMenu, settingsTile) else if(extended) listOf(settingsTile) + quick + (if(MobileStyle.new) emptyList() else listOf(addTile)) else listOf(settingsTile, addTile)
                 tiles.forEachIndexed { index, button ->
                     header.addView(button, LinearLayout.LayoutParams(0, dp(48), 1f).apply {
-                        if (index < tiles.lastIndex && extended && !MobileStyle.new) marginEnd = dp(8)
+                        if (index < tiles.lastIndex && extended) marginEnd = dp(8)
                     })
                     // Standard: the two tiles sit in the corners.
-                    if ((!extended || MobileStyle.new) && index == 0) header.addView(FrameLayout(requireContext()).apply {
+                    if (!extended && index == 0) header.addView(FrameLayout(requireContext()).apply {
                         homeTitle=text(getString(R.string.app_name),18f).apply { setTypeface(typeface,Typeface.BOLD); gravity=Gravity.CENTER; setPadding(0,0,0,0); maxLines=1 }
                         addView(homeTitle,FrameLayout.LayoutParams(-2,-2,Gravity.CENTER))
                         if(!extended && !MobileStyle.new) updateBanner = text("", 12f, blue).apply {
@@ -800,9 +795,10 @@ class MobileHomeFragment : ToolbarFragment() {
                         }
                     }
                 }
-                if(!tilesBottom || MobileStyle.new) side.addView(header, LinearLayout.LayoutParams(-1, -2))
+                if(!tilesBottom) side.addView(header, LinearLayout.LayoutParams(-1, -2))
                 // The subscription in use, as one card with a list behind it, and adding beside it.
-                if(MobileStyle.new && hasServers) side.addView(LinearLayout(requireContext()).apply {
+                val chipBottom=chipAtBottom() && !landscape
+                val chipRow=if(MobileStyle.new) LinearLayout(requireContext()).apply {
                     gravity=Gravity.CENTER_VERTICAL
                     groupChip=text("",16f).apply {
                         setTypeface(typeface,Typeface.BOLD);maxLines=1;ellipsize=android.text.TextUtils.TruncateAt.END;gravity=Gravity.CENTER_VERTICAL
@@ -814,7 +810,8 @@ class MobileHomeFragment : ToolbarFragment() {
                     }
                     addView(groupChip,LinearLayout.LayoutParams(0,dp(48),1f).apply { marginEnd=dp(8) })
                     addView(addTile,LinearLayout.LayoutParams(dp(48),dp(48)))
-                },LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(14) })
+                } else null
+                if(!chipBottom) chipRow?.let { side.addView(it,LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(14) }) }
                 val centre = FrameLayout(requireContext())
                 var statusRow: LinearLayout?=null
                 val dockBottom=controlAtBottom() && !landscape
@@ -892,8 +889,8 @@ class MobileHomeFragment : ToolbarFragment() {
                     statusRow=LinearLayout(requireContext()).apply { gravity=Gravity.CENTER_VERTICAL;setPadding(dp(10),0,dp(6),0);addView(sheetDown);addView(sheetUp) }
                     sheetSpeed=statusRow
                     // At the bottom the check and speed stay above the switches, next to the list.
-                    if(dockBottom) controlParent.addView(statusRow,0,LinearLayout.LayoutParams(-1,dp(36)))
-                    else side.addView(statusRow,LinearLayout.LayoutParams(-1,dp(36)).apply { bottomMargin=-dp(4) })
+                    if(dockBottom) controlParent.addView(statusRow,0,LinearLayout.LayoutParams(-1,dp(40)))
+                    else side.addView(statusRow,LinearLayout.LayoutParams(-1,dp(40)))
                     }
                 }
                 updateState()
@@ -911,7 +908,8 @@ class MobileHomeFragment : ToolbarFragment() {
                     val above=FrameLayout(requireContext())
                     if(!MobileStyle.new) above.addView(MobileSeasonalView(requireContext()),FrameLayout.LayoutParams(-1,dp(64)))
                     currentCheck=text(currentPing ?: getString(R.string.qmobile_check_connection),12f,muted).apply {
-                        maxLines=2;setPadding(dp(2),dp(2),dp(2),dp(2));gravity=Gravity.BOTTOM
+                        // Text taller than its box gets a scroll bar on some phones, so it always fits.
+                        maxLines=2;includeFontPadding=false;setPadding(dp(2),0,dp(2),0);gravity=Gravity.BOTTOM
                         isFocusable=true
                         MobileFeedback.apply(this,white=true)
                         setOnClickListener { checkCurrentConnection() }
@@ -947,7 +945,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     val area=FrameLayout(requireContext()).also { serverDropArea=it }
                     area.addView(serverPanel,FrameLayout.LayoutParams(-1,-2))
                     body.addView(area,LinearLayout.LayoutParams(-1,0,1f))
-                    val tabs=LinearLayout(requireContext()).apply { gravity=Gravity.CENTER_VERTICAL }
+                    val tabs=LinearLayout(requireContext()).apply { gravity=Gravity.CENTER_VERTICAL;if(MobileStyle.new) setPadding(0,dp(6),0,0) }
                     fun indicator(left: Boolean)=ImageView(requireContext()).apply {
                         setImageResource(R.drawable.ic_mobile_chevron)
                         imageTintList=android.content.res.ColorStateList.valueOf(blue)
@@ -1009,13 +1007,12 @@ class MobileHomeFragment : ToolbarFragment() {
                     },LinearLayout.LayoutParams(dp(40),dp(40)))
                     body.addView(identity,LinearLayout.LayoutParams(-1,-2))
                     body.addView(text(getString(R.string.qmobile_empty),14f).apply { gravity=Gravity.CENTER; setPadding(dp(16),dp(16),dp(16),dp(12)) })
-                    // The new style's adding otherwise sits beside the subscription, which is not there yet.
-                    if(MobileStyle.new) imports.addView(addTile,LinearLayout.LayoutParams(dp(48),dp(48)).apply { marginStart=dp(8) })
                     body.addView(imports,LinearLayout.LayoutParams(-1,dp(48)))
                 }
                 if(dockBottom) body.addView(controlParent,LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(6) })
+                if(chipBottom) chipRow?.let { body.addView(it,LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(8) }) }
                 // Appearance: the tile bar at the very bottom, under the server list.
-                if(tilesBottom && !MobileStyle.new) {
+                if(tilesBottom) {
                     if(landscape) side.addView(View(requireContext()),LinearLayout.LayoutParams(-1,0,1f))
                     side.addView(header, LinearLayout.LayoutParams(-1, -2).apply { topMargin=dp(10) })
                 }
@@ -1231,7 +1228,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     rows.addView(paging)
                 }
                 rows.visibility=if(signature.collapsed) View.GONE else View.VISIBLE
-                if(byGroups && profiles.isEmpty()) rows.addView(text(getString(if(groups.any { it.first.isSubscription }) R.string.qmobile_group_empty else R.string.qmobile_empty),14f,muted).apply { gravity=Gravity.CENTER })
+                if(byGroups && hasServers && profiles.isEmpty()) rows.addView(text(getString(if(groups.any { it.first.isSubscription }) R.string.qmobile_group_empty else R.string.qmobile_empty),14f,muted).apply { gravity=Gravity.CENTER })
                 box.addView(rows)
 
                 box.layoutParams=LinearLayout.LayoutParams(-1,-2).apply { topMargin=if(firstGroup) 0 else dp(16) }
@@ -1351,7 +1348,7 @@ class MobileHomeFragment : ToolbarFragment() {
         }) else ""
         val description=getString(R.string.qmobile_connect) + ", " + caption.ifEmpty { getString(R.string.qmobile_disconnected) }
         if(power?.contentDescription != description) power?.contentDescription=description
-        power?.setTextColor(if (state.connected) Color.rgb(128,192,139) else blue)
+        power?.setTextColor(muted)
         (power?.background as? MobilePowerArtwork)?.connected=state.connected
         (power?.background as? MobilePowerArtwork)?.connecting=state==app.rawline.mobile.bg.BaseService.State.Connecting
         currentCheck?.visibility=if(state.connected) View.VISIBLE else if(MobileStyle.new) View.INVISIBLE else View.GONE
@@ -1375,7 +1372,7 @@ class MobileHomeFragment : ToolbarFragment() {
             if(background !is MobilePowerArtwork) {
                 val elapsed=String.format(java.util.Locale.ROOT,"%02d:%02d:%02d",seconds/3600,seconds/60%60,seconds%60)
                 val workers=snapshot?.takeIf { it.total>0 && !testing }?.let { "  ${it.active}/${it.total}" }.orEmpty()
-                val label=caption.ifEmpty { getString(R.string.qmobile_disconnected) }+(if(state.connected) "  $elapsed" else "")+workers
+                val label=caption.ifEmpty { getString(R.string.qmobile_orb_idle) }+(if(state.connected) "  $elapsed" else "")+workers
                 if(text.toString()!=label) text=label
             }
             val fontSize=textSize

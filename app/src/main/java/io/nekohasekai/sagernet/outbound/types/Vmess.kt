@@ -100,8 +100,8 @@ class Vmess : Outbound("vmess") {
             }
         }
 
-        // throneExtra holds what the V2RayN schema cannot; the dummy authority only satisfies the URL parser
-        val extra = objN.string("throneExtra")
+        // rawlineExtra (throneExtra in older links) holds what the V2RayN schema cannot; the dummy authority only satisfies the URL parser
+        val extra = objN.string("rawlineExtra").ifEmpty { objN.string("throneExtra") }
         if (extra.isNotEmpty()) {
             val extraLink = LinkParser.parse("vmess://x@127.0.0.1:1?$extra")
             transport.parseFromLink(extraLink)
@@ -150,7 +150,7 @@ class Vmess : Outbound("vmess") {
         return true
     }
 
-    /** vmess.cpp:132-171: always the V2RayN form; what that schema has no room for travels in `throneExtra`. */
+    /** vmess.cpp:132-171: always the V2RayN form; what that schema has no room for travels in `rawlineExtra`. */
     override fun exportToLink(): String {
         val rawHttp = transport.type == "http" && !tls.enabled
         val network = when {
@@ -184,7 +184,7 @@ class Vmess : Outbound("vmess") {
         obj["alpn"] = tls.alpn.joinToString(",")
         obj["fp"] = tls.utls.fingerPrint
         if (tls.insecure) obj["allowInsecure"] = "1"
-        if (extra.isNotEmpty()) obj["throneExtra"] = LinkBuilder.formatQuery(extra)
+        if (extra.isNotEmpty()) obj["rawlineExtra"] = LinkBuilder.formatQuery(extra)
         return "vmess://" + Base64Strict.encode(obj.toCompact())
     }
 

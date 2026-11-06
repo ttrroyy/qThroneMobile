@@ -25,7 +25,11 @@
     <string name="qmobile_home_tiles">Home screen tiles</string>
     <string name="qmobile_home_control">Connection control</string>
     <string-array name="qmobile_home_control_entries"><item>Button</item><item>Switches</item></string-array>
-    <string name="qmobile_control_bottom">Connection control at the bottom</string>
+    <string name="qmobile_control_position">Connection control position</string>
+    <string name="qmobile_chip_position">Subscription row position</string>
+    <string name="qmobile_new_tiles">Menu functions as tiles</string>
+    <string-array name="qmobile_new_tiles_entries"><item>Off</item><item>On</item></string-array>
+    <string-array name="qmobile_new_tiles_values" translatable="false"><item>off</item><item>on</item></string-array>
     <string-array name="qmobile_home_control_values" translatable="false"><item>button</item><item>switches</item></string-array>
     <string-array name="qmobile_home_tiles_entries"><item>Extended</item><item>Standard</item></string-array>
     <string-array name="qmobile_home_tiles_values" translatable="false"><item>extended</item><item>standard</item></string-array>
