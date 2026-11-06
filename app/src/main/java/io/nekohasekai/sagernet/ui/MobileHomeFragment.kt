@@ -823,7 +823,7 @@ class MobileHomeFragment : ToolbarFragment() {
                 if(homeSwitchesOn()) {
                     val rows=LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL }
                     // Side by side in one row: the server list keeps the room the button took.
-                    val pair=LinearLayout(requireContext()).apply { isBaselineAligned=false }
+                    val pair=LinearLayout(requireContext()).apply { isBaselineAligned=false;if(landscape) orientation=LinearLayout.VERTICAL }
                     val switches=listOf(Key.MODE_VPN to R.string.service_mode_vpn,Key.MODE_PROXY to R.string.service_mode_proxy).mapIndexed { index,(mode,label) ->
                         // The switch only shows the state of the service, so a declined VPN request leaves it off.
                         val switch=androidx.appcompat.widget.SwitchCompat(requireContext()).apply { isClickable=false;isFocusable=false }
@@ -833,7 +833,7 @@ class MobileHomeFragment : ToolbarFragment() {
                             addView(switch)
                             setOnClickListener { pickMode(mode) }
                             MobileFeedback.apply(this)
-                        },LinearLayout.LayoutParams(0,-1,1f).apply { if(index>0) marginStart=dp(8) })
+                        },(if(landscape) LinearLayout.LayoutParams(-1,-2).apply { if(index>0) topMargin=dp(6) } else LinearLayout.LayoutParams(0,-1,1f).apply { if(index>0) marginStart=dp(8) }))
                         mode to switch
                     }
                     rows.addView(pair,LinearLayout.LayoutParams(-1,-2))
