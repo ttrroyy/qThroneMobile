@@ -24,6 +24,14 @@
         <item name="android:fontFamily">@font/geologica</item>
         <item name="fontFamily">@font/geologica</item>
         <item name="toolbarStyle">@style/MobileToolbarNew</item>
+        <item name="bottomSheetDialogTheme">@style/MobileSheetThemeNew</item>
+    </style>
+    <!-- The sheet behavior paints its own background from this tint, over anything set in code. -->
+    <style name="MobileSheetThemeNew" parent="ThemeOverlay.SagerNet.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/MobileSheetNew</item>
+    </style>
+    <style name="MobileSheetNew" parent="Widget.SagerNet.BottomSheet">
+        <item name="backgroundTint">?android:attr/colorBackground</item>
     </style>
     <style name="MobileToolbarNew" parent="Widget.MaterialComponents.Toolbar">
         <item name="titleTextAppearance">@style/MobileToolbarNewTitle</item>
