@@ -12,7 +12,7 @@ def patch(core: Path):
     lock = json.loads((Path(__file__).resolve().parents[1] / "core-dependencies.json").read_text())[module]
     if info.get("Sum") != lock["sum"] or info.get("GoModSum") != lock["mod_sum"]:
         raise ValueError("TrustTunnel source checksum mismatch")
-    target = core / ".qthrone" / "trusttunnel"
+    target = core / ".rawline" / "trusttunnel"
     target.mkdir(parents=True, exist_ok=True)
     for source in Path(info["Dir"]).glob("*"):
         if source.is_file():
@@ -28,7 +28,7 @@ def patch(core: Path):
     client.write_text(content.replace(before, "\tif options.QUIC {\n\t\tif err = client.enableHTTPSFallback(options); err != nil { return nil, err }\n\t}\n" + before), newline="\n")
     for source in (Path(__file__).resolve().parents[1] / "core-patches" / "trusttunnel").glob("*.go"):
         shutil.copyfile(source, target / source.name)
-    subprocess.run(["go", "mod", "edit", "-replace=" + module + "=./.qthrone/trusttunnel"], cwd=core, check=True)
+    subprocess.run(["go", "mod", "edit", "-replace=" + module + "=./.rawline/trusttunnel"], cwd=core, check=True)
     for source in (Path(__file__).resolve().parents[1] / "core-patches" / "mobile").glob("*.go"):
         shutil.copyfile(source, core / "mobile" / source.name)
     resolver = core / "internal" / "resolve"

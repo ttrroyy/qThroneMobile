@@ -201,7 +201,7 @@ class WdttPlusBackupsActivity : ServerScreenActivity() {
         val compressed = ByteArrayOutputStream().use { out -> GZIPOutputStream(out).use { it.write(value.toByteArray(Charsets.UTF_8)) }; out.toByteArray() }
         val encrypted = Cipher.getInstance("AES/GCM/NoPadding").apply { init(Cipher.ENCRYPT_MODE, key, GCMParameterSpec(128, iv)) }.doFinal(compressed)
         return JSONObject().put("format", "wdtt-plus-transfer").put("version", 1).put("kind", "server-backup")
-            .put("createdAt", System.currentTimeMillis()).put("sourceVersion", "qThroneMobile")
+            .put("createdAt", System.currentTimeMillis()).put("sourceVersion", "RawlineMobile")
             .put("kdf", "PBKDF2-HMAC-SHA256").put("iterations", 210_000)
             .put("salt", android.util.Base64.encodeToString(salt, android.util.Base64.NO_WRAP)).put("iv", android.util.Base64.encodeToString(iv, android.util.Base64.NO_WRAP))
             .put("data", android.util.Base64.encodeToString(encrypted, android.util.Base64.NO_WRAP)).toString()

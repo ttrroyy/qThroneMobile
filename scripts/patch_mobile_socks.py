@@ -37,13 +37,13 @@ def patch(core: Path):
                         if item["Old"]["Path"] == MODULE), None)
     if replacement not in ({"Path": SOURCE, "Version": VERSION},
                            {"Path": SOURCE, "Version": "v0.9.4-0.20261002235655-c4c9e6e3b2c1"},
-                           {"Path": "./.qthrone/sing"}):
+                           {"Path": "./.rawline/sing"}):
         raise ValueError("Core sing replacement changed; review the pinned UDP patch")
     info = json.loads(subprocess.check_output(
         ["go", "mod", "download", "-json", SOURCE + "@" + VERSION], cwd=core))
     if info.get("Sum") != SUM or info.get("GoModSum") != MOD_SUM:
         raise ValueError("Pinned sing source checksum mismatch")
-    target = core / ".qthrone" / "sing"
+    target = core / ".rawline" / "sing"
     shutil.copytree(info["Dir"], target, dirs_exist_ok=True, copy_function=copy_writable)
     client = target / "protocol" / "socks" / "client.go"
     before = "\tcase Version5:\n\t\tvar response socks5.Response"
@@ -79,7 +79,7 @@ def patch(core: Path):
     helper_dir.chmod(helper_dir.stat().st_mode | stat.S_IWUSR)
     for source in (Path(__file__).resolve().parents[1] / "core-patches" / "socks").glob("*.go"):
         copy_writable(source, helper_dir / source.name)
-    subprocess.run(["go", "mod", "edit", "-replace=" + MODULE + "=./.qthrone/sing"], cwd=core, check=True)
+    subprocess.run(["go", "mod", "edit", "-replace=" + MODULE + "=./.rawline/sing"], cwd=core, check=True)
 
 
 if __name__ == "__main__":

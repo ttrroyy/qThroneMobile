@@ -56,7 +56,7 @@ object NativeHashPolicy {
         it.remove("workers")
     }.toCompact()
     fun defaultDeviceId(hwid: String): String = java.util.UUID.nameUUIDFromBytes(
-        ("qThrone-native:"+hwid).toByteArray(Charsets.UTF_8)).toString()
+        ("Rawline-native:"+hwid).toByteArray(Charsets.UTF_8)).toString()
     fun preserve(incoming: Qwdtt, previous: List<Qwdtt>) {
         val sameType = previous.filter { it.type == incoming.type }
         val named = if(incoming.name.isNotBlank()) sameType.filter { it.name == incoming.name } else emptyList()

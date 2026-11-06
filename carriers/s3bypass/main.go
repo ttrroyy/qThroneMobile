@@ -1,4 +1,4 @@
-// Command qthrone-s3bypass runs one S3 Bypass profile for qThroneMobile: the
+// Command rawline-s3bypass runs one S3 Bypass profile for RawlineMobile: the
 // fedarisha outbound of Fedarisha/Xray-core-fedarisha (what the original S3
 // Bypass app runs) behind an Xray SOCKS5 inbound on loopback that requires the
 // per-launch credentials. Only the parts of Xray this needs are linked.
@@ -78,7 +78,7 @@ func xrayConfig(p profile) ([]byte, error) {
 }
 
 func run() int {
-	if len(os.Args) != 3 || os.Args[1] != "--qthrone-config" {
+	if len(os.Args) != 3 || os.Args[1] != "--rawline-config" {
 		fmt.Fprintln(os.Stderr, "S3 Bypass: expected private configuration file")
 		return 2
 	}

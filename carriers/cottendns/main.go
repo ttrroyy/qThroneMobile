@@ -1,4 +1,4 @@
-// Command qthrone-cottendns runs one CottenDNS profile for qThroneMobile.
+// Command rawline-cottendns runs one CottenDNS profile for RawlineMobile.
 //
 // It is CottenDNS's own client (cmd/client) with the configuration written
 // from the app's private JSON: the client's SOCKS5 listener on loopback with
@@ -121,7 +121,7 @@ func clean(list []string) []string {
 }
 
 func run() int {
-	if len(os.Args) != 3 || os.Args[1] != "--qthrone-config" {
+	if len(os.Args) != 3 || os.Args[1] != "--rawline-config" {
 		fmt.Fprintln(os.Stderr, "CottenDNS: expected private configuration file")
 		return 2
 	}

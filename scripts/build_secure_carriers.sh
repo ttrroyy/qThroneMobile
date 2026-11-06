@@ -14,12 +14,12 @@ fetch_source() {
   git -C "$1" checkout -q --detach FETCH_HEAD
   test "$(git -C "$1" rev-parse HEAD)" = "$3"
 }
-fetch_source "$SOURCE/qThrone" https://github.com/ttrroyy/qThrone.git "$REF"
+fetch_source "$SOURCE/Rawline" https://github.com/ttrroyy/qThrone.git "$REF"
 fetch_source "$SOURCE/wdttplus" https://github.com/Ivan4537/WDTT-Plus.git "$WDTTPLUS"
 fetch_source "$SOURCE/csqtt" https://github.com/ttrroyy/csqtt-rebirth.git "$CSQTT"
-python3 scripts/prepare_android_captcha.py "$SOURCE/qThrone/qwdtt"
+python3 scripts/prepare_android_captcha.py "$SOURCE/Rawline/qwdtt"
 # The Android bridge launches the CSQTT executable from the application's native library directory.
-python3 - "$SOURCE/qThrone/qwdtt/csqtt_bridge.go" <<'PY'
+python3 - "$SOURCE/Rawline/qwdtt/csqtt_bridge.go" <<'PY'
 from pathlib import Path
 import sys
 p=Path(sys.argv[1]); text=p.read_text()
@@ -27,10 +27,10 @@ old='name := "csqtt-transport"'
 assert text.count(old)==1
 p.write_text(text.replace(old,old+'\n\tif runtime.GOOS == "android" { name = "libcsqtt_transport.so" }'),newline='\n')
 PY
-python3 scripts/prepare_mobile_carrier_socks.py qwdtt "$SOURCE/qThrone/qwdtt"
-python3 scripts/prepare_csqtt_rebirth_bridge.py "$SOURCE/qThrone/qwdtt"
+python3 scripts/prepare_mobile_carrier_socks.py qwdtt "$SOURCE/Rawline/qwdtt"
+python3 scripts/prepare_csqtt_rebirth_bridge.py "$SOURCE/Rawline/qwdtt"
 python3 scripts/prepare_mobile_carrier_socks.py wdttplus "$SOURCE/wdttplus/go_client"
-(cd "$SOURCE/qThrone/qwdtt"; CGO_ENABLED=0 go test -run '^TestMobileSOCKS' -count=1 .)
+(cd "$SOURCE/Rawline/qwdtt"; CGO_ENABLED=0 go test -run '^TestMobileSOCKS' -count=1 .)
 (cd "$SOURCE/wdttplus/go_client"; CGO_ENABLED=0 go test -run '^TestMobileSOCKS' -count=1 .)
 python3 "$ROOT/scripts/prepare_csqtt_rebirth.py" "$SOURCE/csqtt"
 python3 "$ROOT/scripts/prepare_private_csqtt.py" "$SOURCE/csqtt"
@@ -45,18 +45,18 @@ esac
 export GOOS=android CGO_ENABLED=1
 export CC="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/${CLANG}24-clang"
 test -x "$CC"
-(cd "$SOURCE/qThrone/qwdtt"; gofmt -w bridge_socks.go creds.go csqtt_bridge.go bridge_config.go vk_account.go; go build -trimpath -buildmode=pie -ldflags='-s -w -checklinkname=0' -o "$OUT/libqwdtt.so" .)
+(cd "$SOURCE/Rawline/qwdtt"; gofmt -w bridge_socks.go creds.go csqtt_bridge.go bridge_config.go vk_account.go; go build -trimpath -buildmode=pie -ldflags='-s -w -checklinkname=0' -o "$OUT/libqwdtt.so" .)
 (cd "$SOURCE/wdttplus/go_client"; go build -buildvcs=false -trimpath -buildmode=pie -ldflags='-s -w -checklinkname=0 -linkmode=external -extldflags=-Wl,-z,max-page-size=16384' -o "$OUT/libwdttplus.so" .)
 rustup target add --toolchain 1.97.1 "$RUST"
-cargo +1.97.1 install cargo-ndk --version 4.1.2 --locked --root "$RUNNER_TEMP/qthrone-cargo-tools"
-export PATH="$RUNNER_TEMP/qthrone-cargo-tools/bin:$PATH"
+cargo +1.97.1 install cargo-ndk --version 4.1.2 --locked --root "$RUNNER_TEMP/rawline-cargo-tools"
+export PATH="$RUNNER_TEMP/rawline-cargo-tools/bin:$PATH"
 export CARGO_TARGET_DIR="$SOURCE/rust-build"
 (cd "$SOURCE/csqtt/rust-client"; cargo +1.97.1 ndk -t "$ABI" -P 26 build --release --locked)
 cp "$CARGO_TARGET_DIR/$RUST/release/client" "$OUT/libcsqtt_transport.so"
-cp "$SOURCE/qThrone/qwdtt/LICENSE" "$OUT/qWDTT-LICENSE"
+cp "$SOURCE/Rawline/qwdtt/LICENSE" "$OUT/qWDTT-LICENSE"
 cp "$SOURCE/wdttplus/LICENSE" "$OUT/WDTT-Plus-LICENSE"
 cp "$SOURCE/csqtt/LICENSE" "$OUT/CSQTT-LICENSE"
-printf 'qThrone %s\nWDTT-Plus %s\nCSQTT %s\nAndroid ABI %s\nLocal IPC hardening %s\n' "$REF" "$WDTTPLUS" "$CSQTT" "$ABI" "$GITHUB_SHA" > "$OUT/SOURCES.txt"
+printf 'Rawline %s\nWDTT-Plus %s\nCSQTT %s\nAndroid ABI %s\nLocal IPC hardening %s\n' "$REF" "$WDTTPLUS" "$CSQTT" "$ABI" "$GITHUB_SHA" > "$OUT/SOURCES.txt"
 python3 - "$OUT" "$REF" "$WDTTPLUS" "$CSQTT" <<'PY'
 from pathlib import Path
 import hashlib,json,os,sys
@@ -70,4 +70,4 @@ PY
 for binary in "$OUT/"*.so; do
   "$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf" -h "$binary" | grep -q 'Type:.*DYN'
 done
-tar -czf "$ROOT/qthrone-secure-socks-${GITHUB_SHA:0:8}-$ABI.tar.gz" -C "$OUT" libqwdtt.so libwdttplus.so libcsqtt_transport.so qWDTT-LICENSE WDTT-Plus-LICENSE CSQTT-LICENSE SOURCES.txt SHA256SUMS SECURITY.json
+tar -czf "$ROOT/rawline-secure-socks-${GITHUB_SHA:0:8}-$ABI.tar.gz" -C "$OUT" libqwdtt.so libwdttplus.so libcsqtt_transport.so qWDTT-LICENSE WDTT-Plus-LICENSE CSQTT-LICENSE SOURCES.txt SHA256SUMS SECURITY.json

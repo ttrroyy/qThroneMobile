@@ -1,5 +1,5 @@
-// Command qthrone-sstp runs one SSTP VPN profile behind an authenticated
-// loopback SOCKS5 listener for qThroneMobile.
+// Command rawline-sstp runs one SSTP VPN profile behind an authenticated
+// loopback SOCKS5 listener for RawlineMobile.
 package main
 
 import (
@@ -85,8 +85,8 @@ func readConfig(path string) (profile, error) {
 }
 
 func main() {
-	if len(os.Args) != 3 || os.Args[1] != "--qthrone-config" {
-		fmt.Fprintln(os.Stderr, "Usage: libsstp.so --qthrone-config <config.json>")
+	if len(os.Args) != 3 || os.Args[1] != "--rawline-config" {
+		fmt.Fprintln(os.Stderr, "Usage: libsstp.so --rawline-config <config.json>")
 		os.Exit(2)
 	}
 
@@ -99,7 +99,7 @@ func main() {
 	sig := make(chan os.Signal, 2)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
 
-	// Read "STOP" from stdin if sent by qThroneMobile CarrierProcess, or handle EOF
+	// Read "STOP" from stdin if sent by RawlineMobile CarrierProcess, or handle EOF
 	go func() {
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {

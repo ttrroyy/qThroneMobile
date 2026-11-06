@@ -1,4 +1,4 @@
-// Command qthrone-soar runs one Soar profile for qThroneMobile.
+// Command rawline-soar runs one Soar profile for RawlineMobile.
 //
 // It is Lantern's Soar client library (github.com/getlantern/soar) behind an
 // authenticated loopback SOCKS5 listener with the per-launch credentials:
@@ -122,7 +122,7 @@ func newClient(p profile) (*soar.Client, time.Duration, error) {
 }
 
 func run() int {
-	if len(os.Args) != 3 || os.Args[1] != "--qthrone-config" {
+	if len(os.Args) != 3 || os.Args[1] != "--rawline-config" {
 		fmt.Fprintln(os.Stderr, "Soar: expected private configuration file")
 		return 2
 	}

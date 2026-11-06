@@ -57,5 +57,5 @@ p = root / "vk_account.go"
 s = p.read_text(encoding="utf-8")
 marker = "func requestAccountTurnCreds(ctx context.Context, link string, streamID int) (string, string, []string, error) {"
 assert s.count(marker) == 1
-s = s.replace(marker, "var qThroneAccountAuthMu sync.Mutex\n\n" + marker + "\n\tqThroneAccountAuthMu.Lock()\n\tdefer qThroneAccountAuthMu.Unlock()")
+s = s.replace(marker, "var RawlineAccountAuthMu sync.Mutex\n\n" + marker + "\n\tRawlineAccountAuthMu.Lock()\n\tdefer RawlineAccountAuthMu.Unlock()")
 p.write_text(s, encoding="utf-8")

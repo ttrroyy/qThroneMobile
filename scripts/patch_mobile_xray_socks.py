@@ -36,7 +36,7 @@ def patch(core: Path):
         ["go", "mod", "download", "-json", SOURCE + "@" + VERSION], cwd=core))
     if info.get("Sum") != SUM or info.get("GoModSum") != MOD_SUM:
         raise ValueError("Pinned Xray source checksum mismatch")
-    target = core / ".qthrone" / "xray-core"
+    target = core / ".rawline" / "xray-core"
     shutil.copytree(info["Dir"], target, dirs_exist_ok=True, copy_function=copy_writable)
     client = target / "proxy" / "socks" / "client.go"
     replace_once(client,
@@ -79,7 +79,7 @@ def patch(core: Path):
     helper_dir.chmod(helper_dir.stat().st_mode | stat.S_IWUSR)
     for source in (Path(__file__).resolve().parents[1] / "core-patches" / "xray-socks").glob("*.go"):
         copy_writable(source, helper_dir / source.name)
-    subprocess.run(["go", "mod", "edit", "-replace=" + MODULE + "=./.qthrone/xray-core"], cwd=core, check=True)
+    subprocess.run(["go", "mod", "edit", "-replace=" + MODULE + "=./.rawline/xray-core"], cwd=core, check=True)
 
 
 if __name__ == "__main__":

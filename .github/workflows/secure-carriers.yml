@@ -53,5 +53,5 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: secure-socks-${{ matrix.abi }}
-          path: qthrone-secure-socks-*.tar.gz
+          path: rawline-secure-socks-*.tar.gz
           if-no-files-found: error

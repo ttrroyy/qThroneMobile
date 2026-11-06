@@ -1,8 +1,8 @@
-// Command qthrone-openfluxkey runs one profile of the wlruscfd/openflux-server fork for qThrone.
+// Command rawline-openfluxkey runs one profile of the wlruscfd/openflux-server fork for Rawline.
 //
 // The fork's exit nodes speak their own framing (batched Boards, nodetunnel), so its profiles,
 // the openflux://import links its control plane issues, run through the fork's own bridge and
-// not the original OpenFlux client. The SOCKS5 listener qThrone dials is on loopback with the
+// not the original OpenFlux client. The SOCKS5 listener Rawline dials is on loopback with the
 // per-launch credentials and opens only once the transport is up.
 package main
 
@@ -35,7 +35,7 @@ type config struct {
 }
 
 // sessionCaptcha is the fork transport's pending check.
-type sessionCaptcha struct{ session *mobile.QThroneSession }
+type sessionCaptcha struct{ session *mobile.RawlineSession }
 
 func (c sessionCaptcha) pendingCaptcha() string             { return c.session.PendingCaptcha() }
 func (c sessionCaptcha) submitCaptcha(cookies string) error { return c.session.SubmitCookies(cookies) }
@@ -44,7 +44,7 @@ func (c sessionCaptcha) submitCaptcha(cookies string) error { return c.session.S
 func (sessionCaptcha) cancelCaptcha() {}
 
 func run() int {
-	if len(os.Args) != 3 || os.Args[1] != "--qthrone-config" {
+	if len(os.Args) != 3 || os.Args[1] != "--rawline-config" {
 		fmt.Fprintln(os.Stderr, "OpenFlux: expected private configuration file")
 		return 2
 	}
@@ -68,7 +68,7 @@ func run() int {
 	}
 	engine, _ := json.Marshal(map[string]any{"mode": "manual", "transport": c.Transport, "doc_url": c.DocURL, "doc_urls": c.DocURLs,
 		"key_token": c.KeyToken, "e2e_encryption": c.E2E && c.KeyToken != "", "mtu": c.MTU})
-	session, err := mobile.StartQThrone(string(engine))
+	session, err := mobile.StartRawline(string(engine))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "OpenFlux: %v\n", err)
 		return 1

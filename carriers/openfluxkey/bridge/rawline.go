@@ -1,6 +1,6 @@
 package mobile
 
-// Added by qThrone to the fork's bridge package: the SOCKS5 mode StartSocks5Proxy runs, with the
+// Added by Rawline to the fork's bridge package: the SOCKS5 mode StartSocks5Proxy runs, with the
 // transport this package builds for the fork's exit nodes, but behind username/password auth on a
 // loopback listener the caller opens once the transport is up, and with the provider's check
 // (EventCaptchaRequired) handed to the caller, which answers with the browser's cookies.
@@ -16,8 +16,8 @@ import (
 	"github.com/p1neappleXpress/OpenFlux/transport/yandex"
 )
 
-// QThroneSession is one running profile.
-type QThroneSession struct {
+// RawlineSession is one running profile.
+type RawlineSession struct {
 	raw     transport.Transport
 	trans   transport.Transport
 	tun     *nodetunnel.TCPTunnel
@@ -26,8 +26,8 @@ type QThroneSession struct {
 	captcha string
 }
 
-// StartQThrone starts the transport; Connected reports when it is up.
-func StartQThrone(configJSON string) (*QThroneSession, error) {
+// StartRawline starts the transport; Connected reports when it is up.
+func StartRawline(configJSON string) (*RawlineSession, error) {
 	var cfg Config
 	if err := json.Unmarshal([]byte(configJSON), &cfg); err != nil {
 		return nil, fmt.Errorf("parse config: %w", err)
@@ -59,7 +59,7 @@ func StartQThrone(configJSON string) (*QThroneSession, error) {
 		}
 		raw, trans = built, built
 	}
-	s := &QThroneSession{raw: raw, trans: trans}
+	s := &RawlineSession{raw: raw, trans: trans}
 	transport.SetEventCallback(raw, func(code, detail string) {
 		s.mu.Lock()
 		defer s.mu.Unlock()
@@ -81,17 +81,17 @@ func StartQThrone(configJSON string) (*QThroneSession, error) {
 	return s, nil
 }
 
-func (s *QThroneSession) Connected() bool { return s.trans.IsConnected() }
+func (s *RawlineSession) Connected() bool { return s.trans.IsConnected() }
 
 // PendingCaptcha is the page the provider wants passed, "" when nothing is pending.
-func (s *QThroneSession) PendingCaptcha() string {
+func (s *RawlineSession) PendingCaptcha() string {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	return s.captcha
 }
 
 // SubmitCookies hands a Cookie header from the browser to the transport, which reconnects with it.
-func (s *QThroneSession) SubmitCookies(header string) error {
+func (s *RawlineSession) SubmitCookies(header string) error {
 	provider, ok := s.raw.(transport.CookieProvider)
 	if !ok {
 		return fmt.Errorf("this transport does not take cookies")
@@ -104,7 +104,7 @@ func (s *QThroneSession) SubmitCookies(header string) error {
 }
 
 // Listen opens the authenticated SOCKS5 listener.
-func (s *QThroneSession) Listen(addr, user, pass string) error {
+func (s *RawlineSession) Listen(addr, user, pass string) error {
 	s.server = socks5.NewSOCKS5Server(addr, s.tun)
 	s.server.SetAuth(user, pass)
 	if err := s.server.Bind(); err != nil {
@@ -114,7 +114,7 @@ func (s *QThroneSession) Listen(addr, user, pass string) error {
 	return nil
 }
 
-func (s *QThroneSession) Stop() {
+func (s *RawlineSession) Stop() {
 	if s.server != nil {
 		_ = s.server.Close()
 	}

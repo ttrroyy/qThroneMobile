@@ -17,7 +17,7 @@ def main():
     properties = dict(line.split("=", 1) for line in (root / "nb4a.properties").read_text(encoding="utf-8").splitlines() if "=" in line)
     component = dict(build_commit=os.environ["GITHUB_SHA"], core_commit=properties["THRONE_CORE_REF"].strip(),
                      csqtt_commit=COMPAT_COMMIT, inputs=input_hashes(root))
-    archives = list(Path(sys.argv[1]).rglob("qthrone-csqtt-compat-*.tar.gz"))
+    archives = list(Path(sys.argv[1]).rglob("rawline-csqtt-compat-*.tar.gz"))
     if len(archives) != len(ABIS):
         raise ValueError("Expected one native archive per ABI")
     repo = os.environ["GH_REPO"]
@@ -26,7 +26,7 @@ def main():
     existing = {asset["name"]: asset.get("digest") for asset in storage["assets"]}
     records = []
     for abi in ABIS:
-        name = f"qthrone-csqtt-compat-{component['build_commit'][:8]}-{abi}.tar.gz"
+        name = f"rawline-csqtt-compat-{component['build_commit'][:8]}-{abi}.tar.gz"
         archive = next((p for p in archives if p.name == name), None)
         if archive is None:
             raise ValueError("Missing native archive: " + name)

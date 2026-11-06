@@ -1,4 +1,4 @@
-// Command qthrone-masterdns runs one MasterDnsVPN profile for qThroneMobile.
+// Command rawline-masterdns runs one MasterDnsVPN profile for RawlineMobile.
 //
 // It is MasterDnsVPN's own client (cmd/client) with the configuration written
 // from the app's private JSON: the client's SOCKS5 listener on loopback with
@@ -114,7 +114,7 @@ func clean(list []string) []string {
 }
 
 func run() int {
-	if len(os.Args) != 3 || os.Args[1] != "--qthrone-config" {
+	if len(os.Args) != 3 || os.Args[1] != "--rawline-config" {
 		fmt.Fprintln(os.Stderr, "MasterDNS: expected private configuration file")
 		return 2
 	}

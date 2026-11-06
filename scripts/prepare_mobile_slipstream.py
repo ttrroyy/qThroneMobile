@@ -1,4 +1,4 @@
-"""Make slipstream-client listen on a Unix socket for qThroneMobile.
+"""Make slipstream-client listen on a Unix socket for RawlineMobile.
 
 A TCP listener on loopback is open to every app on the phone, so a tunnel
 whose backend needs no password would carry anyone's traffic. The mobile

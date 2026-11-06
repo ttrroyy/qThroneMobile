@@ -15,7 +15,7 @@ properties = dict(line.split('=', 1) for line in (root / 'nb4a.properties').read
 
 
 def same_transport_sources(ref, built):
-    """The transports take only qwdtt/ and script/ from qThrone, so a core pin with identical trees reuses them."""
+    """The transports take only qwdtt/ and script/ from Rawline, so a core pin with identical trees reuses them."""
     if ref == built:
         return True
     with tempfile.TemporaryDirectory() as repo:

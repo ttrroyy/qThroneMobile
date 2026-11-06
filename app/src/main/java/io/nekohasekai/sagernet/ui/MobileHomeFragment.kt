@@ -435,6 +435,8 @@ class MobileHomeFragment : ToolbarFragment() {
                 setPadding(dp(5),dp(5),dp(5),dp(5))
             }
             background=GradientDrawable().apply { setColor(toolbarColor);cornerRadius=dp(if(MobileStyle.new) 10 else 7).toFloat() };clipToOutline=true
+            // White in a flag would melt into a light theme without an edge.
+            if(MobileStyle.new && flag!=null) foreground=GradientDrawable().apply { cornerRadius=dp(10).toFloat();setStroke(dp(1).coerceAtLeast(1),MobilePalette.outline) }
         }
     }
     private var groupChip: TextView? = null

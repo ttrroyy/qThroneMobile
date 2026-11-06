@@ -1,6 +1,6 @@
 """Pass the session identity the original CSQTT app gives every launch.
 
-Runs after qThrone's script/prepare_csqtt.py. The server keeps one epoch per
+Runs after Rawline's script/prepare_csqtt.py. The server keeps one epoch per
 device (generation + salt): a launch with a new pair replaces the device's old
 sessions, a DISCONNECT ends every session of that epoch. Without them every
 launch, probe included, shared the epoch 0/"" with the connected VPN.

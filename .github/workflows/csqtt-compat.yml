@@ -42,7 +42,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: csqtt-compat-${{ matrix.abi }}
-          path: qthrone-csqtt-compat-*.tar.gz
+          path: rawline-csqtt-compat-*.tar.gz
           if-no-files-found: error
   publish:
     name: Pin transports on dev

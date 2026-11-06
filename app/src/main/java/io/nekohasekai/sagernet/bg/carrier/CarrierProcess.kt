@@ -14,17 +14,17 @@ import kotlin.coroutines.coroutineContext
 enum class CarrierKind(val executable: String, val configFlag: String, val minimumApi: Int) {
     QWDTT("libqwdtt.so", "-config", 24),
     CSQTT("libqwdtt.so", "-csqtt-config", 26),
-    OPENFLUX("libopenflux.so", "--qthrone-config", 24),
-    OPENFLUXKEY("libopenfluxkey.so", "--qthrone-config", 24),
-    OLCRTC("libolcrtc.so", "--qthrone-config", 24),
-    DNSTT("libdnstun.so", "--qthrone-config", 24),
-    VAYDNS("libdnstun.so", "--qthrone-config", 24),
-    SLIPSTREAM("libdnstun.so", "--qthrone-config", 24),
-    MASTERDNS("libmasterdns.so", "--qthrone-config", 24),
-    COTTENDNS("libcottendns.so", "--qthrone-config", 24),
-    SOAR("libsoar.so", "--qthrone-config", 24),
-    S3BYPASS("libs3bypass.so", "--qthrone-config", 24),
-    SSTP("libsstp.so", "--qthrone-config", 24),
+    OPENFLUX("libopenflux.so", "--rawline-config", 24),
+    OPENFLUXKEY("libopenfluxkey.so", "--rawline-config", 24),
+    OLCRTC("libolcrtc.so", "--rawline-config", 24),
+    DNSTT("libdnstun.so", "--rawline-config", 24),
+    VAYDNS("libdnstun.so", "--rawline-config", 24),
+    SLIPSTREAM("libdnstun.so", "--rawline-config", 24),
+    MASTERDNS("libmasterdns.so", "--rawline-config", 24),
+    COTTENDNS("libcottendns.so", "--rawline-config", 24),
+    SOAR("libsoar.so", "--rawline-config", 24),
+    S3BYPASS("libs3bypass.so", "--rawline-config", 24),
+    SSTP("libsstp.so", "--rawline-config", 24),
     // WDTT Plus takes flags and its secrets as START_CONFIG on stdin, as its own app starts it.
     WDTTPLUS("libwdttplus.so", "", 24);
 

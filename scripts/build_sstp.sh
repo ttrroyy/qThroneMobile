@@ -25,9 +25,9 @@ paths=sorted(p for p in Path('carriers/sstp').rglob('*') if p.is_file() and p.su
 paths.append(Path('scripts/build_sstp.sh'))
 inputs={p.as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
 (out/'SSTP.json').write_text(json.dumps({'build_commit':commit,'abi':abi,'inputs':inputs},indent=2)+'\n')
-(out/'SOURCES.txt').write_text(f'qThroneMobile SSTP {commit}\nAndroid ABI {abi}\n')
+(out/'SOURCES.txt').write_text(f'RawlineMobile SSTP {commit}\nAndroid ABI {abi}\n')
 digest=hashlib.sha256((out/'libsstp.so').read_bytes()).hexdigest()
 (out/'SHA256SUMS').write_text(f'{digest}  libsstp.so\n')
 PY
-tar -C "$OUT" -czf "qthrone-sstp-$(git rev-parse --short=8 HEAD)-$ABI.tar.gz" \
+tar -C "$OUT" -czf "rawline-sstp-$(git rev-parse --short=8 HEAD)-$ABI.tar.gz" \
   libsstp.so SSTP-LICENSE SSTP.json SOURCES.txt SHA256SUMS

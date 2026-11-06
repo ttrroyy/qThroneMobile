@@ -55,14 +55,14 @@ class WdttPlusDeploySafetyTest {
         assertEquals(DeploymentOwnership.PreservedAndroidData, host.ownership())
     }
 
-    @Test fun dataLeftByOldQthroneUninstallIsRecognisedOnlyInItsExactShape() = Root().use { host ->
+    @Test fun dataLeftByOldUninstallIsRecognisedOnlyInItsExactShape() = Root().use { host ->
         linux()
-        fun unmarked() = markerValue(bash(unmarkedQthroneDataProbe(host.root.path)), "WDTT_UNMARKED_QTHRONE_DATA")
+        fun unmarked() = markerValue(bash(unmarkedRawlineDataProbe(host.root.path)), "WDTT_UNMARKED_RAWLINE_DATA")
         assertEquals("0", unmarked())
         host.installAndroidDeploy()
         assertEquals("0", unmarked())
         host.uninstallKeepingData()
-        // deploy.sh uninstall in qThrone 1.8.1 left the data unmarked and possibly with other permissions.
+        // deploy.sh uninstall in version 1.8.1 left the data unmarked and possibly with other permissions.
         host.permissions(host.config, "rwxr-xr-x")
         assertEquals("1", unmarked())
         bash("chmod 700 '${host.config}' && chmod 600 '${host.config}/passwords.json' '${host.config}/wg-keys.dat'")

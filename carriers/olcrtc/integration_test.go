@@ -159,7 +159,7 @@ func TestEncryptedHTTPBulkAndRestart(t *testing.T) {
 	defer target.Close()
 	for iteration := 0; iteration < 2; iteration++ {
 		room := &listenerTestRoom{sessions: make(map[*listenerTestSession]struct{})}
-		providerName := "qthrone-local-integration-" + string(rune('0'+iteration))
+		providerName := "rawline-local-integration-" + string(rune('0'+iteration))
 		enginebuiltin.Register(providerName, func(_ context.Context, c enginebuiltin.Config) (engine.Session, error) {
 			return room.newSession(c.OnData), nil
 		})
