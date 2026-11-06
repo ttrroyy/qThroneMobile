@@ -7,6 +7,7 @@ import android.app.Activity
 import android.os.Build
 import android.view.View
 import android.view.animation.AnimationUtils
+import androidx.core.view.drawToBitmap
 import androidx.fragment.app.Fragment
 import app.rawline.mobile.R
 
@@ -23,7 +24,7 @@ object MobileScreenMotion {
     private var themeShot: android.graphics.Bitmap? = null
     /** A theme change recreates the whole screen: the old picture stays on top until the new one is ready, then fades. */
     fun holdForRecreate(activity: Activity) {
-        themeShot = runCatching { androidx.core.view.drawToBitmap(activity.window.decorView) }.getOrNull()
+        themeShot = runCatching { activity.window.decorView.drawToBitmap() }.getOrNull()
     }
     fun fadeAfterRecreate(activity: Activity) {
         val shot = themeShot ?: return
