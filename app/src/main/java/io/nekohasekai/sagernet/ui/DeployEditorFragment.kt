@@ -86,7 +86,7 @@ open class DeployEditorFragment : Fragment() {
         val tile=LinearLayout(requireContext()).apply {
             orientation=LinearLayout.HORIZONTAL;gravity=android.view.Gravity.CENTER_VERTICAL
             setPadding(dp(12),dp(8),dp(12),dp(8));minimumHeight=dp(48)
-            background=android.graphics.drawable.GradientDrawable().apply {
+            background=if(MobileStyle.new) MobilePalette.rowShape(context) else android.graphics.drawable.GradientDrawable().apply {
                 setColor(MobilePalette.surface);cornerRadius=dp(MobilePalette.rowDp).toFloat();setStroke(1,MobilePalette.outline)
             }
             isFocusable=true;contentDescription=listOfNotNull(title,subtitle).joinToString(". ")
@@ -104,8 +104,16 @@ open class DeployEditorFragment : Fragment() {
         tile.addView(labels,LinearLayout.LayoutParams(0,-2,1f))
         val entry: View=if(server==null) tile else {
             val delete=ImageButton(requireContext()).apply {
-                setImageResource(R.drawable.ic_mobile_delete);imageTintList=android.content.res.ColorStateList.valueOf(android.graphics.Color.WHITE)
-                setBackgroundColor(android.graphics.Color.rgb(220,66,61));setPadding(dp(18),dp(18),dp(18),dp(18))
+                setImageResource(R.drawable.ic_mobile_delete)
+                val red=android.graphics.Color.rgb(220,66,61)
+                if(MobileStyle.new) {
+                    imageTintList=android.content.res.ColorStateList.valueOf(red)
+                    background=MobilePalette.actionShape(context,red);MobileFeedback.apply(this)
+                    setPadding(dp(20),dp(12),dp(20),dp(12))
+                } else {
+                    imageTintList=android.content.res.ColorStateList.valueOf(android.graphics.Color.WHITE)
+                    setBackgroundColor(red);setPadding(dp(18),dp(18),dp(18),dp(18))
+                }
                 contentDescription="Удалить VPS из списка"
                 setOnClickListener {
                     if(DeployEngine.state.value.running && DeployEngine.state.value.serverId==server.id) {
@@ -115,12 +123,23 @@ open class DeployEditorFragment : Fragment() {
                 }
             }
             MobileSwipeTile(requireContext(),tile,View(requireContext()),View(requireContext()),delete,deleteOnly=true).apply {
-                background=android.graphics.drawable.GradientDrawable().apply { setColor(MobilePalette.surface);cornerRadius=dp(MobilePalette.rowDp).toFloat();setStroke(1,MobilePalette.outline) }
+                // In the new style the glass is the row's alone: a second layer here would show through it.
+                background=android.graphics.drawable.GradientDrawable().apply {
+                    cornerRadius=dp(MobilePalette.rowDp).toFloat()
+                    if(MobileStyle.new) setColor(android.graphics.Color.TRANSPARENT) else { setColor(MobilePalette.surface);setStroke(1,MobilePalette.outline) }
+                }
                 clipToOutline=true
                 onOpened={ opened -> openSwipe?.takeIf { it!==opened }?.closeActions();openSwipe=opened }
             }
         }
         body.addView(entry,LinearLayout.LayoutParams(-1,-2).apply { bottomMargin=dp(8) })
+    }
+    /** The same surface as every other row and button of the new style; the button's own layers would show through the glass. */
+    private fun glassButton(button: MaterialButton,chosen: Boolean) {
+        button.rippleColor=null;button.outlineProvider=null;button.backgroundTintList=null
+        button.background=if(chosen) MobilePalette.selectedShape(requireContext()) else MobilePalette.rowShape(requireContext())
+        MobileFeedback.apply(button)
+        button.setPaddingRelative(dp(12),dp(8),dp(12),dp(8))
     }
     private fun button(parent: LinearLayout,title: String,icon: Int=0,pair: Boolean=false,click: ()->Unit): MaterialButton {
         val b=MaterialButton(requireContext()).apply {
@@ -136,6 +155,7 @@ open class DeployEditorFragment : Fragment() {
             strokeColor=android.content.res.ColorStateList.valueOf(MobilePalette.outline)
             if(icon!=0) { setIconResource(icon);iconSize=dp(22);iconPadding=dp(12);iconGravity=MaterialButton.ICON_GRAVITY_START }
             setOnClickListener { click() }
+            if(MobileStyle.new) glassButton(this,false)
         }
         parent.addView(b,(if(pair) LinearLayout.LayoutParams(0,-2,1f) else LinearLayout.LayoutParams(-1,-2)).apply {
             topMargin=if(parent===body) 0 else dp(4)
@@ -264,13 +284,16 @@ open class DeployEditorFragment : Fragment() {
         }
         if(s.kind!="csqtt") { heading(access,"Вход на сервер"); row(access) { r ->
             for((value,label) in listOf("password" to "Пароль","key" to "SSH-ключ")) button(r,label,pair=true) { s["auth"]=value;build() }.apply {
-                strokeWidth=dp(1);strokeColor=android.content.res.ColorStateList.valueOf(if(s["auth"]==value) MobilePalette.accent(requireContext()) else MobilePalette.muted)
+                if(MobileStyle.new) glassButton(this,s["auth"]==value)
+                else { strokeWidth=dp(1);strokeColor=android.content.res.ColorStateList.valueOf(if(s["auth"]==value) MobilePalette.accent(requireContext()) else MobilePalette.muted) }
             }
         } }
         if(s["auth"]=="key") {
             button(access,if(s["key"].isBlank()) "Загрузить ключ" else "Сменить ключ",R.drawable.ic_baseline_vpn_key_24) { host.pickKey() }.apply {
-                strokeWidth=dp(1);strokeColor=android.content.res.ColorStateList.valueOf(MobilePalette.accent(requireContext()))
-                backgroundTintList=android.content.res.ColorStateList.valueOf(MobilePalette.background)
+                if(!MobileStyle.new) {
+                    strokeWidth=dp(1);strokeColor=android.content.res.ColorStateList.valueOf(MobilePalette.accent(requireContext()))
+                    backgroundTintList=android.content.res.ColorStateList.valueOf(MobilePalette.background)
+                }
             }
             if(s["key"].isNotBlank()) button(access,"Удалить ключ",R.drawable.ic_mobile_delete) { s["key"]="";s["keyName"]="";build() }
             if(s["key"].isNotBlank()) heading(access,"Ключ загружен: "+s["keyName"])
@@ -345,7 +368,7 @@ open class DeployEditorFragment : Fragment() {
         }
         content.addView(logScroll,LinearLayout.LayoutParams(-1,dp(220)))
         stop=button(content,"Остановить") { DeployEngine.cancel() }.apply {
-            backgroundTintList=android.content.res.ColorStateList.valueOf(MobilePalette.background)
+            if(!MobileStyle.new) backgroundTintList=android.content.res.ColorStateList.valueOf(MobilePalette.background)
             insetTop=0;insetBottom=0
             (layoutParams as LinearLayout.LayoutParams).apply { topMargin=dp(12);bottomMargin=dp(6) }
         }

@@ -82,9 +82,10 @@ class DeployListFragment : Fragment() {
 
     private fun tile(title: String, subtitle: String?, icon: Int, server: DeployServer? = null, click: () -> Unit) {
         fun background() = GradientDrawable().apply { setColor(MobilePalette.surface); cornerRadius=dp(MobilePalette.rowDp).toFloat(); setStroke(1,MobilePalette.outline) }
+        val glass = MobileStyle.new
         val tile = LinearLayout(requireContext()).apply {
             gravity = Gravity.CENTER_VERTICAL; setPadding(dp(12), dp(8), dp(12), dp(8))
-            minimumHeight = dp(48); this.background = background()
+            minimumHeight = dp(48); this.background = if (glass) MobilePalette.rowShape(context) else background()
             isFocusable = true; setOnClickListener { click() }; MobileFeedback.apply(this)
         }
         tile.addView(ImageView(requireContext()).apply {
@@ -100,8 +101,16 @@ class DeployListFragment : Fragment() {
         }, LinearLayout.LayoutParams(0, -2, 1f))
         val entry: View = if (server == null) tile else {
             val delete = ImageButton(requireContext()).apply {
-                setImageResource(R.drawable.ic_mobile_delete); imageTintList = ColorStateList.valueOf(Color.WHITE)
-                setBackgroundColor(Color.rgb(220, 66, 61)); setPadding(dp(18), dp(18), dp(18), dp(18))
+                setImageResource(R.drawable.ic_mobile_delete)
+                val red = Color.rgb(220, 66, 61)
+                if (glass) {
+                    imageTintList = ColorStateList.valueOf(red)
+                    this.background = MobilePalette.actionShape(context, red); MobileFeedback.apply(this)
+                    setPadding(dp(20), dp(12), dp(20), dp(12))
+                } else {
+                    imageTintList = ColorStateList.valueOf(Color.WHITE)
+                    setBackgroundColor(red); setPadding(dp(18), dp(18), dp(18), dp(18))
+                }
                 contentDescription = "Удалить VPS из списка"
                 setOnClickListener {
                     if (DeployEngine.state.value.running && DeployEngine.state.value.serverId == server.id)
@@ -116,7 +125,9 @@ class DeployListFragment : Fragment() {
                 }
             }
             MobileSwipeTile(requireContext(), tile, View(requireContext()), View(requireContext()), delete, deleteOnly = true).apply {
-                this.background = background(); clipToOutline = true
+                // In the new style the glass is the row's alone: a second layer here would show through it.
+                this.background = if (glass) GradientDrawable().apply { setColor(Color.TRANSPARENT); cornerRadius = dp(MobilePalette.rowDp).toFloat() } else background()
+                clipToOutline = true
                 onOpened = { opened -> openSwipe?.takeIf { it !== opened }?.closeActions(); openSwipe = opened }
             }
         }

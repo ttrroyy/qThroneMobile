@@ -168,6 +168,8 @@ class UiTourTest {
         "webdav" to { open(WebDAVSettingsActivity::class.java) },
         "autoselector" to { open(AutoSelectorStatusActivity::class.java) },
         "deploy" to { open(DeployActivity::class.java) },
+        "deploy-qwdtt" to { open(DeployActivity::class.java) { putExtra("kind", "qwdtt"); putExtra("directEditor", true) } },
+        "deploy-csqtt" to { open(DeployActivity::class.java) { putExtra("kind", "csqtt"); putExtra("directEditor", true) } },
         "home-sheet-delete" to { home("groups"); tap("ru-tcp-reality"); Thread.sleep(1500); swipe("fi-xhttp-tls", .8f, .3f) },
         "home-sheet-share" to { home("groups"); tap("ru-tcp-reality"); Thread.sleep(1500); swipe("fi-xhttp-tls", .2f, .8f) },
         "picker-share" to { home("groups"); tapTopmost("api.host-cloud.uk"); swipe("api.host-cloud.uk", .2f, .7f); tap(R.string.action_copy) },
