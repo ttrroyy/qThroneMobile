@@ -59,8 +59,8 @@ open class MobilePowerArtwork(private val accent: Int) : Drawable() {
     override fun draw(canvas: Canvas) {
         val cx=bounds.exactCenterX(); val cy=bounds.exactCenterY()
         val r=minOf(bounds.width(),bounds.height())*.46f*pressScale
-        paint.style=Paint.Style.STROKE; paint.strokeWidth=r*.005f
-        paint.shader=LinearGradient(cx-r,cy-r,cx+r,cy+r,Color.argb(100,74,135,159),Color.argb(60,161,144,155),Shader.TileMode.CLAMP)
+        paint.style=Paint.Style.STROKE; paint.strokeWidth=r*.008f
+        paint.shader=LinearGradient(cx-r,cy-r,cx+r,cy+r,androidx.core.graphics.ColorUtils.setAlphaComponent(accent,170),androidx.core.graphics.ColorUtils.setAlphaComponent(accent,80),Shader.TileMode.CLAMP)
         canvas.drawCircle(cx,cy,r,paint)
         paint.style=Paint.Style.FILL
         paint.shader=LinearGradient(cx,cy-r,cx,cy+r,MobilePalette.surface,MobilePalette.toolbar,Shader.TileMode.CLAMP)

@@ -160,8 +160,9 @@ class AppearanceSettingsFragment : SettingsScreenFragment(R.xml.settings_appeara
         val host = activity ?: return
         host.window?.decorView?.post {
             if (!host.isFinishing && !host.isDestroyed) {
-                app.rawline.mobile.ui.MobileScreenMotion.holdForRecreate(host)
-                ActivityCompat.recreate(host)
+                app.rawline.mobile.ui.MobileScreenMotion.holdForRecreate(host) {
+                    if (!host.isFinishing && !host.isDestroyed) ActivityCompat.recreate(host)
+                }
             }
         }
     }

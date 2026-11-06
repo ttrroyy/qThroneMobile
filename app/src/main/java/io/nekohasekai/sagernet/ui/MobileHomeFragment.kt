@@ -866,9 +866,10 @@ class MobileHomeFragment : ToolbarFragment() {
                 if(MobileStyle.new) {
                     sheetDown=text("↓ "+rateText(lastDown),12f,muted).apply { setPadding(dp(6),dp(2),dp(6),dp(2));maxLines=1 }
                     sheetUp=text("↑ "+rateText(lastUp),12f,muted).apply { setPadding(dp(6),dp(2),dp(6),dp(2));maxLines=1 }
-                    statusRow=LinearLayout(requireContext()).apply { gravity=Gravity.CENTER;addView(sheetDown);addView(sheetUp) }
+                    // A fixed height: one line or two beside the speed, the list under it stays put.
+                    statusRow=LinearLayout(requireContext()).apply { gravity=Gravity.CENTER_VERTICAL;setPadding(dp(10),0,dp(6),0);addView(sheetDown);addView(sheetUp) }
                     sheetSpeed=statusRow
-                    side.addView(statusRow,LinearLayout.LayoutParams(-1,-2))
+                    side.addView(statusRow,LinearLayout.LayoutParams(-1,dp(36)).apply { bottomMargin=-dp(4) })
                 }
                 updateState()
                 val imports = LinearLayout(requireContext())
@@ -890,7 +891,7 @@ class MobileHomeFragment : ToolbarFragment() {
                         MobileFeedback.apply(this,white=true)
                         setOnClickListener { checkCurrentConnection() }
                     }
-                    above.addView(currentCheck,FrameLayout.LayoutParams(-2,-2,if(MobileStyle.new) Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM else Gravity.START or Gravity.BOTTOM).apply { bottomMargin=dp(6) })
+                    above.addView(currentCheck,FrameLayout.LayoutParams(-2,-2,if(MobileStyle.new) Gravity.START or Gravity.CENTER_VERTICAL else Gravity.START or Gravity.BOTTOM).apply { if(!MobileStyle.new) bottomMargin=dp(6) })
                     subscriptionTop=above
                     above.layoutParams=LinearLayout.LayoutParams(-1,dp(64))
                     updateState()
@@ -911,7 +912,7 @@ class MobileHomeFragment : ToolbarFragment() {
                 geoBanner!!.addView(geoCheck,LinearLayout.LayoutParams(dp(24),dp(24)))
                 // Under the decoration, right above the subscriptions it is about.
                 // In the new style the check sits beside the speed, under the button.
-                subscriptionTop?.let { if(statusRow!=null) { it.layoutParams=LinearLayout.LayoutParams(-2,-2); statusRow?.addView(it) } else body.addView(it) }
+                subscriptionTop?.let { if(statusRow!=null) { it.layoutParams=LinearLayout.LayoutParams(0,-2,1f); statusRow?.addView(it,0) } else body.addView(it) }
                 if(!byGroups) body.addView(geoBanner,LinearLayout.LayoutParams(-1,-2).apply { bottomMargin=dp(6) })
                 updateGeoStatus()
                 val serverPanel=if(byGroups) LinearLayout(requireContext()).apply {
@@ -964,7 +965,7 @@ class MobileHomeFragment : ToolbarFragment() {
                 val serverScroll=ScrollView(requireContext()).apply {
                     isVerticalScrollBarEnabled=false; isHorizontalScrollBarEnabled=false
                     clipToPadding=byGroups
-                    if(byGroups) setPadding(0,dp(8),0,0)
+                    if(byGroups && !MobileStyle.new) setPadding(0,dp(8),0,0)
                     addView(serverColumn,FrameLayout.LayoutParams(-1,-2))
                     setOnScrollChangeListener { _, _, y, _, _ ->
                         if(byGroups) groupScrollPositions[renderedGroupId]=y else serverScrollPosition=y

@@ -7,7 +7,6 @@ import android.app.Activity
 import android.os.Build
 import android.view.View
 import android.view.animation.AnimationUtils
-import androidx.core.view.drawToBitmap
 import androidx.fragment.app.Fragment
 import app.rawline.mobile.R
 
@@ -23,16 +22,27 @@ object MobileScreenMotion {
 
     private var themeShot: android.graphics.Bitmap? = null
     /** A theme change recreates the whole screen: the old picture stays on top until the new one is ready, then fades. */
-    fun holdForRecreate(activity: Activity) {
-        themeShot = runCatching { activity.window.decorView.drawToBitmap() }.getOrNull()
+    fun holdForRecreate(activity: Activity, recreate: () -> Unit) {
+        val window = activity.window
+        val decor = window.decorView
+        if (Build.VERSION.SDK_INT < 26 || decor.width == 0 || decor.height == 0) return recreate()
+        val shot = android.graphics.Bitmap.createBitmap(decor.width, decor.height, android.graphics.Bitmap.Config.ARGB_8888)
+        // The screen's real pixels: a software redraw fails on hardware bitmaps and misses what is mid-animation.
+        android.view.PixelCopy.request(window, shot, { result ->
+            if (result == android.view.PixelCopy.SUCCESS) themeShot = shot
+            recreate()
+        }, android.os.Handler(android.os.Looper.getMainLooper()))
     }
     fun fadeAfterRecreate(activity: Activity) {
         val shot = themeShot ?: return
         themeShot = null
+        // The same screen comes back: no rise or scale over it.
+        if (Build.VERSION.SDK_INT >= 34) activity.overrideActivityTransition(Activity.OVERRIDE_TRANSITION_OPEN, 0, 0)
+        else @Suppress("DEPRECATION") activity.overridePendingTransition(0, 0)
         val decor = activity.window.decorView as android.view.ViewGroup
         val cover = android.widget.ImageView(activity).apply { setImageBitmap(shot); scaleType = android.widget.ImageView.ScaleType.FIT_XY }
         decor.addView(cover, android.view.ViewGroup.LayoutParams(-1, -1))
-        cover.postDelayed({ cover.animate().alpha(0f).setDuration(220).withEndAction { decor.removeView(cover) }.start() }, 180)
+        cover.postDelayed({ cover.animate().alpha(0f).setDuration(220).withEndAction { decor.removeView(cover) }.start() }, 260)
     }
 
     fun create(fragment: Fragment, nextAnim: Int): Animator? {

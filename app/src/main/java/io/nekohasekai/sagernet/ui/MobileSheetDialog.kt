@@ -52,16 +52,24 @@ class MobileSheetDialog(context: Context) : BottomSheetDialog(context) {
                 setColor(if (MobileStyle.new) MobilePalette.frosted else MobilePalette.surface);cornerRadius=MobilePalette.cardDp*resources.displayMetrics.density
             }
             clipToOutline=true
-            // The behaviour puts its own elevated grey shape back on every layout, so that shape is what gets the colour.
-            if (MobileStyle.new) addOnLayoutChangeListener { view, _, _, _, _, _, _, _, _ ->
-                (view.background as? com.google.android.material.shape.MaterialShapeDrawable)?.apply {
-                    fillColor=android.content.res.ColorStateList.valueOf(MobilePalette.frosted);elevation=0f
-                    setStroke(view.resources.displayMetrics.density,MobilePalette.outline)
-                    setCornerSize(MobilePalette.cardDp*view.resources.displayMetrics.density)
+            if (MobileStyle.new) {
+                // Rounded on top only: the lower edge lies below the screen, with no line along it.
+                val radius=MobilePalette.cardDp*resources.displayMetrics.density
+                val frost=android.graphics.drawable.InsetDrawable(GradientDrawable().apply {
+                    setColor(MobilePalette.frosted);cornerRadius=radius;setStroke(1,MobilePalette.outline)
+                },0,0,0,-radius.toInt())
+                // The behaviour puts its own grey, square-cornered shape back on every layout.
+                addOnLayoutChangeListener { view, _, _, _, _, _, _, _, _ ->
+                    if (view.background !== frost) { view.background=frost;view.backgroundTintList=null }
                 }
             }
         }
-        if (MobileStyle.new) window?.setDimAmount(MobilePalette.windowDim)
+        if (MobileStyle.new) window?.let { window ->
+            window.setDimAmount(MobilePalette.windowDim)
+            // Under the sheet: the theme's coloured bar would show as a stripe along the bottom.
+            window.navigationBarColor=MobilePalette.background
+            if (android.os.Build.VERSION.SDK_INT >= 29) window.isNavigationBarContrastEnforced=false
+        }
         if (MobileStyle.new && android.os.Build.VERSION.SDK_INT >= 31) window?.let { window ->
             window.addFlags(android.view.WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
             window.attributes = window.attributes.apply { blurBehindRadius = (MobilePalette.BLUR_DP * context.resources.displayMetrics.density).toInt() }

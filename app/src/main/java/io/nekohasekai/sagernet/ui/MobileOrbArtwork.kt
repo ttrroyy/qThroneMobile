@@ -11,8 +11,8 @@ import app.rawline.mobile.R
 import kotlin.math.*
 
 /**
- * The new style's connect button: a breathing disc with rings travelling out of it, brighter once connected.
- * While connecting its edge turns into a rotating wave with a bright stroke round it. Everything eases between the states.
+ * The new style's connect button: a disc whose edge is a slow wave, stronger once connected, with rings travelling out of it.
+ * While connecting a bright stroke runs round the edge. Everything eases between the states; nothing jumps.
  */
 class MobileOrbArtwork(context: Context, private val idleText: String) : MobilePowerArtwork(0) {
     private val density = context.resources.displayMetrics.density
@@ -36,6 +36,7 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
     private var glow: Shader? = null
     private var dropBody: Shader? = null
     private var caustic: Shader? = null
+    private var glint: Shader? = null
     private var rimShader: Shader? = null
     private var runner: Shader? = null
 
@@ -50,16 +51,18 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
         val key = cx * 31f + cy * 7f + base
         if (key == shaderKey) return
         shaderKey = key
-        glow = RadialGradient(cx, cy, base * 1.7f, ColorUtils.setAlphaComponent(ink, 34), Color.TRANSPARENT, Shader.TileMode.CLAMP)
+        glow = RadialGradient(cx, cy, base * 1.55f, ColorUtils.setAlphaComponent(ink, 34), Color.TRANSPARENT, Shader.TileMode.CLAMP)
         // A drop: thin at the top, gathering light low in its body.
         dropBody = RadialGradient(cx, cy + base * .62f, base * 1.5f,
             if (day) Color.argb(235, 255, 255, 255) else Color.argb(60, 255, 255, 255),
             if (day) Color.argb(120, 232, 232, 240) else Color.argb(16, 255, 255, 255), Shader.TileMode.CLAMP)
-        // A soft glow low inside the drop.
-        caustic = RadialGradient(cx, cy + base * 1.05f, base * .85f, ColorUtils.setAlphaComponent(if (day) Color.BLACK else Color.WHITE, if (day) 14 else 36), Color.TRANSPARENT, Shader.TileMode.CLAMP)
+        // The bright patch high on the left, and the caustic glow under it.
+        val light = Math.toRadians(241.0).toFloat()
+        glint = RadialGradient(cx + base * .7f * cos(light), cy + base * .7f * sin(light), base * .8f, Color.argb(if (day) 200 else 60, 255, 255, 255), Color.TRANSPARENT, Shader.TileMode.CLAMP)
+        caustic = RadialGradient(cx, cy + base * 1.05f, base * .85f, ColorUtils.setAlphaComponent(if (day) Color.BLACK else Color.WHITE, if (day) 22 else 80), Color.TRANSPARENT, Shader.TileMode.CLAMP)
         rimShader = LinearGradient(0f, cy - base, 0f, cy + base,
-            ColorUtils.setAlphaComponent(if (day) Color.BLACK else Color.WHITE, if (day) 30 else 80),
-            ColorUtils.setAlphaComponent(if (day) Color.BLACK else Color.WHITE, if (day) 14 else 24), Shader.TileMode.CLAMP)
+            ColorUtils.setAlphaComponent(if (day) Color.BLACK else Color.WHITE, if (day) 34 else 190),
+            ColorUtils.setAlphaComponent(if (day) Color.BLACK else Color.WHITE, if (day) 16 else 46), Shader.TileMode.CLAMP)
         runner = SweepGradient(cx, cy, intArrayOf(Color.TRANSPARENT, ink, Color.TRANSPARENT), floatArrayOf(0f, .62f, .63f))
     }
 
@@ -67,12 +70,12 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
         val now = SystemClock.uptimeMillis()
         val dt = if (lastFrame == 0L) 8f else (now - lastFrame).coerceIn(1, 100).toFloat()
         lastFrame = now
-        val waveTo = if (connecting) 1f else 0f
+        val waveTo = if (connected) 1f else if (connecting) .6f else .3f
         val spinTo = if (connecting) 1f else 0f
         val litTo = if (connected || connecting) 1f else 0f
         val animated = moving()
         if (animated) {
-            wave = ease(wave, waveTo, dt, 420f); spin = ease(spin, spinTo, dt, 360f); lit = ease(lit, litTo, dt, 420f)
+            wave = ease(wave, waveTo, dt, 320f); spin = ease(spin, spinTo, dt, 240f); lit = ease(lit, litTo, dt, 260f)
             angle = (angle + dt * (.14f + .24f * spin)) % 360f
             phase = (phase + dt * (.00035f + .001f * spin)) % (2f * PI.toFloat())
         } else { wave = waveTo; spin = spinTo; lit = litTo }
@@ -86,54 +89,50 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
         val day = MobilePalette.light
         shaders(cx, cy, base, day, ink)
 
-        if (animated) {
-            paint.style = Paint.Style.STROKE; paint.shader = null; paint.strokeWidth = density * 1.2f
-            val cycle = 3000f
+        // The rings leave the edge and fade before they reach the caption.
+        if (lit > .01f && animated) {
+            paint.style = Paint.Style.STROKE; paint.shader = null; paint.strokeWidth = density
+            val cycle = 3400f
             for (index in 0 until 3) {
                 val travel = ((now % cycle.toLong()) / cycle + index / 3f) % 1f
-                paint.color = ColorUtils.setAlphaComponent(ink, ((1f - travel) * (1f - travel) * (70f + 50f * lit + 60f * wave)).toInt())
+                paint.color = ColorUtils.setAlphaComponent(ink, ((1f - travel) * (1f - travel) * 70f * wave).toInt())
                 canvas.drawCircle(cx, cy, base * (1.08f + .5f * travel), paint)
             }
         }
         paint.color = Color.BLACK
-        val pulse = if (animated) sin(now / 900.0).toFloat() else 0f
-        // A soft light behind the disc grows with the connection and pulses with it.
+        // A soft light behind the disc grows with the connection.
         if (lit > .01f) {
             paint.style = Paint.Style.FILL
-            paint.shader = glow; paint.alpha = (255f * lit * (.8f + .2f * pulse)).toInt()
+            paint.shader = glow; paint.alpha = (255f * lit).toInt()
             canvas.drawCircle(cx, cy, base * 1.55f, paint)
         }
-        val radius = base * (1f + .03f * pulse)
-        // Only connecting bends the edge: a plain disc needs no new path on every frame.
-        val wavy = wave > .005f
-        if (wavy) {
-            edge.rewind()
-            val steps = 144
-            for (step in 0..steps) {
-                val theta = step * 2.0 * PI / steps
-                val swell = 1f + wave * (.075f * sin(6.0 * theta + phase * 6).toFloat() + .035f * sin(3.0 * theta - phase * 3).toFloat())
-                val x = cx + radius * swell * cos(theta).toFloat(); val y = cy + radius * swell * sin(theta).toFloat()
-                if (step == 0) edge.moveTo(x, y) else edge.lineTo(x, y)
-            }
-            edge.close()
+        edge.rewind()
+        val steps = 144
+        for (step in 0..steps) {
+            val theta = step * 2.0 * PI / steps
+            val swell = 1f + wave * .06f * sin(8.0 * theta + phase * 8).toFloat() + wave * .02f * sin(3.0 * theta - phase * 3).toFloat()
+            val x = cx + base * swell * cos(theta).toFloat(); val y = cy + base * swell * sin(theta).toFloat()
+            if (step == 0) edge.moveTo(x, y) else edge.lineTo(x, y)
         }
-        fun disc() { if (wavy) canvas.drawPath(edge, paint) else canvas.drawCircle(cx, cy, radius, paint) }
+        edge.close()
         paint.style = Paint.Style.FILL
         paint.shader = dropBody; paint.alpha = if (day) 255 else (127f + 128f * lit).toInt()
-        disc()
+        canvas.drawPath(edge, paint)
+        paint.shader = glint; paint.alpha = 255
+        canvas.drawPath(edge, paint)
         paint.shader = caustic; paint.alpha = if (day) 255 else (108f + 147f * lit).toInt()
-        disc()
+        canvas.drawPath(edge, paint)
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = density * 1.2f
         paint.shader = rimShader; paint.alpha = 255
-        disc()
+        canvas.drawPath(edge, paint)
 
-        // The stroke that runs round while connecting, outside the wave.
+        // The stroke that runs round while connecting.
         if (spin > .01f) {
             canvas.save(); canvas.rotate(angle * 2f, cx, cy)
             paint.strokeWidth = 3f * density; paint.strokeCap = Paint.Cap.ROUND
             paint.shader = runner; paint.alpha = (255f * spin).toInt()
-            val ring = base * 1.22f
+            val ring = base * 1.14f
             box.set(cx - ring, cy - ring, cx + ring, cy + ring)
             canvas.drawArc(box, 0f, 225f, false, paint)
             canvas.restore()
@@ -148,19 +147,19 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
         canvas.drawArc(box, -55f, 290f, false, paint)
         canvas.drawLine(cx, cy - glyph * 1.3f, cx, cy - glyph * .15f, paint)
 
-        // Caption under the disc, with the workers of WDTT, qWDTT and CSQTT beside the time.
+        // Caption under the waves, with the workers of WDTT, qWDTT and CSQTT beside the time.
         paint.style = Paint.Style.FILL; paint.textAlign = Paint.Align.CENTER; paint.typeface = font
-        val top = cy + rest + 26f * density
+        val top = cy + rest + 22f * density
         paint.textSize = 13f * density
         paint.color = MobilePalette.muted
         canvas.drawText(statusText.ifEmpty { idleText }, cx, top, paint)
         if (connected) {
-            paint.textSize = 15f * density; paint.color = ink; paint.isFakeBoldText = true
-            canvas.drawText(if (workersText.isEmpty()) elapsedText else "$elapsedText   $workersText", cx, top + 19f * density, paint)
+            paint.textSize = 16f * density; paint.color = ink; paint.isFakeBoldText = true
+            canvas.drawText(if (workersText.isEmpty()) elapsedText else "$elapsedText   $workersText", cx, top + 25f * density, paint)
             paint.isFakeBoldText = false
         } else if (workersText.isNotEmpty()) {
             paint.textSize = 13f * density; paint.color = MobilePalette.muted
-            canvas.drawText(workersText, cx, top + 19f * density, paint)
+            canvas.drawText(workersText, cx, top + 22f * density, paint)
         }
         // The next frame follows the screen's own rate; a window over it or a screen change pauses it.
         if (animated) {
