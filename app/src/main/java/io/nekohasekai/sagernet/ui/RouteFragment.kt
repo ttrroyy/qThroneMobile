@@ -57,12 +57,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import android.widget.CheckBox
-import android.widget.RadioButton
-import android.widget.RadioGroup
-import android.widget.ScrollView
-import app.qthrone.mobile.outbound.json.JsonArray
-import app.qthrone.mobile.outbound.json.JsonObject
 import app.qthrone.mobile.route.ProviderRouting
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -134,7 +128,7 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
         when (item.itemId) {
             R.id.action_route_new_structured -> newProfile(remote = false)
             R.id.action_route_new_remote -> newProfile(remote = true)
-            R.id.action_route_new_provider -> providerProfile(null)
+            R.id.action_route_new_provider -> editor.launch(Intent(requireContext(), ProviderRouteActivity::class.java))
             R.id.action_route_import -> importFromClipboard()
             // The scanner hands route links to MainActivity, which prompts and comes back here.
             R.id.action_route_scan -> startActivity(Intent(requireContext(), ScannerActivity::class.java))
@@ -160,65 +154,11 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
         editor.launch(Intent(requireContext(), RouteProfileActivity::class.java).putExtra(RouteProfileActivity.EXTRA_REMOTE, remote))
     }
 
-    /** A Happ / Incy routing profile of one's own, no subscription needed: the same document those apps share. */
-    private fun providerProfile(existing: RouteProfile?) {
-        val context = requireContext()
-        val ui = ServerUi(context)
-        val stored = existing?.let { ProviderRouting.stored(it) }
-        val document = stored?.second?.copy() ?: JsonObject()
-        var provider = stored?.first ?: "Happ"
-        val body = ui.column(16)
-        body.addView(ui.text(getString(R.string.provider_route_new_note), 14f, MobilePalette.muted))
-        val name = ui.input(getString(R.string.provider_profile_heading), document.string("Name"))
-        body.addView(ui.gap()); body.addView(name)
-        val providers = RadioGroup(context).apply {
-            orientation = RadioGroup.HORIZONTAL
-            for (item in listOf("Happ", "Incy")) addView(RadioButton(context).apply {
-                text = item; setTextColor(MobilePalette.text); isChecked = item == provider
-                setOnCheckedChangeListener { _, on -> if (on) provider = item }
-            })
-        }
-        body.addView(providers)
-        val global = CheckBox(context).apply {
-            text = getString(R.string.provider_global_proxy); setTextColor(MobilePalette.text)
-            isChecked = ProviderRouting.truth(document, "GlobalProxy", true)
-        }
-        body.addView(global)
-        val lists = listOf(
-            "ProxySites" to R.string.provider_routing_proxy_sites, "ProxyIp" to R.string.provider_routing_proxy_ips,
-            "DirectSites" to R.string.provider_routing_direct_sites, "DirectIp" to R.string.provider_routing_direct_ips,
-            "BlockSites" to R.string.provider_routing_block_sites, "BlockIp" to R.string.provider_routing_block_ips,
-        ).map { (key, label) ->
-            val input = ui.input(getString(label), document.array(key).strings().joinToString("\n")).apply {
-                inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
-                minLines = 2; setHorizontallyScrolling(false)
-            }
-            body.addView(ui.section(getString(label))); body.addView(input)
-            key to input
-        }
-        MaterialAlertDialogBuilder(context).setTitle(R.string.provider_route_new)
-            .setView(ScrollView(context).apply { addView(body) })
-            .setNegativeButton(android.R.string.cancel, null)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                document["Name"] = name.text.toString().trim().ifEmpty { "$provider Default" }
-                document["GlobalProxy"] = global.isChecked.toString()
-                for ((key, input) in lists) document[key] = JsonArray().apply {
-                    input.text.lines().map { it.trim() }.filter { it.isNotEmpty() }.forEach { add(it) }
-                }
-                val profile = runCatching { ProviderRouting.profile(document, provider) }.getOrElse {
-                    message(R.string.route_import_invalid_title, it.message ?: getString(R.string.route_import_invalid))
-                    return@setPositiveButton
-                }
-                existing?.let { profile.id = it.id }
-                runOnLifecycleDispatcher {
-                    RouteManager.save(profile)
-                    onMainDispatcher { if (isAdded) reload() }
-                }
-            }.show()
-    }
-
     private fun edit(id: Long) {
-        RouteManager.get(id)?.takeIf { ProviderRouting.stored(it) != null }?.let { return providerProfile(it) }
+        RouteManager.get(id)?.takeIf { ProviderRouting.stored(it) != null }?.let {
+            editor.launch(Intent(requireContext(), ProviderRouteActivity::class.java).putExtra(ProviderRouteActivity.EXTRA_ID, id))
+            return
+        }
         editor.launch(Intent(requireContext(), RouteProfileActivity::class.java).putExtra(RouteProfileActivity.EXTRA_PROFILE_ID, id))
     }
 

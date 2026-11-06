@@ -1020,6 +1020,13 @@
     <string name="route_new">Создать</string>
     <string name="route_new_remote">Удалённый профиль</string>
     <string name="provider_route_new">Профиль Happ / Incy</string>
+    <string name="provider_route_name">Название</string>
+    <string name="provider_route_format">Формат</string>
+    <string name="provider_route_default">Всё остальное идёт</string>
+    <string name="provider_route_proxy">Через прокси</string>
+    <string name="provider_route_direct">Напрямую</string>
+    <string name="provider_route_sites">Сайты, по одному в строке: geosite:ru, domain:example.com</string>
+    <string name="provider_route_ips">IP, по одному в строке: geoip:ru, 10.0.0.0/8</string>
     <string name="provider_route_new_note">Работает как обычный профиль маршрутизации, пока он выбран, подписка не нужна. Он заменяет текущий профиль, а не дополняет его. Подписка с включённой своей маршрутизацией использует её вместо этого профиля. Список приложений действует в любом случае.</string>
     <string name="route_new_structured">Структурированный профиль</string>
     <string name="route_options">Другие параметры</string>

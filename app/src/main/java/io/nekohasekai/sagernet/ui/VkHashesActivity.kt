@@ -84,12 +84,15 @@ class VkHashesActivity : ServerScreenActivity() {
             addView(list, FrameLayout.LayoutParams(-1, -1)); addView(empty, FrameLayout.LayoutParams(-1, -2, Gravity.CENTER))
         }
         selection = ui.text("", 14f, MobilePalette.muted)
-        selectAll = ui.button("Выбрать все") {
-            if (checked.size == hashes.size) checked.clear() else checked.addAll(hashes)
-            render()
+        selectAll = ui.text("Выбрать все", 15f, ui.accent, bold = true).apply {
+            gravity = Gravity.CENTER_VERTICAL; minimumHeight = ui.dp(40); setPadding(ui.dp(12), 0, 0, 0); isFocusable = true
+            setOnClickListener {
+                if (checked.size == hashes.size) checked.clear() else checked.addAll(hashes)
+                render()
+            }
         }
-        applySelected = ui.button("Применить к профилям") { apply(hashes.filter { it in checked }) }
-        deleteSelected = ui.button("Удалить выбранные", danger = true) { remove(hashes.filter { it in checked }) }
+        applySelected = ui.button("Применить") { apply(hashes.filter { it in checked }) }
+        deleteSelected = ui.button("Удалить", danger = true) { remove(hashes.filter { it in checked }) }
         val actions = ui.column().apply {
             setPadding(ui.dp(16), ui.dp(8), ui.dp(16), ui.dp(12))
             addView(LinearLayout(context).apply {
@@ -97,8 +100,10 @@ class VkHashesActivity : ServerScreenActivity() {
                 addView(selection, LinearLayout.LayoutParams(0, -2, 1f))
                 addView(selectAll, LinearLayout.LayoutParams(-2, -2))
             }, LinearLayout.LayoutParams(-1, -2))
-            addView(applySelected, LinearLayout.LayoutParams(-1, -2).apply { topMargin = ui.dp(8) })
-            addView(deleteSelected, LinearLayout.LayoutParams(-1, -2).apply { topMargin = ui.dp(8) })
+            addView(LinearLayout(context).apply {
+                addView(applySelected, LinearLayout.LayoutParams(0, -2, 1f))
+                addView(deleteSelected, LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = ui.dp(8) })
+            }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = ui.dp(8) })
         }
         root.addView(toolbar)
         root.addView(top)
@@ -157,23 +162,39 @@ class VkHashesActivity : ServerScreenActivity() {
         if (busy) return
         val room = (VkRelayAccount.MAX_HASHES - hashes.size).coerceAtMost(6)
         if (room <= 0) return
-        val counts = (1..room).map { count -> "$count ${if (count == 1) "хеш" else if (count < 5) "хеша" else "хешей"}" }.toTypedArray()
-        MobileAlertDialogBuilder(this).setTitle("Сколько хешей создать?").setNegativeButton(android.R.string.cancel, null).setItems(counts) { _, index ->
+        val count = ui.input("От 1 до $room", "1", number = true).apply {
+            background = ui.well(); setPadding(ui.dp(12), ui.dp(10), ui.dp(12), ui.dp(10)); setSelectAllOnFocus(true)
+            MobilePalette.tintCursor(this)
+        }
+        val body = ui.column().apply { setPadding(ui.dp(24), ui.dp(8), ui.dp(24), 0); addView(count, LinearLayout.LayoutParams(-1, -2)) }
+        val dialog = MobileAlertDialogBuilder(this).setTitle("Сколько хешей создать?").setView(body)
+            .setNegativeButton(android.R.string.cancel, null).setPositiveButton("Создать", null).show()
+        val confirm = dialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE)
+        count.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
+            override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) { confirm.isEnabled = s.toString().toIntOrNull() in 1..room }
+        })
+        confirm.setOnClickListener {
+            val total = count.text.toString().toIntOrNull()?.takeIf { it in 1..room } ?: return@setOnClickListener
+            dialog.dismiss()
             busy = true; render()
             val before = hashes.size
-            val total = index + 1
-            showProgress("Создаётся хешей: $total", 0, total)
+            showProgress("Подготовка создания: $total", 0, 0)
             lifecycleScope.launch {
                 val result = withContext(Dispatchers.IO) {
                     runCatching {
                         VkRelayAccount.hashes(before + total) { created ->
-                            runOnUiThread { showProgress("Создано ${created - before} из $total", created - before, total) }
+                            runOnUiThread {
+                                hashes.clear(); hashes.addAll(created); render()
+                                showProgress("Создано ${created.size - before} из $total", created.size - before, total)
+                            }
                         }
                     }
                 }
                 reload(result.exceptionOrNull()?.let { it.message ?: "Не удалось создать хеши" } ?: "Хеши созданы")
             }
-        }.show()
+        }
     }
 
     /** Puts the selected hashes into chosen qWDTT, CSQTT and WDTT Plus profiles as their own (manual) hashes. */
@@ -233,9 +254,7 @@ class VkHashesActivity : ServerScreenActivity() {
     }
 
     private inner class Row(view: LinearLayout) : RecyclerView.ViewHolder(view) {
-        val check = CheckBox(this@VkHashesActivity).apply {
-            isClickable = false; isFocusable = false; buttonTintList = android.content.res.ColorStateList.valueOf(ui.accent)
-        }
+        val check = CheckBox(this@VkHashesActivity).apply { isClickable = false; isFocusable = false }
         val text = ui.text("", 14f, mono = true).apply { maxLines = 1; ellipsize = TextUtils.TruncateAt.MIDDLE }
         val copy = ui.iconButton(R.drawable.ic_mobile_copy_outline, "Копировать") {}
         val drop = ui.iconButton(R.drawable.ic_navigation_close, "Удалить") {}

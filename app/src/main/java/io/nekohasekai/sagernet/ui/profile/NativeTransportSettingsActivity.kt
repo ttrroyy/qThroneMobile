@@ -504,16 +504,40 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             val slots=if(editingOutbound.type=="csqtt") 6 else 4
             val key=hashSelectionKey()
             val current=account.selectedHashes(key)
-            val picked=BooleanArray(created.size) { created[it] in current }
-            app.qthrone.mobile.ui.MobileAlertDialogBuilder(requireContext()).setTitle("Хеши профиля: не больше $slots")
-                .setMultiChoiceItems(created.map { if(it.length>24) it.take(14)+"…"+it.takeLast(8) else it }.toTypedArray(),picked) { dialog,index,on ->
-                    picked[index]=on && picked.count { it }<=slots
-                    if(on && !picked[index]) (dialog as androidx.appcompat.app.AlertDialog).listView.setItemChecked(index,false)
+            val density=resources.displayMetrics.density
+            fun dp(value:Int)=(value*density).toInt()
+            val boxes=created.map { hash ->
+                android.widget.CheckBox(requireContext()).apply {
+                    text=hash;isChecked=hash in current;maxLines=1;ellipsize=android.text.TextUtils.TruncateAt.MIDDLE
+                    typeface=android.graphics.Typeface.MONOSPACE;textSize=14f;minimumHeight=dp(48)
+                    setTextColor(app.qthrone.mobile.ui.MobilePalette.text)
                 }
+            }
+            val counter=android.widget.TextView(requireContext()).apply { textSize=13f;setTextColor(app.qthrone.mobile.ui.MobilePalette.muted) }
+            fun recount() { counter.text="Выбрано: ${boxes.count { it.isChecked }} из $slots" }
+            for(box in boxes) box.setOnCheckedChangeListener { view,on ->
+                if(on && boxes.count { it.isChecked }>slots) view.isChecked=false
+                recount()
+            }
+            recount()
+            val rows=android.widget.LinearLayout(requireContext()).apply {
+                orientation=android.widget.LinearLayout.VERTICAL;boxes.forEach { addView(it,android.widget.LinearLayout.LayoutParams(-1,-2)) }
+            }
+            val body=android.widget.LinearLayout(requireContext()).apply {
+                orientation=android.widget.LinearLayout.VERTICAL;setPadding(dp(20),dp(4),dp(20),0)
+                addView(counter,android.widget.LinearLayout.LayoutParams(-1,-2))
+                // Five rows at most: the list scrolls and the dialog's buttons stay on screen.
+                addView(android.widget.ScrollView(requireContext()).apply { addView(rows) },android.widget.LinearLayout.LayoutParams(-1,dp(48)*created.size.coerceAtMost(5)+dp(8)))
+                addView(android.widget.TextView(requireContext()).apply {
+                    text="Создать ещё";textSize=15f;gravity=android.view.Gravity.CENTER_VERTICAL;minimumHeight=dp(44)
+                    setTextColor(app.qthrone.mobile.ui.MobilePalette.accent(requireContext()));setTypeface(typeface,android.graphics.Typeface.BOLD)
+                    setOnClickListener { generator() }
+                },android.widget.LinearLayout.LayoutParams(-1,-2))
+            }
+            app.qthrone.mobile.ui.MobileAlertDialogBuilder(requireContext()).setTitle("Хеши профиля").setView(body)
                 .setNegativeButton(android.R.string.cancel,null)
-                .setNeutralButton("Создать ещё") { _,_ -> generator() }
                 .setPositiveButton(android.R.string.ok) { _,_ ->
-                    runCatching { account.selectHashes(key,created.filterIndexed { index,_ -> picked[index] }) }
+                    runCatching { account.selectHashes(key,created.filterIndexed { index,_ -> boxes[index].isChecked }) }
                     refreshHashPick()
                 }.show()
             true

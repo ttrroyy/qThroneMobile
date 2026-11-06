@@ -22,6 +22,12 @@ object MobileCountryFlags {
     /** A flag with no picture of its own, drawn by the system's emoji font. */
     fun emoji(context: Context, flag: String): Bitmap = images.getOrPut("emoji:$flag") {
         val size = (28 * context.resources.displayMetrics.density).toInt()
+        val plain = when (flag.removeSuffix("\uFE0F")) {
+            "\uD83C\uDFF3" -> android.graphics.Color.WHITE
+            "\uD83C\uDFF4" -> android.graphics.Color.BLACK
+            else -> null
+        }
+        if (plain != null) return@getOrPut Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888).also { it.eraseColor(plain) }
         val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply { textSize = size * .72f; textAlign = android.graphics.Paint.Align.CENTER }
         Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888).also {
             android.graphics.Canvas(it).drawText(flag, size / 2f, size / 2f - (paint.descent() + paint.ascent()) / 2, paint)

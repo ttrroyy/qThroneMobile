@@ -28,6 +28,10 @@ internal object VkRelayOAuth {
         if(fields["state"] != state || !validToken(token)) return null
         token to (fields["expires_in"]?.toLongOrNull() ?: 0L)
     }.getOrNull()
+    fun userId(url: String): String? = Regex("[#?&]user_id=(\\d+)").find(url)?.groupValues?.get(1)
+    /** VK keeps the signed-in id in remixmid; "0" means nobody. */
+    fun userIdFromCookies(cookies: Collection<String>): String = cookies.asSequence().flatMap { it.split(';') }
+        .map { it.trim() }.firstOrNull { it.startsWith("remixmid=") }?.substringAfter('=')?.takeIf { it.isNotBlank() && it != "0" }.orEmpty()
     fun nextAuthorizeUrl(body: String): String? {
         val href = Regex("""location\.href\s*=\s*["']([^"']+)["']""").find(body)?.groupValues?.get(1)
         if(href != null) return href.replace("&amp;","&")

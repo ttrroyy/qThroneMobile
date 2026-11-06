@@ -735,6 +735,13 @@
     <string name="route_new_structured">Structured profile</string>
     <string name="route_new_remote">Remote profile</string>
     <string name="provider_route_new">Happ / Incy profile</string>
+    <string name="provider_route_name">Name</string>
+    <string name="provider_route_format">Format</string>
+    <string name="provider_route_default">Everything else goes</string>
+    <string name="provider_route_proxy">Through proxy</string>
+    <string name="provider_route_direct">Directly</string>
+    <string name="provider_route_sites">Sites, one per line: geosite:ru, domain:example.com</string>
+    <string name="provider_route_ips">IP, one per line: geoip:ru, 10.0.0.0/8</string>
     <string name="provider_route_new_note">Works like any routing profile while it is selected and needs no subscription. It replaces the current profile rather than adding to it. A subscription with its own routing turned on uses that instead. The per-app list works in every case.</string>
     <string name="route_import">Import</string>
     <string name="route_download_profiles">Download profiles</string>

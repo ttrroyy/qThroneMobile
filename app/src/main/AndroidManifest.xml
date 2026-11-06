@@ -78,6 +78,7 @@
         <activity android:name=".ui.WdttPlusBackupsActivity" android:exported="false" />
         <activity android:name=".ui.VkRelayActivity" android:exported="false" />
         <activity android:name=".ui.VkHashesActivity" android:exported="false" />
+        <activity android:name=".ui.ProviderRouteActivity" android:exported="false" />
         <activity android:name=".ui.ProviderRoutingActivity" android:exported="false" />
         <activity
             android:name="app.qthrone.mobile.ui.BlankActivity"

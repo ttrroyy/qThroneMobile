@@ -77,7 +77,7 @@ object VkRelayPreferences {
             isSingleLineTitle = false
             setIcon(R.drawable.ic_mobile_vk)
             if(linked) {
-                summary = info.displayName
+                summary = info.displayName.takeIf { it.isNotBlank() }?.let { "ID: $it" }
                 widgetLayoutResource = R.layout.vk_relay_unlink
                 isSelectable = true
                 setOnPreferenceClickListener {
@@ -85,7 +85,7 @@ object VkRelayPreferences {
                 }
                 if(info.needsRelink) {
                     title = "Подтвердить привязку VK"
-                    summary = info.displayName
+                    summary = info.displayName.takeIf { it.isNotBlank() }?.let { "ID: $it" }
                     setOnPreferenceClickListener {
                         fragment.startActivity(Intent(context,VkRelayActivity::class.java).putExtra("login",true)); true
                     }

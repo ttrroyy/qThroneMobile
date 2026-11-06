@@ -72,7 +72,9 @@ object VkRelayAccount {
     data class UiInfo(val linked: Boolean,val needsRelink: Boolean,val displayName: String,val hashes: Int)
     fun uiInfo(): UiInfo {
         val session=read()
-        return UiInfo(linked(),needsRelink(),session.optString("user"),session.optJSONArray("hashes")?.length() ?: 0)
+        val stored=session.optJSONObject("cookies")
+        val id=session.optString("user").ifBlank { VkRelayOAuth.userIdFromCookies(stored?.keys()?.asSequence()?.map { stored.optString(it) }?.toList().orEmpty()) }
+        return UiInfo(linked(),needsRelink(),id,session.optJSONArray("hashes")?.length() ?: 0)
     }
     fun refreshIdentity() {
         val session = read()
@@ -138,6 +140,7 @@ object VkRelayAccount {
         val state = java.util.UUID.randomUUID().toString()
         val http = client.newBuilder().followRedirects(false).followSslRedirects(false).build()
         var url = authorizeUrl(state)
+        val fresh = LinkedHashMap<String,String>()
         // qWDTT avoids non-local returns from inline loops here because of ART verifier failures.
         for(step in 0 until 12) {
             val uri = java.net.URI(url)
@@ -145,9 +148,13 @@ object VkRelayAccount {
             val request = Request.Builder().url(url)
                 .header("User-Agent",session.optString("userAgent"))
                 .header("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-            val header = VkRelayRequests.cookieHeader(cookies.keys().asSequence().associateWith { cookies.optString(it) })
+            val saved = VkRelayRequests.cookieHeader(cookies.keys().asSequence().associateWith { cookies.optString(it) })
+            val header = (saved.split("; ").filter { it.isNotBlank() && it.substringBefore('=') !in fresh } + fresh.map { "${it.key}=${it.value}" }).joinToString("; ")
             if(header.isNotBlank()) request.header("Cookie",header)
             val next = http.newCall(request.build()).execute().use { response ->
+                for(cookie in response.headers("Set-Cookie")) cookie.substringBefore(';').let { pair ->
+                    if(pair.contains('=')) fresh[pair.substringBefore('=').trim()] = pair.substringAfter('=')
+                }
                 val location = response.header("Location")
                 if(location != null) response.request.url.resolve(location)?.toString()
                 else if(response.isSuccessful) VkRelayOAuth.nextAuthorizeUrl(response.body?.string().orEmpty())
@@ -155,6 +162,7 @@ object VkRelayAccount {
             } ?: return null
             val fields = VkRelayOAuth.tokenFields(next,state)
             if(fields != null) {
+                VkRelayOAuth.userId(next)?.let { session.put("user",it) }
                 session.put("token",fields.first)
                 session.put("expires",if(fields.second > 0) System.currentTimeMillis()+fields.second*1000 else Long.MAX_VALUE)
                 writeCurrent(session)
@@ -219,7 +227,7 @@ object VkRelayAccount {
         writeCurrent(session)
         unfinished
     }
-    fun hashes(count: Int, interactive: Boolean=true, onProgress: (Int) -> Unit={}): List<String> {
+    fun hashes(count: Int, interactive: Boolean=true, onProgress: (List<String>) -> Unit={}): List<String> {
       synchronized(hashCreationLock) {
         require(count in 1..MAX_HASHES)
         val session = read()
@@ -260,7 +268,7 @@ object VkRelayAccount {
             call.optString("call_id").takeIf { it.isNotEmpty() }?.let { id ->
                 session.put("callIds",(session.optJSONObject("callIds") ?: JSONObject()).put(hash,id))
             }
-            session.put("hashes",org.json.JSONArray(hashes)); writeCurrent(session); onProgress(hashes.size)
+            session.put("hashes",org.json.JSONArray(hashes)); writeCurrent(session); onProgress(hashes.toList())
         }
         return hashes.take(count)
       }
