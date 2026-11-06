@@ -109,7 +109,11 @@ class BackupFragment : Fragment(R.layout.layout_backup) {
             if(node is com.google.android.material.switchmaterial.SwitchMaterial) {
                 node.setTextColor(MobilePalette.text)
             } else if(node is com.google.android.material.button.MaterialButton) {
-                if(!MobileStyle.new) node.backgroundTintList=android.content.res.ColorStateList.valueOf(MobilePalette.surface)
+                if(MobileStyle.new) {
+                    // The button's own layers show through the glass: only the row's surface and press remain.
+                    node.rippleColor=null;node.stateListAnimator=null;node.elevation=0f;node.outlineProvider=null;node.backgroundTintList=null
+                    MobileFeedback.apply(node)
+                } else node.backgroundTintList=android.content.res.ColorStateList.valueOf(MobilePalette.surface)
                 node.iconTint=android.content.res.ColorStateList.valueOf(MobilePalette.accent(requireContext()))
                 node.setTextColor(MobilePalette.text)
             } else if(node is android.widget.Button) {
