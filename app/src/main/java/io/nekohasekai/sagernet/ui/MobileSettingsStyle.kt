@@ -138,7 +138,7 @@ object MobileSettingsStyle {
                 if(MobileStyle.new) {
                     layoutParams=layoutParams.apply { width=(38*density).toInt(); height=(38*density).toInt() }
                     setPadding((8*density).toInt(),(8*density).toInt(),(8*density).toInt(),(8*density).toInt())
-                    background=android.graphics.drawable.GradientDrawable().apply { setColor(MobilePalette.well); cornerRadius=12*density }
+                    this.background=android.graphics.drawable.GradientDrawable().apply { setColor(MobilePalette.well); cornerRadius=12*density }
                 }
             }
             view.findViewById<TextView>(android.R.id.title)?.apply {
