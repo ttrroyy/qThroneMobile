@@ -121,7 +121,7 @@ class AppearanceSettingsFragment : SettingsScreenFragment(R.xml.settings_appeara
         // The new style is black or white with one look: accent colours, seasonal art and a bottom tile bar mean nothing there.
         val modern = app.rawline.mobile.ui.MobileStyle.new
         listOf(Key.APP_THEME, "seasonal_decoration", "qmobileTilesPosition", "qmobileHomeTilesMode", "qmobileListMode").forEach { pref<Preference>(it).isVisible = !modern }
-        pref<Preference>("qmobileControlPosition").isVisible = modern
+        pref<Preference>("qmobileControlBottom").isVisible = modern
         pref<Preference>("seasonal_decoration").setOnPreferenceChangeListener { _, _ -> applyThemeInstantly(); true }
         pref<ColorPickerPreference>(Key.APP_THEME).setOnPreferenceChangeListener { _, _ ->
             DataStore.useSystemTheme = false

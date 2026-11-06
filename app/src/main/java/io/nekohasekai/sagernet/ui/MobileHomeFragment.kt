@@ -75,7 +75,7 @@ class MobileHomeFragment : ToolbarFragment() {
     private var modeSwitches: Map<String,androidx.appcompat.widget.SwitchCompat> = emptyMap()
     private var restartAfterStop = false
     /** Appearance, new style: the button or switches in a panel at the bottom, with the subscription and servers above them. */
-    private fun controlAtBottom()=MobileStyle.new && DataStore.configurationStore.getString("qmobileControlPosition")=="bottom"
+    private fun controlAtBottom()=MobileStyle.new && DataStore.configurationStore.getBoolean("qmobileControlBottom",false)
     private fun homeSwitchesOn()=DataStore.configurationStore.getString("qmobileHomeControl")=="switches"
     /** A switch starts or stops its own mode; turning on the other one moves the running connection over. */
     private fun pickMode(mode: String) {

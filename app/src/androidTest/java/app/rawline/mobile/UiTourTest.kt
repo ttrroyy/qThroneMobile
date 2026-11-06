@@ -82,18 +82,18 @@ class UiTourTest {
         })
         return group to SagerDatabase.proxyDao.getByGroup(group.id).first()
     }
-    private fun home(mode: String, control: String = "button", position: String = "top") {
+    private fun home(mode: String, control: String = "button", bottom: Boolean = false) {
         val (group, _) = fixtures()
         DataStore.configurationStore.putString("qmobileHomeControl", control)
-        DataStore.configurationStore.putString("qmobileControlPosition", position)
+        DataStore.configurationStore.putBoolean("qmobileControlBottom", bottom)
         DataStore.mobileListMode = mode
         GroupRepo.setCurrent(group.id)
         open(MainActivity::class.java)
         ProviderGeoAssets.states.value = mapOf(group.id to ProviderGeoAssets.Status(complete = true))
         Thread.sleep(1000)
     }
-    private fun orb(connected: Boolean, position: String = "top") {
-        home("groups", position = position)
+    private fun orb(connected: Boolean, bottom: Boolean = false) {
+        home("groups", bottom = bottom)
         // The home screen rewrites the state every second from the real service, so it is held here until the picture.
         repeat(24) {
             instrumentation.runOnMainSync {
@@ -123,12 +123,12 @@ class UiTourTest {
         "home-connecting" to { orb(false) },
         "home-connected" to { orb(true) },
         "home-switches" to { home("groups", "switches") },
-        "home-bottom" to { home("groups", position = "bottom") },
-        "home-bottom-connected" to { orb(true, "bottom") },
-        "home-bottom-switches" to { home("groups", "switches", "bottom") },
+        "home-bottom" to { home("groups", bottom = true) },
+        "home-bottom-connected" to { orb(true, true) },
+        "home-bottom-switches" to { home("groups", "switches", true) },
         "home-empty" to {
             DataStore.configurationStore.putString("qmobileHomeControl", "button")
-            DataStore.configurationStore.putString("qmobileControlPosition", "top")
+            DataStore.configurationStore.putBoolean("qmobileControlBottom", false)
             SagerDatabase.groupDao.allGroups().filter { it.name == "api.host-cloud.uk" }.forEach { SagerDatabase.groupDao.deleteById(it.id) }
             open(MainActivity::class.java)
             Thread.sleep(1000)
