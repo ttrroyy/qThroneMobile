@@ -101,11 +101,15 @@ class BackupFragment : Fragment(R.layout.layout_backup) {
         (view as? androidx.core.widget.NestedScrollView)?.isVerticalScrollBarEnabled=false
         fun style(node: View) {
             node.isVerticalScrollBarEnabled=false
-            if(node is com.google.android.material.card.MaterialCardView) node.setCardBackgroundColor(MobilePalette.surface)
+            if(node is com.google.android.material.card.MaterialCardView) {
+                // A translucent card and button would double up: the glass goes on the row inside.
+                if(MobileStyle.new) { node.setCardBackgroundColor(android.graphics.Color.TRANSPARENT); node.strokeWidth=0; node.getChildAt(0)?.background=MobilePalette.rowShape(requireContext()) }
+                else node.setCardBackgroundColor(MobilePalette.surface)
+            }
             if(node is com.google.android.material.switchmaterial.SwitchMaterial) {
                 node.setTextColor(MobilePalette.text)
             } else if(node is com.google.android.material.button.MaterialButton) {
-                node.backgroundTintList=android.content.res.ColorStateList.valueOf(if(MobileStyle.new) android.graphics.Color.TRANSPARENT else MobilePalette.surface)
+                if(!MobileStyle.new) node.backgroundTintList=android.content.res.ColorStateList.valueOf(MobilePalette.surface)
                 node.iconTint=android.content.res.ColorStateList.valueOf(MobilePalette.accent(requireContext()))
                 node.setTextColor(MobilePalette.text)
             } else if(node is android.widget.Button) {
