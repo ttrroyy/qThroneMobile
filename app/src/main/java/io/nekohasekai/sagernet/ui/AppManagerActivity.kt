@@ -86,9 +86,9 @@ class AppManagerActivity : ThemedActivity() {
             binding.root.setCardBackgroundColor(MobilePalette.surface)
             binding.root.strokeWidth = 1
             binding.root.strokeColor = MobilePalette.outline
-            binding.root.radius = 5 * resources.displayMetrics.density
+            binding.root.radius = MobilePalette.rowDp * resources.displayMetrics.density
             binding.title.setTextColor(MobilePalette.text)
-            binding.title.setTypeface(null, android.graphics.Typeface.BOLD)
+            binding.title.setTypeface(binding.title.typeface,android.graphics.Typeface.BOLD)
             binding.title.textSize = 16f
             binding.desc.setTextColor(MobilePalette.muted)
         }
@@ -310,7 +310,7 @@ class AppManagerActivity : ThemedActivity() {
         binding.appModeSummary.setTextColor(MobilePalette.muted)
         binding.appModeCard.setCardBackgroundColor(MobilePalette.surface)
         binding.appModeCard.strokeWidth = 0
-        binding.appModeCard.radius = 12 * resources.displayMetrics.density
+        binding.appModeCard.radius = MobilePalette.cardDp * resources.displayMetrics.density
         listOf(binding.appProxyModeDisable, binding.appProxyModeOn, binding.appProxyModeBypass).forEach {
             it.setTextColor(MobilePalette.text)
             it.buttonTintList = android.content.res.ColorStateList(

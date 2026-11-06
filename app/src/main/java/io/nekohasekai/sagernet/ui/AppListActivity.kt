@@ -80,9 +80,9 @@ class AppListActivity : ThemedActivity() {
             binding.root.setCardBackgroundColor(MobilePalette.surface)
             binding.root.strokeWidth = 1
             binding.root.strokeColor = MobilePalette.outline
-            binding.root.radius = 5 * resources.displayMetrics.density
+            binding.root.radius = MobilePalette.rowDp * resources.displayMetrics.density
             binding.title.setTextColor(MobilePalette.text)
-            binding.title.setTypeface(null, android.graphics.Typeface.BOLD)
+            binding.title.setTypeface(binding.title.typeface,android.graphics.Typeface.BOLD)
             binding.title.textSize = 16f
             binding.desc.setTextColor(MobilePalette.muted)
         }
@@ -226,7 +226,7 @@ class AppListActivity : ThemedActivity() {
         binding.searchCard.setCardBackgroundColor(MobilePalette.surface)
         binding.searchCard.strokeWidth = 1
         binding.searchCard.strokeColor = MobilePalette.outline
-        binding.searchCard.radius = 12 * resources.displayMetrics.density
+        binding.searchCard.radius = MobilePalette.cardDp * resources.displayMetrics.density
 
         binding.appPlaceholder.openSettings.setOnClickListener {
             try {

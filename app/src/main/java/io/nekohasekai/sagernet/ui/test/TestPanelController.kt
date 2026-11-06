@@ -35,6 +35,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import app.qthrone.mobile.ui.MobilePalette
 import com.google.android.material.shape.CornerFamily
 import app.qthrone.mobile.R
 import app.qthrone.mobile.SagerNet
@@ -638,7 +639,7 @@ class TestPanelController(
         isFocusable = false
         setEnsureMinTouchTargetSize(false)
         chipMinHeight = 28 * density
-        chipCornerRadius = 5 * density
+        chipCornerRadius = MobilePalette.rowDp * density
         chipStartPadding = 8 * density
         chipEndPadding = 8 * density
         textStartPadding = 2 * density

@@ -305,7 +305,7 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
         coordinator.setOnClickListener { close() }
         form.isClickable=true
         form.background=android.graphics.drawable.GradientDrawable().apply {
-            setColor(MobilePalette.background);cornerRadius=12*density
+            setColor(MobilePalette.background);cornerRadius=MobilePalette.cardDp*density
         }
         form.clipToOutline=true
         form.findViewById<View>(R.id.settings).layoutParams=android.widget.LinearLayout.LayoutParams(-1,0,1f)

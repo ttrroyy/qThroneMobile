@@ -65,7 +65,7 @@ class MobileSwipeTile(context:Context, private val row:View, test:View, share:Vi
         settling?.cancel()
         val animation=ValueAnimator.ofFloat(row.translationX,target)
         settling=animation
-        animation.duration=280
+        animation.duration=if(MobileStyle.new) 280 else 160
         animation.interpolator=android.view.animation.PathInterpolator(.2f,0f,.15f,1f)
         animation.addUpdateListener {
             row.translationX=it.animatedValue as Float

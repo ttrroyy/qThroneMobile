@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The shapes of the current style: row or button, card or sheet, input field, switch. -->
+    <attr name="qtRowRadius" format="dimension" />
+    <attr name="qtCardRadius" format="dimension" />
+    <attr name="qtWellRadius" format="dimension" />
+    <attr name="qtSwitchRadius" format="dimension" />
+    <attr name="qtSwitchThumb" format="reference" />
+    <style name="MobileStyleClassic">
+        <item name="qtRowRadius">5dp</item>
+        <item name="qtCardRadius">12dp</item>
+        <item name="qtWellRadius">12dp</item>
+        <item name="qtSwitchRadius">6dp</item>
+        <item name="qtSwitchThumb">@drawable/mobile_switch_thumb</item>
+    </style>
+    <style name="MobileStyleNew">
+        <item name="qtRowRadius">16dp</item>
+        <item name="qtCardRadius">24dp</item>
+        <item name="qtWellRadius">16dp</item>
+        <item name="qtSwitchRadius">14dp</item>
+        <item name="qtSwitchThumb">@drawable/mobile_switch_thumb_round</item>
+        <item name="android:fontFamily">@font/geologica</item>
+        <item name="fontFamily">@font/geologica</item>
+    </style>
+    <!-- The new style has two surfaces only: true black and true white. -->
+    <style name="MobileSurfaceNewOled" parent="MobileSurfaceOled">
+        <item name="colorSurface">#0e0e10</item>
+        <item name="colorOnSurface">#f5f5f7</item>
+        <item name="colorOnPrimary">#f5f5f7</item>
+        <item name="android:textColorPrimary">#f5f5f7</item>
+        <item name="colorAccent">#f5f5f7</item>
+    </style>
+    <style name="MobileSurfaceNewWhite" parent="MobileSurfaceWhite">
+        <item name="android:windowBackground">#ffffff</item>
+        <item name="android:colorBackground">#ffffff</item>
+        <item name="colorSurface">#f4f4f6</item>
+        <item name="colorPrimary">#ffffff</item>
+        <item name="colorOnSurface">#0a0a0b</item>
+        <item name="colorOnPrimary">#0a0a0b</item>
+        <item name="android:textColorPrimary">#0a0a0b</item>
+        <item name="colorAccent">#0a0a0b</item>
+    </style>
+    <style name="MobileSheetFast">
+        <item name="android:windowEnterAnimation">@anim/sheet_fast_enter</item>
+        <item name="android:windowExitAnimation">@anim/sheet_fast_exit</item>
+    </style>
+    <style name="MobileSheetSoft">
+        <item name="android:windowEnterAnimation">@anim/sheet_soft_enter</item>
+        <item name="android:windowExitAnimation">@anim/sheet_soft_exit</item>
+    </style>
+    <style name="MobileDialogSoft">
+        <item name="android:windowEnterAnimation">@anim/dialog_soft_enter</item>
+        <item name="android:windowExitAnimation">@anim/dialog_soft_exit</item>
+    </style>
+</resources>

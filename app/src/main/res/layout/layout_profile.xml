@@ -9,7 +9,7 @@
     android:layout_marginVertical="3dp"
     android:clickable="true"
     android:focusable="true"
-    app:cardCornerRadius="@dimen/profile_card_corner_radius">
+    app:cardCornerRadius="?attr/qtRowRadius">
 
     <FrameLayout
         android:layout_width="match_parent"

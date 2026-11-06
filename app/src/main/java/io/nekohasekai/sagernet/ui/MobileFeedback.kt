@@ -7,8 +7,9 @@ import android.graphics.drawable.RippleDrawable
 import android.view.View
 
 object MobileFeedback {
-    fun apply(view: View, radius: Float = 5f, circle: Boolean = false, white: Boolean = false) {
+    fun apply(view: View, radius: Float = MobilePalette.rowDp.toFloat(), circle: Boolean = false, white: Boolean = false) {
         if(view.background is RippleDrawable) return
+        if(MobileStyle.new && !circle) view.stateListAnimator=android.animation.AnimatorInflater.loadStateListAnimator(view.context,app.qthrone.mobile.R.animator.press_soft)
         val mask=GradientDrawable().apply {
             setColor(Color.WHITE)
             if(circle) shape=GradientDrawable.OVAL

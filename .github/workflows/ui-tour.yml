@@ -12,7 +12,10 @@ on:
         default: en
       screens:
         description: Last screen number
-        default: '43'
+        default: '46'
+      variants:
+        description: Style and night mode of each pass (night 1 is dark, 2 is light)
+        default: 'new:1 new:2'
       artifact_name:
         description: APK artifact to test (debug or signed release)
         required: true
@@ -23,7 +26,7 @@ permissions:
 jobs:
   tour:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
@@ -86,8 +89,11 @@ jobs:
           PACKAGE=${TEST_PACKAGE%.test}
           "$ADB" shell cmd locale set-app-locales "$PACKAGE" --locales ${{ inputs.locale }} || true
           mkdir -p ui-tour
-          for N in $(seq 0 ${{ inputs.screens }}); do
-            "$ADB" shell am instrument -w -e class app.qthrone.mobile.UiTourTest -e screen "$N" "$TEST_PACKAGE/androidx.test.runner.AndroidJUnitRunner" | tail -3 | tr -d '\r' | sed "s/^/$N: /" >> ui-tour/results.txt || true
+          "$ADB" shell pm grant "$PACKAGE" android.permission.POST_NOTIFICATIONS || true
+          for VARIANT in ${{ inputs.variants }}; do
+            for N in $(seq 0 ${{ inputs.screens }}); do
+              "$ADB" shell am instrument -w -e class app.qthrone.mobile.UiTourTest -e screen "$N" -e style "${VARIANT%:*}" -e night "${VARIANT#*:}" "$TEST_PACKAGE/androidx.test.runner.AndroidJUnitRunner" | tail -3 | tr -d '\r' | sed "s/^/$VARIANT $N: /" >> ui-tour/results.txt || true
+            done
           done
           for IMAGE in $("$ADB" shell run-as "$PACKAGE" ls files | tr -d '\r' | grep '^tour-'); do
             "$ADB" exec-out run-as "$PACKAGE" cat "files/$IMAGE" > "ui-tour/$IMAGE"

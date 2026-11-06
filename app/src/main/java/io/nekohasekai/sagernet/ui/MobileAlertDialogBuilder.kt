@@ -24,7 +24,7 @@ class MobileAlertDialogBuilder(context: Context) : MaterialAlertDialogBuilder(
             }
             input.backgroundTintList = null
             input.background = GradientDrawable().apply {
-                setColor(androidx.core.graphics.ColorUtils.blendARGB(MobilePalette.surface, android.graphics.Color.BLACK, .14f)); cornerRadius = 12 * density
+                setColor(MobilePalette.well); cornerRadius = MobilePalette.wellDp * density
             }
             input.setPadding((12 * density).toInt(), (10 * density).toInt(), (12 * density).toInt(), (10 * density).toInt())
             input.minimumHeight = (48 * density).toInt()
@@ -38,10 +38,11 @@ class MobileAlertDialogBuilder(context: Context) : MaterialAlertDialogBuilder(
             val density = dialog.context.resources.displayMetrics.density
             val surface = GradientDrawable().apply {
                 setColor(MobilePalette.surface)
-                cornerRadius = 12 * density
+                cornerRadius = MobilePalette.cardDp * density
                 setStroke(1, MobilePalette.outline)
             }
             dialog.window?.setBackgroundDrawable(InsetDrawable(surface, (24 * density).toInt()))
+            if (MobileStyle.new) dialog.window?.setWindowAnimations(app.qthrone.mobile.R.style.MobileDialogSoft)
             val colors=android.content.res.ColorStateList(arrayOf(intArrayOf(-android.R.attr.state_enabled),intArrayOf()),
                 intArrayOf(MobilePalette.muted,MobilePalette.accent(dialog.context)))
             for(which in listOf(-1,-2,-3)) dialog.getButton(which)?.setTextColor(colors)

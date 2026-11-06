@@ -132,7 +132,7 @@ class ProviderRoutingActivity : ThemedActivity() {
                                 setPadding((24*density).toInt(),(12*density).toInt(),(24*density).toInt(),(12*density).toInt())
                                 addView(android.widget.TextView(context).apply {
                                     text=choice.label;textSize=17f;setTextColor(MobilePalette.text)
-                                    setTypeface(null,if(position==selected) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+                                    setTypeface(typeface,if(position==selected) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
                                 })
                                 addView(android.widget.TextView(context).apply {
                                     text=getString(R.string.provider_profile_source,choice.providers);textSize=13f;setTextColor(MobilePalette.muted)

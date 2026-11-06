@@ -45,6 +45,7 @@ abstract class ThemedActivity : AppCompatActivity, androidx.preference.Preferenc
         if (!isDialog) enableEdgeToEdge(statusBarStyle(), navigationBarStyle())
 
         super.onCreate(savedInstanceState)
+        if (!isDialog) MobileScreenMotion.open(this)
 
         supportFragmentManager.registerFragmentLifecycleCallbacks(object : androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks() {
             override fun onFragmentViewCreated(manager: androidx.fragment.app.FragmentManager, fragment: androidx.fragment.app.Fragment, view: android.view.View, state: Bundle?) {
@@ -56,6 +57,11 @@ abstract class ThemedActivity : AppCompatActivity, androidx.preference.Preferenc
             }
         },true)
         uiMode = resources.configuration.uiMode
+    }
+
+    override fun finish() {
+        super.finish()
+        if (!isDialog) MobileScreenMotion.close(this)
     }
 
     override fun onPreferenceDisplayDialog(caller: androidx.preference.PreferenceFragmentCompat, pref: androidx.preference.Preference): Boolean =
@@ -115,7 +121,7 @@ abstract class ThemedActivity : AppCompatActivity, androidx.preference.Preferenc
         view.backgroundTintList=null
         view.background=android.graphics.drawable.GradientDrawable().apply {
             setColor(MobilePalette.surface)
-            cornerRadius=12*density
+            cornerRadius=MobilePalette.cardDp*density
             setStroke(1,MobilePalette.outline)
         }
         view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text).apply {

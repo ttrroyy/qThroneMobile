@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="12dp"
     android:layout_marginVertical="3dp"
-    app:cardCornerRadius="@dimen/row_corner_radius"
+    app:cardCornerRadius="?attr/qtRowRadius"
     android:clickable="true"
     android:focusable="true">
 

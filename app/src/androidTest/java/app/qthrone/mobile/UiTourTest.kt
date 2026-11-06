@@ -71,6 +71,17 @@ class UiTourTest {
         ProviderGeoAssets.states.value = mapOf(group.id to ProviderGeoAssets.Status(complete = true))
         Thread.sleep(1000)
     }
+    private fun orb(connected: Boolean) {
+        home("groups")
+        instrumentation.runOnMainSync {
+            fun walk(view: android.view.View) {
+                (view.background as? MobilePowerArtwork)?.let { it.connected = connected; it.connecting = !connected; it.statusText = if (connected) "Подключено" else "Подключение"; it.elapsedText = "00:12:49" }
+                if (view is android.view.ViewGroup) for (index in 0 until view.childCount) walk(view.getChildAt(index))
+            }
+            walk(resumed().window.decorView)
+        }
+        Thread.sleep(1600)
+    }
     private fun shot(name: String) {
         val bitmap = requireNotNull(instrumentation.uiAutomation.takeScreenshot())
         try { File(context.filesDir, "tour-$name.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 90, it) } } finally { bitmap.recycle() }
@@ -79,6 +90,9 @@ class UiTourTest {
     private val screens: List<Pair<String, () -> Unit>> = listOf(
         "home-groups" to { home("groups") },
         "home-list" to { home("list") },
+        "home-connecting" to { orb(false) },
+        "home-connected" to { orb(true) },
+        "home-sheet" to { home("groups"); val size = context.resources.displayMetrics; instrumentation.uiAutomation.executeShellCommand("input swipe ${size.widthPixels / 2} ${size.heightPixels - 120} ${size.widthPixels / 2} 300 400").close(); Thread.sleep(1500) },
         "home-notice" to { home("groups"); instrumentation.runOnMainSync { MobileTopNotice.show(resumed(), "Подписка «api.host-cloud.uk» успешно обновлена") }; Thread.sleep(600) },
         "home-add" to { home("groups"); tap(R.string.qmobile_add) },
         "home-tests" to { home("groups"); tap(R.string.qmobile_tests) },
@@ -115,9 +129,16 @@ class UiTourTest {
     }
 
     @Test fun photographOneScreen() {
-        val index = InstrumentationRegistry.getArguments().getString("screen")?.toInt() ?: return
+        val arguments = InstrumentationRegistry.getArguments()
+        val index = arguments.getString("screen")?.toInt() ?: return
         val (name, go) = screens.getOrNull(index) ?: return
+        val style = arguments.getString("style") ?: "classic"
+        val night = arguments.getString("night")?.toInt() ?: 1
+        DataStore.uiStyle = style
+        DataStore.nightTheme = night
+        app.qthrone.mobile.utils.Theme.currentNightMode = night
+        DataStore.selectedProxy = fixtures().second.id
         go()
-        shot("%02d-%s".format(index, name))
+        shot("$style$night-%02d-%s".format(index, name))
     }
 }

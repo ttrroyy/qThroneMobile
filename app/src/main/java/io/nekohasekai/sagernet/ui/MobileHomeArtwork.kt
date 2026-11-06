@@ -7,7 +7,7 @@ import android.graphics.drawable.Drawable
 class MobileHomeBackdrop : Drawable() {
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     override fun draw(canvas: Canvas) {
-        if(MobilePalette.oled) { canvas.drawColor(Color.BLACK);return }
+        if(MobilePalette.oled || MobileStyle.new) { canvas.drawColor(MobilePalette.background);return }
         val w = bounds.width().toFloat(); val h = bounds.height().toFloat()
         paint.shader = LinearGradient(0f, 0f, w, h,
             intArrayOf(MobilePalette.background, MobilePalette.toolbar, MobilePalette.background),
@@ -29,9 +29,9 @@ class MobileHomeBackdrop : Drawable() {
 }
 
 /** Rings and a crisp power glyph; the surrounding view remains transparent. */
-class MobilePowerArtwork(private val accent: Int) : Drawable() {
+open class MobilePowerArtwork(private val accent: Int) : Drawable() {
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-    var connected = false
+    open var connected = false
         set(value) { field=value; invalidateSelf() }
     var statusText = ""
         set(value) { if(field!=value) { field=value;invalidateSelf() } }
@@ -42,6 +42,7 @@ class MobilePowerArtwork(private val accent: Int) : Drawable() {
     var pressScale = 1f
         set(value) { field=value; invalidateSelf() }
     var captionSize = 0f
+    open var connecting = false
     override fun draw(canvas: Canvas) {
         val cx=bounds.exactCenterX(); val cy=bounds.exactCenterY()
         val r=minOf(bounds.width(),bounds.height())*.46f*pressScale

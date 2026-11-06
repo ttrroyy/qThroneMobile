@@ -30,9 +30,10 @@ class MobileSheetDialog(context: Context) : BottomSheetDialog(context) {
         super.onStart()
         findViewById<android.view.View>(com.google.android.material.R.id.design_bottom_sheet)?.apply {
             background=GradientDrawable().apply {
-                setColor(MobilePalette.surface);cornerRadius=12*resources.displayMetrics.density
+                setColor(MobilePalette.surface);cornerRadius=MobilePalette.cardDp*resources.displayMetrics.density
             }
             clipToOutline=true
         }
+        window?.setWindowAnimations(if (MobileStyle.new) app.qthrone.mobile.R.style.MobileSheetSoft else app.qthrone.mobile.R.style.MobileSheetFast)
     }
 }

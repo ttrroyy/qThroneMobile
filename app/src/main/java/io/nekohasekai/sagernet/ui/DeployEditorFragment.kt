@@ -72,11 +72,11 @@ open class DeployEditorFragment : Fragment() {
         return arrow
     }
     private fun heading(parent: LinearLayout,title: String) {
-        parent.addView(TextView(requireContext()).apply { text=title;textSize=16f;setTextColor(MobilePalette.accent(requireContext()));setTypeface(null,android.graphics.Typeface.BOLD);setPadding(0,dp(6),0,dp(6)) })
+        parent.addView(TextView(requireContext()).apply { text=title;textSize=16f;setTextColor(MobilePalette.accent(requireContext()));setTypeface(typeface,android.graphics.Typeface.BOLD);setPadding(0,dp(6),0,dp(6)) })
     }
     private fun card(): LinearLayout {
         val content=column().apply { setPadding(dp(12),dp(8),dp(12),dp(8)) }
-        body.addView(MaterialCardView(requireContext()).apply { radius=dp(12).toFloat();cardElevation=0f;strokeWidth=1;strokeColor=MobilePalette.outline;preventCornerOverlap=false;useCompatPadding=false;setCardBackgroundColor(MobilePalette.surface);addView(content) },LinearLayout.LayoutParams(-1,-2).apply { bottomMargin=dp(8) })
+        body.addView(MaterialCardView(requireContext()).apply { radius=dp(MobilePalette.cardDp).toFloat();cardElevation=0f;strokeWidth=1;strokeColor=MobilePalette.outline;preventCornerOverlap=false;useCompatPadding=false;setCardBackgroundColor(MobilePalette.surface);addView(content) },LinearLayout.LayoutParams(-1,-2).apply { bottomMargin=dp(8) })
         return content
     }
     private fun row(parent: LinearLayout,block: (LinearLayout)->Unit) {
@@ -87,7 +87,7 @@ open class DeployEditorFragment : Fragment() {
             orientation=LinearLayout.HORIZONTAL;gravity=android.view.Gravity.CENTER_VERTICAL
             setPadding(dp(12),dp(8),dp(12),dp(8));minimumHeight=dp(48)
             background=android.graphics.drawable.GradientDrawable().apply {
-                setColor(MobilePalette.surface);cornerRadius=dp(5).toFloat();setStroke(1,MobilePalette.outline)
+                setColor(MobilePalette.surface);cornerRadius=dp(MobilePalette.rowDp).toFloat();setStroke(1,MobilePalette.outline)
             }
             isFocusable=true;contentDescription=listOfNotNull(title,subtitle).joinToString(". ")
             setOnClickListener { click() };MobileFeedback.apply(this)
@@ -115,7 +115,7 @@ open class DeployEditorFragment : Fragment() {
                 }
             }
             MobileSwipeTile(requireContext(),tile,View(requireContext()),View(requireContext()),delete,deleteOnly=true).apply {
-                background=android.graphics.drawable.GradientDrawable().apply { setColor(MobilePalette.surface);cornerRadius=dp(5).toFloat();setStroke(1,MobilePalette.outline) }
+                background=android.graphics.drawable.GradientDrawable().apply { setColor(MobilePalette.surface);cornerRadius=dp(MobilePalette.rowDp).toFloat();setStroke(1,MobilePalette.outline) }
                 clipToOutline=true
                 onOpened={ opened -> openSwipe?.takeIf { it!==opened }?.closeActions();openSwipe=opened }
             }
@@ -124,7 +124,7 @@ open class DeployEditorFragment : Fragment() {
     }
     private fun button(parent: LinearLayout,title: String,icon: Int=0,pair: Boolean=false,click: ()->Unit): MaterialButton {
         val b=MaterialButton(requireContext()).apply {
-            text=title;textSize=16f;setTypeface(null,android.graphics.Typeface.BOLD);isAllCaps=false;maxLines=Int.MAX_VALUE;minimumWidth=0;minimumHeight=dp(48);cornerRadius=dp(5)
+            text=title;textSize=16f;setTypeface(typeface,android.graphics.Typeface.BOLD);isAllCaps=false;maxLines=Int.MAX_VALUE;minimumWidth=0;minimumHeight=dp(48);cornerRadius=dp(5)
             insetTop=0;insetBottom=0;elevation=0f;stateListAnimator=null
             gravity=android.view.Gravity.CENTER_VERTICAL or (if(pair) android.view.Gravity.CENTER_HORIZONTAL else android.view.Gravity.START)
             setPaddingRelative(dp(12),dp(8),dp(12),dp(8))
@@ -148,7 +148,7 @@ open class DeployEditorFragment : Fragment() {
         val box=TextInputLayout(androidx.appcompat.view.ContextThemeWrapper(requireContext(),R.style.MobileDeployInputOverlay)).apply {
             minimumWidth=0;hint=label;boxBackgroundMode=TextInputLayout.BOX_BACKGROUND_FILLED
             boxBackgroundColor=android.graphics.Color.argb(0x24,0,0,0);boxStrokeWidth=0;boxStrokeWidthFocused=0
-            setBoxCornerRadii(dp(12).toFloat(),dp(12).toFloat(),dp(12).toFloat(),dp(12).toFloat())
+            setBoxCornerRadii(dp(MobilePalette.wellDp).toFloat(),dp(MobilePalette.wellDp).toFloat(),dp(MobilePalette.wellDp).toFloat(),dp(MobilePalette.wellDp).toFloat())
             defaultHintTextColor=android.content.res.ColorStateList.valueOf(MobilePalette.muted)
             hintTextColor=android.content.res.ColorStateList.valueOf(MobilePalette.accent(requireContext()))
             setBoxStrokeColorStateList(android.content.res.ColorStateList(arrayOf(intArrayOf(android.R.attr.state_focused),intArrayOf(android.R.attr.state_hovered),intArrayOf()),intArrayOf(MobilePalette.accent(requireContext()),MobilePalette.accent(requireContext()),MobilePalette.muted)))
@@ -332,7 +332,7 @@ open class DeployEditorFragment : Fragment() {
                 return handled
             }
         }.apply {
-            background=android.graphics.drawable.GradientDrawable().apply { setColor(android.graphics.Color.rgb(8,12,9));cornerRadius=dp(12).toFloat() };clipToOutline=true
+            background=android.graphics.drawable.GradientDrawable().apply { setColor(android.graphics.Color.rgb(8,12,9));cornerRadius=dp(MobilePalette.wellDp).toFloat() };clipToOutline=true
             isVerticalScrollBarEnabled=false;isHorizontalScrollBarEnabled=false;overScrollMode=View.OVER_SCROLL_NEVER
             setOnScrollChangeListener { _: View, _: Int, _: Int, _: Int, _: Int ->
                 if(touchingLogs) followLogs=!canScrollVertically(1)

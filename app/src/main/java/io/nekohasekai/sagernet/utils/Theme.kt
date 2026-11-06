@@ -8,6 +8,7 @@ import app.qthrone.mobile.R
 import app.qthrone.mobile.database.DataStore
 import app.qthrone.mobile.ktx.app
 import app.qthrone.mobile.ui.MobilePalette
+import app.qthrone.mobile.ui.MobileStyle
 
 object Theme {
 
@@ -41,25 +42,32 @@ object Theme {
     fun apply(context: Context) {
         context.setTheme(getTheme())
         applyAmoledOverlay(context)
-        context.theme.applyStyle(if (MobilePalette.light) R.style.MobileSurfaceWhite else if (MobilePalette.oled) R.style.MobileSurfaceOled else R.style.MobileSurfaceGray,true)
+        context.theme.applyStyle(if (MobileStyle.new) (if (MobilePalette.light) R.style.MobileSurfaceNewWhite else R.style.MobileSurfaceNewOled)
+            else if (MobilePalette.light) R.style.MobileSurfaceWhite else if (MobilePalette.oled) R.style.MobileSurfaceOled else R.style.MobileSurfaceGray,true)
         context.theme.applyStyle(R.style.MobileControls, true)
+        applyStyleShapes(context)
+    }
+
+    private fun applyStyleShapes(context: Context) {
+        context.theme.applyStyle(if (MobileStyle.new) R.style.MobileStyleNew else R.style.MobileStyleClassic, true)
     }
 
     fun applyDialog(context: Context) {
         context.setTheme(getDialogTheme())
         applyAmoledOverlay(context)
         context.theme.applyStyle(R.style.MobileControls, true)
+        applyStyleShapes(context)
         if(context is app.qthrone.mobile.ui.SubscriptionEditorActivity)
             context.theme.applyStyle(R.style.MobileSubscriptionEditorWindow, true)
     }
 
     // Night mode with AMOLED black: the black overlay goes on top of the theme
     private fun applyAmoledOverlay(context: Context) {
-        if (DataStore.amoledTheme && usingNightMode()) {
+        if ((DataStore.amoledTheme || MobileStyle.new) && usingNightMode()) {
             context.theme.applyStyle(R.style.Theme_SagerNet_Amoled, true)
             // White falls back to Black at night, whose app bar (colorPrimary) is dark grey; OLED makes it black.
             // Not under Monet, so the Monet colours are not flattened to black
-            if (DataStore.appTheme == WHITE && !usingMonetTheme()) {
+            if ((DataStore.appTheme == WHITE || MobileStyle.new) && !usingMonetTheme()) {
                 context.theme.applyStyle(R.style.Theme_SagerNet_Amoled_White, true)
             }
         }
@@ -67,11 +75,13 @@ object Theme {
 
     // Whether system dynamic colour (Monet) is in effect; it disables every White-theme adjustment
     fun usingMonetTheme(): Boolean {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && DataStore.useSystemTheme
+        return !MobileStyle.new && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && DataStore.useSystemTheme
     }
 
     fun getTheme(): Int {
-        return if (usingMonetTheme()) {
+        return if (MobileStyle.new) {
+            getTheme(WHITE)
+        } else if (usingMonetTheme()) {
             getTheme(MONET)
         } else {
             getTheme(DataStore.appTheme)
@@ -79,7 +89,9 @@ object Theme {
     }
 
     fun getDialogTheme(): Int {
-        return if (usingMonetTheme()) {
+        return if (MobileStyle.new) {
+            getDialogTheme(WHITE)
+        } else if (usingMonetTheme()) {
             getDialogTheme(MONET)
         } else {
             getDialogTheme(DataStore.appTheme)
@@ -154,7 +166,7 @@ object Theme {
         if (usingMonetTheme()) {
             return false
         }
-        return DataStore.appTheme == WHITE && !usingNightMode()
+        return (DataStore.appTheme == WHITE || MobileStyle.new) && !usingNightMode()
     }
 
     var currentNightMode = -1

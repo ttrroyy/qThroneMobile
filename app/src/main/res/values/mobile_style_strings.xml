@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="qmobile_ui_style">Interface style</string>
+    <string-array name="qmobile_ui_styles"><item>Classic</item><item>New</item></string-array>
+    <string-array name="qmobile_surface_themes_new"><item>As in the system</item><item>OLED</item><item>White</item></string-array>
+    <string-array name="qmobile_ui_style_values" translatable="false"><item>classic</item><item>new</item></string-array>
+    <string-array name="qmobile_surface_values_new" translatable="false"><item>system</item><item>oled</item><item>light</item></string-array>
+    <string name="qmobile_orb_idle">Tap to connect</string>
+</resources>

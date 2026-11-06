@@ -22,12 +22,12 @@ internal class ServerUi(private val context: Context) {
 
     fun column(padding: Int = 0) = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(padding), dp(padding), dp(padding), dp(padding)) }
 
-    fun card(radius: Int = 12) = column(12).apply {
+    fun card(radius: Int = MobilePalette.cardDp) = column(12).apply {
         background = GradientDrawable().apply { setColor(MobilePalette.surface); cornerRadius = dp(radius).toFloat(); setStroke(1,MobilePalette.outline) }
     }
 
     fun well() = GradientDrawable().apply {
-        setColor(ColorUtils.blendARGB(MobilePalette.surface, android.graphics.Color.BLACK, .14f)); cornerRadius = dp(12).toFloat()
+        setColor(MobilePalette.well); cornerRadius = dp(MobilePalette.wellDp).toFloat()
     }
 
     fun text(value: CharSequence, size: Float = 16f, color: Int = MobilePalette.text, bold: Boolean = false, mono: Boolean = false) = TextView(context).apply {
@@ -43,7 +43,7 @@ internal class ServerUi(private val context: Context) {
     /** An action tile: icon, title, subtitle and an arrow, like the original server screen. */
     fun tile(title: String, subtitle: String?, icon: Int, click: () -> Unit) = LinearLayout(context).apply {
         gravity = Gravity.CENTER_VERTICAL; setPadding(dp(12), dp(8), dp(12), dp(8)); minimumHeight = dp(48)
-        background = GradientDrawable().apply { setColor(MobilePalette.surface); cornerRadius = dp(5).toFloat(); setStroke(1,MobilePalette.outline) }
+        background = GradientDrawable().apply { setColor(MobilePalette.surface); cornerRadius=dp(MobilePalette.rowDp).toFloat(); setStroke(1,MobilePalette.outline) }
         isFocusable = true; setOnClickListener { click() }; MobileFeedback.apply(this)
         addView(badge(icon), LinearLayout.LayoutParams(dp(26), dp(26)).apply { marginEnd = dp(12) })
         addView(column().apply {
@@ -61,7 +61,7 @@ internal class ServerUi(private val context: Context) {
 
     fun button(label: String, primary: Boolean = false, danger: Boolean = false, click: () -> Unit) = TextView(context).apply {
         text = label; gravity = Gravity.CENTER; textSize = 16f; minimumHeight = dp(48)
-        setTypeface(null, Typeface.BOLD)
+        setTypeface(typeface,Typeface.BOLD)
         setPadding(dp(12), dp(8), dp(12), dp(8))
         val color = if (danger) android.graphics.Color.rgb(232, 120, 112) else accent
         setTextColor(if (primary) MobilePalette.text else color)
@@ -148,21 +148,5 @@ internal class ServerUi(private val context: Context) {
     }
 }
 
-/** Settings and server screens share a quick fade; sheets keep their own bottom transition. */
-abstract class ServerScreenActivity(contentLayoutId: Int = 0) : ThemedActivity(contentLayoutId) {
-    @Suppress("DEPRECATION")
-    override fun onCreate(savedInstanceState: android.os.Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (isDialog) return
-        if (android.os.Build.VERSION.SDK_INT >= 34) {
-            overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, R.anim.settings_enter, R.anim.settings_exit)
-            overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, R.anim.settings_pop_enter, R.anim.settings_pop_exit)
-        } else overridePendingTransition(R.anim.settings_enter, R.anim.settings_exit)
-    }
-
-    @Suppress("DEPRECATION")
-    override fun finish() {
-        super.finish()
-        if (!isDialog && android.os.Build.VERSION.SDK_INT < 34) overridePendingTransition(R.anim.settings_pop_enter, R.anim.settings_pop_exit)
-    }
-}
+/** The server screens: every themed screen now shares the same transition. */
+abstract class ServerScreenActivity(contentLayoutId: Int = 0) : ThemedActivity(contentLayoutId)

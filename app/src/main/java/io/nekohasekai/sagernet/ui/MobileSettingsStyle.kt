@@ -68,6 +68,8 @@ object MobileSettingsStyle {
         val density=list.resources.displayMetrics.density
         list.setPadding((16*density).toInt(), (4*density).toInt(), (16*density).toInt(), (16*density).toInt())
         list.clipToPadding=false
+        // One entrance when a settings screen opens, rows rising in turn.
+        if(MobileStyle.new) list.layoutAnimation=android.view.animation.LayoutAnimationController(android.view.animation.AnimationUtils.loadAnimation(list.context,app.qthrone.mobile.R.anim.row_soft_in),.06f)
         list.addItemDecoration(object: RecyclerView.ItemDecoration() {
             override fun getItemOffsets(outRect: android.graphics.Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
                 val position=parent.getChildAdapterPosition(view)
@@ -95,8 +97,8 @@ object MobileSettingsStyle {
                 view.minimumHeight=0
                 view.setPadding(view.paddingLeft,(4*density).toInt(),view.paddingRight,(2*density).toInt())
             } else {
-                view.minimumHeight=(48*density).toInt()
-                view.setPaddingRelative((12*density).toInt(),(8*density).toInt(),(12*density).toInt(),(8*density).toInt())
+                view.minimumHeight=((if(MobileStyle.new) 56 else 48)*density).toInt()
+                view.setPaddingRelative(((if(MobileStyle.new) 14 else 12)*density).toInt(),(8*density).toInt(),(12*density).toInt(),(8*density).toInt())
             }
             val oldCopy=view.findViewWithTag<View>("socks-copy")
             (oldCopy?.parent as? android.view.ViewGroup)?.removeView(oldCopy)
@@ -119,7 +121,7 @@ object MobileSettingsStyle {
             }
             view.background=android.graphics.drawable.GradientDrawable().apply {
                 setColor(if(category || warning) background else surface)
-                cornerRadius=5*density
+                cornerRadius=MobilePalette.rowDp*density
                 if(!category && !warning) setStroke(1,MobilePalette.outline)
             }
             // The installed version is set apart from the update actions by a line above it.
@@ -136,7 +138,7 @@ object MobileSettingsStyle {
             view.findViewById<TextView>(android.R.id.title)?.apply {
                 setTextColor(dimmedWhenDisabled(if(category) accent else textColor))
                 textSize=16f
-                setTypeface(null,if(category) Typeface.BOLD else Typeface.NORMAL)
+                setTypeface(typeface,if(category) Typeface.BOLD else Typeface.NORMAL)
                 isSingleLine=false;maxLines=Int.MAX_VALUE;ellipsize=null
             }
             view.findViewById<TextView>(android.R.id.summary)?.apply { setTextColor(dimmedWhenDisabled(muted));textSize=13f }

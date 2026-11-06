@@ -46,6 +46,7 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var appTLSVersion by configurationStore.string(Key.APP_TLS_VERSION)
     var updateCheckAuto by configurationStore.boolean(Key.UPDATE_CHECK_AUTO) { true }
     var mobileListMode by configurationStore.string("qmobileListMode") { "groups" }
+    var uiStyle by configurationStore.string("qmobileUiStyle") { "classic" }
     var serverListRaised by configurationStore.boolean(Key.SERVER_LIST_RAISED)
     var providerGeoRestored by configurationStore.boolean(Key.PROVIDER_GEO_RESTORED)
     var updateSkippedVersionCode by configurationStore.long(Key.UPDATE_SKIPPED_VERSION_CODE)

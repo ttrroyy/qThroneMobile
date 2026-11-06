@@ -31,7 +31,7 @@
     </style>
     <style name="MobileSwitch" parent="Widget.MaterialComponents.CompoundButton.Switch">
         <item name="useMaterialThemeColors">false</item>
-        <item name="android:thumb">@drawable/mobile_switch_thumb</item>
+        <item name="android:thumb">?attr/qtSwitchThumb</item>
         <item name="track">@drawable/mobile_switch_track</item>
         <item name="thumbTint">@color/mobile_switch_thumb_tint</item>
         <item name="trackTint">@null</item>
@@ -41,7 +41,7 @@
         <item name="android:minHeight">48dp</item>
     </style>
     <style name="MobilePlatformSwitch" parent="android:Widget.Material.CompoundButton.Switch">
-        <item name="android:thumb">@drawable/mobile_switch_thumb</item>
+        <item name="android:thumb">?attr/qtSwitchThumb</item>
         <item name="android:track">@drawable/mobile_switch_track</item>
         <item name="android:thumbTint">@color/mobile_switch_thumb_tint</item>
         <item name="android:trackTint">@null</item>
@@ -56,9 +56,9 @@
         <item name="boxStrokeWidth">0dp</item>
         <item name="boxStrokeWidthFocused">0dp</item>
         <item name="hintTextColor">?attr/colorAccent</item>
-        <item name="boxCornerRadiusTopStart">12dp</item>
-        <item name="boxCornerRadiusTopEnd">12dp</item>
-        <item name="boxCornerRadiusBottomStart">12dp</item>
-        <item name="boxCornerRadiusBottomEnd">12dp</item>
+        <item name="boxCornerRadiusTopStart">?attr/qtWellRadius</item>
+        <item name="boxCornerRadiusTopEnd">?attr/qtWellRadius</item>
+        <item name="boxCornerRadiusBottomStart">?attr/qtWellRadius</item>
+        <item name="boxCornerRadiusBottomEnd">?attr/qtWellRadius</item>
     </style>
 </resources>

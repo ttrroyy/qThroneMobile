@@ -1,0 +1,7 @@
+<!-- The new style's knob: a circle within the full-height bounds supplied by Switch. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="22dp" android:height="28dp"
+    android:viewportWidth="22" android:viewportHeight="28">
+    <path android:fillColor="?android:attr/textColorPrimary"
+        android:pathData="M11,5 A9,9 0 1,1 11,23 A9,9 0 1,1 11,5 Z" />
+</vector>

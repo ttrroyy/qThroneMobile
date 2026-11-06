@@ -34,8 +34,8 @@ object MobileTopNotice {
             setMargins(dp(16), top + dp(12), dp(16), 0)
         })
         notice.alpha = 0f; notice.translationY = -dp(60).toFloat()
-        notice.animate().alpha(1f).translationY(0f).setDuration(200).start()
-        notice.postDelayed({ notice.animate().alpha(0f).translationY(-dp(60).toFloat()).setDuration(180)
+        notice.animate().alpha(1f).translationY(0f).setDuration(if (MobileStyle.new) 280 else 120).start()
+        notice.postDelayed({ notice.animate().alpha(0f).translationY(-dp(60).toFloat()).setDuration(if (MobileStyle.new) 200 else 120)
             .withEndAction { parent.removeView(notice) }.start() }, if(error) 6500L else 4000L)
     }
 }

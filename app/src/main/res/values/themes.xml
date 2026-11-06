@@ -218,14 +218,14 @@
     </style>
 
     <style name="Widget.SagerNet.Chip.Action" parent="Widget.MaterialComponents.Chip.Action">
-        <item name="chipCornerRadius">@dimen/row_corner_radius</item>
+        <item name="chipCornerRadius">?attr/qtRowRadius</item>
     </style>
     <style name="Widget.SagerNet.Chip.Choice" parent="Widget.MaterialComponents.Chip.Choice">
-        <item name="chipCornerRadius">@dimen/row_corner_radius</item>
+        <item name="chipCornerRadius">?attr/qtRowRadius</item>
     </style>
 
     <style name="Widget.MaterialComponents.Chip.Choice.SagerNet">
-        <item name="chipCornerRadius">@dimen/row_corner_radius</item>
+        <item name="chipCornerRadius">?attr/qtRowRadius</item>
         <item name="textStartPadding">30dp</item>
         <item name="textEndPadding">30dp</item>
         <item name="chipBackgroundColor">@color/chip_background</item>
@@ -236,7 +236,7 @@
 
     <style name="Widget.SagerNet.CardView" parent="Widget.MaterialComponents.CardView">
         <item name="cardElevation">0dp</item>
-        <item name="cardCornerRadius">@dimen/card_corner_radius</item>
+        <item name="cardCornerRadius">?attr/qtCardRadius</item>
         <item name="strokeColor">@color/card_stroke</item>
         <item name="strokeWidth">@dimen/card_stroke_width</item>
         <item name="cardBackgroundColor">?attr/colorSurface</item>
@@ -244,7 +244,7 @@
 
     <!-- Elevated cards keep the same hairline outline as the other tiles. -->
     <style name="Widget.SagerNet.CardView.Elevated">
-        <item name="cardCornerRadius">@dimen/row_corner_radius</item>
+        <item name="cardCornerRadius">?attr/qtRowRadius</item>
         <item name="cardElevation">@dimen/card_elevation</item>
         <item name="strokeWidth">@dimen/card_stroke_width</item>
         <item name="strokeColor">@color/card_stroke</item>
@@ -252,18 +252,18 @@
     </style>
 
     <style name="Widget.SagerNet.CardView.Tinted" parent="Widget.SagerNet.CardView">
-        <item name="cardCornerRadius">@dimen/row_corner_radius</item>
+        <item name="cardCornerRadius">?attr/qtRowRadius</item>
         <item name="cardBackgroundColor">?attr/cardElevatedSurfaceColor</item>
     </style>
 
     <style name="ShapeAppearanceOverlay.SagerNet.Dialog" parent="">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">@dimen/dialog_corner_radius</item>
+        <item name="cornerSize">?attr/qtCardRadius</item>
     </style>
 
     <style name="ShapeAppearanceOverlay.SagerNet.Input" parent="">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">@dimen/input_corner_radius</item>
+        <item name="cornerSize">?attr/qtWellRadius</item>
     </style>
     <style name="Widget.SagerNet.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
         <!-- The dark well of the cards: 14% black over whatever surface the field lies on, no underline. -->
@@ -290,8 +290,8 @@
 
     <style name="ShapeAppearanceOverlay.SagerNet.BottomSheet" parent="">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSizeTopLeft">@dimen/dialog_corner_radius</item>
-        <item name="cornerSizeTopRight">@dimen/dialog_corner_radius</item>
+        <item name="cornerSizeTopLeft">?attr/qtCardRadius</item>
+        <item name="cornerSizeTopRight">?attr/qtCardRadius</item>
         <item name="cornerSizeBottomLeft">0dp</item>
         <item name="cornerSizeBottomRight">0dp</item>
     </style>
@@ -304,7 +304,7 @@
 
     <style name="ShapeAppearanceOverlay.SagerNet.Button" parent="">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">@dimen/button_corner_radius</item>
+        <item name="cornerSize">?attr/qtRowRadius</item>
     </style>
     <style name="Widget.SagerNet.Button" parent="Widget.MaterialComponents.Button">
         <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.SagerNet.Button</item>
@@ -326,7 +326,7 @@
 
     <style name="ShapeAppearance.SagerNet.NavItem" parent="ShapeAppearance.MaterialComponents.SmallComponent">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">@dimen/nav_item_corner_radius</item>
+        <item name="cornerSize">?attr/qtRowRadius</item>
     </style>
 
     <style name="ThemeOverlay.SagerNet.AlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog.SagerNet">

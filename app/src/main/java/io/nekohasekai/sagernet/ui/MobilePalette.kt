@@ -6,24 +6,37 @@ import app.qthrone.mobile.database.DataStore
 import app.qthrone.mobile.utils.Theme
 import com.google.android.material.color.MaterialColors
 
+object MobileStyle {
+    val new get() = DataStore.uiStyle == "new"
+}
+
 object MobilePalette {
-    val oled get() = DataStore.amoledTheme && Theme.usingNightMode()
+    val oled get() = (DataStore.amoledTheme || MobileStyle.new) && Theme.usingNightMode()
     val light get() = !oled && !Theme.usingNightMode()
-    val background get() = if (oled) Color.BLACK else if (light) Color.rgb(236,237,239) else Color.rgb(30,30,30)
-    val surface get() = if (oled) Color.rgb(15,15,15) else if (light) Color.rgb(248,249,250) else Color.rgb(49,51,54)
-    val toolbar get() = if (oled) Color.BLACK else if (light) Color.rgb(231,233,235) else Color.rgb(34,35,37)
-    val text get() = if (light) Color.rgb(39,44,48) else Color.rgb(231,234,237)
-    val muted get() = if (light) Color.rgb(100,110,119) else Color.rgb(173,182,191)
+    val background get() = if (oled) Color.BLACK else if (light) (if (MobileStyle.new) Color.WHITE else Color.rgb(236,237,239)) else Color.rgb(30,30,30)
+    val surface get() = if (MobileStyle.new) (if (light) Color.rgb(244,244,246) else Color.rgb(14,14,16))
+        else if (oled) Color.rgb(15,15,15) else if (light) Color.rgb(248,249,250) else Color.rgb(49,51,54)
+    val toolbar get() = if (oled) Color.BLACK else if (light) (if (MobileStyle.new) Color.WHITE else Color.rgb(231,233,235)) else Color.rgb(34,35,37)
+    val text get() = if (MobileStyle.new) (if (light) Color.rgb(10,10,11) else Color.rgb(245,245,247))
+        else if (light) Color.rgb(39,44,48) else Color.rgb(231,234,237)
+    val muted get() = if (MobileStyle.new) (if (light) Color.rgb(105,105,112) else Color.rgb(142,142,150))
+        else if (light) Color.rgb(100,110,119) else Color.rgb(173,182,191)
+    /** The dark field inside a card; on true black a lighter one, or it would vanish. */
+    val well get() = if (MobileStyle.new && !light) Color.rgb(28,28,31) else androidx.core.graphics.ColorUtils.blendARGB(surface, Color.BLACK, .14f)
+    /** Corner radii in dp: the new style is rounder throughout. */
+    val rowDp get() = if (MobileStyle.new) 16 else 5
+    val cardDp get() = if (MobileStyle.new) 24 else 12
+    val wellDp get() = if (MobileStyle.new) 16 else 12
     val outline get() = androidx.core.graphics.ColorUtils.setAlphaComponent(muted,55)
-    fun accent(context: Context) = if (!DataStore.useSystemTheme && DataStore.appTheme == Theme.CYAN) Color.rgb(87,190,229)
+    fun accent(context: Context) = if (MobileStyle.new) text else if (!DataStore.useSystemTheme && DataStore.appTheme == Theme.CYAN) Color.rgb(87,190,229)
         else MaterialColors.getColor(context, androidx.appcompat.R.attr.colorAccent, Color.rgb(87,190,229))
 
     /** A row or button: every list row and action in the app. */
-    fun rowShape(context: Context) = shape(context, 5)
+    fun rowShape(context: Context) = shape(context, rowDp)
     /** A card that holds rows, fields or text: also the dialogs, notices and sheets. */
-    fun cardShape(context: Context) = shape(context, 12)
+    fun cardShape(context: Context) = shape(context, cardDp)
     /** The chosen row or the main action: a tint and an outline of [color], never a solid fill, the same on every theme. */
-    fun selectedShape(context: Context, color: Int = accent(context)) = shape(context, 5).apply {
+    fun selectedShape(context: Context, color: Int = accent(context)) = shape(context, rowDp).apply {
         setColor(androidx.core.graphics.ColorUtils.blendARGB(surface, color, .16f))
         setStroke((context.resources.displayMetrics.density).toInt().coerceAtLeast(1), color)
     }
