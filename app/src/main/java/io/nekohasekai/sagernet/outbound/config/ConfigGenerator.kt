@@ -162,8 +162,6 @@ class ConfigGenerator @JvmOverloads constructor(
 
         // Route outbounds (:580-618), each profile once (D12): a chain takes as many suffixes as it has hops.
         var suffix = 0
-        var routeFullConfig = false
-        var routeXrayHop = false
         for (id in route.usedOutboundIds()) {
             if (id < 0) continue
             val needed = reads.get(id)
@@ -171,23 +169,9 @@ class ConfigGenerator @JvmOverloads constructor(
                 state.error = "The routing profile is referencing outbounds that no longer exist, consider revising your settings"
                 return
             }
-            if (needed.isExtraCore() || TypeAccess.isCustomFullConfig(needed)) {
-                state.error = "Профиль «${needed.displayName()}» нельзя выбрать в правилах маршрутизации: это полный конфиг sing-box, он работает только как основной. Выберите обычный профиль."
+            if (needed.isExtraCore() || TypeAccess.isCustomFullConfig(needed) || needed.isXrayFullConfig()) {
+                state.error = "Профиль «${needed.displayName()}» нельзя выбрать в правилах маршрутизации: это полный конфиг Xray или sing-box, он работает только как основной. Выберите обычный профиль."
                 return
-            }
-            // One Xray instance serves a full config whole, so it cannot share that instance with other Xray hops.
-            if (needed.isXrayFullConfig()) {
-                if (routeFullConfig || routeXrayHop || state.proxyUsesXray) {
-                    state.error = "Профиль «${needed.displayName()}» нельзя выбрать в правилах маршрутизации вместе с другими профилями на Xray: основным сейчас должен быть профиль не на Xray, а в правилах полный конфиг только один."
-                    return
-                }
-                routeFullConfig = true
-            } else if (chains.usesXrayCore(needed)) {
-                if (routeFullConfig) {
-                    state.error = "Профиль «${needed.displayName()}» работает на Xray, а в правилах уже выбран полный конфиг Xray. Выберите профиль не на Xray."
-                    return
-                }
-                routeXrayHop = true
             }
             if (needed.type == "chain") {
                 val hops = TypeAccess.chainHops(needed)
