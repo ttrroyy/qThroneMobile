@@ -222,6 +222,13 @@
     </style>
     <style name="Widget.SagerNet.Chip.Choice" parent="Widget.MaterialComponents.Chip.Choice">
         <item name="chipCornerRadius">?attr/qtRowRadius</item>
+        <item name="chipMinHeight">40dp</item>
+        <item name="chipBackgroundColor">@color/mobile_chip_fill</item>
+        <item name="chipStrokeColor">@color/mobile_chip_stroke</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="ensureMinTouchTargetSize">false</item>
     </style>
 
     <style name="Widget.MaterialComponents.Chip.Choice.SagerNet">

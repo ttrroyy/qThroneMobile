@@ -87,6 +87,8 @@ class RouteProfileActivity : ThemedActivity(R.layout.layout_route_profile) {
         var appLabels: Map<String, String> = emptyMap()
         var warnings: List<String> = emptyList()
         var dirty = false
+        /** What the editor opened with; null for a new profile that has to be saved anyway. */
+        var opened: String? = null
         var fetching = false
         var saving = false
 
@@ -199,6 +201,7 @@ class RouteProfileActivity : ThemedActivity(R.layout.layout_route_profile) {
             model.dnsDraft = p.dns ?: loaded.dnsGlobal
             model.dnsOpened = model.dnsDraft
             model.dirty = json != null
+            model.opened = if (json != null) null else editorState(p)
             refreshAll()
         }
     }
@@ -231,6 +234,9 @@ class RouteProfileActivity : ThemedActivity(R.layout.layout_route_profile) {
     private fun markDirty() {
         model.dirty = true
     }
+
+    private fun editorState(p: RouteProfile) = listOf(RouteJson.profileToJson(p), p.name.trim(), p.default_outbound_id, p.remote_url.trim(),
+        p.auto_update, model.dnsCustom, model.dnsDraft).joinToString("\u0000")
 
     private fun countChanged() = titleAdapter.notifyItemChanged(0)
 
@@ -285,7 +291,8 @@ class RouteProfileActivity : ThemedActivity(R.layout.layout_route_profile) {
     }
 
     private fun close() {
-        if (!model.dirty) {
+        // An edit put back by hand leaves nothing to save.
+        if (!model.dirty || model.profile?.let(::editorState) == model.opened) {
             finish()
             return
         }

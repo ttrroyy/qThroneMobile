@@ -20,6 +20,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import app.rawline.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
@@ -94,6 +95,7 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
         list.applyListInsets()
         list.layoutManager = FixedLinearLayoutManager(list)
         list.adapter = adapter
+        reorder.attachToRecyclerView(list)
         view.setBackgroundColor(MobilePalette.screen)
         MobileViewStyle.apply(view)
         onServiceStateChanged()
@@ -119,7 +121,8 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
             val profiles = RouteManager.all()
             val currentId = RouteManager.current().id
             onMainDispatcher {
-                if (view != null) adapter.submit(profiles, currentId)
+                // A reload in the middle of a drag would pull the row out from under the finger.
+                if (view != null && !dragging) adapter.submit(profiles, currentId)
             }
         }
     }
@@ -514,6 +517,31 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
 
     // ------------------------------------------------------------------------------------------------ list
 
+    private var dragging = false
+    /** Hold a profile and drag it: the same gesture as the servers on the home screen. */
+    private val reorder = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
+        override fun onMove(view: RecyclerView, from: RecyclerView.ViewHolder, to: RecyclerView.ViewHolder): Boolean {
+            adapter.move(from.bindingAdapterPosition, to.bindingAdapterPosition)
+            return true
+        }
+        override fun onSwiped(holder: RecyclerView.ViewHolder, direction: Int) {}
+        override fun onSelectedChanged(holder: RecyclerView.ViewHolder?, state: Int) {
+            super.onSelectedChanged(holder, state)
+            if (state == ItemTouchHelper.ACTION_STATE_DRAG && holder != null) {
+                dragging = true
+                holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+                holder.itemView.animate().scaleX(.98f).scaleY(.98f).setDuration(90).start()
+            }
+        }
+        override fun clearView(view: RecyclerView, holder: RecyclerView.ViewHolder) {
+            super.clearView(view, holder)
+            holder.itemView.animate().scaleX(1f).scaleY(1f).setDuration(120).start()
+            dragging = false
+            val ids = adapter.profiles.map { it.id }
+            runOnLifecycleDispatcher { RouteManager.saveOrder(ids) }
+        }
+    })
+
     private inner class ProfileAdapter : RecyclerView.Adapter<ProfileHolder>() {
         var profiles: List<RouteProfile> = emptyList()
         var currentId = 0L
@@ -527,6 +555,12 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
             this.profiles = profiles
             this.currentId = currentId
             notifyDataSetChanged()
+        }
+
+        fun move(from: Int, to: Int) {
+            if (from !in profiles.indices || to !in profiles.indices) return
+            profiles = profiles.toMutableList().apply { add(to, removeAt(from)) }
+            notifyItemMoved(from, to)
         }
 
         fun setCurrent(id: Long) {
@@ -559,6 +593,17 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
         fun bind(profile: RouteProfile, current: Boolean) {
             MobileViewStyle.apply(itemView)
             val context = itemView.context
+            // The same row as everywhere else in the app, the chosen profile marked as the chosen server is.
+            val card = binding.root
+            if (MobileStyle.new) {
+                card.setCardBackgroundColor(android.graphics.Color.TRANSPARENT); card.strokeWidth = 0; card.cardElevation = 0f
+                card.radius = MobilePalette.rowDp * context.resources.displayMetrics.density
+                card.getChildAt(0).background = if (current) MobilePalette.selectedShape(context) else MobilePalette.rowShape(context)
+            } else if (current) {
+                card.strokeColor = MobilePalette.accent(context); card.strokeWidth = (context.resources.displayMetrics.density).toInt().coerceAtLeast(1)
+            }
+            binding.profileSummary.setTextColor(MobilePalette.muted)
+            binding.profileRemote.setTextColor(MobilePalette.muted)
             binding.profileName.text = profile.name
             binding.profileName.setTypeface(binding.profileName.typeface,if (current) Typeface.BOLD else Typeface.NORMAL)
             binding.activeMark.isVisible = current

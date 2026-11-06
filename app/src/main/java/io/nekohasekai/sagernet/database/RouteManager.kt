@@ -149,7 +149,19 @@ object RouteManager {
     private fun load(): List<RouteProfile> = SagerDatabase.instance.runInTransaction(Callable {
         val rules = dao.allRules().groupBy { it.routeProfileId }
         dao.allProfiles().map { it.toModel(rules[it.id].orEmpty()) }
-    })
+    }).let { profiles ->
+        val order = savedOrder().withIndex().associate { (index, id) -> id to index }
+        // Profiles added since keep their place after the arranged ones.
+        profiles.sortedBy { order[it.id] ?: Int.MAX_VALUE }
+    }
+
+    private fun savedOrder() = DataStore.configurationStore.getString(ORDER_KEY).orEmpty().split(',').mapNotNull { it.toLongOrNull() }
+
+    fun saveOrder(ids: List<Long>) {
+        DataStore.configurationStore.putString(ORDER_KEY, ids.joinToString(","))
+    }
+
+    private const val ORDER_KEY = "qmobileRouteOrder"
 
     private fun observe() {
         synchronized(this) {
