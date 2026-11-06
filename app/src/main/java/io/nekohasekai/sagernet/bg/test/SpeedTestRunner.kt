@@ -10,11 +10,11 @@ import app.rawline.mobile.database.ProfileManager
 import app.rawline.mobile.database.ProxyEntity
 import app.rawline.mobile.ktx.Logs
 import app.rawline.mobile.ktx.readableMessage
-import app.qthrone.core.mobile.Instance
-import app.qthrone.core.mobile.Mobile
-import app.qthrone.core.mobile.SpeedTestHandler
-import app.qthrone.core.mobile.SpeedTestResult
-import app.qthrone.core.mobile.TestRequest
+import app.rawline.core.mobile.Instance
+import app.rawline.core.mobile.Mobile
+import app.rawline.core.mobile.SpeedTestHandler
+import app.rawline.core.mobile.SpeedTestResult
+import app.rawline.core.mobile.TestRequest
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel

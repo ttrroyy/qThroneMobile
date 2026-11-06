@@ -10,9 +10,9 @@ import app.rawline.mobile.ktx.app
 import app.rawline.mobile.ktx.Logs
 import app.rawline.mobile.bg.carrier.NativeCarrier
 import app.rawline.mobile.bg.carrier.QwdttPing
-import app.qthrone.core.mobile.Mobile
-import app.qthrone.core.mobile.TestRequest
-import app.qthrone.core.mobile.URLTestHandler
+import app.rawline.core.mobile.Mobile
+import app.rawline.core.mobile.TestRequest
+import app.rawline.core.mobile.URLTestHandler
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch

@@ -23,7 +23,7 @@ import javax.crypto.spec.GCMParameterSpec
 /** Account credentials stay outside profiles, exports, backups and logs, shared with :bg. */
 object VkRelayAccount {
     const val DEFAULT_SOURCE = "vkRelayDefaultHashSource"
-    private const val ALIAS = "qThrone.vk.relay"
+    private const val ALIAS = "Rawline.vk.relay"
     private val hashCreationLock = Any()
     private fun storage() = AtomicFile(File(app.noBackupFilesDir,"vk-relay-account"))
     private fun key(): SecretKey {

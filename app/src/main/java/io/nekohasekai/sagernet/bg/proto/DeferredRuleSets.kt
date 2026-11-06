@@ -9,7 +9,7 @@ import app.rawline.mobile.ktx.runOnIoDispatcher
 import app.rawline.mobile.outbound.config.ConfigGenerator
 import app.rawline.mobile.outbound.json.JsonInput
 import app.rawline.mobile.outbound.json.JsonObject
-import app.qthrone.core.mobile.Instance
+import app.rawline.core.mobile.Instance
 import kotlinx.coroutines.delay
 import java.io.ByteArrayOutputStream
 import java.io.File

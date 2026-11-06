@@ -21,7 +21,7 @@ import app.rawline.mobile.database.DataStore
 import app.rawline.mobile.database.ProfileOrder
 import app.rawline.mobile.database.ProxyEntity
 import app.rawline.mobile.database.SagerDatabase
-import app.qthrone.core.mobile.Mobile
+import app.rawline.core.mobile.Mobile
 import app.rawline.mobile.ktx.app
 import app.rawline.mobile.ktx.appUserAgent
 import app.rawline.mobile.ktx.getColorAttr

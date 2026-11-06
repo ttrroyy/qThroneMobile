@@ -443,7 +443,7 @@ class DashboardFragment : ToolbarFragment(R.layout.layout_dashboard), Toolbar.On
          */
         fun seedScript(url: String, secret: String, activate: Boolean): String = """
             (function () {
-              var KEY = "sing-box-dashboard.servers", ID = "throne";
+              var KEY = "sing-box-dashboard.servers", ID = "rawline";
               var url = ${JSONObject.quote(url)}, secret = ${JSONObject.quote(secret)};
               try {
                 var state = null;

@@ -86,9 +86,9 @@ object DeployStore {
     private fun file() = AtomicFile(File(app.noBackupFilesDir,"deploy-servers"))
     private fun key(): SecretKey {
         val store = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
-        (store.getKey("qThrone.deploy",null) as? SecretKey)?.let { return it }
+        (store.getKey("Rawline.deploy",null) as? SecretKey)?.let { return it }
         return KeyGenerator.getInstance("AES","AndroidKeyStore").apply {
-            init(KeyGenParameterSpec.Builder("qThrone.deploy",KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
+            init(KeyGenParameterSpec.Builder("Rawline.deploy",KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
                 .setBlockModes("GCM").setEncryptionPaddings("NoPadding").build())
         }.generateKey()
     }

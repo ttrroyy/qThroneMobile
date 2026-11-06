@@ -1,7 +1,7 @@
 package app.rawline.mobile.bg.autoselector
 
-import app.qthrone.core.mobile.Instance
-import app.qthrone.core.mobile.AutoSelectorStatus as CoreStatus
+import app.rawline.core.mobile.Instance
+import app.rawline.core.mobile.AutoSelectorStatus as CoreStatus
 
 /**
  * The running core's auto-selector [groupTag] (the desktop's QueryAutoSelectors / AutoSelectorAction RPC,

@@ -23,16 +23,15 @@ import java.io.InputStream
  */
 object UpdateChecker {
 
-    const val REPOSITORY = "ttrroyy/qThroneMobile"
+    const val REPOSITORY = "ttrroyy/RawlineMobile"
     const val RELEASES_PAGE = "https://github.com/$REPOSITORY/releases"
     private const val RELEASES_API = "https://api.github.com/repos/$REPOSITORY/releases?per_page=20"
-    private const val MANIFEST = "qthrone-update.json"
-    private const val LEGACY_MANIFEST = "throne-update.json"
+    private const val MANIFEST = "rawline-update.json"
     private const val MAX_MANIFESTS = 5
     private const val MAX_MANIFEST_BYTES = 256 * 1024
 
     private fun hasManifest(release: Release) = UpdateReleaseNotes.containsMetadata(release.body) ||
-        release.assets.any { it.name == MANIFEST || it.name == LEGACY_MANIFEST }
+        release.assets.any { it.name == MANIFEST }
 
     class Asset(val name: String, val size: Long, val url: String)
 
@@ -95,7 +94,7 @@ object UpdateChecker {
         for (release in candidates.filter(::hasManifest).take(MAX_MANIFESTS)) {
             val manifest = try {
                 UpdateReleaseNotes.metadata(release.body) ?:
-                    fetchManifest(client, release.assets.firstOrNull { it.name == MANIFEST } ?: release.assets.first { it.name == LEGACY_MANIFEST })
+                    fetchManifest(client, release.assets.first { it.name == MANIFEST })
             } catch (e: Exception) {
                 Logs.w("Update manifest of ${release.tag}: ${e.readableMessage}")
                 continue

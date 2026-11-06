@@ -4,7 +4,7 @@ import org.json.JSONObject
 
 /** Verification metadata travels in the GitHub release body, without a downloadable sidecar. */
 object UpdateReleaseNotes {
-    const val START = "<!-- qthrone-update\n"
+    const val START = "<!-- rawline-update\n"
     const val END = "\n-->"
     private const val MAX_LENGTH = 256 * 1024
 

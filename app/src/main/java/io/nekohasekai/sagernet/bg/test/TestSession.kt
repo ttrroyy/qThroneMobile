@@ -19,8 +19,8 @@ import app.rawline.mobile.database.SagerDatabase
 import app.rawline.mobile.ktx.Logs
 import app.rawline.mobile.ktx.app
 import app.rawline.mobile.ktx.readableMessage
-import app.qthrone.core.mobile.Mobile
-import app.qthrone.core.mobile.SpeedTestResult
+import app.rawline.core.mobile.Mobile
+import app.rawline.core.mobile.SpeedTestResult
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope

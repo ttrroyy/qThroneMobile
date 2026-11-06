@@ -3,8 +3,8 @@ package app.rawline.mobile.bg
 import app.rawline.mobile.ktx.Logs
 import app.rawline.mobile.ktx.readableMessage
 import app.rawline.mobile.outbound.json.jsonObjectOf
-import app.qthrone.core.mobile.Mobile
-import app.qthrone.core.mobile.WarpRegisterRequest
+import app.rawline.core.mobile.Mobile
+import app.rawline.core.mobile.WarpRegisterRequest
 
 /**
  * :bg side of ICoreService.warpRegister (rpc/warp.go through core/mobile/warp.go). Blocks the binder thread for at

@@ -1,14 +1,14 @@
 #!/bin/bash
 set -e
 
-# Build app/libs/ThroneCore.aar and the sing-box schema asset from throneproj/Throne at the ref pinned in
+# Build app/libs/RawlineCore.aar and the sing-box schema asset from throneproj/Rawline at the ref pinned in
 # nb4a.properties (gomobile + gobind on PATH, JDK 17, ANDROID_HOME/ANDROID_NDK_HOME set), the same as
 # .github/actions/throne-core.
 THRONE_CORE_REF=$(sed -n 's/^THRONE_CORE_REF=//p' nb4a.properties | tr -d '\r[:space:]')
 AAR_REF=$(sed -n 's/^THRONE_AAR_REF=//p' nb4a.properties | tr -d '\r[:space:]')
 THRONE_CORE_REF=${AAR_REF:-$THRONE_CORE_REF}
 test -n "$THRONE_CORE_REF"
-THRONE_DIR="$(cd .. && pwd)/Throne"
+THRONE_DIR="$(cd .. && pwd)/Rawline"
 rm -rf "$THRONE_DIR"
 git init -q "$THRONE_DIR"
 git -C "$THRONE_DIR" remote add origin https://github.com/ttrroyy/qThrone

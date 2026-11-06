@@ -16,7 +16,7 @@ import app.rawline.mobile.outbound.json.jsonObjectOf
 import app.rawline.mobile.outbound.types.AutoSelector
 import app.rawline.mobile.outbound.types.Custom
 import app.rawline.mobile.route.RouteDns
-import app.qthrone.core.mobile.Mobile
+import app.rawline.core.mobile.Mobile
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
 

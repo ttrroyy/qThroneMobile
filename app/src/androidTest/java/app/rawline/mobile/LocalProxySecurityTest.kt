@@ -3,8 +3,8 @@ package app.rawline.mobile
 import android.app.Application
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import app.qthrone.core.mobile.Mobile
-import app.qthrone.core.mobile.StartOptions
+import app.rawline.core.mobile.Mobile
+import app.rawline.core.mobile.StartOptions
 import app.rawline.mobile.bg.CoreRuntime
 import org.junit.Assert.assertArrayEquals
 import org.junit.Test

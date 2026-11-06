@@ -59,10 +59,10 @@ internal class WdttPlusDeployOps(private val run: suspend (String, Long) -> Stri
      * qThrone 1.8.1 and older removed WDTT Plus with deploy.sh uninstall, which keeps /etc/wdtt without the
      * preserved-data marker, so WDTT Plus's probe sees an unknown install. Only that exact shape is accepted.
      */
-    suspend fun hasUnmarkedQthroneData(): Boolean = markerValue(exec(UNMARKED_QTHRONE_DATA_PROBE, 15_000L), "WDTT_UNMARKED_QTHRONE_DATA") == "1"
+    suspend fun hasUnmarkedRawlineData(): Boolean = markerValue(exec(UNMARKED_QTHRONE_DATA_PROBE, 15_000L), "WDTT_UNMARKED_QTHRONE_DATA") == "1"
 
     /** The data step of WDTT Plus's preserving uninstall, then its marker: the probe then sees preserved Android data. */
-    suspend fun adoptUnmarkedQthroneData() {
+    suspend fun adoptUnmarkedRawlineData() {
         execChecked("{ [ -d /etc/wdtt ] && [ ! -L /etc/wdtt ]; } || { echo 'error: /etc/wdtt изменился'; exit 1; }; " +
             "chmod 700 /etc/wdtt && chmod 600 /etc/wdtt/passwords.json /etc/wdtt/wg-keys.dat", 15_000L)
         markPreservedAndroidData()

@@ -6,10 +6,10 @@ import app.rawline.mobile.database.ProfileManager
 import app.rawline.mobile.database.ProxyEntity
 import app.rawline.mobile.ktx.completeWith
 import app.rawline.mobile.outbound.types.Chain
-import app.qthrone.core.mobile.Instance
-import app.qthrone.core.mobile.Mobile
-import app.qthrone.core.mobile.TestRequest
-import app.qthrone.core.mobile.URLTestHandler
+import app.rawline.core.mobile.Instance
+import app.rawline.core.mobile.Mobile
+import app.rawline.core.mobile.TestRequest
+import app.rawline.core.mobile.URLTestHandler
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger

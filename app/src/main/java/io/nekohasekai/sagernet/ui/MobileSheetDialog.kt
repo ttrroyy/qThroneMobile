@@ -40,7 +40,7 @@ class MobileSheetDialog(context: Context) : BottomSheetDialog(context) {
 
     override fun onStart() {
         super.onStart()
-        window?.let { MobileScreenMotion.fullFrameRate(it) }
+        window?.let { MobileScreenMotion.fullFrameRate(it);MobileFocusRing.attach(it) }
         if (MobileStyle.new) {
             // Open or closed, nothing in between: a half-open sheet is what felt like it stopped short.
             behavior.skipCollapsed = true

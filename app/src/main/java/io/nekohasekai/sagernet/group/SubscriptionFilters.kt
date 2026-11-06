@@ -1,8 +1,8 @@
 package app.rawline.mobile.group
 
 import app.rawline.mobile.R
-import app.qthrone.core.mobile.Mobile
-import app.qthrone.core.mobile.ResolveRequest
+import app.rawline.core.mobile.Mobile
+import app.rawline.core.mobile.ResolveRequest
 import app.rawline.mobile.bg.CoreRuntime
 import app.rawline.mobile.bg.ProfileValidator
 import app.rawline.mobile.bg.proto.CoreConfigs

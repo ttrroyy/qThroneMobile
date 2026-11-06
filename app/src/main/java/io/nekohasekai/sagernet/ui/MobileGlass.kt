@@ -92,3 +92,19 @@ class MobileDockGlass(private val corner: Float, private val discY: Float, priva
     override fun setColorFilter(colorFilter: ColorFilter?) { }
     @Deprecated("Deprecated in Java") override fun getOpacity() = PixelFormat.TRANSLUCENT
 }
+
+/** Where a remote, keyboard or car controller stands: a ring around the control in focus. Touch never shows it. */
+object MobileFocusRing {
+    fun attach(window: android.view.Window) {
+        if (!MobileStyle.new) return
+        window.decorView.viewTreeObserver.addOnGlobalFocusChangeListener { old, now ->
+            old?.foreground = null
+            if (now == null || now.isInTouchMode || now.background is MobilePowerArtwork || now is android.widget.EditText) return@addOnGlobalFocusChangeListener
+            val density = now.resources.displayMetrics.density
+            now.foreground = android.graphics.drawable.GradientDrawable().apply {
+                cornerRadius = MobilePalette.rowDp * density
+                setStroke((2 * density).toInt(), MobilePalette.text)
+            }
+        }
+    }
+}

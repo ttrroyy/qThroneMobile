@@ -1,6 +1,6 @@
 package app.rawline.mobile.bg
 
-import app.qthrone.core.mobile.Mobile
+import app.rawline.core.mobile.Mobile
 import app.rawline.mobile.ktx.Logs
 import app.rawline.mobile.ktx.readableMessage
 import app.rawline.mobile.outbound.json.JsonValues

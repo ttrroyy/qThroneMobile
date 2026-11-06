@@ -12,11 +12,11 @@ import app.rawline.mobile.database.DataStore
 import app.rawline.mobile.ktx.*
 import app.rawline.mobile.ui.VpnRequestActivity
 import app.rawline.mobile.utils.PlatformNotifications
-import app.qthrone.core.mobile.Mobile
-import app.qthrone.core.mobile.RoutePrefix
-import app.qthrone.core.mobile.RoutePrefixIterator
-import app.qthrone.core.mobile.StringIterator
-import app.qthrone.core.mobile.TunOptions
+import app.rawline.core.mobile.Mobile
+import app.rawline.core.mobile.RoutePrefix
+import app.rawline.core.mobile.RoutePrefixIterator
+import app.rawline.core.mobile.StringIterator
+import app.rawline.core.mobile.TunOptions
 import java.net.InetAddress
 import android.net.VpnService as BaseVpnService
 

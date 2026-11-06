@@ -63,7 +63,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
   update-check:
-    name: Update over the last release
+    name: Clean install
     needs: preview
     if: needs.preview.outputs.tag != ''
     runs-on: ubuntu-latest
@@ -73,11 +73,7 @@ jobs:
         with:
           name: RawlineMobile-${{ needs.preview.outputs.tag }}
           path: new-apk
-      - name: Download the last published beta
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh release download v3.3.1-beta.3 -R "${{ github.repository }}" -p '*x86_64.apk' -D old-apk
-      - name: Install the new build over it
+      - name: Install and start the build
         shell: bash
         run: |
           set -euo pipefail
@@ -96,7 +92,7 @@ jobs:
             sleep 3
           done
           sleep 30
-          PACKAGE=app.qthrone.mobile
+          PACKAGE=app.rawline.mobile
           launch() {
             COMPONENT=$("$ADB" shell cmd package resolve-activity --brief -c android.intent.category.LAUNCHER "$PACKAGE" | tail -n 1 | tr -d '\r')
             echo "launcher: $COMPONENT"
@@ -104,10 +100,8 @@ jobs:
             sleep 20
             "$ADB" shell pidof "$PACKAGE"
           }
-          "$ADB" install "$(find old-apk -name '*.apk' -print -quit)"
-          launch
           "$ADB" logcat -c
-          "$ADB" install -r "$(find new-apk -name '*x86_64*.apk' -print -quit)"
+          "$ADB" install "$(find new-apk -name '*x86_64*.apk' -print -quit)"
           launch
           "$ADB" shell dumpsys package "$PACKAGE" | grep -E 'versionName|versionCode' | tee update-check/version.txt
           "$ADB" exec-out screencap -p > update-check/after-update.png

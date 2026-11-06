@@ -118,7 +118,7 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                                 .text(R.string.github)
                                 .setOnClickAction {
                                     requireContext().launchCustomTab(
-                                        "https://github.com/ttrroyy/qThroneMobile"
+                                        "https://github.com/ttrroyy/RawlineMobile"
 
                                     )
                                 }

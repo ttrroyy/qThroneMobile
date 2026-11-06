@@ -35,16 +35,16 @@ jobs:
         run: |
           set -euo pipefail
           trap 'tail -n 100 "$RUNNER_TEMP/emulator.log" 2>/dev/null || true' EXIT
-          export ANDROID_USER_HOME="$RUNNER_TEMP/qthrone-android"
+          export ANDROID_USER_HOME="$RUNNER_TEMP/rawline-android"
           export ANDROID_AVD_HOME="$ANDROID_USER_HOME/avd"
           mkdir -p "$ANDROID_AVD_HOME"
           SDK="$ANDROID_HOME/cmdline-tools/latest/bin"
           yes | "$SDK/sdkmanager" 'system-images;android-35;google_apis;x86_64' 'emulator' 'platform-tools' > /dev/null || test -d "$ANDROID_HOME/system-images/android-35/google_apis/x86_64"
-          "$SDK/avdmanager" create avd -n qthrone-preview -k 'system-images;android-35;google_apis;x86_64' --device pixel_6 --path "$ANDROID_AVD_HOME/qthrone-preview.avd" --force
-          test -f "$ANDROID_AVD_HOME/qthrone-preview.ini"
-          "$ANDROID_HOME/emulator/emulator" -list-avds | grep -Fx qthrone-preview
+          "$SDK/avdmanager" create avd -n rawline-preview -k 'system-images;android-35;google_apis;x86_64' --device pixel_6 --path "$ANDROID_AVD_HOME/rawline-preview.avd" --force
+          test -f "$ANDROID_AVD_HOME/rawline-preview.ini"
+          "$ANDROID_HOME/emulator/emulator" -list-avds | grep -Fx rawline-preview
           if test -e /dev/kvm; then sudo chmod a+rw /dev/kvm; fi
-          "$ANDROID_HOME/emulator/emulator" -avd qthrone-preview -no-window -no-audio -no-snapshot -no-boot-anim -gpu swiftshader_indirect > "$RUNNER_TEMP/emulator.log" 2>&1 &
+          "$ANDROID_HOME/emulator/emulator" -avd rawline-preview -no-window -no-audio -no-snapshot -no-boot-anim -gpu swiftshader_indirect > "$RUNNER_TEMP/emulator.log" 2>&1 &
           timeout 180 "$ANDROID_HOME/platform-tools/adb" wait-for-device
           for attempt in $(seq 1 180); do
             if test "$("$ANDROID_HOME/platform-tools/adb" shell getprop sys.boot_completed | tr -d '\r')" = 1; then break; fi
@@ -65,7 +65,7 @@ jobs:
           "$ANDROID_HOME/platform-tools/adb" install -r "$UNIVERSAL"
           mkdir -p ui-screenshots
           printf '%s\n' "PASS: ABI APK installed, universal APK installed over it with the same signature" > ui-screenshots/universal-install-result.txt
-          PACKAGE=$("$ANDROID_HOME/platform-tools/adb" shell pm list packages | sed -n 's/^package:\(app.qthrone.mobile[^[:space:]]*\).*/\1/p' | tr -d '\r')
+          PACKAGE=$("$ANDROID_HOME/platform-tools/adb" shell pm list packages | sed -n 's/^package:\(app.rawline.mobile[^[:space:]]*\).*/\1/p' | tr -d '\r')
           test -n "$PACKAGE"
           "$ANDROID_HOME/platform-tools/adb" shell dumpsys package "$PACKAGE" | grep -F 'primaryCpuAbi=x86_64'
       - name: Capture real application screens
@@ -89,7 +89,7 @@ jobs:
           APK=$(find ui-regression-apk -name '*.apk' -print -quit)
           test -n "$APK"
           "$ADB" install "$APK"
-          TEST_PACKAGE=$("$ADB" shell pm list packages | sed -n 's/^package:\(app.qthrone.mobile[^[:space:]]*\.test\).*/\1/p' | tr -d '\r')
+          TEST_PACKAGE=$("$ADB" shell pm list packages | sed -n 's/^package:\(app.rawline.mobile[^[:space:]]*\.test\).*/\1/p' | tr -d '\r')
           PACKAGE=${TEST_PACKAGE%.test}
           "$ADB" shell am instrument -w -e class app.rawline.mobile.LogsAndAuthRegressionTest,app.rawline.mobile.LargeSubscriptionUiRegressionTest,app.rawline.mobile.LocalProxySecurityTest "$TEST_PACKAGE/androidx.test.runner.AndroidJUnitRunner" | tee ui-screenshots/logs-auth-regression.txt
           grep -F 'OK (4 tests)' ui-screenshots/logs-auth-regression.txt

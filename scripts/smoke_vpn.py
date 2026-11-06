@@ -105,7 +105,7 @@ class Server(socketserver.ThreadingTCPServer):
 server=Server(('127.0.0.1',8868),Socks)
 threading.Thread(target=server.serve_forever,daemon=True).start()
 subprocess.check_call([adb,'reverse','tcp:8868','tcp:8868'])
-packages=[v.split(':',1)[1].strip() for v in shell('pm','list','packages').splitlines() if v.startswith('package:app.qthrone.mobile')]
+packages=[v.split(':',1)[1].strip() for v in shell('pm','list','packages').splitlines() if v.startswith('package:app.rawline.mobile')]
 assert len(packages)==1
 package=packages[0]; activity=package+'/app.rawline.mobile.ui.MainActivity'
 (out/'tested-build-run.txt').write_text(os.environ.get('TESTED_BUILD_RUN',''))

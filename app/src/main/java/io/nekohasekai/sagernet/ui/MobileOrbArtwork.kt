@@ -29,6 +29,8 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
     private val waitForFocus = Runnable { invalidateSelf() }
     override var connected = false
         set(value) { if (field != value) { field = value; invalidateSelf() } }
+    var focused = false
+        set(value) { if (field != value) { field = value; invalidateSelf() } }
     override var connecting = false
         set(value) { if (field != value) { field = value; invalidateSelf() } }
     // Rebuilt only when the button moves or is pressed, never for a plain animation frame.
@@ -127,6 +129,10 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
         paint.shader = rimShader; paint.alpha = 255
         canvas.drawPath(edge, paint)
 
+        if (focused) {
+            paint.shader = null; paint.color = ink; paint.strokeWidth = 2f * density
+            canvas.drawCircle(cx, cy, base * 1.2f, paint)
+        }
         // The stroke that runs round while connecting.
         if (spin > .01f) {
             canvas.save(); canvas.rotate(angle * 2f, cx, cy)

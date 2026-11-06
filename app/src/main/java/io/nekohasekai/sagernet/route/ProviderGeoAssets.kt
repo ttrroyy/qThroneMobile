@@ -4,7 +4,7 @@ import app.rawline.mobile.ktx.*
 import app.rawline.mobile.database.DataStore
 import app.rawline.mobile.bg.XrayGeoAssets
 import app.rawline.mobile.outbound.json.JsonObject
-import app.qthrone.core.mobile.Mobile
+import app.rawline.core.mobile.Mobile
 import java.io.File
 import java.security.MessageDigest
 import kotlinx.coroutines.*

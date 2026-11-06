@@ -84,11 +84,11 @@
             android:name="app.rawline.mobile.ui.BlankActivity"
             android:configChanges="uiMode" />
 
-        <!-- Launchers remember this component: under the old name, an icon on the home screen survives the update from qThrone. -->
-        <activity-alias
-            android:name="app.qthrone.mobile.ui.MainActivity"
-            android:targetActivity="app.rawline.mobile.ui.MainActivity"
-            android:exported="true">
+        <activity
+            android:name="app.rawline.mobile.ui.MainActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -100,13 +100,7 @@
 
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
-        </activity-alias>
 
-        <activity
-            android:name="app.rawline.mobile.ui.MainActivity"
-            android:configChanges="uiMode"
-            android:exported="true"
-            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
             </intent-filter>
@@ -215,6 +209,7 @@
                 <data android:scheme="awg" />
                 <data android:scheme="tt" />
                 <data android:scheme="rawline" />
+                <!-- Links shared before the rename still open here. -->
                 <data android:scheme="throne" />
                 <data android:scheme="happ" />
                 <data android:scheme="incy" />

@@ -1,6 +1,6 @@
 package app.rawline.mobile.bg.proto
 
-import app.qthrone.core.mobile.Instance
+import app.rawline.core.mobile.Instance
 
 /** Per-tag traffic of the running box, read once per tick. */
 class TrafficUpdater(private val box: Instance, tags: Collection<String>) {

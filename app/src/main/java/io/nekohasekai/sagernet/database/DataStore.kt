@@ -46,7 +46,7 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var appTLSVersion by configurationStore.string(Key.APP_TLS_VERSION)
     var updateCheckAuto by configurationStore.boolean(Key.UPDATE_CHECK_AUTO) { true }
     var mobileListMode by configurationStore.string("qmobileListMode") { "groups" }
-    var uiStyle by configurationStore.string("qmobileUiStyle") { "classic" }
+    var uiStyle by configurationStore.string("qmobileUiStyle") { "new" }
     var serverListRaised by configurationStore.boolean(Key.SERVER_LIST_RAISED)
     var providerGeoRestored by configurationStore.boolean(Key.PROVIDER_GEO_RESTORED)
     var updateSkippedVersionCode by configurationStore.long(Key.UPDATE_SKIPPED_VERSION_CODE)
@@ -157,7 +157,7 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     private var appListenerPass by configurationStore.string(Key.APP_LISTENER_PASS)
     /** TUN mode's loopback proxy has its own account: the user's inbound password may be shorter than VpnListenerPolicy's 32 characters. */
     private val appListener: Boolean get() = serviceMode == Key.MODE_VPN && !lanSharingEnabled
-    val listenerUser: String get() = if (appListener) "qthrone-app" else inboundUser
+    val listenerUser: String get() = if (appListener) "rawline-app" else inboundUser
     val listenerPass: String get() = if (!appListener) inboundPass else appListenerPass.takeIf { it.length >= 32 }
         ?: java.util.UUID.randomUUID().toString().replace("-", "").also { appListenerPass = it }
 

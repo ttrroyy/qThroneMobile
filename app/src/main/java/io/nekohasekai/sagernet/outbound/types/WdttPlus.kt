@@ -195,7 +195,7 @@ class WdttPlus : Qwdtt() {
             return org.json.JSONObject().put("name", name).put("manufacturer", Build.MANUFACTURER.orEmpty())
                 .put("brand", Build.BRAND.orEmpty()).put("model", Build.MODEL.orEmpty())
                 .put("android_version", Build.VERSION.RELEASE.orEmpty()).put("sdk", Build.VERSION.SDK_INT)
-                .put("abi", Build.SUPPORTED_ABIS?.firstOrNull().orEmpty()).put("app_version", "qThroneMobile")
+                .put("abi", Build.SUPPORTED_ABIS?.firstOrNull().orEmpty()).put("app_version", "RawlineMobile")
                 .put("locale", locale.toLanguageTag()).put("country", locale.country.orEmpty())
                 .put("time_zone", TimeZone.getDefault().id).toString()
         }

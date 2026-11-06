@@ -1,8 +1,8 @@
 package app.rawline.mobile.bg
 
 import androidx.core.app.NotificationCompat
-import app.qthrone.core.mobile.DiagnosticsRequest
-import app.qthrone.core.mobile.Mobile
+import app.rawline.core.mobile.DiagnosticsRequest
+import app.rawline.core.mobile.Mobile
 import app.rawline.mobile.R
 import app.rawline.mobile.ktx.Logs
 import app.rawline.mobile.ktx.app

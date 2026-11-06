@@ -11,8 +11,8 @@ import app.rawline.mobile.ktx.completeWith
 import app.rawline.mobile.ktx.readableMessage
 import app.rawline.mobile.outbound.config.GeneratedConfig
 import app.rawline.mobile.outbound.types.Custom
-import app.qthrone.core.mobile.Mobile
-import app.qthrone.core.mobile.TestRequest
+import app.rawline.core.mobile.Mobile
+import app.rawline.core.mobile.TestRequest
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async

@@ -52,7 +52,7 @@ if __name__ == "__main__":
             if key <= version_key(release["tag_name"]):
                 raise SystemExit("Increase VERSION_NAME above published release " + release["tag_name"])
             previous = embedded_manifest(release.get("body") or "")
-            asset = next((a for a in release.get("assets", []) if a["name"] == "qthrone-update.json"), None)
+            asset = next((a for a in release.get("assets", []) if a["name"] == "rawline-update.json"), None)
             if previous is None and asset:
                 with urllib.request.urlopen(asset["browser_download_url"], timeout=30) as response:
                     previous = json.load(response)

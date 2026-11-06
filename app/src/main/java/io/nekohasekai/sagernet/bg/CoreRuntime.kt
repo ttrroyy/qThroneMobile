@@ -6,10 +6,10 @@ import app.rawline.mobile.BuildConfig
 import app.rawline.mobile.bg.test.TestEngine
 import app.rawline.mobile.database.DataStore
 import app.rawline.mobile.outbound.json.JsonInput
-import app.qthrone.core.mobile.Instance
-import app.qthrone.core.mobile.LogSink
-import app.qthrone.core.mobile.Mobile
-import app.qthrone.core.mobile.SetupOptions
+import app.rawline.core.mobile.Instance
+import app.rawline.core.mobile.LogSink
+import app.rawline.core.mobile.Mobile
+import app.rawline.core.mobile.SetupOptions
 import moe.matsuri.nb4a.NativeInterface
 import moe.matsuri.nb4a.utils.CoreLog
 import java.io.File

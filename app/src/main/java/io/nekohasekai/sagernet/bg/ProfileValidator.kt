@@ -12,7 +12,7 @@ import app.rawline.mobile.outbound.json.JsonInput
 import app.rawline.mobile.outbound.json.jsonObjectOf
 import app.rawline.mobile.outbound.types.Chain
 import app.rawline.mobile.outbound.types.Custom
-import app.qthrone.core.mobile.Mobile
+import app.rawline.core.mobile.Mobile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch

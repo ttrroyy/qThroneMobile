@@ -27,7 +27,7 @@ class ReleaseMetadataTest(unittest.TestCase):
             apk = directory / ("RawlineMobile-2.4.2-" + abi + ".apk")
             apk.write_bytes(("signed APK " + abi).encode())
             assets[abi] = dict(name=apk.name, size=apk.stat().st_size, sha256=sha256(apk))
-        return dict(schema=1, packageName="app.qthrone.mobile", channel="stable",
+        return dict(schema=1, packageName="app.rawline.mobile", channel="stable",
                     versionName="2.4.2", versionCode=69999, signerSha256="original-key", assets=assets)
 
     def test_hidden_metadata_roundtrip_and_rejections(self):
@@ -36,12 +36,12 @@ class ReleaseMetadataTest(unittest.TestCase):
         self.assertEqual(embedded_manifest(body), manifest)
         self.assertEqual(body.count("-->"), 1)
         self.assertIsNone(embedded_manifest("Legacy notes"))
-        for broken in (body + body, body.removesuffix("\n").removesuffix("\n-->"), "<!-- qthrone-update\n" + " " * 262145 + "\n-->"):
+        for broken in (body + body, body.removesuffix("\n").removesuffix("\n-->"), "<!-- rawline-update\n" + " " * 262145 + "\n-->"):
             with self.assertRaises((ValueError, json.JSONDecodeError)):
                 embedded_manifest(broken)
 
     def test_bridge_cannot_change_signature_or_downgrade(self):
-        current = dict(packageName="app.qthrone.mobile", signerSha256="key", versionCode=69999)
+        current = dict(packageName="app.rawline.mobile", signerSha256="key", versionCode=69999)
         validate_bridge(dict(current, versionCode=68999), current)
         validate_bridge(current, current)
         for previous in (dict(current, signerSha256="other"), dict(current, packageName="other"), dict(current, versionCode=70999)):
@@ -52,7 +52,7 @@ class ReleaseMetadataTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             directory = Path(temp)
             manifest = dict(self.manifest(directory), versionName="3.0.0-beta.1", versionCode=89001)
-            (directory / "qthrone-update.json").write_text(json.dumps(manifest), encoding="utf-8")
+            (directory / "rawline-update.json").write_text(json.dumps(manifest), encoding="utf-8")
             calls = []
 
             def gh(*args, **kwargs):
@@ -61,7 +61,7 @@ class ReleaseMetadataTest(unittest.TestCase):
                     return subprocess.CompletedProcess(args, 1, "", "release not found")
                 if "--notes-file" in args:
                     body = Path(args[args.index("--notes-file") + 1]).read_bytes().decode("utf-8")
-                    self.assertIn("<!-- qthrone-update\n", body)
+                    self.assertIn("<!-- rawline-update\n", body)
                     self.assertEqual(embedded_manifest(body), manifest)
                 return subprocess.CompletedProcess(args, 0, "", "")
 
@@ -75,14 +75,14 @@ class ReleaseMetadataTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             directory = Path(temp)
             manifest = self.manifest(directory)
-            (directory / "qthrone-update.json").write_text(json.dumps(manifest), encoding="utf-8")
+            (directory / "rawline-update.json").write_text(json.dumps(manifest), encoding="utf-8")
             (directory / "SHA256SUMS").write_text("private CI checksums", encoding="utf-8")
             calls = []
 
             def gh(*args, **kwargs):
                 calls.append(args)
                 if args[:2] == ("release", "download"):
-                    Path(args[-1], "qthrone-update.json").write_text(json.dumps(dict(manifest, versionCode=68999)), encoding="utf-8")
+                    Path(args[-1], "rawline-update.json").write_text(json.dumps(dict(manifest, versionCode=68999)), encoding="utf-8")
                 if args[:2] == ("release", "view"):
                     return subprocess.CompletedProcess(args, 1, "", "release not found")
                 if args[:2] == ("release", "edit"):
@@ -96,7 +96,7 @@ class ReleaseMetadataTest(unittest.TestCase):
             uploads = [c for c in calls if c[:2] == ("release", "upload")]
             self.assertEqual([c[2] for c in uploads], ["v2.4.2", "v2.4.1", "v2.4.1"])
             self.assertTrue(all(str(p).endswith(".apk") for p in uploads[0][3:-1]))
-            self.assertEqual(Path(uploads[-1][3]).name, "qthrone-update.json")
+            self.assertEqual(Path(uploads[-1][3]).name, "rawline-update.json")
             self.assertEqual(calls[-1][:3], ("release", "edit", "v2.4.2"))
             next(iter(directory.glob("*.apk"))).write_bytes(b"tampered")
             with self.assertRaises(ValueError):

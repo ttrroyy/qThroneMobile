@@ -1,19 +1,19 @@
-name: Build ThroneCore AAR
+name: Build RawlineCore AAR
 description: >-
-  Builds app/libs/qThroneCore.aar and generates app/src/main/assets/schema/sing-box.json (with the Android build tags)
-  from throneproj/Throne at the THRONE_CORE_REF pinned in nb4a.properties. Both are cached on the resolved commit and
+  Builds app/libs/RawlineCore.aar and generates app/src/main/assets/schema/sing-box.json (with the Android build tags)
+  from throneproj/Rawline at the THRONE_CORE_REF pinned in nb4a.properties. Both are cached on the resolved commit and
   the core build script.
 runs:
   using: composite
   steps:
-    - name: Checkout Throne
+    - name: Checkout Rawline
       shell: bash
       run: |
         set -euo pipefail
         REF=$(sed -n 's/^THRONE_AAR_REF=//p' nb4a.properties | tr -d '\r[:space:]')
         if [ -z "$REF" ]; then REF=$(sed -n 's/^THRONE_CORE_REF=//p' nb4a.properties | tr -d '\r[:space:]'); fi
         test -n "$REF"
-        THRONE_DIR="$(dirname "$GITHUB_WORKSPACE")/Throne"
+        THRONE_DIR="$(dirname "$GITHUB_WORKSPACE")/Rawline"
         rm -rf "$THRONE_DIR"
         git init -q "$THRONE_DIR"
         git -C "$THRONE_DIR" remote add origin https://github.com/ttrroyy/qThrone
@@ -28,12 +28,12 @@ runs:
     - name: Apply mobile core dependency pins
       shell: bash
       run: python3 scripts/prepare_mobile_core.py "$THRONE_DIR/core"
-    - name: ThroneCore cache
+    - name: RawlineCore cache
       id: cache
       uses: actions/cache/restore@v6
       with:
         path: |
-          app/libs/qThroneCore.aar
+          app/libs/RawlineCore.aar
           app/src/main/assets/schema/sing-box.json
         key: throne-core-${{ env.THRONE_CORE_REF }}-${{ env.THRONE_CORE_SHA }}-${{ env.THRONE_CORE_SCRIPT_SHA }}-${{ hashFiles('.github/actions/throne-core/action.yml', 'core-dependencies.json', 'scripts/prepare_mobile_core.py', 'scripts/patch_mobile_trusttunnel.py', 'scripts/patch_mobile_socks.py', 'scripts/patch_mobile_xray_socks.py', 'core-patches/xray-socks/*.go', 'core-patches/socks/*.go', 'core-patches/trusttunnel/*.go', 'core-patches/mobile/*.go', 'core-patches/resolve/*.go', 'core-patches/providergeo/*.go', 'scripts/patch_mobile_warp.py', 'core-patches/warp/*.go', 'scripts/patch_mobile_obfs.py', 'core-patches/obfs/*.go') }}
     - name: Install Golang
@@ -47,9 +47,9 @@ runs:
       uses: actions/cache@v6
       with:
         path: ~/go/pkg/mod
-        key: go-mod-throne-${{ runner.os }}-${{ env.THRONE_CORE_SHA }}
+        key: go-mod-rawline-${{ runner.os }}-${{ env.THRONE_CORE_SHA }}
         restore-keys: |
-          go-mod-throne-${{ runner.os }}-
+          go-mod-rawline-${{ runner.os }}-
     - name: Apply mobile TrustTunnel fallback
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
@@ -100,12 +100,12 @@ runs:
         for ARCH in arm64 arm amd64; do
           GOOS=android GOARCH="$ARCH" CGO_ENABLED=1 go list -mod=readonly -deps -tags "$TAGS" ./mobile > /dev/null
         done
-    - name: Build ThroneCore AAR
+    - name: Build RawlineCore AAR
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
       working-directory: ${{ env.THRONE_DIR }}
       run: |
-        sed -i -e 's/ThroneCore.aar/qThroneCore.aar/g' -e 's/-javapkg=io.throneproj/-javapkg=app.qthrone.core/g' -e 's/-libname=throne/-libname=qthrone/g' script/build_android.sh
+        sed -i -e 's/ThroneCore.aar/RawlineCore.aar/g' -e 's/-javapkg=io.throneproj/-javapkg=app.rawline.core/g' -e 's/-libname=throne/-libname=rawline/g' script/build_android.sh
         DEST="$GITHUB_WORKSPACE/app/libs" bash script/build_android.sh
     - name: TrustTunnel connection regression
       if: steps.cache.outputs.cache-hit != 'true'
@@ -135,32 +135,32 @@ runs:
         OUT="$GITHUB_WORKSPACE/app/src/main/assets/schema/sing-box.json"
         mkdir -p "$(dirname "$OUT")"
         CGO_ENABLED=0 go run -trimpath -ldflags=-checklinkname=0 -tags "$TAGS,with_purego" ./cmd/schemagen -o "$OUT"
-    - name: Verify ThroneCore AAR and schema
+    - name: Verify RawlineCore AAR and schema
       shell: bash
       run: |
         set -euo pipefail
-        test -s app/libs/qThroneCore.aar
-        unzip -l app/libs/qThroneCore.aar > "$RUNNER_TEMP/throne-core-aar.txt"
-        unzip -p app/libs/qThroneCore.aar classes.jar > "$RUNNER_TEMP/throne-core-classes.jar"
+        test -s app/libs/RawlineCore.aar
+        unzip -l app/libs/RawlineCore.aar > "$RUNNER_TEMP/throne-core-aar.txt"
+        unzip -p app/libs/RawlineCore.aar classes.jar > "$RUNNER_TEMP/throne-core-classes.jar"
         unzip -l "$RUNNER_TEMP/throne-core-classes.jar" > "$RUNNER_TEMP/throne-core-classes.txt"
-        grep -q 'app/qthrone/core/mobile/Mobile.class' "$RUNNER_TEMP/throne-core-classes.txt"
-        grep -q 'app/qthrone/core/mobile/ResolveRequest.class' "$RUNNER_TEMP/throne-core-classes.txt"
-        javap -classpath "$RUNNER_TEMP/throne-core-classes.jar" app.qthrone.core.mobile.Mobile > "$RUNNER_TEMP/throne-core-api.txt"
+        grep -q 'app/rawline/core/mobile/Mobile.class' "$RUNNER_TEMP/throne-core-classes.txt"
+        grep -q 'app/rawline/core/mobile/ResolveRequest.class' "$RUNNER_TEMP/throne-core-classes.txt"
+        javap -classpath "$RUNNER_TEMP/throne-core-classes.jar" app.rawline.core.mobile.Mobile > "$RUNNER_TEMP/throne-core-api.txt"
         grep -q 'fetchThroughProxy(' "$RUNNER_TEMP/throne-core-api.txt"
         grep -q 'resolveDomains(' "$RUNNER_TEMP/throne-core-api.txt"
         grep -q 'validateGeoFile(' "$RUNNER_TEMP/throne-core-api.txt"
         grep -q 'go/Seq.class' "$RUNNER_TEMP/throne-core-classes.txt"
         # the APK splits (buildSrc Helpers.kt) must match the core targets
         for abi in arm64-v8a armeabi-v7a x86_64; do
-          grep -q "jni/$abi/libqthrone.so" "$RUNNER_TEMP/throne-core-aar.txt" \
-            || { echo "::error::qThroneCore.aar has no jni/$abi/libqthrone.so"; exit 1; }
+          grep -q "jni/$abi/librawline.so" "$RUNNER_TEMP/throne-core-aar.txt" \
+            || { echo "::error::RawlineCore.aar has no jni/$abi/librawline.so"; exit 1; }
         done
         python3 -c 'import json, sys; json.load(open(sys.argv[1]))' app/src/main/assets/schema/sing-box.json
-    - name: Save verified qThrone core
+    - name: Save verified Rawline core
       if: steps.cache.outputs.cache-hit != 'true'
       uses: actions/cache/save@v6
       with:
         path: |
-          app/libs/qThroneCore.aar
+          app/libs/RawlineCore.aar
           app/src/main/assets/schema/sing-box.json
         key: throne-core-${{ env.THRONE_CORE_REF }}-${{ env.THRONE_CORE_SHA }}-${{ env.THRONE_CORE_SCRIPT_SHA }}-${{ hashFiles('.github/actions/throne-core/action.yml', 'core-dependencies.json', 'scripts/prepare_mobile_core.py', 'scripts/patch_mobile_trusttunnel.py', 'scripts/patch_mobile_socks.py', 'scripts/patch_mobile_xray_socks.py', 'core-patches/xray-socks/*.go', 'core-patches/socks/*.go', 'core-patches/trusttunnel/*.go', 'core-patches/mobile/*.go', 'core-patches/resolve/*.go', 'core-patches/providergeo/*.go', 'scripts/patch_mobile_warp.py', 'core-patches/warp/*.go', 'scripts/patch_mobile_obfs.py', 'core-patches/obfs/*.go') }}

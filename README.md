@@ -14,7 +14,7 @@
 [![sing-box](https://img.shields.io/badge/sing--box-1F2937?style=for-the-badge)](https://github.com/SagerNet/sing-box)
 [![Xray](https://img.shields.io/badge/Xray-2563EB?style=for-the-badge)](https://github.com/XTLS/Xray-core)
 
-[![Downloads](https://img.shields.io/github/downloads/ttrroyy/qThroneMobile/total?label=downloads-total&color=brightgreen)](https://github.com/ttrroyy/qThroneMobile/releases)
+[![Downloads](https://img.shields.io/github/downloads/ttrroyy/RawlineMobile/total?label=downloads-total&color=brightgreen)](https://github.com/ttrroyy/RawlineMobile/releases)
 
 </div>
 
@@ -28,7 +28,7 @@
 
 ## Скачать
 
-Свежий APK - в [Releases](https://github.com/ttrroyy/qThroneMobile/releases/latest). Нужен Android 7.0 или новее; сборки есть для arm64-v8a, armeabi-v7a и x86_64. Приложение само сообщает о новых версиях.
+Свежий APK - в [Releases](https://github.com/ttrroyy/RawlineMobile/releases/latest). Нужен Android 7.0 или новее; сборки есть для arm64-v8a, armeabi-v7a и x86_64. Приложение само сообщает о новых версиях.
 
 ## Особенности
 

@@ -42,7 +42,7 @@ class MobileAlertDialogBuilder(context: Context) : MaterialAlertDialogBuilder(
                 setStroke(1, MobilePalette.outline)
             }
             dialog.window?.setBackgroundDrawable(InsetDrawable(surface, (24 * density).toInt()))
-            dialog.window?.let { MobileScreenMotion.fullFrameRate(it) }
+            dialog.window?.let { MobileScreenMotion.fullFrameRate(it);MobileFocusRing.attach(it) }
             if (MobileStyle.new) dialog.window?.let { window ->
                 window.setWindowAnimations(app.rawline.mobile.R.style.MobileDialogSoft)
                 window.setDimAmount(MobilePalette.windowDim)

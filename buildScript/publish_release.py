@@ -13,7 +13,7 @@ def gh(*args, check=True):
 
 
 def validate_assets(dist, manifest):
-    if manifest["packageName"] != "app.qthrone.mobile" or manifest["channel"] != "stable":
+    if manifest["packageName"] != "app.rawline.mobile" or manifest["channel"] != "stable":
         raise ValueError("Unexpected release package or channel")
     if set(manifest["assets"]) != set(ABIS + ["universal"]):
         raise ValueError("Missing APK architecture")
@@ -41,9 +41,9 @@ def validate_bridge(previous, manifest):
 
 
 def publish(dist, notes, tag, target, title):
-    manifest = json.loads((dist / "qthrone-update.json").read_text(encoding="utf-8"))
+    manifest = json.loads((dist / "rawline-update.json").read_text(encoding="utf-8"))
     apks = validate_assets(dist, manifest)
-    with TemporaryDirectory(prefix="qthrone-release-") as directory:
+    with TemporaryDirectory(prefix="rawline-release-") as directory:
         directory = Path(directory)
         body = directory / "notes.md"
         body.write_text(release_notes(notes, manifest), encoding="utf-8", newline="\n")
@@ -51,8 +51,8 @@ def publish(dist, notes, tag, target, title):
         # shortcut: old clients scan 20 releases; retain this bridge while migrating them.
         bridge = manifest["versionName"] == "2.4.2"
         if bridge:
-            gh("release", "download", "v2.4.1", "--pattern", "qthrone-update.json", "--dir", directory)
-            previous = json.loads((directory / "qthrone-update.json").read_text(encoding="utf-8"))
+            gh("release", "download", "v2.4.1", "--pattern", "rawline-update.json", "--dir", directory)
+            previous = json.loads((directory / "rawline-update.json").read_text(encoding="utf-8"))
             validate_bridge(previous, manifest)
 
         existing = gh("release", "view", tag, "--json", "isDraft,targetCommitish", check=False)
@@ -69,7 +69,7 @@ def publish(dist, notes, tag, target, title):
         if bridge:
             # Publish the manifest last: clients must never see metadata before its APKs exist.
             gh("release", "upload", "v2.4.1", *apks, "--clobber")
-            gh("release", "upload", "v2.4.1", dist / "qthrone-update.json", "--clobber")
+            gh("release", "upload", "v2.4.1", dist / "rawline-update.json", "--clobber")
         flags = ["--prerelease", "--latest=false"] if "-beta" in tag or "-rc" in tag else ["--latest"]
         gh("release", "edit", tag, "--title", title, "--notes-file", body, "--draft=false", *flags)
 

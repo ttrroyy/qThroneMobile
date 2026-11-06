@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Collects the per-ABI release APKs of one build into a directory ready for a GitHub release: the APKs, SHA256SUMS and
-qthrone-update.json, the manifest the in-app updater reads (io.nekohasekai.sagernet.update.UpdateChecker).
+rawline-update.json, the manifest the in-app updater reads (io.nekohasekai.sagernet.update.UpdateChecker).
 
 Usage: release_assets.py <apk-dir> <dist-dir> <stable|preview>
 
@@ -19,7 +19,7 @@ from pathlib import Path
 
 ABIS = ["arm64-v8a", "armeabi-v7a", "x86_64"]
 ROOT = Path(__file__).resolve().parent.parent
-MANIFEST_START = "<!-- qthrone-update\n"
+MANIFEST_START = "<!-- rawline-update\n"
 MANIFEST_END = "\n-->"
 
 
@@ -169,10 +169,10 @@ def main():
         assets[abi] = {"name": apk.name, "size": apk.stat().st_size, "sha256": sha256(apk)}
 
     (dist / "SHA256SUMS").write_text("".join(f"{a['sha256']}  {a['name']}\n" for a in assets.values()), newline="\n")
-    # qthrone-update.json is the in-app updater manifest; only the stable channel publishes the Releases the
+    # rawline-update.json is the in-app updater manifest; only the stable channel publishes the Releases the
     # updater reads, so preview artifacts carry the APKs and SHA256SUMS only.
     if channel != "stable":
-        print(f"channel {channel}: skipped qthrone-update.json")
+        print(f"channel {channel}: skipped rawline-update.json")
         return
     update = {
         "schema": 1,
@@ -185,7 +185,7 @@ def main():
         "signerSha256": manifest["signerSha256"],
         "assets": assets,
     }
-    (dist / "qthrone-update.json").write_text(json.dumps(update, indent=2) + "\n", newline="\n")
+    (dist / "rawline-update.json").write_text(json.dumps(update, indent=2) + "\n", newline="\n")
     print(json.dumps(update, indent=2))
 
 

@@ -51,6 +51,7 @@ abstract class ThemedActivity : AppCompatActivity, androidx.preference.Preferenc
 
         super.onCreate(savedInstanceState)
         MobileScreenMotion.fullFrameRate(window)
+        MobileFocusRing.attach(window)
         if (!isDialog) MobileScreenMotion.open(this)
         if (!isDialog) MobileScreenMotion.fadeAfterRecreate(this)
         if (MobileStyle.new && !isDialog) window.setBackgroundDrawable(MobileHomeBackdrop())

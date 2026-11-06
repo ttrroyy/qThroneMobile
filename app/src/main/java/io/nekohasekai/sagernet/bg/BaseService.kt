@@ -32,7 +32,7 @@ import app.rawline.mobile.outbound.json.jsonObjectOf
 import app.rawline.mobile.utils.DefaultNetworkListener
 import app.rawline.mobile.utils.PlatformNotifications
 import app.rawline.mobile.utils.WifiStateAccess
-import app.qthrone.core.mobile.Instance
+import app.rawline.core.mobile.Instance
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
