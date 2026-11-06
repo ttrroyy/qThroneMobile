@@ -12,10 +12,10 @@ on:
         default: en
       screens:
         description: Last screen number
-        default: '47'
+        default: '49'
       variants:
         description: Style and night mode of each pass (night 1 is dark, 2 is light)
-        default: 'new:1 new:2 classic:1'
+        default: 'new:1 new:2'
       artifact_name:
         description: APK artifact to test (debug or signed release)
         required: true

@@ -122,7 +122,7 @@ object MobileSettingsStyle {
             view.background=android.graphics.drawable.GradientDrawable().apply {
                 setColor(if(category || warning) background else surface)
                 cornerRadius=MobilePalette.rowDp*density
-                if(!category && !warning) setStroke(1,MobilePalette.outline)
+                if(!category && !warning && !MobileStyle.new) setStroke(1,MobilePalette.outline)
             }
             // The installed version is set apart from the update actions by a line above it.
             if(preference?.key == "updateCurrentVersion") view.background=android.graphics.drawable.LayerDrawable(arrayOf(view.background,
@@ -134,11 +134,17 @@ object MobileSettingsStyle {
             view.findViewById<android.widget.ImageView>(android.R.id.icon)?.apply {
                 visibility=if(preference?.icon!=null) View.VISIBLE else View.GONE
                 imageTintList=if(preference?.key == "vkRelayAccount" && preference.icon is androidx.core.graphics.drawable.RoundedBitmapDrawable) null else android.content.res.ColorStateList.valueOf(accent)
+                // The new style sets each icon in its own small plate.
+                if(MobileStyle.new) {
+                    layoutParams=layoutParams.apply { width=(38*density).toInt(); height=(38*density).toInt() }
+                    setPadding((8*density).toInt(),(8*density).toInt(),(8*density).toInt(),(8*density).toInt())
+                    background=android.graphics.drawable.GradientDrawable().apply { setColor(MobilePalette.well); cornerRadius=12*density }
+                }
             }
             view.findViewById<TextView>(android.R.id.title)?.apply {
-                setTextColor(dimmedWhenDisabled(if(category) accent else textColor))
-                textSize=16f
-                setTypeface(typeface,if(category) Typeface.BOLD else Typeface.NORMAL)
+                setTextColor(dimmedWhenDisabled(if(category) (if(MobileStyle.new) muted else accent) else textColor))
+                textSize=if(MobileStyle.new && category) 14f else 16f
+                setTypeface(typeface,if(category || MobileStyle.new) Typeface.BOLD else Typeface.NORMAL)
                 isSingleLine=false;maxLines=Int.MAX_VALUE;ellipsize=null
             }
             view.findViewById<TextView>(android.R.id.summary)?.apply { setTextColor(dimmedWhenDisabled(muted));textSize=13f }

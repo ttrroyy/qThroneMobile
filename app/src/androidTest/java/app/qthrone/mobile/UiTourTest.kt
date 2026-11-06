@@ -91,6 +91,8 @@ class UiTourTest {
         "home-connecting" to { orb(false) },
         "home-connected" to { orb(true) },
         "home-sheet" to { home("groups"); tap("ru-tcp-reality"); Thread.sleep(1500) },
+        "home-picker" to { home("groups"); tap("api.host-cloud.uk") },
+        "home-menu" to { home("groups"); tap(R.string.qmobile_quick_menu) },
         "home-notice" to { home("groups"); instrumentation.runOnMainSync { MobileTopNotice.show(resumed(), "Подписка «api.host-cloud.uk» успешно обновлена") }; Thread.sleep(600) },
         "home-add" to { home("groups"); tap(R.string.qmobile_add) },
         "home-tests" to { home("groups"); tap(R.string.qmobile_tests) },

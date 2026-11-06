@@ -349,10 +349,15 @@ class MobileHomeFragment : ToolbarFragment() {
     private var observer: InvalidationTracker.Observer? = null
     private var openSwipe: MobileSwipeTile? = null
     private fun dp(n: Int) = (n * resources.displayMetrics.density).toInt()
-    private fun tile(selected: Boolean = false) = GradientDrawable().apply {
-        setColor(if (selected) androidx.core.graphics.ColorUtils.blendARGB(surface,blue,.16f) else surface)
-        cornerRadius=dp(MobilePalette.rowDp).toFloat()
-        setStroke(if(selected) dp(1) else 1, if (selected) blue else MobilePalette.outline)
+    private fun tile(selected: Boolean = false): android.graphics.drawable.Drawable {
+        val shape = GradientDrawable().apply {
+            setColor(if (selected) androidx.core.graphics.ColorUtils.blendARGB(surface,blue,.12f) else surface)
+            cornerRadius=dp(MobilePalette.rowDp).toFloat()
+            if(!MobileStyle.new) setStroke(if(selected) dp(1) else 1, if (selected) blue else MobilePalette.outline)
+        }
+        if(!MobileStyle.new || !selected) return shape
+        val bar = GradientDrawable().apply { setColor(blue); cornerRadius=dp(2).toFloat() }
+        return android.graphics.drawable.LayerDrawable(arrayOf(shape,bar)).apply { setLayerInset(1,dp(5),dp(12),0,dp(12)); setLayerWidth(1,dp(3)); setLayerGravity(1,Gravity.START or Gravity.FILL_VERTICAL) }
     }
     private fun text(value: String, size: Float = 16f, color: Int = foregroundColor) = TextView(requireContext()).apply {
         text = value; textSize = size; setTextColor(color)
@@ -410,6 +415,58 @@ class MobileHomeFragment : ToolbarFragment() {
     private var serverSheet: com.google.android.material.bottomsheet.BottomSheetBehavior<View>? = null
     private var sheetSlot: LinearLayout? = null
     private var sheetExpanded = false
+    private var groupChip: TextView? = null
+    private var groupTabs: View? = null
+    private var pickerGroups: List<ProxyGroup> = emptyList()
+    private var sheetDown: TextView? = null
+    private var sheetUp: TextView? = null
+    private fun revealGroupTabs(show: Boolean) {
+        val tabs=groupTabs ?: return
+        android.animation.ValueAnimator.ofInt(tabs.height,if(show) dp(54) else 0).apply {
+            duration=220;interpolator=android.view.animation.PathInterpolator(.2f,0f,0f,1f)
+            addUpdateListener { tabs.layoutParams=tabs.layoutParams.apply { height=it.animatedValue as Int } }
+            start()
+        }
+    }
+    /** The new style's subscriptions: one sheet to switch between them, add one, or manage them. */
+    private fun groupPicker() {
+        val sheet=MobileSheetDialog(requireContext())
+        val current=renderedGroupId
+        val body=LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL; setPadding(dp(16),dp(8),dp(16),dp(16)) }
+        val handle=View(requireContext()).apply { background=GradientDrawable().apply { setColor(muted);cornerRadius=dp(2).toFloat() } }
+        body.addView(handle,LinearLayout.LayoutParams(dp(36),dp(4)).apply { gravity=Gravity.CENTER_HORIZONTAL;bottomMargin=dp(14) })
+        val list=LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL }
+        pickerGroups.forEachIndexed { index,group ->
+            list.addView(LinearLayout(requireContext()).apply {
+                orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER_VERTICAL;minimumHeight=dp(60);setPadding(dp(16),dp(8),dp(12),dp(8))
+                background=tile(group.id==current);isFocusable=true
+                addView(text(group.displayName(),15f).apply { setTypeface(typeface,Typeface.BOLD);setPadding(0,0,0,dp(2));maxLines=1;ellipsize=android.text.TextUtils.TruncateAt.END })
+                addView(text(getString(if(group.isSubscription) R.string.subscription else R.string.group_basic),12f,muted).apply { setPadding(0,0,0,0) })
+                setOnClickListener { sheet.dismiss();selectGroup(group.id) }
+                MobileFeedback.apply(this)
+                alpha=0f;translationY=dp(10).toFloat()
+                animate().alpha(1f).translationY(0f).setStartDelay(30L*index.coerceAtMost(8)).setDuration(260).start()
+            },LinearLayout.LayoutParams(-1,-2).apply { if(index>0) topMargin=dp(6) })
+        }
+        body.addView(ScrollView(requireContext()).apply { isVerticalScrollBarEnabled=false;addView(list) },LinearLayout.LayoutParams(-1,-2,1f))
+        body.addView(LinearLayout(requireContext()).apply {
+            fun action(label: String, callback: (View) -> Unit)=text(label,14f).apply {
+                gravity=Gravity.CENTER;setPadding(dp(8),0,dp(8),0);background=tile();isFocusable=true
+                setOnClickListener(callback);MobileFeedback.apply(this)
+            }
+            addView(action(getString(R.string.qmobile_add)) { addMenu(it) },LinearLayout.LayoutParams(0,dp(52),1f).apply { marginEnd=dp(6) })
+            addView(action(getString(R.string.qmobile_manage_groups)) { subscriptionsMenu(it) },LinearLayout.LayoutParams(0,dp(52),1f).apply { marginStart=dp(6) })
+        },LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(12) })
+        sheet.setContentView(body)
+        sheet.show()
+    }
+    /** Live speed in the closed sheet, like the classic notification shows it. */
+    fun updateSpeed(down: Long, up: Long) {
+        val rate={ value: Long -> android.text.format.Formatter.formatShortFileSize(requireContext(),value)+"/s" }
+        if(!isAdded) return
+        sheetDown?.text="↓ "+rate(down)
+        sheetUp?.text="↑ "+rate(up)
+    }
     private var risenGroup = Long.MIN_VALUE
     private val sheetBack = object: androidx.activity.OnBackPressedCallback(false) {
         override fun handleOnBackPressed() { serverSheet?.state=com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED }
@@ -434,7 +491,13 @@ class MobileHomeFragment : ToolbarFragment() {
             labels.addView(text(name.removePrefix(MobileCountryFlags.leading(name)).trimStart().ifEmpty { getString(R.string.qmobile_more) },16f).apply { setTypeface(typeface,Typeface.BOLD);setPadding(0,0,0,dp(2));maxLines=1;ellipsize=android.text.TextUtils.TruncateAt.END })
             profile?.let { labels.addView(text(it.displayProtocol(),13f,muted).apply { setPadding(0,0,0,0);maxLines=1;ellipsize=android.text.TextUtils.TruncateAt.END }) }
             slot.addView(labels,LinearLayout.LayoutParams(0,-2,1f))
-            slot.addView(ImageView(requireContext()).apply { setImageResource(R.drawable.ic_mobile_chevron);rotation=-90f;imageTintList=android.content.res.ColorStateList.valueOf(muted) },LinearLayout.LayoutParams(dp(24),dp(24)))
+            val running=DataStore.serviceState.connected
+            slot.addView(LinearLayout(requireContext()).apply {
+                orientation=LinearLayout.VERTICAL;gravity=Gravity.END;visibility=if(running) View.VISIBLE else View.GONE
+                sheetDown=text("↓ 0 B/s",12f,muted).apply { setPadding(0,0,0,dp(2)) }
+                sheetUp=text("↑ 0 B/s",12f,muted).apply { setPadding(0,0,0,0) }
+                addView(sheetDown);addView(sheetUp)
+            },LinearLayout.LayoutParams(-2,-2).apply { marginStart=dp(10) })
         }
     }
     override fun onHiddenChanged(hidden: Boolean) {
@@ -455,11 +518,13 @@ class MobileHomeFragment : ToolbarFragment() {
         scroll.setOnDragListener { _,event ->
             val state=event.localState as? MobileReorder ?: return@setOnDragListener false
             when(event.action) {
-                DragEvent.ACTION_DRAG_STARTED -> if(state.movable && DataStore.mobileListMode=="groups") {
+                DragEvent.ACTION_DRAG_STARTED -> if(state.movable && (DataStore.mobileListMode=="groups" || MobileStyle.new)) {
                     activeProfileDrag=state
+                    revealGroupTabs(true)
                     groupDragPreview.start(renderedGroupId,serverScrollView?.scrollY ?: 0)
                 }
                 DragEvent.ACTION_DRAG_ENDED -> {
+                    revealGroupTabs(false)
                     stopGroupScroll()
                     state.endDrag(event.result)
                 }
@@ -538,7 +603,7 @@ class MobileHomeFragment : ToolbarFragment() {
         activeProfileDrag?.cancel()
         if(nativeReceiverRegistered) { requireContext().unregisterReceiver(nativeStatusReceiver);nativeReceiverRegistered=false }
         groupReorder?.cancel();groupReorder=null;profileReorders.values.forEach { it.cancel() };profileReorders.clear();reordering=false
-        serverSheet = null; sheetSlot = null
+        serverSheet = null; sheetSlot = null; groupChip = null; groupTabs = null; sheetDown = null; sheetUp = null
         geoBanner = null; updatesTile = null; updateBanner = null; geoStatus = null; geoProgress = null; geoCheck = null
         GroupRepo.removeListener(groupListener)
         observer?.let { SagerDatabase.instance.invalidationTracker.removeObserver(it) }
@@ -569,7 +634,7 @@ class MobileHomeFragment : ToolbarFragment() {
         val collapsedSnapshot=collapsed.toSet()
         val pageSnapshot=profilePages.toMap()
         val previousStructure=renderedStructure
-        val byGroups=DataStore.mobileListMode=="groups"
+        val byGroups=DataStore.mobileListMode=="groups" || MobileStyle.new
         load = viewLifecycleOwner.lifecycleScope.launch {
             var completed=false
             val nextLatencyViews=latencyViews.toMutableMap()
@@ -682,14 +747,22 @@ class MobileHomeFragment : ToolbarFragment() {
                 updatesTile=null;updateBanner=null
                 val settingsTile=headerIcon(R.drawable.ic_mobile_settings, getString(R.string.qmobile_settings)) { host().displayFragmentWithId(R.id.nav_settings) }
                 val addTile=headerIcon(R.drawable.ic_mobile_add, getString(R.string.qmobile_add)) { addMenu(it) }
-                val quick = if(extended) listOf(
+                val quick = if(extended && !MobileStyle.new) listOf(
                     headerIcon(R.drawable.ic_mobile_tun, getString(R.string.service_mode)) { modeMenu(it) },
                     headerIcon(R.drawable.ic_mobile_route, getString(R.string.route_profile_quick_switch)) { routingMenu(it) },
                     headerIcon(R.drawable.ic_mobile_subscriptions, getString(R.string.qmobile_manage_groups)) { subscriptionsMenu(it) },
                     headerIcon(R.drawable.ic_mobile_update, getString(R.string.qmobile_updates)) { updatesMenu(it) }.also { updatesTile=it;updateUpdatesBadge() },
                 ) else emptyList()
-                // The new style keeps these four in a dock under the button; the top bar holds settings, the name and adding.
-                val tiles = if(extended && !MobileStyle.new) listOf(settingsTile) + quick + addTile else listOf(settingsTile, addTile)
+                // The new style has no tile bar: a corner menu reaches the same four menus, adding sits with the subscriptions.
+                val quickMenu=if(MobileStyle.new) headerIcon(R.drawable.ic_mobile_more, getString(R.string.qmobile_quick_menu)) { anchor ->
+                    val popup=androidx.appcompat.widget.PopupMenu(requireContext(),anchor)
+                    popup.menu.add(R.string.service_mode).setOnMenuItemClickListener { modeMenu(anchor); true }
+                    popup.menu.add(R.string.route_profile_quick_switch).setOnMenuItemClickListener { routingMenu(anchor); true }
+                    popup.menu.add(R.string.qmobile_manage_groups).setOnMenuItemClickListener { subscriptionsMenu(anchor); true }
+                    popup.menu.add(R.string.qmobile_updates).setOnMenuItemClickListener { updatesMenu(anchor); true }
+                    popup.show()
+                }.also { updatesTile=it;updateUpdatesBadge() } else null
+                val tiles = if(quickMenu!=null) listOf(quickMenu, settingsTile) else if(extended) listOf(settingsTile) + quick + addTile else listOf(settingsTile, addTile)
                 tiles.forEachIndexed { index, button ->
                     header.addView(button, LinearLayout.LayoutParams(0, dp(48), 1f).apply {
                         if (index < tiles.lastIndex) marginEnd = dp(8)
@@ -697,7 +770,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     // Standard: the two tiles sit in the corners.
                     if ((!extended || MobileStyle.new) && index == 0) header.addView(FrameLayout(requireContext()).apply {
                         if(MobileStyle.new) addView(text(getString(R.string.app_name),18f).apply { setTypeface(typeface,Typeface.BOLD); gravity=Gravity.CENTER; setPadding(0,0,0,0) },FrameLayout.LayoutParams(-2,-2,Gravity.CENTER))
-                        if(!extended) updateBanner = text("", 12f, blue).apply {
+                        if(!extended && !MobileStyle.new) updateBanner = text("", 12f, blue).apply {
                             gravity = Gravity.CENTER
                             minHeight = dp(48)
                             maxLines = 1
@@ -714,7 +787,7 @@ class MobileHomeFragment : ToolbarFragment() {
                             // Set this after the background, whose inset padding replaces view padding.
                             setPadding(dp(12), dp(6), dp(12), dp(6))
                         }
-                        if(!extended) { addView(updateBanner, FrameLayout.LayoutParams(-2, dp(48), Gravity.CENTER)); updateReleaseBanner() }
+                        if(!extended && !MobileStyle.new) { addView(updateBanner, FrameLayout.LayoutParams(-2, dp(48), Gravity.CENTER)); updateReleaseBanner() }
                     }, LinearLayout.LayoutParams(0, dp(48), 1f).apply { marginStart = dp(6); marginEnd = dp(6) })
                 }
                 header.gravity = Gravity.CENTER
@@ -729,6 +802,20 @@ class MobileHomeFragment : ToolbarFragment() {
                     }
                 }
                 if(!tilesBottom || MobileStyle.new) side.addView(header, LinearLayout.LayoutParams(-1, -2))
+                // The subscription in use, as one card with a list behind it, and adding beside it.
+                if(MobileStyle.new) side.addView(LinearLayout(requireContext()).apply {
+                    gravity=Gravity.CENTER_VERTICAL
+                    groupChip=text("",16f).apply {
+                        setTypeface(typeface,Typeface.BOLD);maxLines=1;ellipsize=android.text.TextUtils.TruncateAt.END;gravity=Gravity.CENTER_VERTICAL
+                        setPadding(dp(16),0,dp(12),0);background=tile();isFocusable=true
+                        val arrow=androidx.core.content.ContextCompat.getDrawable(requireContext(),R.drawable.ic_mobile_chevron)?.mutate()
+                        arrow?.setBounds(0,0,dp(22),dp(22))
+                        setCompoundDrawablesRelative(null,null,android.graphics.drawable.RotateDrawable().apply { drawable=arrow;fromDegrees=90f;toDegrees=90f;level=1;setBounds(0,0,dp(22),dp(22)) },null)
+                        setOnClickListener { groupPicker() };MobileFeedback.apply(this)
+                    }
+                    addView(groupChip,LinearLayout.LayoutParams(0,dp(56),1f).apply { marginEnd=dp(8) })
+                    addView(addTile,LinearLayout.LayoutParams(dp(56),dp(56)))
+                },LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(14) })
                 val centre = FrameLayout(requireContext())
                 power = action("") { host().toggleService() }.apply {
                     contentDescription = getString(R.string.qmobile_connect)
@@ -760,10 +847,6 @@ class MobileHomeFragment : ToolbarFragment() {
                         animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(520).setInterpolator(android.view.animation.PathInterpolator(.2f,0f,0f,1f)).start()
                     }
                     side.addView(centre, if(landscape) LinearLayout.LayoutParams(-1, 0, 1f) else LinearLayout.LayoutParams(-1, if(sheetMode) 0 else dp(300), if(sheetMode) 1f else 0f))
-                    if(quick.isNotEmpty()) side.addView(LinearLayout(requireContext()).apply {
-                        gravity=Gravity.CENTER
-                        quick.forEachIndexed { index,button -> addView(button,LinearLayout.LayoutParams(dp(48),dp(48)).apply { if(index>0) marginStart=dp(10) }) }
-                    },LinearLayout.LayoutParams(-1,-2))
                 } else {
                 centre.addView(power, FrameLayout.LayoutParams(dp(188), dp(188), Gravity.TOP or Gravity.CENTER_HORIZONTAL).apply { topMargin=dp(8) })
                 side.addView(centre, LinearLayout.LayoutParams(-1, dp(206)))
@@ -788,7 +871,7 @@ class MobileHomeFragment : ToolbarFragment() {
                         MobileFeedback.apply(this,white=true)
                         setOnClickListener { checkCurrentConnection() }
                     }
-                    above.addView(currentCheck,FrameLayout.LayoutParams(-2,-2,Gravity.START or Gravity.BOTTOM).apply { bottomMargin=dp(6) })
+                    above.addView(currentCheck,FrameLayout.LayoutParams(-2,-2,if(MobileStyle.new) Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM else Gravity.START or Gravity.BOTTOM).apply { bottomMargin=dp(6) })
                     subscriptionTop=above
                     above.layoutParams=LinearLayout.LayoutParams(-1,dp(64))
                     updateState()
@@ -809,7 +892,7 @@ class MobileHomeFragment : ToolbarFragment() {
                 geoBanner!!.addView(geoCheck,LinearLayout.LayoutParams(dp(24),dp(24)))
                 // Under the decoration, right above the subscriptions it is about.
                 // In the sheet the check sits under the button, on the stage.
-                subscriptionTop?.let { if(sheetMode) { (it as FrameLayout).layoutParams=LinearLayout.LayoutParams(-1,-2); side.addView(it,side.childCount-(if(quick.isNotEmpty()) 1 else 0)) } else body.addView(it) }
+                subscriptionTop?.let { if(sheetMode) { (it as FrameLayout).layoutParams=LinearLayout.LayoutParams(-1,-2); side.addView(it) } else body.addView(it) }
                 if(!byGroups) body.addView(geoBanner,LinearLayout.LayoutParams(-1,-2).apply { bottomMargin=dp(6) })
                 updateGeoStatus()
                 val serverPanel=if(byGroups) LinearLayout(requireContext()).apply {
@@ -853,7 +936,9 @@ class MobileHomeFragment : ToolbarFragment() {
                     tabs.addView(groupLeftIndicator,LinearLayout.LayoutParams(dp(14),dp(20)))
                     tabs.addView(stripScroll,LinearLayout.LayoutParams(0,dp(54),1f))
                     tabs.addView(groupRightIndicator,LinearLayout.LayoutParams(dp(14),dp(20)))
-                    serverPanel.addView(tabs,LinearLayout.LayoutParams(-1,dp(54)))
+                    // The new style opens these only while a server is being dragged to another subscription.
+                    groupTabs=if(MobileStyle.new) tabs else null
+                    serverPanel.addView(tabs,LinearLayout.LayoutParams(-1,if(MobileStyle.new) 0 else dp(54)))
                     serverPanel.addView(geoBanner,LinearLayout.LayoutParams(-1,-2).apply { setMargins(dp(5),dp(4),dp(5),0) })
                 }
                 val serverColumn=LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL }
@@ -888,6 +973,8 @@ class MobileHomeFragment : ToolbarFragment() {
                 }
             }
             updateSheetPeek()
+            pickerGroups=groups.map { it.first }
+            groupChip?.text=pickerGroups.firstOrNull { it.id==focusedGroup }?.displayName().orEmpty()
             val serverColumn=serverRows ?: return@launch
             if(MobileStyle.new && byGroups && risenGroup!=focusedGroup) {
                 risenGroup=focusedGroup

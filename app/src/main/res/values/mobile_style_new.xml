@@ -29,27 +29,27 @@
         <item name="titleTextAppearance">@style/MobileToolbarNewTitle</item>
         <item name="subtitleTextAppearance">@style/MobileToolbarNewSubtitle</item>
     </style>
-    <style name="MobileToolbarNewTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title"><item name="android:textSize">18sp</item></style>
+    <style name="MobileToolbarNewTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title"><item name="android:textSize">19sp</item><item name="android:textStyle">bold</item></style>
     <style name="MobileToolbarNewSubtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle"><item name="android:textSize">12sp</item></style>
     <!-- The new style has two surfaces only: true black and true white. -->
     <style name="MobileSurfaceNewOled" parent="MobileSurfaceOled">
-        <item name="colorSurface">#0e0e10</item>
+        <item name="colorSurface">#151518</item>
         <item name="colorOnSurface">#f5f5f7</item>
         <item name="colorOnPrimary">#f5f5f7</item>
         <item name="android:textColorPrimary">#f5f5f7</item>
         <item name="colorAccent">#f5f5f7</item>
-        <item name="qtWellColor">#1c1c1f</item>
+        <item name="qtWellColor">#242428</item>
     </style>
     <style name="MobileSurfaceNewWhite" parent="MobileSurfaceWhite">
         <item name="android:windowBackground">#ffffff</item>
         <item name="android:colorBackground">#ffffff</item>
-        <item name="colorSurface">#f4f4f6</item>
+        <item name="colorSurface">#f3f3f6</item>
         <item name="colorPrimary">#ffffff</item>
         <item name="colorOnSurface">#0a0a0b</item>
         <item name="colorOnPrimary">#0a0a0b</item>
         <item name="android:textColorPrimary">#0a0a0b</item>
         <item name="colorAccent">#0a0a0b</item>
-        <item name="qtWellColor">#e9e9ed</item>
+        <item name="qtWellColor">#e7e7ec</item>
     </style>
     <style name="MobileSheetFast">
         <item name="android:windowEnterAnimation">@anim/sheet_fast_enter</item>

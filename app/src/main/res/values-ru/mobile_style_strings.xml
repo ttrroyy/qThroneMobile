@@ -3,5 +3,6 @@
     <string name="qmobile_ui_style">Стиль интерфейса</string>
     <string-array name="qmobile_ui_styles"><item>Классический</item><item>Новый</item></string-array>
     <string-array name="qmobile_surface_themes_new"><item>Как в системе</item><item>OLED</item><item>Белая</item></string-array>
+    <string name="qmobile_quick_menu">Быстрые действия</string>
     <string name="qmobile_orb_idle">Нажмите для подключения</string>
 </resources>

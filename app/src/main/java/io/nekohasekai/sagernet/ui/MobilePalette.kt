@@ -14,7 +14,7 @@ object MobilePalette {
     val oled get() = (DataStore.amoledTheme || MobileStyle.new) && Theme.usingNightMode()
     val light get() = !oled && !Theme.usingNightMode()
     val background get() = if (oled) Color.BLACK else if (light) (if (MobileStyle.new) Color.WHITE else Color.rgb(236,237,239)) else Color.rgb(30,30,30)
-    val surface get() = if (MobileStyle.new) (if (light) Color.rgb(244,244,246) else Color.rgb(14,14,16))
+    val surface get() = if (MobileStyle.new) (if (light) Color.rgb(243,243,246) else Color.rgb(21,21,24))
         else if (oled) Color.rgb(15,15,15) else if (light) Color.rgb(248,249,250) else Color.rgb(49,51,54)
     val toolbar get() = if (oled) Color.BLACK else if (light) (if (MobileStyle.new) Color.WHITE else Color.rgb(231,233,235)) else Color.rgb(34,35,37)
     val text get() = if (MobileStyle.new) (if (light) Color.rgb(10,10,11) else Color.rgb(245,245,247))
@@ -22,7 +22,7 @@ object MobilePalette {
     val muted get() = if (MobileStyle.new) (if (light) Color.rgb(105,105,112) else Color.rgb(142,142,150))
         else if (light) Color.rgb(100,110,119) else Color.rgb(173,182,191)
     /** The dark field inside a card; on true black a lighter one, or it would vanish. */
-    val well get() = if (MobileStyle.new) (if (light) Color.rgb(233,233,237) else Color.rgb(28,28,31)) else androidx.core.graphics.ColorUtils.blendARGB(surface, Color.BLACK, .14f)
+    val well get() = if (MobileStyle.new) (if (light) Color.rgb(231,231,236) else Color.rgb(36,36,40)) else androidx.core.graphics.ColorUtils.blendARGB(surface, Color.BLACK, .14f)
     /** Corner radii in dp: the new style is rounder throughout. */
     val rowDp get() = if (MobileStyle.new) 16 else 5
     val cardDp get() = if (MobileStyle.new) 24 else 12

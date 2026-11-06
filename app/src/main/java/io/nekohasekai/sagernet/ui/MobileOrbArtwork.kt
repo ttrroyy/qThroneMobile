@@ -78,7 +78,7 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
         val steps = 144
         for (step in 0..steps) {
             val theta = step * 2.0 * PI / steps
-            val swell = 1f + wave * .035f * sin(6.0 * theta + phase * 6).toFloat() + wave * .018f * sin(3.0 * theta - phase * 3).toFloat()
+            val swell = 1f + wave * .06f * sin(8.0 * theta + phase * 8).toFloat() + wave * .02f * sin(3.0 * theta - phase * 3).toFloat()
             val x = cx + base * swell * cos(theta).toFloat(); val y = cy + base * swell * sin(theta).toFloat()
             if (step == 0) edge.moveTo(x, y) else edge.lineTo(x, y)
         }
