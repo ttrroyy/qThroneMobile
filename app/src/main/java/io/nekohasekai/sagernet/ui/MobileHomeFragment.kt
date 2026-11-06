@@ -210,6 +210,9 @@ class MobileHomeFragment : ToolbarFragment() {
     private val collapsed = mutableSetOf<Long>()
     private val knownGroups = mutableSetOf<Long>()
     private var serverScrollView: ScrollView? = null
+    /** The focused subscription's header: above the list, so that only the servers scroll. */
+    private var serverHeader: FrameLayout? = null
+    private val groupHeads=mutableMapOf<Long,View>()
     private var subscriptionTop: View? = null
     private var serverRows: LinearLayout? = null
     private var groupStrip: LinearLayout? = null
@@ -435,8 +438,8 @@ class MobileHomeFragment : ToolbarFragment() {
                 setPadding(dp(5),dp(5),dp(5),dp(5))
             }
             background=GradientDrawable().apply { setColor(toolbarColor);cornerRadius=dp(if(MobileStyle.new) 10 else 7).toFloat() };clipToOutline=true
-            // White in a flag would melt into a light theme without an edge.
-            if(MobileStyle.new && flag!=null) foreground=GradientDrawable().apply { cornerRadius=dp(10).toFloat();setStroke(dp(1).coerceAtLeast(1),MobilePalette.outline) }
+            // White in a flag would melt into a light theme without an edge, and black into a dark one.
+            if(MobileStyle.new && flag!=null) foreground=GradientDrawable().apply { cornerRadius=dp(10).toFloat();setStroke(dp(1).coerceAtLeast(1),androidx.core.graphics.ColorUtils.setAlphaComponent(MobilePalette.muted,if(MobilePalette.light) 70 else 110)) }
         }
     }
     private var groupChip: TextView? = null
@@ -646,6 +649,7 @@ class MobileHomeFragment : ToolbarFragment() {
         openSwipe=null; renderedStructure=null
         stopGroupScroll()
         serverScrollView=null; serverRows=null; chromeKey=null; subscriptionTop=null
+        serverHeader=null; groupHeads.clear()
         groupStrip?.removeCallbacks(previewHoveredGroup)
         groupStrip=null;groupStripScroll=null;groupLeftIndicator=null;groupRightIndicator=null;serverDropArea=null;renderedGroupId=0L
         pendingMovedProfile=null;renderedGroupOrder=emptyList()
@@ -992,6 +996,7 @@ class MobileHomeFragment : ToolbarFragment() {
                         if(byGroups) groupScrollPositions[renderedGroupId]=y else serverScrollPosition=y
                     }
                 }
+                serverHeader=if(byGroups) FrameLayout(requireContext()).also { serverPanel.addView(it,LinearLayout.LayoutParams(-1,-2)) } else null
                 serverPanel.addView(serverScroll,LinearLayout.LayoutParams(-1,if(byGroups) -2 else 0,if(byGroups) 0f else 1f))
                 serverRows=serverColumn; serverScrollView=serverScroll
                 if(!hasServers) {
@@ -1077,7 +1082,9 @@ class MobileHomeFragment : ToolbarFragment() {
                 // A collapsed group or another page must release its old row references as well as its views.
                 profiles.forEach { nextLatencyViews.remove(it.id);nextProfileRows.remove(it.id) }
                 val box = LinearLayout(requireContext()).apply { orientation = LinearLayout.VERTICAL; if(!byGroups) background = tile() }
-                val rows = LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL }
+                // The full list keeps each group's header with its rows; one subscription at a time pins it.
+                val head = if(byGroups) LinearLayout(requireContext()).apply { orientation = LinearLayout.VERTICAL } else box
+                val rows =LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL }
                 val profileDrag=MobileReorder(rows,serverScroll,{ reorderActive(it) },{
                     saveReorder(group.id,MobileProfilePaging.reorder(profiles.map { p -> p.id },visibleProfiles.map { p -> p.id },it))
                 })
@@ -1132,7 +1139,7 @@ class MobileHomeFragment : ToolbarFragment() {
                 lateinit var more: ImageButton
                 more=iconAction(R.drawable.ic_mobile_more,getString(R.string.qmobile_more)) { groupMenu(group,more) }
                 title.addView(more,LinearLayout.LayoutParams(dp(44),dp(48)))
-                box.addView(title)
+                head.addView(title)
                 if (group.isSubscription && group.subOptions.showInfoCard) {
                     val quota=group.subInfo
                     val traffic=LinearLayout(requireContext()).apply { gravity=Gravity.CENTER_VERTICAL; setPadding(dp(12),0,dp(12),dp(8)) }
@@ -1162,9 +1169,9 @@ class MobileHomeFragment : ToolbarFragment() {
                         val uri = android.net.Uri.parse(quota.supportUrl)
                         if (uri.scheme == "https" || uri.scheme == "http") runCatching { startActivity(Intent(Intent.ACTION_VIEW,uri)) }
                     },LinearLayout.LayoutParams(dp(32),dp(32)))
-                    box.addView(traffic)
-                    if (quota.expire > 0) box.addView(text(getString(R.string.qmobile_expiry,java.text.DateFormat.getDateInstance().format(java.util.Date(quota.expire*1000))),11f,muted).apply { setPadding(dp(14),0,dp(14),dp(8)) })
-                    if (quota.announce.isNotBlank()) box.addView(text(quota.announce,12f,muted).apply { setPadding(dp(14),0,dp(14),dp(10)) })
+                    head.addView(traffic)
+                    if (quota.expire > 0) head.addView(text(getString(R.string.qmobile_expiry,java.text.DateFormat.getDateInstance().format(java.util.Date(quota.expire*1000))),11f,muted).apply { setPadding(dp(14),0,dp(14),dp(8)) })
+                    if (quota.announce.isNotBlank()) head.addView(text(quota.announce,12f,muted).apply { setPadding(dp(14),0,dp(14),dp(10)) })
                 }
                 for ((profileIndex,profile) in visibleProfiles.withIndex()) {
                     // Give input and animation callbacks a turn even when a page contains complex rows.
@@ -1229,8 +1236,20 @@ class MobileHomeFragment : ToolbarFragment() {
 
                 box.layoutParams=LinearLayout.LayoutParams(-1,-2).apply { topMargin=if(firstGroup) 0 else dp(16) }
                 nextGroupViews[group.id]=signature to box
+                if(byGroups) groupHeads[group.id]=head
                 desired.add(box)
                 firstGroup = false
+            }
+            // A retained box keeps its header, which has to follow it into a rebuilt screen.
+            serverHeader?.let { pinned ->
+                groupHeads.keys.retainAll(setOf(focusedGroup))
+                val head=groupHeads[focusedGroup]
+                if(head==null) pinned.removeAllViews()
+                else if(head.parent!==pinned) {
+                    (head.parent as? ViewGroup)?.removeView(head)
+                    pinned.removeAllViews()
+                    pinned.addView(head,FrameLayout.LayoutParams(-1,-2))
+                }
             }
             serverColumn.childrenList().filter { it !in desired }.forEach { serverColumn.removeView(it) }
             desired.forEachIndexed { index, box ->
