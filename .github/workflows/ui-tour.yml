@@ -89,6 +89,9 @@ jobs:
           PACKAGE=${TEST_PACKAGE%.test}
           "$ADB" shell cmd locale set-app-locales "$PACKAGE" --locales ${{ inputs.locale }} || true
           mkdir -p ui-tour
+          # The emulator's launcher hangs on a slow runner and its dialog would cover every picture.
+          "$ADB" shell settings put global hide_error_dialogs 1 || true
+          "$ADB" shell pm disable-user --user 0 com.google.android.apps.nexuslauncher || true
           "$ADB" shell pm grant "$PACKAGE" android.permission.POST_NOTIFICATIONS || true
           for VARIANT in ${{ inputs.variants }}; do
             for N in $(seq 0 ${{ inputs.screens }}); do
