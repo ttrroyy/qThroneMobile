@@ -17,6 +17,7 @@ object ProviderGeoAssets {
     private val action get() = app.packageName + ".PROVIDER_GEO_STATUS"
 
     private fun show(gid: Long, value: Status) {
+        if (value.complete && !states.value.containsKey(gid)) return
         synchronized(states) { states.value = states.value + (gid to value) }
         if (value.complete) expiryScope.launch {
             delay(5000)

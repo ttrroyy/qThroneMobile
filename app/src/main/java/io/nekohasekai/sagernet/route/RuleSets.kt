@@ -3,7 +3,7 @@ package app.rawline.mobile.route
 import java.util.zip.CRC32
 
 object RuleSets {
-    const val ADBLOCK_TAG = "throne-adblocksingbox"
+    const val ADBLOCK_TAG = "rawline-adblocksingbox"
     const val ADBLOCK_URL = "https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblocksingbox.srs"
 
     /** ruleset_mirror values (Const.hpp:51-61). */

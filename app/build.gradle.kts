@@ -66,6 +66,7 @@ dependencies {
     implementation("androidx.browser:browser:1.5.0")
     implementation("androidx.preference:preference-ktx:1.2.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.profileinstaller:profileinstaller:1.3.1")
     implementation("androidx.work:work-runtime-ktx:2.8.1")
     implementation("androidx.work:work-multiprocess:2.8.1")
 

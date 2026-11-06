@@ -286,7 +286,7 @@ class MainActivity : ThemedActivity(),
         if (scheme == "content" || scheme == "file") return openFile(uri)
         val link = uri.toString()
         if (SubscribeFlows.subscribeLink(link) != null) displayFragmentWithId(R.id.nav_mobile_home)
-        if (scheme == "happ" || scheme == "incy" || scheme == "http" || scheme == "https" || scheme == "clash" || (scheme == "rawline" || scheme == "throne") && !uri.host.equals("add", ignoreCase = true)) {
+        if (scheme == "happ" || scheme == "incy" || scheme == "http" || scheme == "https" || scheme == "clash" || scheme == "rawline" && !uri.host.equals("add", ignoreCase = true)) {
             SubscribeFlows.importText(this, link)
         } else {
             runOnDefaultDispatcher { importProfile(uri) }

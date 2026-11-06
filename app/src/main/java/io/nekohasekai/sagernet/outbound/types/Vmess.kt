@@ -100,8 +100,8 @@ class Vmess : Outbound("vmess") {
             }
         }
 
-        // rawlineExtra (throneExtra in older links) holds what the V2RayN schema cannot; the dummy authority only satisfies the URL parser
-        val extra = objN.string("rawlineExtra").ifEmpty { objN.string("throneExtra") }
+        // rawlineExtra holds what the V2RayN schema cannot; the dummy authority only satisfies the URL parser
+        val extra = objN.string("rawlineExtra")
         if (extra.isNotEmpty()) {
             val extraLink = LinkParser.parse("vmess://x@127.0.0.1:1?$extra")
             transport.parseFromLink(extraLink)

@@ -64,6 +64,8 @@ object MobileSettingsStyle {
         fragment.setDividerHeight(0)
         list.isVerticalScrollBarEnabled=false
         list.itemAnimator=null
+        // Rows scrolled off keep their views: coming back binds nothing and inflates nothing.
+        list.setItemViewCacheSize(24)
         list.setBackgroundColor(background)
         val density=list.resources.displayMetrics.density
         list.setPadding((16*density).toInt(), (4*density).toInt(), (16*density).toInt(), (16*density).toInt())

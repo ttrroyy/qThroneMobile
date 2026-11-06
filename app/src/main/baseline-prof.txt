@@ -1,0 +1,11 @@
+HSPLapp/rawline/mobile/ui/**->**(**)**
+HSPLapp/rawline/mobile/database/**->**(**)**
+HSPLandroidx/recyclerview/**->**(**)**
+HSPLandroidx/preference/**->**(**)**
+HSPLandroidx/fragment/**->**(**)**
+HSPLandroidx/appcompat/**->**(**)**
+HSPLandroidx/core/view/**->**(**)**
+HSPLcom/google/android/material/bottomsheet/**->**(**)**
+HSPLcom/google/android/material/button/**->**(**)**
+HSPLcom/google/android/material/textfield/**->**(**)**
+HSPLcom/google/android/material/shape/**->**(**)**

@@ -41,6 +41,7 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
     private var glint: Shader? = null
     private var rimShader: Shader? = null
     private var runner: Shader? = null
+    private var combined: Shader? = null
 
     private fun moving() = Build.VERSION.SDK_INT < 26 || ValueAnimator.areAnimatorsEnabled()
 
@@ -65,6 +66,8 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
         rimShader = LinearGradient(0f, cy - base, 0f, cy + base,
             ColorUtils.setAlphaComponent(if (day) Color.BLACK else Color.WHITE, if (day) 34 else 190),
             ColorUtils.setAlphaComponent(if (day) Color.BLACK else Color.WHITE, if (day) 16 else 46), Shader.TileMode.CLAMP)
+        // One fill instead of three: each new path of the wave costs the renderer on every frame. Older renderers cannot nest these.
+        combined = if (Build.VERSION.SDK_INT >= 28) ComposeShader(ComposeShader(dropBody!!, glint!!, PorterDuff.Mode.SRC_OVER), caustic!!, PorterDuff.Mode.SRC_OVER) else null
         runner = SweepGradient(cx, cy, intArrayOf(Color.TRANSPARENT, ink, Color.TRANSPARENT), floatArrayOf(0f, .62f, .63f))
     }
 
@@ -118,12 +121,18 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
         }
         edge.close()
         paint.style = Paint.Style.FILL
-        paint.shader = dropBody; paint.alpha = if (day) 255 else (127f + 128f * lit).toInt()
-        canvas.drawPath(edge, paint)
-        paint.shader = glint; paint.alpha = 255
-        canvas.drawPath(edge, paint)
-        paint.shader = caustic; paint.alpha = if (day) 255 else (108f + 147f * lit).toInt()
-        canvas.drawPath(edge, paint)
+        val body = combined
+        if (body != null) {
+            paint.shader = body; paint.alpha = if (day) 255 else (127f + 128f * lit).toInt()
+            canvas.drawPath(edge, paint)
+        } else {
+            paint.shader = dropBody; paint.alpha = if (day) 255 else (127f + 128f * lit).toInt()
+            canvas.drawPath(edge, paint)
+            paint.shader = glint; paint.alpha = 255
+            canvas.drawPath(edge, paint)
+            paint.shader = caustic; paint.alpha = if (day) 255 else (108f + 147f * lit).toInt()
+            canvas.drawPath(edge, paint)
+        }
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = density * 1.2f
         paint.shader = rimShader; paint.alpha = 255
@@ -167,17 +176,20 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
             paint.textSize = 13f * density; paint.color = MobilePalette.muted
             canvas.drawText(workersText, cx, top + 22f * density, paint)
         }
-        // The next frame follows the screen's own rate; a window over it or a screen change pauses it.
+        // A slow wave needs no more than 60 frames a second, whatever the screen's rate; a window over it,
+        // a screen change or a scrolling list pauses it, so that all the frame time is theirs.
         if (animated) {
             unscheduleSelf(waitForFocus)
-            if (!frozen && (callback as? android.view.View)?.hasWindowFocus() != false) invalidateSelf()
-            else scheduleSelf(waitForFocus, now + 150L)
+            val free = !frozen && now >= scrollingUntil && (callback as? android.view.View)?.hasWindowFocus() != false
+            scheduleSelf(waitForFocus, now + if (free) 16L else 150L)
         }
     }
 
     companion object {
         /** A screen change draws through a layer; repainting that layer every frame is what makes it stutter. */
         @JvmStatic var frozen = false
+        private var scrollingUntil = 0L
+        fun pauseWhileScrolling() { scrollingUntil = SystemClock.uptimeMillis() + 180L }
         /** Where the disc sits in a button of [size]: the panel at the bottom curves around it. */
         fun radius(size: Int) = size * .27f
         fun centerY(size: Int) = radius(size) * 1.6f

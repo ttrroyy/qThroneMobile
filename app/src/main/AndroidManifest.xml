@@ -116,13 +116,9 @@
                 <data android:host="*" />
                 <data android:mimeType="*/*" />
                 <data android:pathPattern=".*\\.rwlbackup" />
-                <data android:pathPattern=".*\\.thrbackup" />
                 <data android:pathPattern=".*\\..*\\.rwlbackup" />
-                <data android:pathPattern=".*\\..*\\.thrbackup" />
                 <data android:pathPattern=".*\\..*\\..*\\.rwlbackup" />
-                <data android:pathPattern=".*\\..*\\..*\\.thrbackup" />
                 <data android:pathPattern=".*\\..*\\..*\\..*\\.rwlbackup" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\.thrbackup" />
             </intent-filter>
             <intent-filter android:label="@string/backup_open_label">
                 <action android:name="android.intent.action.VIEW" />
@@ -133,13 +129,9 @@
                 <data android:scheme="file" />
                 <data android:host="*" />
                 <data android:pathPattern=".*\\.rwlbackup" />
-                <data android:pathPattern=".*\\.thrbackup" />
                 <data android:pathPattern=".*\\..*\\.rwlbackup" />
-                <data android:pathPattern=".*\\..*\\.thrbackup" />
                 <data android:pathPattern=".*\\..*\\..*\\.rwlbackup" />
-                <data android:pathPattern=".*\\..*\\..*\\.thrbackup" />
                 <data android:pathPattern=".*\\..*\\..*\\..*\\.rwlbackup" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\.thrbackup" />
             </intent-filter>
             <intent-filter android:label="@string/backup_open_label">
                 <action android:name="android.intent.action.VIEW" />
@@ -209,8 +201,6 @@
                 <data android:scheme="awg" />
                 <data android:scheme="tt" />
                 <data android:scheme="rawline" />
-                <!-- Links shared before the rename still open here. -->
-                <data android:scheme="throne" />
                 <data android:scheme="happ" />
                 <data android:scheme="incy" />
                 <data android:scheme="csqtt" />

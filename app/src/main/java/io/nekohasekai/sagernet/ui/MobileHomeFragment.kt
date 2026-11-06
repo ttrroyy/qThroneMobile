@@ -124,7 +124,7 @@ class MobileHomeFragment : ToolbarFragment() {
     private fun updateGeoStatus() {
         val states = app.rawline.mobile.route.ProviderGeoAssets.states.value.values
         val active = states.firstOrNull { !it.complete } ?: states.lastOrNull()
-        geoBanner?.visibility = if (active == null) View.GONE else View.VISIBLE
+        slideGeoBanner(active != null)
         geoProgress?.visibility = if (active != null && !active.complete && active.error.isBlank()) View.VISIBLE else View.GONE
         geoCheck?.visibility = if (active?.complete == true) View.VISIBLE else View.GONE
         geoStatus?.apply {
@@ -134,6 +134,34 @@ class MobileHomeFragment : ToolbarFragment() {
                 active.complete -> getString(R.string.provider_geo_complete)
                 else -> getString(R.string.provider_geo_loading) + " " + active.file + if (active.total > 0) "\n${active.bytes * 100 / active.total}% · " + android.text.format.Formatter.formatShortFileSize(requireContext(),active.bytes) + " / " + android.text.format.Formatter.formatShortFileSize(requireContext(),active.total) else ""
             }
+        }
+    }
+    private var geoSlide: android.animation.ValueAnimator? = null
+    /** Appearing or leaving, the banner changes height gradually: the list under it never jumps. */
+    private fun slideGeoBanner(show: Boolean) {
+        val banner=geoBanner ?: return
+        if(show==(banner.visibility==View.VISIBLE) && geoSlide==null) return
+        geoSlide?.cancel()
+        val width=(banner.parent as? View)?.width ?: 0
+        if(width==0 || !banner.isAttachedToWindow) { banner.visibility=if(show) View.VISIBLE else View.GONE;return }
+        banner.measure(View.MeasureSpec.makeMeasureSpec(width,View.MeasureSpec.AT_MOST),View.MeasureSpec.makeMeasureSpec(0,View.MeasureSpec.UNSPECIFIED))
+        val full=banner.measuredHeight
+        val from=if(banner.visibility==View.VISIBLE) banner.height else 0
+        banner.visibility=View.VISIBLE
+        geoSlide=android.animation.ValueAnimator.ofInt(from,if(show) full else 0).apply {
+            duration=220;interpolator=android.view.animation.PathInterpolator(.2f,0f,0f,1f)
+            addUpdateListener { banner.layoutParams=banner.layoutParams.apply { height=it.animatedValue as Int };banner.alpha=(it.animatedValue as Int).toFloat()/full.coerceAtLeast(1) }
+            addListener(object: android.animation.AnimatorListenerAdapter() {
+                private var cancelled=false
+                override fun onAnimationCancel(animation: android.animation.Animator) { cancelled=true }
+                override fun onAnimationEnd(animation: android.animation.Animator) {
+                    if(cancelled) return
+                    geoSlide=null
+                    banner.layoutParams=banner.layoutParams.apply { height=ViewGroup.LayoutParams.WRAP_CONTENT };banner.alpha=1f
+                    banner.visibility=if(show) View.VISIBLE else View.GONE
+                }
+            })
+            start()
         }
     }
     private var currentPing: String? = null
@@ -495,8 +523,6 @@ class MobileHomeFragment : ToolbarFragment() {
                     }
                 }).apply { onOpened={ tile -> opened?.takeIf { it!==tile }?.closeActions();opened=tile } }
             drag.bind(row,swipe,group.id)
-            swipe.alpha=0f;swipe.translationY=dp(10).toFloat()
-            swipe.animate().alpha(1f).translationY(0f).setStartDelay(30L*index.coerceAtMost(8)).setDuration(260).start()
             list.addView(swipe,LinearLayout.LayoutParams(-1,-2).apply { if(index>0) topMargin=dp(6) })
         }
         body.addView(scroller,LinearLayout.LayoutParams(-1,-2,1f))
@@ -882,11 +908,18 @@ class MobileHomeFragment : ToolbarFragment() {
                         // Either side of the caption in the panel, the same distance from its edges.
                         dockLeft=FrameLayout(requireContext())
                         centre.addView(dockLeft,FrameLayout.LayoutParams(dp(92),-2,Gravity.START or Gravity.BOTTOM).apply { marginStart=dp(14);bottomMargin=dp(14) })
-                        val speed=LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL;gravity=Gravity.END;addView(sheetDown);addView(sheetUp) }
+                        val speed=LinearLayout(requireContext()).apply {
+                            orientation=LinearLayout.VERTICAL
+                            for(label in listOf(sheetDown,sheetUp)) { label?.gravity=Gravity.END or Gravity.CENTER_VERTICAL;addView(label,LinearLayout.LayoutParams(-1,dp(22))) }
+                        }
                         sheetSpeed=speed
                         centre.addView(speed,FrameLayout.LayoutParams(dp(92),-2,Gravity.END or Gravity.BOTTOM).apply { marginEnd=dp(14);bottomMargin=dp(14) })
                     } else {
-                    statusRow=LinearLayout(requireContext()).apply { gravity=Gravity.CENTER_VERTICAL;setPadding(dp(10),0,dp(6),0);addView(sheetDown);addView(sheetUp) }
+                    // Speed changes every second: in fixed boxes that repaints two labels, not the layout of the whole screen.
+                    statusRow=LinearLayout(requireContext()).apply {
+                        gravity=Gravity.CENTER_VERTICAL;setPadding(dp(10),0,dp(6),0)
+                        for(label in listOf(sheetDown,sheetUp)) { label?.gravity=Gravity.END or Gravity.CENTER_VERTICAL;addView(label,LinearLayout.LayoutParams(dp(84),dp(24))) }
+                    }
                     sheetSpeed=statusRow
                     // At the bottom the check and speed stay above the switches, next to the list.
                     if(dockBottom) controlParent.addView(statusRow,0,LinearLayout.LayoutParams(-1,dp(40)))
@@ -911,7 +944,7 @@ class MobileHomeFragment : ToolbarFragment() {
                         // Text taller than its box gets a scroll bar on some phones, so it always fits.
                         maxLines=2;includeFontPadding=false;setPadding(dp(2),0,dp(2),0);gravity=Gravity.BOTTOM
                         isFocusable=true
-                        MobileFeedback.apply(this,white=true)
+                        tag=MobileFeedback.NONE
                         setOnClickListener { checkCurrentConnection() }
                     }
                     above.addView(currentCheck,FrameLayout.LayoutParams(-2,-2,if(MobileStyle.new) Gravity.START or Gravity.CENTER_VERTICAL else Gravity.START or Gravity.BOTTOM).apply { if(!MobileStyle.new) bottomMargin=dp(6) })
@@ -993,6 +1026,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     if(byGroups && !MobileStyle.new) setPadding(0,dp(8),0,0)
                     addView(serverColumn,FrameLayout.LayoutParams(-1,-2))
                     setOnScrollChangeListener { _, _, y, _, _ ->
+                        MobileOrbArtwork.pauseWhileScrolling()
                         if(byGroups) groupScrollPositions[renderedGroupId]=y else serverScrollPosition=y
                     }
                 }
