@@ -40,7 +40,7 @@ object MobileSelector {
         }
         // Keep long DNS lists attached to their row instead of filling the middle of the screen.
         val background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(MobilePalette.surface); cornerRadius = dp(MobilePalette.cardDp).toFloat()
+                setColor(MobilePalette.solid); cornerRadius = dp(MobilePalette.cardDp).toFloat()
                 setStroke(1, MobilePalette.outline)
         }
         list.background = background
@@ -76,7 +76,7 @@ object MobileSelector {
                 text=if(index==selected) "✓  $label" else label;textSize=16f;gravity=Gravity.CENTER_VERTICAL
                 setTextColor(if(index==selected) MobilePalette.accent(context) else MobilePalette.text)
                 setPadding(dp(16),0,dp(16),0);minimumHeight=dp(48)
-                background=android.graphics.drawable.GradientDrawable().apply { setColor(MobilePalette.surface);cornerRadius=dp(MobilePalette.rowDp).toFloat();setStroke(1,MobilePalette.outline) }
+                background=android.graphics.drawable.GradientDrawable().apply { setColor(MobilePalette.solid);cornerRadius=dp(MobilePalette.rowDp).toFloat();setStroke(1,MobilePalette.outline) }
                 MobileFeedback.apply(this);setOnClickListener { dialog.dismiss();onSelect(index) }
             },LinearLayout.LayoutParams(-1,dp(48)))
         }

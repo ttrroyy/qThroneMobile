@@ -83,11 +83,32 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
             if (step == 0) edge.moveTo(x, y) else edge.lineTo(x, y)
         }
         edge.close()
-        paint.style = Paint.Style.FILL; paint.color = MobilePalette.surface
+        // A drop: thin at the top, gathering light low in its body.
+        val day = MobilePalette.light
+        paint.style = Paint.Style.FILL
+        paint.shader = RadialGradient(cx, cy + base * .62f, base * 1.5f,
+            if (day) Color.argb(235, 255, 255, 255) else Color.argb(70 + (34 * lit).toInt(), 255, 255, 255),
+            if (day) Color.argb(120, 232, 232, 240) else Color.argb(14, 255, 255, 255), Shader.TileMode.CLAMP)
         canvas.drawPath(edge, paint)
-        paint.style = Paint.Style.STROKE; paint.strokeWidth = density
-        paint.color = ColorUtils.blendARGB(MobilePalette.outline, ColorUtils.setAlphaComponent(ink, 120), lit)
+        canvas.save(); canvas.clipPath(edge)
+        // The bright patch high on the left, and the caustic glow under it.
+        canvas.save(); canvas.rotate(-20f, cx, cy)
+        box.set(cx - base * .62f, cy - base * .9f, cx + base * .5f, cy - base * .22f)
+        paint.shader = LinearGradient(0f, box.top, 0f, box.bottom, Color.argb(if (day) 210 else 112, 255, 255, 255), Color.TRANSPARENT, Shader.TileMode.CLAMP)
+        canvas.drawOval(box, paint)
+        canvas.restore()
+        paint.shader = null
+        paint.style = Paint.Style.STROKE; paint.strokeCap = Paint.Cap.ROUND; paint.strokeWidth = base * .07f
+        paint.color = ColorUtils.setAlphaComponent(if (day) Color.BLACK else Color.WHITE, if (day) 18 else 40 + (50 * lit).toInt())
+        box.set(cx - base * .82f, cy - base * .82f, cx + base * .82f, cy + base * .82f)
+        canvas.drawArc(box, 35f, 110f, false, paint)
+        canvas.restore()
+        paint.strokeWidth = density * 1.2f
+        paint.shader = LinearGradient(0f, cy - base, 0f, cy + base,
+            ColorUtils.setAlphaComponent(if (day) Color.BLACK else Color.WHITE, if (day) 34 else 190),
+            ColorUtils.setAlphaComponent(if (day) Color.BLACK else Color.WHITE, if (day) 16 else 46), Shader.TileMode.CLAMP)
         canvas.drawPath(edge, paint)
+        paint.shader = null
 
         // The stroke that runs round while connecting.
         if (spin > .01f) {

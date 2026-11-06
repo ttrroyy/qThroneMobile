@@ -96,7 +96,7 @@ class BackupFragment : Fragment(R.layout.layout_backup) {
         val binding = LayoutBackupBinding.bind(view)
         this.binding = binding
         view.applyListInsets()
-        view.setBackgroundColor(MobilePalette.background)
+        view.setBackgroundColor(MobilePalette.screen)
         (view as? android.widget.ScrollView)?.isVerticalScrollBarEnabled=false
         (view as? androidx.core.widget.NestedScrollView)?.isVerticalScrollBarEnabled=false
         fun style(node: View) {

@@ -7,6 +7,7 @@
     <attr name="qtSwitchRadius" format="dimension" />
     <attr name="qtSwitchThumb" format="reference" />
     <attr name="qtWellColor" format="color" />
+    <attr name="qtSheetColor" format="color" />
     <style name="MobileStyleClassic">
         <item name="qtRowRadius">5dp</item>
         <item name="qtCardRadius">12dp</item>
@@ -14,11 +15,12 @@
         <item name="qtSwitchRadius">6dp</item>
         <item name="qtSwitchThumb">@drawable/mobile_switch_thumb</item>
         <item name="qtWellColor">#24000000</item>
+        <item name="qtSheetColor">?android:attr/colorBackground</item>
     </style>
     <style name="MobileStyleNew">
-        <item name="qtRowRadius">16dp</item>
-        <item name="qtCardRadius">24dp</item>
-        <item name="qtWellRadius">16dp</item>
+        <item name="qtRowRadius">20dp</item>
+        <item name="qtCardRadius">28dp</item>
+        <item name="qtWellRadius">18dp</item>
         <item name="qtSwitchRadius">14dp</item>
         <item name="qtSwitchThumb">@drawable/mobile_switch_thumb_round</item>
         <item name="android:fontFamily">@font/geologica</item>
@@ -31,7 +33,7 @@
         <item name="bottomSheetStyle">@style/MobileSheetNew</item>
     </style>
     <style name="MobileSheetNew" parent="Widget.SagerNet.BottomSheet">
-        <item name="backgroundTint">?android:attr/colorBackground</item>
+        <item name="backgroundTint">?attr/qtSheetColor</item>
     </style>
     <style name="MobileToolbarNew" parent="Widget.MaterialComponents.Toolbar">
         <item name="titleTextAppearance">@style/MobileToolbarNewTitle</item>
@@ -46,18 +48,21 @@
         <item name="colorOnPrimary">#f5f5f7</item>
         <item name="android:textColorPrimary">#f5f5f7</item>
         <item name="colorAccent">#f5f5f7</item>
-        <item name="qtWellColor">#242428</item>
+        <item name="qtWellColor">#1AFFFFFF</item>
+        <item name="qtSheetColor">#CE141417</item>
+        <item name="colorPrimary">#00000000</item>
     </style>
     <style name="MobileSurfaceNewWhite" parent="MobileSurfaceWhite">
         <item name="android:windowBackground">#ffffff</item>
         <item name="android:colorBackground">#ffffff</item>
         <item name="colorSurface">#f3f3f6</item>
-        <item name="colorPrimary">#ffffff</item>
+        <item name="colorPrimary">#00ffffff</item>
         <item name="colorOnSurface">#0a0a0b</item>
         <item name="colorOnPrimary">#0a0a0b</item>
         <item name="android:textColorPrimary">#0a0a0b</item>
         <item name="colorAccent">#0a0a0b</item>
-        <item name="qtWellColor">#e7e7ec</item>
+        <item name="qtWellColor">#10000000</item>
+        <item name="qtSheetColor">#E2FAFAFC</item>
     </style>
     <style name="MobileSheetFast">
         <item name="android:windowEnterAnimation">@anim/sheet_fast_enter</item>

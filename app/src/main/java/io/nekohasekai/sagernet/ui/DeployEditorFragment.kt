@@ -54,7 +54,7 @@ open class DeployEditorFragment : Fragment() {
     override fun onCreateView(inflater: android.view.LayoutInflater,container: ViewGroup?,state: Bundle?): View {
         expanded=state?.getBoolean("consoleExpanded") ?: true
         configExpanded=state?.getBoolean("configExpanded") ?: true
-        scroll=ScrollView(requireContext()).apply { isFillViewport=true;setBackgroundColor(MobilePalette.background) }
+        scroll=ScrollView(requireContext()).apply { isFillViewport=true;setBackgroundColor(MobilePalette.screen) }
         body=column().apply { setPadding(dp(16),dp(8),dp(16),dp(24)) };scroll.addView(body);return scroll
     }
     override fun onViewCreated(view: View,state: Bundle?) { super.onViewCreated(view,state);build() }

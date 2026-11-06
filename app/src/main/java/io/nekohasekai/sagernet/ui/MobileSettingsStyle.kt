@@ -18,7 +18,7 @@ object MobileSettingsStyle {
     fun apply(fragment: PreferenceFragmentCompat, root: View) {
         if(styledRoots.put(root,true)==true) return
         // Keep the old screen consistent until theme recreation replaces every row.
-        val background=MobilePalette.background
+        val background=MobilePalette.screen
         val surface=MobilePalette.surface
         val textColor=MobilePalette.text
         val muted=MobilePalette.muted
@@ -119,7 +119,7 @@ object MobileSettingsStyle {
                     },android.view.ViewGroup.LayoutParams((40*density).toInt(),(40*density).toInt()))
                 }
             }
-            view.background=android.graphics.drawable.GradientDrawable().apply {
+            view.background=if(MobileStyle.new && !category && !warning) MobilePalette.rowShape(root.context) else android.graphics.drawable.GradientDrawable().apply {
                 setColor(if(category || warning) background else surface)
                 cornerRadius=MobilePalette.rowDp*density
                 if(!category && !warning && !MobileStyle.new) setStroke(1,MobilePalette.outline)

@@ -36,12 +36,12 @@ class MobileRoutingFragment : ToolbarFragment() {
     }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View {
         column = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.VERTICAL; setBackgroundColor(MobilePalette.background)
+            orientation = LinearLayout.VERTICAL; setBackgroundColor(MobilePalette.screen)
         }
         return ScrollView(requireContext()).apply {
             layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
             isFillViewport = true
-            setBackgroundColor(MobilePalette.background)
+            setBackgroundColor(MobilePalette.screen)
             addView(column, android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
             ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
                 val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())

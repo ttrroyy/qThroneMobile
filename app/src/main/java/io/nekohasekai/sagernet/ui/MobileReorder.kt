@@ -116,7 +116,7 @@ internal class MobileReorder(
                         canvas.scale(1.025f,1.025f)
                         if(shadowView!==item) canvas.drawRoundRect(0f,0f,shadowView.width.toFloat(),shadowView.height.toFloat(),
                             5*container.resources.displayMetrics.density,5*container.resources.displayMetrics.density,
-                            android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply { color=MobilePalette.surface })
+                            android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply { color=MobilePalette.solid })
                         super.onDrawShadow(canvas)
                     }
                 }

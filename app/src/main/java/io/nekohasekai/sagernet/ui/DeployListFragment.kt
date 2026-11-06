@@ -44,7 +44,7 @@ class DeployListFragment : Fragment() {
         }
         render(cachedItems)
         return ScrollView(requireContext()).apply {
-            setBackgroundColor(MobilePalette.background); isVerticalScrollBarEnabled = false
+            setBackgroundColor(MobilePalette.screen); isVerticalScrollBarEnabled = false
             addView(body); applyListInsets()
         }
     }

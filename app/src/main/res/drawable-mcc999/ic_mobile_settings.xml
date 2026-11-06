@@ -1,3 +1,8 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="28dp" android:height="28dp" android:viewportWidth="24" android:viewportHeight="24" android:tint="?attr/colorOnSurface">
-    <path android:strokeColor="#FFFFFF" android:strokeWidth="1.6" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M9,12 A3,3 0 1 1 15,12 A3,3 0 1 1 9,12 Z M18.2,12 L21,12 M16.38,16.38 L18.36,18.36 M12,18.2 L12,21 M7.62,16.38 L5.64,18.36 M5.8,12 L3,12 M7.62,7.62 L5.64,5.64 M12,5.8 L12,3 M16.38,7.62 L18.36,5.64 M18.14,12.86 A6.2,6.2 0 0 1 16.95,15.73 M15.73,16.95 A6.2,6.2 0 0 1 12.86,18.14 M11.14,18.14 A6.2,6.2 0 0 1 8.27,16.95 M7.05,15.73 A6.2,6.2 0 0 1 5.86,12.86 M5.86,11.14 A6.2,6.2 0 0 1 7.05,8.27 M8.27,7.05 A6.2,6.2 0 0 1 11.14,5.86 M12.86,5.86 A6.2,6.2 0 0 1 15.73,7.05 M16.95,8.27 A6.2,6.2 0 0 1 18.14,11.14" />
+<vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" android:width="28dp" android:height="28dp" android:viewportWidth="24" android:viewportHeight="24" android:tint="?android:attr/textColorPrimary">
+    <path android:pathData="M9,12 A3,3 0 1 1 15,12 A3,3 0 1 1 9,12 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="12" android:startY="2" android:endX="12" android:endY="22" android:startColor="#73FFFFFF" android:endColor="#14FFFFFF" />
+        </aapt:attr>
+    </path>
+    <path android:strokeColor="#E6FFFFFF" android:strokeWidth="1.45" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M9,12 A3,3 0 1 1 15,12 A3,3 0 1 1 9,12 Z M18.2,12 L21,12 M16.38,16.38 L18.36,18.36 M12,18.2 L12,21 M7.62,16.38 L5.64,18.36 M5.8,12 L3,12 M7.62,7.62 L5.64,5.64 M12,5.8 L12,3 M16.38,7.62 L18.36,5.64 M18.14,12.86 A6.2,6.2 0 0 1 16.95,15.73 M15.73,16.95 A6.2,6.2 0 0 1 12.86,18.14 M11.14,18.14 A6.2,6.2 0 0 1 8.27,16.95 M7.05,15.73 A6.2,6.2 0 0 1 5.86,12.86 M5.86,11.14 A6.2,6.2 0 0 1 7.05,8.27 M8.27,7.05 A6.2,6.2 0 0 1 11.14,5.86 M12.86,5.86 A6.2,6.2 0 0 1 15.73,7.05 M16.95,8.27 A6.2,6.2 0 0 1 18.14,11.14" />
 </vector>

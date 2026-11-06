@@ -85,7 +85,7 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
         showOnResume=false
         val sheet=BottomSheetDialog(host)
         dialog=sheet
-        val body=LinearLayout(host).apply { orientation=LinearLayout.VERTICAL;setBackgroundColor(MobilePalette.surface) }
+        val body=LinearLayout(host).apply { orientation=LinearLayout.VERTICAL;setBackgroundColor(MobilePalette.solid) }
         val header=LinearLayout(host).apply { gravity=android.view.Gravity.CENTER_VERTICAL }
         header.addView(TextView(host).apply { text=if(turn || oauthState!=null) "VK · Авторизация" else "VK · Captcha";textSize=19f;setTextColor(MobilePalette.text);setPadding(24,20,24,20) },LinearLayout.LayoutParams(0,-2,1f))
         header.addView(android.widget.ImageButton(host).apply {
@@ -102,7 +102,7 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
         var probes=0
         val fail: (String) -> Unit = { result -> if(currentId==id) { reply(id,result);currentId=null;cleanupWeb?.invoke();sheet.dismiss() } }
         val web=WebView(host).apply {
-            setBackgroundColor(MobilePalette.surface)
+            setBackgroundColor(MobilePalette.solid)
             settings.javaScriptEnabled=true
             settings.domStorageEnabled=true
             settings.mediaPlaybackRequiresUserGesture=false
@@ -331,7 +331,7 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
         val ui=ServerUi(host)
         val sheet=BottomSheetDialog(host)
         dialog=sheet
-        val body=LinearLayout(host).apply { orientation=LinearLayout.VERTICAL;setBackgroundColor(MobilePalette.surface) }
+        val body=LinearLayout(host).apply { orientation=LinearLayout.VERTICAL;setBackgroundColor(MobilePalette.solid) }
         body.addView(TextView(host).apply { text="Яндекс просит пройти проверку";textSize=19f;setTextColor(MobilePalette.text);setPadding(ui.dp(16),ui.dp(14),ui.dp(16),ui.dp(4)) })
         body.addView(TextView(host).apply {
             text="Пройдите проверку, затем нажмите «Готово». Если страница откроется без проверки, OpenFlux передаст результат сам."
@@ -340,7 +340,7 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
         var cleaned=false
         var settledSince=0L
         val web=WebView(host).apply {
-            setBackgroundColor(MobilePalette.surface)
+            setBackgroundColor(MobilePalette.solid)
             settings.javaScriptEnabled=true
             settings.domStorageEnabled=true
             settings.loadWithOverviewMode=true
@@ -432,7 +432,7 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
         val ui=ServerUi(host)
         val sheet=BottomSheetDialog(host)
         dialog=sheet
-        val body=LinearLayout(host).apply { orientation=LinearLayout.VERTICAL;setBackgroundColor(MobilePalette.surface) }
+        val body=LinearLayout(host).apply { orientation=LinearLayout.VERTICAL;setBackgroundColor(MobilePalette.solid) }
         val header=LinearLayout(host).apply { gravity=android.view.Gravity.CENTER_VERTICAL }
         header.addView(TextView(host).apply { text="Решите проверку, чтобы продолжить";textSize=19f;setTextColor(MobilePalette.text);setPadding(ui.dp(16),ui.dp(14),ui.dp(8),ui.dp(10)) },LinearLayout.LayoutParams(0,-2,1f))
         header.addView(android.widget.ImageButton(host).apply {
@@ -452,7 +452,7 @@ class MobileCaptchaController(private val host: FragmentActivity): AutoCloseable
         var cleaned=false
         var solved=false
         val web=WebView(host).apply {
-            setBackgroundColor(MobilePalette.surface)
+            setBackgroundColor(MobilePalette.solid)
             settings.javaScriptEnabled=true
             settings.domStorageEnabled=true
             settings.loadsImagesAutomatically=true

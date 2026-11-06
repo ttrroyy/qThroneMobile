@@ -22,7 +22,7 @@ class VkRelayActivity : ThemedActivity() {
     private var web: WebView? = null
     @SuppressLint("SetJavaScriptEnabled") override fun onCreate(state: Bundle?) {
         super.onCreate(state)
-        val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(MobilePalette.background) }
+        val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(MobilePalette.screen) }
         val toolbar = Toolbar(this).apply {
             title = "Настройки VK-релея"; setTitleTextColor(MobilePalette.text)
             setNavigationIcon(R.drawable.baseline_arrow_back_24); setNavigationOnClickListener { finish() }

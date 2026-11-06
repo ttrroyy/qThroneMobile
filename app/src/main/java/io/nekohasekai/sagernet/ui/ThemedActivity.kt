@@ -51,6 +51,7 @@ abstract class ThemedActivity : AppCompatActivity, androidx.preference.Preferenc
 
         super.onCreate(savedInstanceState)
         if (!isDialog) MobileScreenMotion.open(this)
+        if (MobileStyle.new && !isDialog) window.setBackgroundDrawable(MobileHomeBackdrop())
 
         supportFragmentManager.registerFragmentLifecycleCallbacks(object : androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks() {
             override fun onFragmentViewCreated(manager: androidx.fragment.app.FragmentManager, fragment: androidx.fragment.app.Fragment, view: android.view.View, state: Bundle?) {
@@ -125,7 +126,7 @@ abstract class ThemedActivity : AppCompatActivity, androidx.preference.Preferenc
         setActionTextColor(MobilePalette.accent(this@ThemedActivity))
         view.backgroundTintList=null
         view.background=android.graphics.drawable.GradientDrawable().apply {
-            setColor(MobilePalette.surface)
+            setColor(if(MobileStyle.new) MobilePalette.frosted else MobilePalette.surface)
             cornerRadius=MobilePalette.cardDp*density
             setStroke(1,MobilePalette.outline)
         }

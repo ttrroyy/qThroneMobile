@@ -350,14 +350,13 @@ class MobileHomeFragment : ToolbarFragment() {
     private var openSwipe: MobileSwipeTile? = null
     private fun dp(n: Int) = (n * resources.displayMetrics.density).toInt()
     private fun tile(selected: Boolean = false): android.graphics.drawable.Drawable {
+        if(MobileStyle.new) return if(selected) MobilePalette.selectedShape(requireContext(),blue) else MobilePalette.rowShape(requireContext())
         val shape = GradientDrawable().apply {
             setColor(if (selected) androidx.core.graphics.ColorUtils.blendARGB(surface,blue,.12f) else surface)
             cornerRadius=dp(MobilePalette.rowDp).toFloat()
             if(!MobileStyle.new) setStroke(if(selected) dp(1) else 1, if (selected) blue else MobilePalette.outline)
         }
-        if(!MobileStyle.new || !selected) return shape
-        val bar = GradientDrawable().apply { setColor(blue); cornerRadius=dp(2).toFloat() }
-        return android.graphics.drawable.LayerDrawable(arrayOf(shape,bar)).apply { setLayerInset(1,dp(5),dp(12),0,dp(12)); setLayerWidth(1,dp(3)); setLayerGravity(1,Gravity.START or Gravity.FILL_VERTICAL) }
+        return shape
     }
     private fun text(value: String, size: Float = 16f, color: Int = foregroundColor) = TextView(requireContext()).apply {
         text = value; textSize = size; setTextColor(color)
@@ -697,7 +696,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     orientation=LinearLayout.VERTICAL; setPadding(dp(12),0,dp(12),0); elevation=dp(12).toFloat()
                     isClickable=true
                     background=GradientDrawable().apply {
-                        setColor(MobilePalette.background); setStroke(1,MobilePalette.outline)
+                        setColor(MobilePalette.frosted); setStroke(1,MobilePalette.outline)
                         val round=dp(MobilePalette.cardDp+4).toFloat()
                         cornerRadii=floatArrayOf(round,round,round,round,0f,0f,0f,0f)
                     }
@@ -824,15 +823,15 @@ class MobileHomeFragment : ToolbarFragment() {
                     setOnTouchListener { _, event ->
                         val artwork=background as? MobilePowerArtwork
                         val target=when(event.actionMasked) {
-                            android.view.MotionEvent.ACTION_DOWN -> .94f
+                            android.view.MotionEvent.ACTION_DOWN -> if(MobileStyle.new) .9f else .94f
                             android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> 1f
                             else -> null
                         }
                         if(artwork!=null && target!=null) {
                             pressAnimator?.cancel()
                             pressAnimator=android.animation.ValueAnimator.ofFloat(artwork.pressScale,target).apply {
-                                duration=if(target<1f) 90 else 150
-                                interpolator=android.view.animation.DecelerateInterpolator()
+                                duration=if(MobileStyle.new) (if(target<1f) 140 else 480) else if(target<1f) 90 else 150
+                                interpolator=if(MobileStyle.new && target>=1f) android.view.animation.OvershootInterpolator(3.5f) else android.view.animation.DecelerateInterpolator()
                                 addUpdateListener { artwork.pressScale=it.animatedValue as Float }
                                 start()
                             }
@@ -1392,13 +1391,13 @@ class MobileHomeFragment : ToolbarFragment() {
         }
         entry(getString(R.string.qmobile_ping),R.drawable.ic_mobile_test) { viewLifecycleOwner.lifecycleScope.launch { val ids=withContext(Dispatchers.IO) { SagerDatabase.proxyDao.getByGroup(group.id).map { it.id }.toLongArray() };testMenu(ids,group.displayName(),group.id,true) } }
         entry(getString(R.string.settings),R.drawable.ic_mobile_settings) { editGroup(group,true) }
-        entry(getString(R.string.connection_test_clear_results),R.drawable.ic_mobile_test) {
+        entry(getString(R.string.connection_test_clear_results),R.drawable.ic_mobile_clear_test) {
             viewLifecycleOwner.lifecycleScope.launch {
                 withContext(Dispatchers.IO) { ProfileManager.clearGroupTestResults(group.id) }
                 refresh()
             }
         }
-        entry(getString(R.string.clear_traffic_statistics),R.drawable.ic_mobile_test) {
+        entry(getString(R.string.clear_traffic_statistics),R.drawable.ic_mobile_clear_stats) {
             viewLifecycleOwner.lifecycleScope.launch {
                 withContext(Dispatchers.IO) {
                     val ids=ProfileManager.memberIds(group.id).toLongArray()

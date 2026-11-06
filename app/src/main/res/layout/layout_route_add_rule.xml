@@ -20,7 +20,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:importantForAccessibility="no"
-            android:src="@drawable/ic_baseline_add_road_24" />
+            android:src="@drawable/ic_mobile_add" />
 
         <TextView
             android:layout_width="wrap_content"

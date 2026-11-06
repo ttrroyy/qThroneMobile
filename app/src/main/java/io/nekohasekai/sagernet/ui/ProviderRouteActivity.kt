@@ -38,8 +38,8 @@ class ProviderRouteActivity : ServerScreenActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(MobilePalette.background))
-        val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(MobilePalette.background) }
+        if (!MobileStyle.new) window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(MobilePalette.background))
+        val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(MobilePalette.screen) }
         val toolbar = Toolbar(this).apply {
             title = getString(R.string.provider_route_new); setTitleTextColor(MobilePalette.text)
             setNavigationIcon(R.drawable.ic_navigation_close); setNavigationOnClickListener { finish() }

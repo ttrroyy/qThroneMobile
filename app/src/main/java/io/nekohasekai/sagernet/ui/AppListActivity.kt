@@ -220,7 +220,7 @@ class AppListActivity : ThemedActivity() {
 
         binding = LayoutAppListBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.root.setBackgroundColor(MobilePalette.background)
+        binding.root.setBackgroundColor(MobilePalette.screen)
         binding.toolbar.setBackgroundColor(MobilePalette.toolbar)
         binding.toolbar.setTitleTextColor(MobilePalette.text)
         binding.searchCard.setCardBackgroundColor(MobilePalette.surface)

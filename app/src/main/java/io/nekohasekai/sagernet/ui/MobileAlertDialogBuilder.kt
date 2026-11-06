@@ -37,12 +37,18 @@ class MobileAlertDialogBuilder(context: Context) : MaterialAlertDialogBuilder(
         fun style(dialog: androidx.appcompat.app.AlertDialog) {
             val density = dialog.context.resources.displayMetrics.density
             val surface = GradientDrawable().apply {
-                setColor(MobilePalette.surface)
+                setColor(if (MobileStyle.new) MobilePalette.frosted else MobilePalette.surface)
                 cornerRadius = MobilePalette.cardDp * density
                 setStroke(1, MobilePalette.outline)
             }
             dialog.window?.setBackgroundDrawable(InsetDrawable(surface, (24 * density).toInt()))
-            if (MobileStyle.new) dialog.window?.setWindowAnimations(app.qthrone.mobile.R.style.MobileDialogSoft)
+            if (MobileStyle.new) dialog.window?.let { window ->
+                window.setWindowAnimations(app.qthrone.mobile.R.style.MobileDialogSoft)
+                if (android.os.Build.VERSION.SDK_INT >= 31) {
+                    window.addFlags(android.view.WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
+                    window.attributes = window.attributes.apply { blurBehindRadius = (22 * density).toInt() }
+                }
+            }
             val colors=android.content.res.ColorStateList(arrayOf(intArrayOf(-android.R.attr.state_enabled),intArrayOf()),
                 intArrayOf(MobilePalette.muted,MobilePalette.accent(dialog.context)))
             for(which in listOf(-1,-2,-3)) dialog.getButton(which)?.setTextColor(colors)

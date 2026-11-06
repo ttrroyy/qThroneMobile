@@ -23,6 +23,7 @@ internal class ServerUi(private val context: Context) {
     fun column(padding: Int = 0) = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(padding), dp(padding), dp(padding), dp(padding)) }
 
     fun card(radius: Int = MobilePalette.cardDp) = column(12).apply {
+        if (MobileStyle.new) { background = MobileGlass(dp(radius).toFloat()); return@apply }
         background = GradientDrawable().apply { setColor(MobilePalette.surface); cornerRadius = dp(radius).toFloat(); setStroke(1,MobilePalette.outline) }
     }
 

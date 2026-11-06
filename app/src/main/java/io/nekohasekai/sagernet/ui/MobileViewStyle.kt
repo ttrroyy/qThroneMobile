@@ -21,7 +21,7 @@ object MobileViewStyle {
         if(root.isClickable && root !is MaterialCardView && root !is android.widget.EditText) MobileFeedback.apply(root)
         if(root is RecyclerView) {
             root.isVerticalScrollBarEnabled=false
-            root.setBackgroundColor(MobilePalette.background)
+            root.setBackgroundColor(MobilePalette.screen)
             if(root.getTag(app.qthrone.mobile.R.id.route_list) != true) {
                 root.setTag(app.qthrone.mobile.R.id.route_list,true)
                 root.addOnChildAttachStateChangeListener(object: RecyclerView.OnChildAttachStateChangeListener {

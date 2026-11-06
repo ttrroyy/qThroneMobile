@@ -30,9 +30,13 @@ class MobileSheetDialog(context: Context) : BottomSheetDialog(context) {
         super.onStart()
         findViewById<android.view.View>(com.google.android.material.R.id.design_bottom_sheet)?.apply {
             background=GradientDrawable().apply {
-                setColor(if (MobileStyle.new) MobilePalette.background else MobilePalette.surface);cornerRadius=MobilePalette.cardDp*resources.displayMetrics.density
+                setColor(if (MobileStyle.new) MobilePalette.frosted else MobilePalette.surface);cornerRadius=MobilePalette.cardDp*resources.displayMetrics.density
             }
             clipToOutline=true
+        }
+        if (MobileStyle.new && android.os.Build.VERSION.SDK_INT >= 31) window?.let { window ->
+            window.addFlags(android.view.WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
+            window.attributes = window.attributes.apply { blurBehindRadius = (22 * context.resources.displayMetrics.density).toInt() }
         }
         window?.setWindowAnimations(if (MobileStyle.new) app.qthrone.mobile.R.style.MobileSheetSoft else app.qthrone.mobile.R.style.MobileSheetFast)
     }

@@ -79,7 +79,7 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         toolbar?.setTitle(R.string.qmobile_logs)
-        view.setBackgroundColor(MobilePalette.background)
+        view.setBackgroundColor(MobilePalette.screen)
         view.findViewById<View>(R.id.log_panel).background = MobilePalette.cardShape(requireContext())
 
         toolbar?.inflateMenu(R.menu.logcat_menu)

@@ -167,13 +167,13 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
             ViewCompat.setOnApplyWindowInsetsListener(this, null)
             setPadding(0, 0, 0, 0)
             layoutParams = layoutParams.apply { height = (56 * resources.displayMetrics.density).toInt() }
-            setBackgroundColor(MobilePalette.background)
+            setBackgroundColor(MobilePalette.screen)
         }
         setSupportActionBar(findViewById(R.id.toolbar))
         findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar).apply {
             setSubtitleTextColor(MobilePalette.muted)
             if (!settingsMode) {
-                setBackgroundColor(MobilePalette.background)
+                setBackgroundColor(MobilePalette.screen)
                 setPadding(0,0,0,0)
                 contentInsetStartWithNavigation = 0
             }

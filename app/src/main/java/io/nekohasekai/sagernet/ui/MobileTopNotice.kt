@@ -18,7 +18,7 @@ object MobileTopNotice {
             tag = "mobileNotice"; gravity = Gravity.CENTER_VERTICAL
             setPadding(dp(12), dp(8), dp(12), dp(8)); minimumHeight = dp(48)
             elevation = dp(8).toFloat()
-            background = MobilePalette.cardShape(activity)
+            background = MobilePalette.frostedShape(activity)
             addView(TextView(activity).apply {
                 text = if(error) "!" else "✓"; textSize = 20f
                 setTextColor(if(error) android.graphics.Color.rgb(230,100,100) else android.graphics.Color.rgb(67,185,105))

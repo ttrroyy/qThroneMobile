@@ -57,7 +57,7 @@ class WdttPlusBackupsActivity : ServerScreenActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(MobilePalette.background))
-        val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(MobilePalette.background) }
+        val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(MobilePalette.screen) }
         val toolbar = Toolbar(this).apply {
             setTitleTextColor(MobilePalette.text); setNavigationIcon(R.drawable.baseline_arrow_back_24); setNavigationOnClickListener { finish() }
             title = "Резервные копии и перенос"

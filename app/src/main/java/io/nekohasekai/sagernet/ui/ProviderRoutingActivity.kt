@@ -32,7 +32,7 @@ class ProviderRoutingActivity : ThemedActivity() {
 
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
-        val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(MobilePalette.background) }
+        val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(MobilePalette.screen) }
         val toolbar = Toolbar(this).apply {
             setTitleTextColor(MobilePalette.text); setNavigationIcon(R.drawable.baseline_arrow_back_24)
             setNavigationOnClickListener { finish() }
@@ -40,7 +40,7 @@ class ProviderRoutingActivity : ThemedActivity() {
         val content = FrameLayout(this).apply { id = android.R.id.content + 1 }
         root.addView(toolbar); root.addView(content, LinearLayout.LayoutParams(-1, 0, 1f))
         messageHost = androidx.coordinatorlayout.widget.CoordinatorLayout(this).apply {
-            setBackgroundColor(MobilePalette.background)
+            setBackgroundColor(MobilePalette.screen)
             addView(root,androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams(-1,-1))
         }
         setContentView(messageHost)

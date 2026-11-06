@@ -9,7 +9,7 @@ class ToolsFragment : ToolbarFragment(R.layout.layout_tools) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.setBackgroundColor(MobilePalette.background)
+        view.setBackgroundColor(MobilePalette.screen)
         toolbar?.apply {
             setTitle(R.string.settings_backup)
             setBackgroundColor(MobilePalette.toolbar)

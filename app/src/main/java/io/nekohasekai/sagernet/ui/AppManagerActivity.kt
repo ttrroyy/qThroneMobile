@@ -265,7 +265,7 @@ class AppManagerActivity : ThemedActivity() {
 
         binding = LayoutAppsBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.root.setBackgroundColor(MobilePalette.background)
+        binding.root.setBackgroundColor(MobilePalette.screen)
         binding.toolbar.setBackgroundColor(MobilePalette.toolbar)
         binding.toolbar.setTitleTextColor(MobilePalette.text)
 

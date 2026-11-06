@@ -94,7 +94,7 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
         list.applyListInsets()
         list.layoutManager = FixedLinearLayoutManager(list)
         list.adapter = adapter
-        view.setBackgroundColor(MobilePalette.background)
+        view.setBackgroundColor(MobilePalette.screen)
         MobileViewStyle.apply(view)
         onServiceStateChanged()
         RouteManager.addListener(onRoutesChanged)
