@@ -1,57 +1,59 @@
 {
-  "build_commit": "4bc36f8ea286ac91031ee94f7ef6a595c961b28e",
+  "build_commit": "8a472e404a6f6cf4f24721c961d7ca11f30b7a84",
   "core_commit": "e5c3c405f21cfb27a883038a0aec40bd9dcf8587",
   "archives": [
     {
       "abi": "armeabi-v7a",
-      "name": "qthrone-transports-4bc36f8e-armeabi-v7a.tar.gz",
-      "sha256": "22094a19b7f36529864597104f8e5f14caab356a0c9e370af9f6696b1756bcea",
-      "sources": "qThrone e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nolcRTC f3ad8fb7c0d0fa981423f83269526fa94077c23d\nOpenFlux f492a1a33b7581ad8f88118f97e0b866adda3cdc\nCSQTT 71712b07dbabe16fa43f5a248dc69e1ab9f3a270\nVayDNS a0ff70110d5e96686ab8f4c8e1c44cd09be07a75\nMasterDnsVPN 4052a6b95e758adf2dc26fa1fe527457e58d627c\nXray-core-fedarisha a04f4c09972b2aa7d6255197732c1c20e3fdc8a1\nslipstream-rust 7de506b222c83ae97a19a618e33fe26899af1bd5\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nAndroid ABI armeabi-v7a\nCSQTT minimum API 26\n",
-      "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-transports-4bc36f8e-armeabi-v7a.tar.gz"
+      "name": "rawline-transports-8a472e40-armeabi-v7a.tar.gz",
+      "sha256": "3422e60cfeff661f952ed0976a358b7c8aea95591f3bab23639c211284df825f",
+      "sources": "Rawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nolcRTC f3ad8fb7c0d0fa981423f83269526fa94077c23d\nOpenFlux f492a1a33b7581ad8f88118f97e0b866adda3cdc\nCSQTT 71712b07dbabe16fa43f5a248dc69e1ab9f3a270\nVayDNS a0ff70110d5e96686ab8f4c8e1c44cd09be07a75\nMasterDnsVPN 4052a6b95e758adf2dc26fa1fe527457e58d627c\nXray-core-fedarisha a04f4c09972b2aa7d6255197732c1c20e3fdc8a1\nslipstream-rust 7de506b222c83ae97a19a618e33fe26899af1bd5\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nAndroid ABI armeabi-v7a\nCSQTT minimum API 26\n",
+      "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-transports-8a472e40-armeabi-v7a.tar.gz"
     },
     {
       "abi": "arm64-v8a",
-      "name": "qthrone-transports-4bc36f8e-arm64-v8a.tar.gz",
-      "sha256": "6a80ec935de2389e7a8573153646d3ceb80755c4615f8c1e41ef8abd78348a55",
-      "sources": "qThrone e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nolcRTC f3ad8fb7c0d0fa981423f83269526fa94077c23d\nOpenFlux f492a1a33b7581ad8f88118f97e0b866adda3cdc\nCSQTT 71712b07dbabe16fa43f5a248dc69e1ab9f3a270\nVayDNS a0ff70110d5e96686ab8f4c8e1c44cd09be07a75\nMasterDnsVPN 4052a6b95e758adf2dc26fa1fe527457e58d627c\nXray-core-fedarisha a04f4c09972b2aa7d6255197732c1c20e3fdc8a1\nslipstream-rust 7de506b222c83ae97a19a618e33fe26899af1bd5\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nAndroid ABI arm64-v8a\nCSQTT minimum API 26\n",
-      "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-transports-4bc36f8e-arm64-v8a.tar.gz"
+      "name": "rawline-transports-8a472e40-arm64-v8a.tar.gz",
+      "sha256": "672243111bdffa3f348aa962a45eba352177de9f90c4bded2d84d9af0bcb34c2",
+      "sources": "Rawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nolcRTC f3ad8fb7c0d0fa981423f83269526fa94077c23d\nOpenFlux f492a1a33b7581ad8f88118f97e0b866adda3cdc\nCSQTT 71712b07dbabe16fa43f5a248dc69e1ab9f3a270\nVayDNS a0ff70110d5e96686ab8f4c8e1c44cd09be07a75\nMasterDnsVPN 4052a6b95e758adf2dc26fa1fe527457e58d627c\nXray-core-fedarisha a04f4c09972b2aa7d6255197732c1c20e3fdc8a1\nslipstream-rust 7de506b222c83ae97a19a618e33fe26899af1bd5\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nAndroid ABI arm64-v8a\nCSQTT minimum API 26\n",
+      "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-transports-8a472e40-arm64-v8a.tar.gz"
     },
     {
       "abi": "x86_64",
-      "name": "qthrone-transports-4bc36f8e-x86_64.tar.gz",
-      "sha256": "fa2a0579edf9abfa061dadda42d4c884e8ccbf840f462c46d5f0093e294fe26d",
-      "sources": "qThrone e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nolcRTC f3ad8fb7c0d0fa981423f83269526fa94077c23d\nOpenFlux f492a1a33b7581ad8f88118f97e0b866adda3cdc\nCSQTT 71712b07dbabe16fa43f5a248dc69e1ab9f3a270\nVayDNS a0ff70110d5e96686ab8f4c8e1c44cd09be07a75\nMasterDnsVPN 4052a6b95e758adf2dc26fa1fe527457e58d627c\nXray-core-fedarisha a04f4c09972b2aa7d6255197732c1c20e3fdc8a1\nslipstream-rust 7de506b222c83ae97a19a618e33fe26899af1bd5\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nAndroid ABI x86_64\nCSQTT minimum API 26\n",
-      "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-transports-4bc36f8e-x86_64.tar.gz"
+      "name": "rawline-transports-8a472e40-x86_64.tar.gz",
+      "sha256": "ae804f93ec7044e17d8ace85da406d9e3720d537146669b96148db68469de392",
+      "sources": "Rawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nolcRTC f3ad8fb7c0d0fa981423f83269526fa94077c23d\nOpenFlux f492a1a33b7581ad8f88118f97e0b866adda3cdc\nCSQTT 71712b07dbabe16fa43f5a248dc69e1ab9f3a270\nVayDNS a0ff70110d5e96686ab8f4c8e1c44cd09be07a75\nMasterDnsVPN 4052a6b95e758adf2dc26fa1fe527457e58d627c\nXray-core-fedarisha a04f4c09972b2aa7d6255197732c1c20e3fdc8a1\nslipstream-rust 7de506b222c83ae97a19a618e33fe26899af1bd5\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nAndroid ABI x86_64\nCSQTT minimum API 26\n",
+      "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-transports-8a472e40-x86_64.tar.gz"
     }
   ],
   "inputs": {
-    "scripts/build_carrier_clients.sh": "b9f5f9d0aaedd9be6b04f9e69345a6e1b7ee96817a2c6f587e95a0a4fd23f4d5",
-    "scripts/prepare_android_captcha.py": "b64ad3952201540d1dd24e314365c3d169d46be148e76f960c6050e6676eb674",
-    "scripts/prepare_mobile_csqtt.py": "5b275c431eb5a668be1c88cc52ce36d95aec005acc93265e7febcd86c75062e6",
-    "scripts/prepare_mobile_slipstream.py": "f185704e15a324f77635c02011ffdd78d680e4a7bef45595bf06769e1baa621c",
-    "carriers/olcrtc/main.go": "cbaeae54189b1594a4bf1976170396b6e707e609e73d844a76d5ae2ed79d340d",
+    "scripts/build_carrier_clients.sh": "3b85688e72713f42d0d539b6a31fbe5b2ac592ac66c2a386fad204819d7e6279",
+    "scripts/prepare_android_captcha.py": "40c35d33944c04c915486550b39a56f3282da726459c065b480902ac9761ab6a",
+    "scripts/prepare_mobile_csqtt.py": "819c7b7713e21d87b72da159bddd48a0f3cdf283fa095ff1ca021bb19db88477",
+    "scripts/prepare_mobile_slipstream.py": "06b88a1e866e3786948eacd42b00d1938e39d0d7c8c3b61a6a40ea96d65420f3",
+    "carriers/olcrtc/main.go": "e1a090d2df0745e9a55c89dd4f80f004f9f4195d35b5b569c0e233a5cbe72248",
     "carriers/olcrtc/main_test.go": "e31129143ae483f955b813902731741834b094d2f5a626b51a9303098d9456fb",
-    "carriers/olcrtc/integration_test.go": "c4c08af66123c2dd4b5a2c64f3c9e20a4f5d3e7c389cfe2ef5cfe432e8c823c8",
+    "carriers/olcrtc/integration_test.go": "9a19c0535214211590541c911bef6f9d2919d35e7c7a302f6de96b4ec783e77a",
     "carriers/dnstun/backend.go": "83fad3c7108fcff420ad33f962944c9294584f8edc4129c12874d9567cdcffd5",
-    "carriers/dnstun/main.go": "abd4a85d7ee7c01bd31e744dea43c2445e7d26dea3cbbabc936e65634904d0f6",
+    "carriers/dnstun/main.go": "6f58ad4748f7487d80163f4b2888ccffc585a03d9b29cd3a931d7cc105334824",
     "carriers/dnstun/slipstream.go": "510c2d018b6ee17f6828d6e82d58210a58bfad81a6706268c644b4f16e478292",
     "carriers/dnstun/socks.go": "3403b057215d03aeb701be21cac3047f855a6a96a50841b5b27f2c00ed95d9d7",
     "carriers/dnstun/tunnel.go": "14934adea51d82e3a7dc8f6bdc6a8e6d111580320a449b30eae8d00df30cd50b",
-    "carriers/masterdns/main.go": "abdcf31f1b0e075bea21ecd49b547707c699cca607d45b42ee1284019153b9ff",
-    "carriers/s3bypass/main.go": "57955f59a8d240cde2d63eeafaa1458b4c8f4f3ce1361a8fed627cf207fb1e49"
+    "carriers/masterdns/main.go": "807ce6e1d0035c744b5911f03ce42fc7f6ad47ab0603dcc4eeacfdf10cf61f99",
+    "carriers/s3bypass/main.go": "ac0b8b6cdbff5f18c5a5b60bbadb4bbaed6e44eb58fbf1f6ce6c53152fdd69be"
   },
   "secure_socks": {
-    "build_commit": "3ce6a692db29f10e37414340b3cd1ba785e331ed",
+    "build_commit": "8a472e404a6f6cf4f24721c961d7ca11f30b7a84",
     "core_commit": "e5c3c405f21cfb27a883038a0aec40bd9dcf8587",
     "wdtt_commit": "f706ccd373685bbde20cae33b2b7f400e8335ecc",
     "csqtt_commit": "2066156119a5afe7d63e104aefdc8e0849999d03",
     "inputs": {
-      "scripts/build_secure_carriers.sh": "aa7dd63a6f4e5413feacc855562b4cbe1574e70ac5f36144b8e08c94db9c7d30",
-      "scripts/prepare_android_captcha.py": "b64ad3952201540d1dd24e314365c3d169d46be148e76f960c6050e6676eb674",
+      "scripts/build_secure_carriers.sh": "929b94fe78d9821e7975008875ba9d0772de8c89622b761b0eb5959e0d54ded0",
+      "scripts/prepare_android_captcha.py": "40c35d33944c04c915486550b39a56f3282da726459c065b480902ac9761ab6a",
       "scripts/prepare_mobile_carrier_socks.py": "c1437afa13b26227bfd43619826f287eddc25ba8ec2206ff5cfe905e9cb57cc7",
       "scripts/prepare_private_csqtt.py": "475a90ed087356041821b1dfe7e827806909874762e1ac07fb0440f5e45425d2",
       "scripts/prepare_csqtt_rebirth.py": "7a9cc30d1cef83e81efc285ed53026aff41de14b9b9943089dec5b51771bfa4d",
       "scripts/prepare_csqtt_rebirth_bridge.py": "b5e54d9b49ba2d111dd77467d91c28ff012fe261303e24b3ad232e9a410e7336",
+      "core-patches/carrier-socks/qwdtt/mobile_csqtt_compat.go": "e9029397ef28e8e06cfddb9d6501c933a21e48d4c3ff7014b8cf45398a5054a1",
+      "core-patches/carrier-socks/qwdtt/mobile_csqtt_compat_test.go": "67acdfe3f20a953129cbe362a019fce8952e7eb1fb5795175b0357277a1b31ff",
       "core-patches/carrier-socks/qwdtt/mobile_csqtt_ipc_linux.go": "3c5e4a71a6860f83629b2a86e66bce4612cadb2b40c7b2b3d798b039c68bce4c",
       "core-patches/carrier-socks/qwdtt/mobile_csqtt_ipc_linux_test.go": "01fe064afab5de8f2bcd88f5c25871714099f4ad564f1d5d17d9f6b26af5f470",
       "core-patches/carrier-socks/qwdtt/mobile_csqtt_ipc_other.go": "e146d0bbddced21a41ad10b6ff047a4379a452449b69703077a81082bad77a57",
@@ -63,30 +65,30 @@
     },
     "archives": [
       {
-        "abi": "arm64-v8a",
-        "name": "qthrone-secure-socks-3ce6a692-arm64-v8a.tar.gz",
-        "sha256": "438d9a98f8efdb569308fba2be8ecef6e3ed14fed7b52ac0639f70de2e7e50ee",
-        "sources": "qThrone e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nCSQTT 2066156119a5afe7d63e104aefdc8e0849999d03\nAndroid ABI arm64-v8a\nLocal IPC hardening 3ce6a692db29f10e37414340b3cd1ba785e331ed\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-secure-socks-3ce6a692-arm64-v8a.tar.gz"
+        "abi": "armeabi-v7a",
+        "name": "rawline-secure-socks-8a472e40-armeabi-v7a.tar.gz",
+        "sha256": "716777cf8960bfa18ed1d4e6ef95b708889e395caa91ea938afc221bcd0ecfae",
+        "sources": "Rawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nCSQTT 2066156119a5afe7d63e104aefdc8e0849999d03\nAndroid ABI armeabi-v7a\nLocal IPC hardening 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\n",
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-secure-socks-8a472e40-armeabi-v7a.tar.gz"
       },
       {
-        "abi": "armeabi-v7a",
-        "name": "qthrone-secure-socks-3ce6a692-armeabi-v7a.tar.gz",
-        "sha256": "bbcb22daec8390eb86014dd89941c60f7231b3e50078642dcabc8fb13f0bfffc",
-        "sources": "qThrone e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nCSQTT 2066156119a5afe7d63e104aefdc8e0849999d03\nAndroid ABI armeabi-v7a\nLocal IPC hardening 3ce6a692db29f10e37414340b3cd1ba785e331ed\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-secure-socks-3ce6a692-armeabi-v7a.tar.gz"
+        "abi": "arm64-v8a",
+        "name": "rawline-secure-socks-8a472e40-arm64-v8a.tar.gz",
+        "sha256": "b3eae120fe902613068bd84e0bb18787f4344eec5e1384d4773c6f3861eedc09",
+        "sources": "Rawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nCSQTT 2066156119a5afe7d63e104aefdc8e0849999d03\nAndroid ABI arm64-v8a\nLocal IPC hardening 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\n",
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-secure-socks-8a472e40-arm64-v8a.tar.gz"
       },
       {
         "abi": "x86_64",
-        "name": "qthrone-secure-socks-3ce6a692-x86_64.tar.gz",
-        "sha256": "c27b53c878f7be13b846bef4b4a4ab070929f1f6b57937139757455746bb6387",
-        "sources": "qThrone e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nCSQTT 2066156119a5afe7d63e104aefdc8e0849999d03\nAndroid ABI x86_64\nLocal IPC hardening 3ce6a692db29f10e37414340b3cd1ba785e331ed\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-secure-socks-3ce6a692-x86_64.tar.gz"
+        "name": "rawline-secure-socks-8a472e40-x86_64.tar.gz",
+        "sha256": "c1ffbce2257518060fafe86c1cc265ee49d5b9de61edc7c9fa44433f00e289bd",
+        "sources": "Rawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nCSQTT 2066156119a5afe7d63e104aefdc8e0849999d03\nAndroid ABI x86_64\nLocal IPC hardening 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\n",
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-secure-socks-8a472e40-x86_64.tar.gz"
       }
     ]
   },
   "sstp": {
-    "build_commit": "2132ef5fdd0107a4715251cb4dfdf99007f4cd17",
+    "build_commit": "8a472e404a6f6cf4f24721c961d7ca11f30b7a84",
     "inputs": {
       "carriers/sstp/LICENSE": "3baa1b9ee594939e30c64a5c353b37cacac35cd693982370951f68f6d55156db",
       "carriers/sstp/bridge.go": "dc0cd6e2457f5ce94c2adccdb4a48b5e1ce3e905adcb98342943cebf2d9b4e3d",
@@ -128,7 +130,7 @@
       "carriers/sstp/internal/vlog/texthandler.go": "60738787ebf2025258d87a2eb37ade96f3ee44d880f43a8a713a4a7899d7ef84",
       "carriers/sstp/internal/vlog/vlog.go": "2d94f256fc0ebe498edf30f4cd1c578d9b3daba8fa49cfc797d3417e6b9ef633",
       "carriers/sstp/internal/vlog/vlog_test.go": "1a5793127f184b89e9f4df81f5482e0c2746571f491272cf5b0848a90a189987",
-      "carriers/sstp/main.go": "51032bf8110338c64567a6546b1560a3688c0972e55033a128e2a6fda973a123",
+      "carriers/sstp/main.go": "8ab1c73bf984d2f13ee597896363ce3e3b0b5d2e2824cfc4f6a66ce1a24c1991",
       "carriers/sstp/server_dns.go": "bec85a51c516582ea8892e931505c1d76d9caa907dc12502b23afb18114fe2bf",
       "carriers/sstp/server_dns_test.go": "fb477e48aa1ed8bb047009f6ad4bb3c788e77be78df1c5ab3d4e49241749d5a7",
       "carriers/sstp/socks5.go": "23ffac27ace595c60d549fddd2b4e9ad1b928b66ac742763dcaf93e5ef375843",
@@ -137,79 +139,79 @@
       "carriers/sstp/tunnel/dialconn_test.go": "8d163590fc324797c098250af3e6a38dab4d333f3885aa3e464b04ee7be7e14f",
       "carriers/sstp/tunnel/proxy.go": "9093a5ee90722284458f561ba3ed467a1a2124a76764b360ece40f4779ca6fcc",
       "carriers/sstp/tunnel/tunnel.go": "8f4e665c664f0237943b8201a54a56ff36b50f642d04a525e48e0c302a1fe74f",
-      "scripts/build_sstp.sh": "4afe936ee783e25d4fda8ac7a466541f1ce03f079950e1038fbb7bddbbdedbb8"
+      "scripts/build_sstp.sh": "e17913bd67729635d8a9bc79fc5c4cec67c23722a69b71672fa8675531e2b857"
     },
     "archives": [
       {
-        "abi": "arm64-v8a",
-        "name": "qthrone-sstp-2132ef5f-arm64-v8a.tar.gz",
-        "sha256": "7bd742e6239f997464f5d8dcfac11eeba5fabee7cf3a2659d0f0cc0fb84dca7c",
-        "sources": "qThroneMobile SSTP 2132ef5fdd0107a4715251cb4dfdf99007f4cd17\nAndroid ABI arm64-v8a\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-sstp-2132ef5f-arm64-v8a.tar.gz"
+        "abi": "armeabi-v7a",
+        "name": "rawline-sstp-8a472e40-armeabi-v7a.tar.gz",
+        "sha256": "fba810817651c3e58d4e53352d9e2a320191c372cda2e842160171063677cc4c",
+        "sources": "RawlineMobile SSTP 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\nAndroid ABI armeabi-v7a\n",
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-sstp-8a472e40-armeabi-v7a.tar.gz"
       },
       {
-        "abi": "armeabi-v7a",
-        "name": "qthrone-sstp-2132ef5f-armeabi-v7a.tar.gz",
-        "sha256": "581589b5dd45f0968e012c8333a99e922ad70268629d478c2668b69af186a067",
-        "sources": "qThroneMobile SSTP 2132ef5fdd0107a4715251cb4dfdf99007f4cd17\nAndroid ABI armeabi-v7a\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-sstp-2132ef5f-armeabi-v7a.tar.gz"
+        "abi": "arm64-v8a",
+        "name": "rawline-sstp-8a472e40-arm64-v8a.tar.gz",
+        "sha256": "e12f2584cc98d9fc04420fe242b983046cdd94b5c552041302c86a428ed50784",
+        "sources": "RawlineMobile SSTP 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\nAndroid ABI arm64-v8a\n",
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-sstp-8a472e40-arm64-v8a.tar.gz"
       },
       {
         "abi": "x86_64",
-        "name": "qthrone-sstp-2132ef5f-x86_64.tar.gz",
-        "sha256": "a7bf79e6b178ff5ea382d63cd0f42934c2e043bfc8a430cdc5942af36c0b8790",
-        "sources": "qThroneMobile SSTP 2132ef5fdd0107a4715251cb4dfdf99007f4cd17\nAndroid ABI x86_64\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-sstp-2132ef5f-x86_64.tar.gz"
+        "name": "rawline-sstp-8a472e40-x86_64.tar.gz",
+        "sha256": "13ed19e38a0c78d3fd6351c1251d31018837323d39aa93bd1fd177d8fef2fa5c",
+        "sources": "RawlineMobile SSTP 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\nAndroid ABI x86_64\n",
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-sstp-8a472e40-x86_64.tar.gz"
       }
     ]
   },
   "dns_engines": {
-    "build_commit": "1c0d9a71f67b161e69cc5fc18c715aee48a2a06c",
+    "build_commit": "8a472e404a6f6cf4f24721c961d7ca11f30b7a84",
     "inputs": {
-      "carriers/cottendns/main.go": "92b010081316339d875ab022d35bea848546f860046fbaf16f341cf79327a9da",
+      "carriers/cottendns/main.go": "79971b856efb4bc862fa5441446623c9c8ef90a6eb52e9c77de8a3367511fd33",
       "carriers/cottendns/main_test.go": "1cd50240e40291190d098fdf430e0a15ed40d93b6198a062cf21bc59275a9954",
       "carriers/openflux/captcha.go": "422f26b83a774bcffc045d04fd9c6d1fc4a4b9d15daf02b4fc157b782e65d1e3",
       "carriers/openflux/captcha_android.go": "6ec861a02602563272d31a91c74e37a4bffec3f1a6a711cc840ad9e496385843",
-      "carriers/openflux/main.go": "c74cf1e9d39ecd62069a62a619faa608e9ae3bbba8bf0446db5ee63821329679",
-      "carriers/openfluxkey/bridge/qthrone.go": "2fd24a5e22e81dd322eb8a658dc29393a8ddaf1917788da6671aa9a40fa42dd4",
+      "carriers/openflux/main.go": "d9a07f24bb78e60fb7fbcac1a04b9a5e072677b58f21a37829bf9e53dab9f8c5",
+      "carriers/openfluxkey/bridge/rawline.go": "60a58b402bd509a54e6f90fad80506add1d113970cba026cf471aef24dc4cf02",
       "carriers/openfluxkey/captcha.go": "422f26b83a774bcffc045d04fd9c6d1fc4a4b9d15daf02b4fc157b782e65d1e3",
       "carriers/openfluxkey/captcha_android.go": "6ec861a02602563272d31a91c74e37a4bffec3f1a6a711cc840ad9e496385843",
-      "carriers/openfluxkey/main.go": "b83d72be89ab6937c9d1621eac9f0d62bc6b019a44ff67333684704ce6b9da0e",
-      "carriers/soar/main.go": "226a402d2f0f5b0feb81655ff4570fec3e4242047906f860a2c11cef19954ce9",
+      "carriers/openfluxkey/main.go": "1cb92dbb7a5cae8680271d8ab697af52f9dea8988174bbfe2e746e013c1f15ee",
+      "carriers/soar/main.go": "10ec34af58235ceee9036836c5298d0d59dbd125d5d5368af938071a39e90b7a",
       "carriers/soar/socks.go": "58e5e8917373f50b78c3e3dbad789985868bb867c592169a940780011744520f",
-      "scripts/build_dns_engines.sh": "b7968bef356e53fbb1ce1d264a50f5e77b02dfe29c35d6e6cc48062baacf3cbe"
+      "scripts/build_dns_engines.sh": "db1ad097c30cd51596607edaf8db5f80625383a8e5f2a60fcdb8540a2c916e62"
     },
     "archives": [
       {
         "abi": "armeabi-v7a",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-dns-1c0d9a71-armeabi-v7a.tar.gz",
-        "name": "qthrone-dns-1c0d9a71-armeabi-v7a.tar.gz",
-        "sha256": "2ca745c9fd752cd310df1acb01151ff7d65ff599bf1825591d2770188bae2748",
-        "sources": "qThroneMobile DNS engines 1c0d9a71f67b161e69cc5fc18c715aee48a2a06c\nCottenDNS ac8e86ed83a5006ab320468daaebe759d9574da6\nSoar fea80aae6c60a9f27d7358e5f967cbc9b57bb37d\nOpenFlux f492a1a33b7581ad8f88118f97e0b866adda3cdc\nOpenFlux Key fc5647767c9daba6571ec3157f9be9b6ffe6e551\nAndroid ABI armeabi-v7a\n"
+        "name": "rawline-dns-8a472e40-armeabi-v7a.tar.gz",
+        "sha256": "a2bcd78990b538f03f2ccc6d73d4c47284b9adc02dd36927a86d2f6f529814db",
+        "sources": "RawlineMobile DNS engines 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\nCottenDNS ac8e86ed83a5006ab320468daaebe759d9574da6\nSoar fea80aae6c60a9f27d7358e5f967cbc9b57bb37d\nOpenFlux f492a1a33b7581ad8f88118f97e0b866adda3cdc\nOpenFlux Key fc5647767c9daba6571ec3157f9be9b6ffe6e551\nAndroid ABI armeabi-v7a\n",
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-dns-8a472e40-armeabi-v7a.tar.gz"
       },
       {
         "abi": "arm64-v8a",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-dns-1c0d9a71-arm64-v8a.tar.gz",
-        "name": "qthrone-dns-1c0d9a71-arm64-v8a.tar.gz",
-        "sha256": "fc1e457236f5a4defe13f088412640c37325150a9033216fe8eca04714a37777",
-        "sources": "qThroneMobile DNS engines 1c0d9a71f67b161e69cc5fc18c715aee48a2a06c\nCottenDNS ac8e86ed83a5006ab320468daaebe759d9574da6\nSoar fea80aae6c60a9f27d7358e5f967cbc9b57bb37d\nOpenFlux f492a1a33b7581ad8f88118f97e0b866adda3cdc\nOpenFlux Key fc5647767c9daba6571ec3157f9be9b6ffe6e551\nAndroid ABI arm64-v8a\n"
+        "name": "rawline-dns-8a472e40-arm64-v8a.tar.gz",
+        "sha256": "8b660dae73644120ec273a363a8ab8b0d6bd30028050b1baeabad5514a4b8e78",
+        "sources": "RawlineMobile DNS engines 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\nCottenDNS ac8e86ed83a5006ab320468daaebe759d9574da6\nSoar fea80aae6c60a9f27d7358e5f967cbc9b57bb37d\nOpenFlux f492a1a33b7581ad8f88118f97e0b866adda3cdc\nOpenFlux Key fc5647767c9daba6571ec3157f9be9b6ffe6e551\nAndroid ABI arm64-v8a\n",
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-dns-8a472e40-arm64-v8a.tar.gz"
       },
       {
         "abi": "x86_64",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-dns-1c0d9a71-x86_64.tar.gz",
-        "name": "qthrone-dns-1c0d9a71-x86_64.tar.gz",
-        "sha256": "55a18d616e256ef703c5e88ffdb987bdc851b822350553f2ce328570b7d98928",
-        "sources": "qThroneMobile DNS engines 1c0d9a71f67b161e69cc5fc18c715aee48a2a06c\nCottenDNS ac8e86ed83a5006ab320468daaebe759d9574da6\nSoar fea80aae6c60a9f27d7358e5f967cbc9b57bb37d\nOpenFlux f492a1a33b7581ad8f88118f97e0b866adda3cdc\nOpenFlux Key fc5647767c9daba6571ec3157f9be9b6ffe6e551\nAndroid ABI x86_64\n"
+        "name": "rawline-dns-8a472e40-x86_64.tar.gz",
+        "sha256": "5ee5a3167f88030096d64959d26ef494ec60408e4d697dbbd93802be9757ba5b",
+        "sources": "RawlineMobile DNS engines 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\nCottenDNS ac8e86ed83a5006ab320468daaebe759d9574da6\nSoar fea80aae6c60a9f27d7358e5f967cbc9b57bb37d\nOpenFlux f492a1a33b7581ad8f88118f97e0b866adda3cdc\nOpenFlux Key fc5647767c9daba6571ec3157f9be9b6ffe6e551\nAndroid ABI x86_64\n",
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-dns-8a472e40-x86_64.tar.gz"
       }
     ]
   },
   "csqtt_compat": {
-    "build_commit": "4bf68a17e731b248b86db38a25a0f6088e9feeb9",
+    "build_commit": "8a472e404a6f6cf4f24721c961d7ca11f30b7a84",
     "core_commit": "e5c3c405f21cfb27a883038a0aec40bd9dcf8587",
     "csqtt_commit": "446293aa2e873ac5323ef6fd2316d9b81d966c11",
     "inputs": {
-      "scripts/build_csqtt_compat.sh": "4a10a44d3682900eba714479d8c030d78193c23c6ddd61d6a97c52b554a203ba",
-      "scripts/prepare_android_captcha.py": "b64ad3952201540d1dd24e314365c3d169d46be148e76f960c6050e6676eb674",
+      "scripts/build_csqtt_compat.sh": "5005ca6e0d64bb1734f4298a2616c5b872d689fd0ddd5430f3f80537a728874a",
+      "scripts/prepare_android_captcha.py": "40c35d33944c04c915486550b39a56f3282da726459c065b480902ac9761ab6a",
       "scripts/prepare_mobile_carrier_socks.py": "c1437afa13b26227bfd43619826f287eddc25ba8ec2206ff5cfe905e9cb57cc7",
       "scripts/prepare_csqtt_rebirth_bridge.py": "b5e54d9b49ba2d111dd77467d91c28ff012fe261303e24b3ad232e9a410e7336",
       "scripts/prepare_csqtt_compat_bridge.py": "d5e8efb6ae8f7daf9b96bf54c979541ff70a9e419db1ebc3ec9f4f63958521e2",
@@ -228,21 +230,21 @@
     "archives": [
       {
         "abi": "arm64-v8a",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-csqtt-compat-4bf68a17-arm64-v8a.tar.gz",
-        "sha256": "dd6483503dd21cd38a5590285daa3f63b6ec5ce300d44337a5f948790d415d56",
-        "sources": "qThrone e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nCSQTT compatibility 446293aa2e873ac5323ef6fd2316d9b81d966c11\nAndroid ABI arm64-v8a\nPrivate IPC 4bf68a17e731b248b86db38a25a0f6088e9feeb9\n"
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-csqtt-compat-8a472e40-arm64-v8a.tar.gz",
+        "sha256": "7b517f11f20a141cfbe4e76371832e1f0dbf69e2067145da6cd4f09114e0f577",
+        "sources": "Rawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nCSQTT compatibility 446293aa2e873ac5323ef6fd2316d9b81d966c11\nAndroid ABI arm64-v8a\nPrivate IPC 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\n"
       },
       {
         "abi": "armeabi-v7a",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-csqtt-compat-4bf68a17-armeabi-v7a.tar.gz",
-        "sha256": "8f184068866391d2eeb258fc83ceddcbc5ca95ddeef967a4abf8032947ca622c",
-        "sources": "qThrone e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nCSQTT compatibility 446293aa2e873ac5323ef6fd2316d9b81d966c11\nAndroid ABI armeabi-v7a\nPrivate IPC 4bf68a17e731b248b86db38a25a0f6088e9feeb9\n"
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-csqtt-compat-8a472e40-armeabi-v7a.tar.gz",
+        "sha256": "10ad973f54eb9ec3eaab83c3f3e75fc49b40541d7b2a3519ec70a4ac0eb7f5a3",
+        "sources": "Rawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nCSQTT compatibility 446293aa2e873ac5323ef6fd2316d9b81d966c11\nAndroid ABI armeabi-v7a\nPrivate IPC 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\n"
       },
       {
         "abi": "x86_64",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/qthrone-csqtt-compat-4bf68a17-x86_64.tar.gz",
-        "sha256": "7c5d1d020cf118fc9e44b6e824073c03865495a385562fb142a47c33a4a0aa31",
-        "sources": "qThrone e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nCSQTT compatibility 446293aa2e873ac5323ef6fd2316d9b81d966c11\nAndroid ABI x86_64\nPrivate IPC 4bf68a17e731b248b86db38a25a0f6088e9feeb9\n"
+        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-csqtt-compat-8a472e40-x86_64.tar.gz",
+        "sha256": "746d2dd547aa6b393fd78a8864803afd11ab8df366943cdf1b635730be36e8dc",
+        "sources": "Rawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nCSQTT compatibility 446293aa2e873ac5323ef6fd2316d9b81d966c11\nAndroid ABI x86_64\nPrivate IPC 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\n"
       }
     ]
   }
