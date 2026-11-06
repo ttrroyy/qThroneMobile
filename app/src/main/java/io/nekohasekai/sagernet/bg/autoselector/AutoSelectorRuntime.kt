@@ -1,5 +1,7 @@
 package app.qthrone.mobile.bg.autoselector
 
+import app.qthrone.mobile.widget.ExitIp
+import app.qthrone.mobile.ktx.runOnMainDispatcher
 import androidx.annotation.StringRes
 import app.qthrone.mobile.R
 import app.qthrone.mobile.SagerNet
@@ -509,7 +511,7 @@ object AutoSelectorRuntime {
             val previousTag = run.sample?.selectedTag
             run.sample = sample
             if (previousTag != null && previousTag != sample.selectedTag)
-                app.qthrone.mobile.ktx.runOnMainDispatcher { app.qthrone.mobile.widget.ExitIp.refresh() }
+                runOnMainDispatcher { ExitIp.refresh() }
             // "untested" counts as usable: it has not failed, only not been reached.
             val usable = sample.members.count { it.isUsable || it.state == AutoSelectorStatus.STATE_UNTESTED }
             // A suspended core (dropped Wi-Fi) must never count as an exhausted pool, nor one paused for device idle.
