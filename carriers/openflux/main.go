@@ -40,20 +40,20 @@ type config struct {
 type openfluxCaptcha struct{}
 
 func (openfluxCaptcha) pendingCaptcha() string {
-	if mobile.PendingCaptchaOwn() || mobile.PendingCaptchaProxy() != "" || mobile.PendingCaptchaHTML() != "" {
+	if mobile.PendingPromptOwn() || mobile.PendingPromptProxy() != "" || mobile.PendingPromptHTML() != "" {
 		return ""
 	}
-	return mobile.PendingCaptchaURL()
+	return mobile.PendingPromptURL()
 }
 
 func (openfluxCaptcha) submitCaptcha(cookies string) error {
-	if msg := mobile.SubmitCaptchaCookies(cookies); msg != "" {
+	if msg := mobile.SubmitPromptCookies(cookies); msg != "" {
 		return fmt.Errorf("%s", msg)
 	}
 	return nil
 }
 
-func (openfluxCaptcha) cancelCaptcha() { mobile.CancelCaptcha() }
+func (openfluxCaptcha) cancelCaptcha() { mobile.CancelPrompt() }
 
 func readConfig(path string) (config, error) {
 	var c config
@@ -149,7 +149,7 @@ func printLogs(lastCaptcha *string) {
 			}
 		}
 	}
-	if pending := mobile.PendingCaptchaTransport(); pending != *lastCaptcha {
+	if pending := mobile.PendingPromptTransport(); pending != *lastCaptcha {
 		*lastCaptcha = pending
 		// Checks this client answers are reported by watchCaptcha; the rest only here.
 		if pending != "" && (openfluxCaptcha{}).pendingCaptcha() == "" {

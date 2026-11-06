@@ -8,6 +8,7 @@ import app.qthrone.mobile.outbound.vPacketEncoding
 import app.qthrone.mobile.outbound.common.Multiplex
 import app.qthrone.mobile.outbound.common.Tls
 import app.qthrone.mobile.outbound.common.Transport
+import app.qthrone.mobile.outbound.common.XrayStreamSetting
 import app.qthrone.mobile.outbound.json.JsonObject
 import app.qthrone.mobile.outbound.link.LinkBuilder
 import app.qthrone.mobile.outbound.link.LinkParser
@@ -27,6 +28,23 @@ class Vless : Outbound("vless") {
     override fun getTls(): Tls = tls
     override fun getMux(): Multiplex = multiplex
     override fun getTransport(): Transport = transport
+    override fun isXray(): Boolean = transport.runsOnXray(tls)
+    override fun getXrayStream(): XrayStreamSetting = XrayStreamSetting().also { it.parseFromLink(exportToLink()) }
+
+    override fun buildXray(ctx: BuildContext): BuildResult {
+        val obj = JsonObject()
+        obj["protocol"] = "vless"
+        val settings = JsonObject()
+        settings["address"] = server
+        settings["port"] = serverPort
+        settings["id"] = uuid
+        settings["encryption"] = "none"
+        if (flow.isNotEmpty() && flow != "none") settings["flow"] = flow
+        obj["settings"] = settings
+        val streamObj = getXrayStream().build(ctx)
+        if (streamObj.isNotEmpty()) obj["streamSettings"] = streamObj
+        return BuildResult(obj)
+    }
 
     /** vless.cpp:9-34. */
     override fun parseFromLink(link: String): Boolean {

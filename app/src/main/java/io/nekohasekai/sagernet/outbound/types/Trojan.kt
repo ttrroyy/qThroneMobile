@@ -7,6 +7,7 @@ import app.qthrone.mobile.outbound.Outbound
 import app.qthrone.mobile.outbound.common.Multiplex
 import app.qthrone.mobile.outbound.common.Tls
 import app.qthrone.mobile.outbound.common.Transport
+import app.qthrone.mobile.outbound.common.XrayStreamSetting
 import app.qthrone.mobile.outbound.json.JsonObject
 import app.qthrone.mobile.outbound.link.LinkBuilder
 import app.qthrone.mobile.outbound.link.LinkParser
@@ -24,6 +25,8 @@ class Trojan : Outbound("trojan") {
     override fun getTls(): Tls = tls
     override fun getMux(): Multiplex = multiplex
     override fun getTransport(): Transport = transport
+    override fun isXray(): Boolean = transport.runsOnXray(tls)
+    override fun getXrayStream(): XrayStreamSetting = XrayStreamSetting().also { it.parseFromLink(exportToLink()) }
 
     /** trojan.cpp:9-20: no default port, TLS is not forced on, always true for a parsable URL. */
     override fun parseFromLink(link: String): Boolean {
@@ -102,6 +105,19 @@ class Trojan : Outbound("trojan") {
         if (transportObj.isNotEmpty()) obj["transport"] = transportObj
         val muxObj = multiplex.build(ctx)
         if (muxObj.isNotEmpty()) obj["multiplex"] = muxObj
+        return BuildResult(obj)
+    }
+
+    override fun buildXray(ctx: BuildContext): BuildResult {
+        val obj = JsonObject()
+        obj["protocol"] = "trojan"
+        val settings = JsonObject()
+        settings["address"] = server
+        settings["port"] = serverPort
+        settings["password"] = password
+        obj["settings"] = settings
+        val streamObj = getXrayStream().build(ctx)
+        if (streamObj.isNotEmpty()) obj["streamSettings"] = streamObj
         return BuildResult(obj)
     }
 

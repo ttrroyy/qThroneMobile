@@ -5,13 +5,18 @@
     "url": "https://github.com/ttrroyy/qThrone/releases/download/v1.1.2/olcrtc-f3ad8fb7c0d0.bundle"
   },
   "https://github.com/p1neappleXpress/OpenFlux.git": {
-    "revision": "74cac6d47bf4c27947348ee957538a2c0728a485",
-    "sha256": "5073d7d6bec600e4f68b82df82ac7af88bcdde96bcc2238d5d7ccfe9d1775430",
-    "url": "https://github.com/ttrroyy/qThrone/releases/download/v1.1.2/openflux-74cac6d47bf4.bundle"
+    "revision": "f492a1a33b7581ad8f88118f97e0b866adda3cdc",
+    "sha256": "5596d5749c4ceb6e0acc1d673a5ea364085d5afab3ccf5bf0d8aa279ec371b8a",
+    "url": "https://github.com/ttrroyy/qThrone/releases/download/v1.5/openflux-f492a1a33b75.bundle"
   },
   "https://github.com/amurcanov/csqtt.git": {
     "revision": "71712b07dbabe16fa43f5a248dc69e1ab9f3a270",
     "sha256": "45f0106e0b183d51f35f0b20c5cd4b5ced7f825f680d8493ed56be095b0ea1d6",
     "url": "https://github.com/ttrroyy/qThrone/releases/download/v1.1.2/csqtt-71712b07dbab.bundle"
+  },
+  "https://github.com/masterking32/MasterDnsVPN.git": {
+    "revision": "4052a6b95e758adf2dc26fa1fe527457e58d627c",
+    "sha256": "ad3b8fc12da81e987c7d3301e3ec7e89b6b189cabaaee722ff5645e65e71a361",
+    "url": "https://github.com/ttrroyy/qThrone/releases/download/v1.5/masterdns-4052a6b95e75.bundle"
   }
 }

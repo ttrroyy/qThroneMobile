@@ -51,7 +51,7 @@ cp "$ROOT/carriers/olcrtc/"*.go "$SOURCE/olcrtc/cmd/qthrone-olcrtc/"
 (cd "$SOURCE/olcrtc"; go build -trimpath -buildmode=pie -ldflags='-s -w -checklinkname=0' -o "$OUT/libolcrtc.so" ./cmd/qthrone-olcrtc)
 cp "$SOURCE/olcrtc/LICENSE" "$OUT/OLCRTC-LICENSE"
 # The client runs through OpenFlux's own mobile package, as the original Android app does.
-FLUX=edcf77a1848a72370cfba9f346d3b897b61e7e7d
+FLUX=f492a1a33b7581ad8f88118f97e0b866adda3cdc
 fetch_source "$SOURCE/openflux" https://github.com/p1neappleXpress/OpenFlux.git "$FLUX"
 mkdir -p "$SOURCE/openflux/mobile/cmd/qthrone-openflux"
 cp "$ROOT/carriers/openflux/"*.go "$SOURCE/openflux/mobile/cmd/qthrone-openflux/"
@@ -64,7 +64,7 @@ mkdir -p "$SOURCE/vaydns/cmd/qthrone-dnstun"
 cp "$ROOT/carriers/dnstun/"*.go "$SOURCE/vaydns/cmd/qthrone-dnstun/"
 (cd "$SOURCE/vaydns"; go get github.com/shadowsocks/go-shadowsocks2@v0.1.5; go build -trimpath -buildmode=pie -ldflags='-s -w' -o "$OUT/libdnstun.so" ./cmd/qthrone-dnstun)
 cp "$SOURCE/vaydns/COPYING" "$OUT/VayDNS-LICENSE"
-MASTERDNS=acbf1c61f90786f41b975d2e2f616afbce292b29
+MASTERDNS=4052a6b95e758adf2dc26fa1fe527457e58d627c
 fetch_source "$SOURCE/masterdns" https://github.com/masterking32/MasterDnsVPN.git "$MASTERDNS"
 mkdir -p "$SOURCE/masterdns/cmd/qthrone-masterdns"
 cp "$ROOT/carriers/masterdns/"*.go "$SOURCE/masterdns/cmd/qthrone-masterdns/"

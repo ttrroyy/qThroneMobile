@@ -22,6 +22,8 @@ class Transport {
     @JvmField var max_early_data: Int = 0
     @JvmField var early_data_header_name: String = ""
     @JvmField var service_name: String = ""
+    /** gRPC :authority a panel may require; only Xray can send it. */
+    @JvmField var authority: String = ""
 
     /** Never persisted: the parsed source asked for the raw TCP HTTP header, which sing-box reproduces only without TLS. */
     @JvmField var rawHttpHeader: Boolean = false
@@ -55,6 +57,7 @@ class Transport {
         if (q.has("max_early_data")) max_early_data = QtStrings.toInt(q.value("max_early_data"))
         if (q.has("early_data_header_name")) early_data_header_name = q.value("early_data_header_name")
         if (q.has("serviceName")) service_name = q.valueFully("serviceName")
+        if (q.has("authority")) authority = q.valueFully("authority")
         return true
     }
 
@@ -91,6 +94,7 @@ class Transport {
         if (obj.contains("max_early_data")) max_early_data = obj.int("max_early_data")
         if (obj.contains("early_data_header_name")) early_data_header_name = obj.string("early_data_header_name")
         if (obj.contains("service_name")) service_name = obj.string("service_name")
+        if (obj.contains("authority")) authority = obj.string("authority")
         return true
     }
 
@@ -166,6 +170,7 @@ class Transport {
         if (max_early_data > 0) q.add("max_early_data" to max_early_data.toString())
         if (early_data_header_name.isNotEmpty()) q.add("early_data_header_name" to early_data_header_name)
         if (service_name.isNotEmpty()) q.add("serviceName" to service_name)
+        if (authority.isNotEmpty()) q.add("authority" to authority)
         return q
     }
 
@@ -197,6 +202,7 @@ class Transport {
         if (idle_timeout.isNotEmpty()) obj["idle_timeout"] = idle_timeout
         if (ping_timeout.isNotEmpty()) obj["ping_timeout"] = ping_timeout
         if (service_name.isNotEmpty()) obj["service_name"] = service_name
+        if (authority.isNotEmpty()) obj["authority"] = authority
         return obj
     }
 
@@ -207,6 +213,16 @@ class Transport {
         obj["type"] = type
         return obj
     }
+
+    /**
+     * sing-box's WS and gRPC differ from Xray in what reaches the server (no :authority, no custom gRPC paths, its own
+     * ALPN), and panels behind a reverse proxy or fallbacks answer 404 or close. Xray has no switch for an unverified
+     * certificate any more, so such a profile stays on sing-box.
+     */
+    fun runsOnXray(tls: Tls): Boolean = (type == "ws" || type == "grpc") && !tls.insecure
+
+    /** The sing-box "authority" field does not exist: it stays out of the outbound the core reads. */
+    private fun dropAuthority(obj: JsonObject): JsonObject { obj.remove("authority"); return obj }
 
     /**
      * Xray fixes ALPN by transport whatever a link says: a WebSocket cannot run over a negotiated h2 (the server closes it,
@@ -223,7 +239,7 @@ class Transport {
 
     /** transport.cpp:192-202: a comma list of http hosts becomes an array of trimmed hosts. */
     fun build(ctx: BuildContext): JsonObject {
-        val obj = exportToJson()
+        val obj = dropAuthority(exportToJson())
         val exported = obj.string("host")
         if (type == "http" && exported.contains(',')) {
             val hosts = QtStrings.splitSkipEmpty(exported, ",").map { it.trim() }

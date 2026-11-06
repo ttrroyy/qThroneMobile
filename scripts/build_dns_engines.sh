@@ -38,7 +38,7 @@ cp "$ROOT/carriers/soar/"*.go "$SOURCE/soar/cmd/qthrone-soar/"
 (cd "$SOURCE/soar"; go build -trimpath -buildvcs=false -buildmode=pie -ldflags="$FLAGS" -o "$OUT/libsoar.so" ./cmd/qthrone-soar)
 cp "$SOURCE/soar/LICENSE" "$OUT/Soar-LICENSE"
 # OpenFlux through its own mobile package, as the original Android app runs it (and as the main archive built it).
-FLUX=edcf77a1848a72370cfba9f346d3b897b61e7e7d
+FLUX=f492a1a33b7581ad8f88118f97e0b866adda3cdc
 fetch_source "$SOURCE/openflux" https://github.com/p1neappleXpress/OpenFlux.git "$FLUX"
 mkdir -p "$SOURCE/openflux/mobile/cmd/qthrone-openflux"
 cp "$ROOT/carriers/openflux/"*.go "$SOURCE/openflux/mobile/cmd/qthrone-openflux/"

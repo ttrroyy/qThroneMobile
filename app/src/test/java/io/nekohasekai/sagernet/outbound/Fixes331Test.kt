@@ -8,6 +8,7 @@ import app.qthrone.mobile.outbound.json.JsonObject
 import app.qthrone.mobile.outbound.types.Qwdtt
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class Fixes331Test {
@@ -22,6 +23,21 @@ class Fixes331Test {
         assertEquals(listOf("h2"), tls("grpc", JsonArray.of("http/1.1")).array("alpn").strings())
         assertEquals(listOf("h2", "http/1.1"), tls("tcp", JsonArray.of("h2", "http/1.1")).array("alpn").strings())
         assertFalse(tls("ws", null).contains("alpn"))
+    }
+
+    @Test fun trojanOverGrpcRunsOnXrayWithTheAuthorityOfItsLink() {
+        val trojan = app.qthrone.mobile.outbound.types.Trojan()
+        assertTrue(trojan.parseFromLink("trojan://secret@example.com:443?security=tls&sni=a.example&type=grpc&serviceName=svc&authority=auth.example#n"))
+        assertTrue(trojan.isXray())
+        val built = trojan.buildXray(BuildContext()).json.toCompact()
+        for (part in listOf("\"protocol\":\"trojan\"", "\"password\":\"secret\"", "svc", "auth.example", "a.example")) assertTrue(part, built.contains(part))
+    }
+
+    @Test fun anUnverifiedCertificateStaysOnSingBox() {
+        val trojan = app.qthrone.mobile.outbound.types.Trojan()
+        assertTrue(trojan.parseFromLink("trojan://secret@example.com:443?security=tls&allowInsecure=1&type=ws&path=%2Fp#n"))
+        assertFalse(trojan.isXray())
+        assertFalse(trojan.build(BuildContext()).json.obj("transport").contains("authority"))
     }
 
     @Test fun flagInTheNameNamesTheCountry() {
