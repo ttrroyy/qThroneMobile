@@ -27,6 +27,12 @@
         <item name="fontFamily">@font/geologica</item>
         <item name="toolbarStyle">@style/MobileToolbarNew</item>
         <item name="bottomSheetDialogTheme">@style/MobileSheetThemeNew</item>
+        <item name="materialButtonStyle">@style/MobileButtonNew</item>
+    </style>
+    <!-- A shadow shows through translucent glass as a bar across the button. -->
+    <style name="MobileButtonNew" parent="Widget.SagerNet.Button">
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:elevation">0dp</item>
     </style>
     <!-- The sheet behavior paints its own background from this tint, over anything set in code. -->
     <style name="MobileSheetThemeNew" parent="ThemeOverlay.SagerNet.BottomSheetDialog">
