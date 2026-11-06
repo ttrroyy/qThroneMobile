@@ -266,8 +266,8 @@
         <item name="cornerSize">?attr/qtWellRadius</item>
     </style>
     <style name="Widget.SagerNet.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
-        <!-- The dark well of the cards: 14% black over whatever surface the field lies on, no underline. -->
-        <item name="boxBackgroundColor">#24000000</item>
+        <!-- The dark well of the cards: no underline. -->
+        <item name="boxBackgroundColor">?attr/qtWellColor</item>
         <item name="boxStrokeWidth">0dp</item>
         <item name="boxStrokeWidthFocused">0dp</item>
         <item name="hintTextColor">?attr/colorAccent</item>

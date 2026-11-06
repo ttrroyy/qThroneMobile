@@ -22,7 +22,7 @@ object MobilePalette {
     val muted get() = if (MobileStyle.new) (if (light) Color.rgb(105,105,112) else Color.rgb(142,142,150))
         else if (light) Color.rgb(100,110,119) else Color.rgb(173,182,191)
     /** The dark field inside a card; on true black a lighter one, or it would vanish. */
-    val well get() = if (MobileStyle.new && !light) Color.rgb(28,28,31) else androidx.core.graphics.ColorUtils.blendARGB(surface, Color.BLACK, .14f)
+    val well get() = if (MobileStyle.new) (if (light) Color.rgb(233,233,237) else Color.rgb(28,28,31)) else androidx.core.graphics.ColorUtils.blendARGB(surface, Color.BLACK, .14f)
     /** Corner radii in dp: the new style is rounder throughout. */
     val rowDp get() = if (MobileStyle.new) 16 else 5
     val cardDp get() = if (MobileStyle.new) 24 else 12

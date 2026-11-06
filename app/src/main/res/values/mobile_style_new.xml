@@ -6,12 +6,14 @@
     <attr name="qtWellRadius" format="dimension" />
     <attr name="qtSwitchRadius" format="dimension" />
     <attr name="qtSwitchThumb" format="reference" />
+    <attr name="qtWellColor" format="color" />
     <style name="MobileStyleClassic">
         <item name="qtRowRadius">5dp</item>
         <item name="qtCardRadius">12dp</item>
         <item name="qtWellRadius">12dp</item>
         <item name="qtSwitchRadius">6dp</item>
         <item name="qtSwitchThumb">@drawable/mobile_switch_thumb</item>
+        <item name="qtWellColor">#24000000</item>
     </style>
     <style name="MobileStyleNew">
         <item name="qtRowRadius">16dp</item>
@@ -21,7 +23,14 @@
         <item name="qtSwitchThumb">@drawable/mobile_switch_thumb_round</item>
         <item name="android:fontFamily">@font/geologica</item>
         <item name="fontFamily">@font/geologica</item>
+        <item name="toolbarStyle">@style/MobileToolbarNew</item>
     </style>
+    <style name="MobileToolbarNew" parent="Widget.MaterialComponents.Toolbar">
+        <item name="titleTextAppearance">@style/MobileToolbarNewTitle</item>
+        <item name="subtitleTextAppearance">@style/MobileToolbarNewSubtitle</item>
+    </style>
+    <style name="MobileToolbarNewTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title"><item name="android:textSize">18sp</item></style>
+    <style name="MobileToolbarNewSubtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle"><item name="android:textSize">12sp</item></style>
     <!-- The new style has two surfaces only: true black and true white. -->
     <style name="MobileSurfaceNewOled" parent="MobileSurfaceOled">
         <item name="colorSurface">#0e0e10</item>
@@ -29,6 +38,7 @@
         <item name="colorOnPrimary">#f5f5f7</item>
         <item name="android:textColorPrimary">#f5f5f7</item>
         <item name="colorAccent">#f5f5f7</item>
+        <item name="qtWellColor">#1c1c1f</item>
     </style>
     <style name="MobileSurfaceNewWhite" parent="MobileSurfaceWhite">
         <item name="android:windowBackground">#ffffff</item>
@@ -39,6 +49,7 @@
         <item name="colorOnPrimary">#0a0a0b</item>
         <item name="android:textColorPrimary">#0a0a0b</item>
         <item name="colorAccent">#0a0a0b</item>
+        <item name="qtWellColor">#e9e9ed</item>
     </style>
     <style name="MobileSheetFast">
         <item name="android:windowEnterAnimation">@anim/sheet_fast_enter</item>

@@ -147,7 +147,7 @@ open class DeployEditorFragment : Fragment() {
     private fun field(parent: LinearLayout,s: DeployServer,key: String,label: String,secret: Boolean=false,number: Boolean=false,pair: Boolean=false): TextInputEditText {
         val box=TextInputLayout(androidx.appcompat.view.ContextThemeWrapper(requireContext(),R.style.MobileDeployInputOverlay)).apply {
             minimumWidth=0;hint=label;boxBackgroundMode=TextInputLayout.BOX_BACKGROUND_FILLED
-            boxBackgroundColor=android.graphics.Color.argb(0x24,0,0,0);boxStrokeWidth=0;boxStrokeWidthFocused=0
+            boxBackgroundColor=MobilePalette.well;boxStrokeWidth=0;boxStrokeWidthFocused=0
             setBoxCornerRadii(dp(MobilePalette.wellDp).toFloat(),dp(MobilePalette.wellDp).toFloat(),dp(MobilePalette.wellDp).toFloat(),dp(MobilePalette.wellDp).toFloat())
             defaultHintTextColor=android.content.res.ColorStateList.valueOf(MobilePalette.muted)
             hintTextColor=android.content.res.ColorStateList.valueOf(MobilePalette.accent(requireContext()))

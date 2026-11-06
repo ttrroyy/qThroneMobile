@@ -75,6 +75,8 @@ class WebDAVSettingsActivity : ThemedActivity() {
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
+            // Styled first: the insets keep the padding the list has at this moment.
+            MobileSettingsStyle.apply(this, view)
             listView.applyListInsets()
         }
 

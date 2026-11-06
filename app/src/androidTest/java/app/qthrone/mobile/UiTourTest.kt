@@ -6,8 +6,6 @@ import android.graphics.Bitmap
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
-import androidx.test.runner.lifecycle.Stage
 import app.qthrone.mobile.database.DataStore
 import app.qthrone.mobile.database.GroupRepo
 import app.qthrone.mobile.database.ProxyEntity
@@ -31,16 +29,16 @@ class UiTourTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context = instrumentation.targetContext
 
+    private var current: Activity? = null
     private fun open(intent: Intent) {
+        val monitor = instrumentation.addMonitor(intent.component?.className, null, false)
         context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
+        current = instrumentation.waitForMonitorWithTimeout(monitor, 10_000)
+        instrumentation.removeMonitor(monitor)
         Thread.sleep(3500)
     }
     private fun open(activity: Class<out Activity>, build: Intent.() -> Unit = {}) = open(Intent(context, activity).apply(build))
-    private fun resumed(): Activity {
-        var found: Activity? = null
-        instrumentation.runOnMainSync { found = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED).firstOrNull() }
-        return requireNotNull(found)
-    }
+    private fun resumed(): Activity = requireNotNull(current)
     private fun main(id: Int) {
         open(MainActivity::class.java)
         instrumentation.runOnMainSync { (resumed() as MainActivity).displayFragmentWithId(id) }
@@ -92,7 +90,7 @@ class UiTourTest {
         "home-list" to { home("list") },
         "home-connecting" to { orb(false) },
         "home-connected" to { orb(true) },
-        "home-sheet" to { home("groups"); val size = context.resources.displayMetrics; instrumentation.uiAutomation.executeShellCommand("input swipe ${size.widthPixels / 2} ${size.heightPixels - 120} ${size.widthPixels / 2} 300 400").close(); Thread.sleep(1500) },
+        "home-sheet" to { home("groups"); tap("ru-tcp-reality"); Thread.sleep(1500) },
         "home-notice" to { home("groups"); instrumentation.runOnMainSync { MobileTopNotice.show(resumed(), "Подписка «api.host-cloud.uk» успешно обновлена") }; Thread.sleep(600) },
         "home-add" to { home("groups"); tap(R.string.qmobile_add) },
         "home-tests" to { home("groups"); tap(R.string.qmobile_tests) },
@@ -102,13 +100,14 @@ class UiTourTest {
         "groups" to { fixtures(); main(R.id.nav_group) },
         "routes" to { main(R.id.nav_route) },
         "tools" to { main(R.id.nav_tools) },
-        "backup" to { main(R.id.nav_settings); tap("Backup and restore") },
-        "general" to { main(R.id.nav_settings); tap("General settings") },
-        "dns" to { main(R.id.nav_settings); tap("DNS settings") },
-        "subscription-settings" to { main(R.id.nav_settings); tap("Subscription settings") },
-        "appearance" to { main(R.id.nav_settings); tap("Appearance") },
-        "updates" to { main(R.id.nav_settings); tap("Updates") },
-        "logs" to { main(R.id.nav_settings); tap("Logs") },
+        "backup" to { main(R.id.nav_settings); tap(R.string.qmobile_backup); tap("Локально") },
+        "general" to { main(R.id.nav_settings); tap(R.string.qmobile_general) },
+        "dns" to { main(R.id.nav_settings); tap(R.string.qmobile_dns) },
+        "subscription-settings" to { main(R.id.nav_settings); tap(R.string.qmobile_subscriptions) },
+        "appearance" to { main(R.id.nav_settings); tap(R.string.settings_appearance) },
+        "style-menu" to { main(R.id.nav_settings); tap(R.string.settings_appearance); tap(R.string.qmobile_ui_style) },
+        "routing-settings" to { main(R.id.nav_settings); tap(R.string.qmobile_routes) },
+        "logs" to { main(R.id.nav_settings); tap(R.string.qmobile_logs) },
         "vk" to { open(VkRelayActivity::class.java) },
         "vk-hashes" to { open(VkHashesActivity::class.java) },
         "happ-profile" to { open(ProviderRouteActivity::class.java) },

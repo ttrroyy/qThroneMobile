@@ -40,7 +40,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** Mobile dashboard backed by the existing Room repositories and subscription queue. */
-private const val SHEET_PEEK = 100
+private const val SHEET_PEEK = 88
 
 class MobileHomeFragment : ToolbarFragment() {
     private var nativeConnection:app.qthrone.mobile.bg.carrier.NativeConnectionStatus.Snapshot?=null
