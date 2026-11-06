@@ -3,6 +3,7 @@ package app.rawline.mobile.ui
 import app.rawline.mobile.group.ProviderLinks
 import app.rawline.mobile.group.SubscriptionCrypto
 import app.rawline.mobile.route.ProviderRouting
+import app.rawline.mobile.route.UrlText
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.OpenableColumns
@@ -79,8 +80,8 @@ object SubscribeFlows {
             }
             return
         }
-        if (app.rawline.mobile.route.UrlText.currentScheme(content).startsWith("rawline://")) {
-            openDeepLink(activity, app.rawline.mobile.route.UrlText.currentScheme(content), gid)
+        if (UrlText.currentScheme(content).startsWith("rawline://")) {
+            openDeepLink(activity, UrlText.currentScheme(content), gid)
             return
         }
         subscribeLink(content)?.let {
@@ -122,7 +123,7 @@ object SubscribeFlows {
         val batch = ArrayList<String>()
         for (payload in payloads.map { it.trim() }.filter { it.isNotEmpty() }) {
             val single = payload.startsWith("http://") || payload.startsWith("https://") ||
-                app.rawline.mobile.route.UrlText.currentScheme(payload).startsWith("rawline://") || ProviderLinks.isProviderLink(payload) || subscribeLink(payload) != null
+                UrlText.currentScheme(payload).startsWith("rawline://") || ProviderLinks.isProviderLink(payload) || subscribeLink(payload) != null
             if (single) importText(activity, payload, gid) else batch.add(payload)
         }
         if (batch.isNotEmpty()) importInto(activity, batch.joinToString("\n"), gid)
@@ -156,7 +157,7 @@ object SubscribeFlows {
             val uri = Uri.parse(content)
             return SubscribeLink(uri.getQueryParameter("url").orEmpty(), uri.getQueryParameter("name").orEmpty())
         }
-        if (!app.rawline.mobile.route.UrlText.currentScheme(content).startsWith("rawline://")) return null
+        if (!UrlText.currentScheme(content).startsWith("rawline://")) return null
         val uri = Uri.parse(content)
         if (!uri.host.equals("addsub", ignoreCase = true)) return null
         val path = uri.path ?: return null
