@@ -39,7 +39,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/** Mobile dashboard backed by the existing Room repositories and subscription queue. */
+/** Mobile dashboard backed by the existing Room repositories and subscription queue. */
 
 class MobileHomeFragment : ToolbarFragment() {
     private var nativeConnection:app.rawline.mobile.bg.carrier.NativeConnectionStatus.Snapshot?=null
@@ -500,7 +500,7 @@ class MobileHomeFragment : ToolbarFragment() {
                 setOnClickListener(callback);MobileFeedback.apply(this)
             }
             addView(action(getString(R.string.qmobile_add_group)) { sheet.dismiss();addSubscription() },LinearLayout.LayoutParams(0,-1,1f).apply { marginEnd=dp(6) })
-            addView(action(getString(R.string.qmobile_manage_groups)) { sheet.dismiss();subscriptionsMenu(groupChip ?: it) },LinearLayout.LayoutParams(0,-1,1f).apply { marginStart=dp(6) })
+            addView(action(getString(R.string.qmobile_manage_groups)) { sheet.dismiss();host().displayFragmentWithId(R.id.nav_group) },LinearLayout.LayoutParams(0,-1,1f).apply { marginStart=dp(6) })
         },LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(12) })
         sheet.setContentView(body)
         sheet.show()
