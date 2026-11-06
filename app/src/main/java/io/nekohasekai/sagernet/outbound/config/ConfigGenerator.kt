@@ -170,7 +170,7 @@ class ConfigGenerator @JvmOverloads constructor(
                 return
             }
             if (needed.isExtraCore() || TypeAccess.isCustomFullConfig(needed) || needed.isXrayFullConfig()) {
-                state.error = "Outbounds used in routing profile cannot use an extra core or be a custom full config"
+                state.error = "Профиль «${needed.displayName()}» нельзя выбрать в правилах маршрутизации: это полный конфиг Xray или sing-box, он работает только как основной. Выберите обычный профиль."
                 return
             }
             if (needed.type == "chain") {
@@ -1031,6 +1031,16 @@ class ConfigGenerator @JvmOverloads constructor(
         for (i in state.xrayToSingBridges.indices) {
             rules.add(jsonObjectOf("inbound" to bridgeTagFor(state.singIngressTags[i]), "action" to "route", "outbound" to state.singIngressTags[i]))
         }
+        // SO_BINDTODEVICE lets an app outside the VPN send through tun0 and read the server's address; Android reports
+        // no owner for its socket. System services have a UID but no package, hence the second condition.
+        if (settings.blockUnownedTun && settings.vpnMode && !state.forTest) rules.add(jsonObjectOf(
+            "type" to "logical", "mode" to "and", "action" to "reject",
+            "rules" to JsonArray.of(
+                jsonObjectOf("inbound" to JsonArray.of(Tags.TUN_IN)),
+                jsonObjectOf("package_name_regex" to JsonArray.of(".*"), "invert" to true),
+                jsonObjectOf("user_id" to JsonArray.of(0, 1000, 1001, 1002, 1010, 1016, 1020, 1021, 1036, 1051, 1052, 1073, 1076, 2000, 9999), "invert" to true),
+            ),
+        ))
         rules.add(jsonObjectOf("action" to "sniff"))
         if (settings.resolveDomainStrategy.isNotEmpty()) {
             rules.add(jsonObjectOf("inbound" to JsonArray.of(Tags.MIXED_IN, "http-in", Tags.TUN_IN), "action" to "resolve", "strategy" to settings.resolveDomainStrategy))
@@ -1065,7 +1075,7 @@ class ConfigGenerator @JvmOverloads constructor(
         routeObj["rules"] = if (settings.blockQuic && !state.forTest) guardQuic(rules, quicGuardFrom, finalTag != Tags.DIRECT) else rules
         routeObj["rule_set"] = buildRuleSetArray(state)
         routeObj["final"] = finalTag
-        if (settings.trafficStats) routeObj["find_process"] = true
+        if (settings.trafficStats || (settings.blockUnownedTun && settings.vpnMode)) routeObj["find_process"] = true
         routeObj["default_domain_resolver"] = directDomainResolver(buildContext)
         if (settings.vpnMode) routeObj["auto_detect_interface"] = true
         state.coreConfig["route"] = routeObj

@@ -82,7 +82,7 @@ class Trojan : Outbound("trojan") {
         obj.merge(baseExportToJson())
         if (password.isNotEmpty()) obj["password"] = password
         val tlsObj = tls.exportToJson()
-        if (tlsObj.isNotEmpty()) obj["tls"] = tlsObj
+        if (tlsObj.isNotEmpty()) obj["tls"] = transport.tlsFor(tlsObj)
         val transportObj = transport.exportToJson()
         if (transportObj.isNotEmpty()) obj["transport"] = transportObj
         val muxObj = multiplex.exportToJson()

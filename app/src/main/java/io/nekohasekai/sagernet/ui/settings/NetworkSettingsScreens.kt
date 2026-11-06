@@ -166,7 +166,7 @@ open class TunSettingsFragment : InboundSettingsFragment(R.xml.settings_tun_comb
         LanSharingSettings.bind(this)
         reloadOn(
             SettingsRegistry.VPN_MTU.key, SettingsRegistry.VPN_IPV6.key,
-            SettingsRegistry.ENABLE_TUN_ROUTING.key, SettingsRegistry.BLOCK_QUIC.key,
+            SettingsRegistry.ENABLE_TUN_ROUTING.key, SettingsRegistry.BLOCK_UNOWNED_TUN.key, SettingsRegistry.BLOCK_QUIC.key,
         )
 
         val ranges = pref<StringListPreference>(SettingsRegistry.VPN_PRIVATE_RANGES.key)

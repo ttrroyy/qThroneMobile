@@ -175,6 +175,7 @@ object SettingsRegistry {
         ranges.all { SettingValidators.isPrivateRange(it) }
     }
     @JvmField val ENABLE_TUN_ROUTING = bool("enable_tun_routing", false)
+    @JvmField val BLOCK_UNOWNED_TUN = bool("block_unowned_tun", true)
     @JvmField val BLOCK_QUIC = bool("block_quic", true)
 
     // ------------------------------------------------------------------------------------------------ routing
@@ -257,7 +258,7 @@ object SettingsRegistry {
 
     // ------------------------------------------------------------------------------------------------ testing
 
-    @JvmField val TEST_URL = string("test_url", "http://www.google.com/generate_204") { it.isNotBlank() }
+    @JvmField val TEST_URL = string("test_url", "https://www.google.com/generate_204") { it.isNotBlank() }
     @JvmField val URL_TEST_TIMEOUT_MS = int("url_test_timeout_ms", 5000) { it > 0 }
     @JvmField val TEST_CONCURRENT = int("test_concurrent", 32) { it > 0 }
     @JvmField val DIRECT_TEST_URL = string("direct_test_url", "")

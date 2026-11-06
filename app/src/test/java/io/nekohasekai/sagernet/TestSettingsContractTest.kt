@@ -11,7 +11,7 @@ class TestSettingsContractTest {
 
     @Test
     fun freshInstallDefaultsMatchQThrone() {
-        assertEquals("http://www.google.com/generate_204", SettingsRegistry.TEST_URL.default)
+        assertEquals("https://www.google.com/generate_204", SettingsRegistry.TEST_URL.default)
         assertEquals(32, SettingsRegistry.TEST_CONCURRENT.default)
         assertEquals(5000, SettingsRegistry.URL_TEST_TIMEOUT_MS.default)
         assertEquals(SpeedTestSettings.FULL, SettingsRegistry.SPEED_TEST_MODE.default)

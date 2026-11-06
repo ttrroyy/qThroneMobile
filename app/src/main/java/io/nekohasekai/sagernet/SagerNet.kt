@@ -59,6 +59,8 @@ class SagerNet : Application(),
 
         if (isMainProcess || isBgProcess) {
             SettingsMapper.installOutboundHooks()
+            // 3.3.1 tests over HTTPS; an address the user picked stays as it is.
+            if (DataStore.testUrl == "http://www.google.com/generate_204") DataStore.testUrl = "https://www.google.com/generate_204"
             if (isBgProcess) {
                 // The tile, shortcuts, widgets and the boot receiver start the foreground service from here.
                 updateNotificationChannels()

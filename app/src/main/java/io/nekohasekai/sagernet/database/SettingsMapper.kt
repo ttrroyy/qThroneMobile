@@ -59,7 +59,8 @@ object SettingsMapper {
             ntpServerPort = DataStore.ntpServerPort,
             ntpInterval = DataStore.ntpInterval,
             ntpOutbound = DataStore.ntpOutbound,
-            useMozillaCerts = DataStore.useMozillaCerts,
+            // Android 7 has no roots for today's certificates, so DNS over HTTPS failed before anything connected.
+            useMozillaCerts = DataStore.useMozillaCerts || android.os.Build.VERSION.SDK_INT < 26,
             dnsInPort = DataStore.coreDnsInPort,
             inboundAddress = DataStore.inboundAddress.ifBlank { SettingsRegistry.LOOPBACK_ADDRESS },
             mixedPort = DataStore.inboundSocksPort,
@@ -112,6 +113,8 @@ object SettingsMapper {
             adblockEnable = DataStore.adblockEnable,
             enableDnsRouting = routeDns.enableDnsRouting,
             enableTunRouting = DataStore.enableTunRouting,
+            // The owner of a tunnel connection can only be asked from Android 10.
+            blockUnownedTun = DataStore.blockUnownedTun && android.os.Build.VERSION.SDK_INT >= 29,
             blockQuic = DataStore.blockQuic,
             trafficStats = DataStore.enableStats,
             apiPort = DataStore.coreBoxApiPort,

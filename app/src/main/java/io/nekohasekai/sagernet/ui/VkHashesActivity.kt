@@ -1,16 +1,13 @@
 package app.qthrone.mobile.ui
 
-import android.content.res.ColorStateList
-import android.graphics.Typeface
+import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.CheckBox
 import android.widget.FrameLayout
-import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -24,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import app.qthrone.mobile.R
 import app.qthrone.mobile.SagerNet
+import app.qthrone.mobile.bg.carrier.CarrierUiRequests
 import app.qthrone.mobile.bg.carrier.VkRelayAccount
 import app.qthrone.mobile.database.ProfileManager
 import app.qthrone.mobile.database.SagerDatabase
@@ -33,72 +31,79 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** Create VK call hashes, select them and apply them to profiles. */
-class VkHashesActivity : ThemedActivity() {
+class VkHashesActivity : ServerScreenActivity() {
+    private val ui by lazy { ServerUi(this) }
     private val hashes = mutableListOf<String>()
     private val checked = linkedSetOf<String>()
     private var busy = false
+    private var captcha: MobileCaptchaController? = null
     private lateinit var progress: ProgressBar
+    private lateinit var status: TextView
     private lateinit var empty: TextView
-    private lateinit var create: Button
-    private lateinit var selectAll: Button
-    private lateinit var applySelected: Button
-    private lateinit var deleteSelected: Button
+    private lateinit var create: TextView
+    private lateinit var selectAll: TextView
+    private lateinit var applySelected: TextView
+    private lateinit var deleteSelected: TextView
     private lateinit var selection: TextView
     private val adapter = Rows()
 
-    private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
-
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
+        // Creating hashes may need a fresh VK token: its sign-in opens here, not after leaving the screen.
+        captcha = MobileCaptchaController(this)
+        window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(MobilePalette.background))
         val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(MobilePalette.background) }
         val toolbar = Toolbar(this).apply {
             title = "Генерация хешей"
             setTitleTextColor(MobilePalette.text)
             setNavigationIcon(R.drawable.baseline_arrow_back_24); setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
         }
-        fun button(label: String, action: () -> Unit) = Button(this).apply {
-            text = label; isAllCaps = false; setTextColor(MobilePalette.accent(context))
-            backgroundTintList = ColorStateList.valueOf(MobilePalette.surface)
-            setOnClickListener { action() }
-        }
-        create = button("Создать хеши") { add() }
-        val hint = TextView(this).apply {
-            text = "Выберите количество при создании. Отметьте хеши и примените их к нужным профилям."
-            textSize = 14f; setTextColor(MobilePalette.muted); setPadding(dp(16), dp(8), dp(16), dp(12))
-        }
+        create = ui.button("Создать хеши", primary = true) { add() }
+        val hint = ui.text("Отметьте хеши, чтобы применить их к профилям. В профиле с источником «Созданные в клиенте» их можно выбрать прямо в настройках.", 14f, MobilePalette.muted)
         progress = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply {
-            isIndeterminate = true; visibility = View.INVISIBLE
+            visibility = View.GONE
+            progressTintList = android.content.res.ColorStateList.valueOf(ui.accent)
+            indeterminateTintList = android.content.res.ColorStateList.valueOf(ui.accent)
         }
-        val list = RecyclerView(this).apply { layoutManager = LinearLayoutManager(this@VkHashesActivity); adapter = this@VkHashesActivity.adapter }
-        empty = TextView(this).apply {
-            text = "Хешей пока нет. Нажмите «Создать хеши»."
-            setTextColor(MobilePalette.muted); gravity = Gravity.CENTER; setPadding(dp(24), dp(24), dp(24), dp(24))
+        status = ui.text("", 14f, MobilePalette.muted).apply { visibility = View.GONE }
+        val top = ui.column().apply {
+            setPadding(ui.dp(16), ui.dp(8), ui.dp(16), ui.dp(8))
+            addView(create, LinearLayout.LayoutParams(-1, -2))
+            addView(hint, LinearLayout.LayoutParams(-1, -2).apply { topMargin = ui.dp(8) })
+            addView(status, LinearLayout.LayoutParams(-1, -2).apply { topMargin = ui.dp(8) })
+            addView(progress, LinearLayout.LayoutParams(-1, -2))
+        }
+        val list = RecyclerView(this).apply {
+            layoutManager = LinearLayoutManager(this@VkHashesActivity); adapter = this@VkHashesActivity.adapter
+            setPadding(ui.dp(16), 0, ui.dp(16), 0); clipToPadding = false
+        }
+        empty = ui.text("Хешей пока нет. Нажмите «Создать хеши».", 14f, MobilePalette.muted).apply {
+            gravity = Gravity.CENTER; setPadding(ui.dp(24), ui.dp(24), ui.dp(24), ui.dp(24))
         }
         val content = FrameLayout(this).apply {
             addView(list, FrameLayout.LayoutParams(-1, -1)); addView(empty, FrameLayout.LayoutParams(-1, -2, Gravity.CENTER))
         }
-        selection = TextView(this).apply { textSize = 14f; setTextColor(MobilePalette.muted) }
-        selectAll = button("Выбрать все") {
+        selection = ui.text("", 14f, MobilePalette.muted)
+        selectAll = ui.button("Выбрать все") {
             if (checked.size == hashes.size) checked.clear() else checked.addAll(hashes)
             render()
         }
-        val selectionRow = LinearLayout(this).apply {
-            gravity = Gravity.CENTER_VERTICAL; setPadding(dp(16), 0, dp(16), 0)
-            addView(selection, LinearLayout.LayoutParams(0, -2, 1f))
-            addView(selectAll, LinearLayout.LayoutParams(-2, -2))
-        }
-        applySelected = button("Применить к профилям") { apply(hashes.filter { it in checked }) }
-        deleteSelected = button("Удалить выбранные") { remove(hashes.filter { it in checked }) }
-        val actions = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL; setPadding(dp(16), 0, dp(16), dp(8))
-            addView(applySelected, LinearLayout.LayoutParams(-1, -2))
-            addView(deleteSelected, LinearLayout.LayoutParams(-1, -2))
+        applySelected = ui.button("Применить к профилям") { apply(hashes.filter { it in checked }) }
+        deleteSelected = ui.button("Удалить выбранные", danger = true) { remove(hashes.filter { it in checked }) }
+        val actions = ui.column().apply {
+            setPadding(ui.dp(16), ui.dp(8), ui.dp(16), ui.dp(12))
+            addView(LinearLayout(context).apply {
+                gravity = Gravity.CENTER_VERTICAL
+                addView(selection, LinearLayout.LayoutParams(0, -2, 1f))
+                addView(selectAll, LinearLayout.LayoutParams(-2, -2))
+            }, LinearLayout.LayoutParams(-1, -2))
+            addView(applySelected, LinearLayout.LayoutParams(-1, -2).apply { topMargin = ui.dp(8) })
+            addView(deleteSelected, LinearLayout.LayoutParams(-1, -2).apply { topMargin = ui.dp(8) })
         }
         root.addView(toolbar)
-        root.addView(create, LinearLayout.LayoutParams(-1, -2).apply { marginStart = dp(16); marginEnd = dp(16) })
-        root.addView(hint); root.addView(progress, LinearLayout.LayoutParams(-1, dp(4)))
+        root.addView(top)
         root.addView(content, LinearLayout.LayoutParams(-1, 0, 1f))
-        root.addView(selectionRow); root.addView(actions); setContentView(root)
+        root.addView(actions); setContentView(root)
         ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars()); view.setPadding(bars.left, bars.top, bars.right, bars.bottom); insets
         }
@@ -106,6 +111,15 @@ class VkHashesActivity : ThemedActivity() {
             if (checked.isNotEmpty()) { checked.clear(); render() } else finish()
         }
         reload()
+    }
+
+    override fun onDestroy() {
+        // Leaving while hashes are created drops their VK sign-in, so no other screen asks for it afterwards.
+        if (isFinishing && busy) runCatching { CarrierUiRequests.pending() }.getOrNull()?.takeIf { it.hasExtra("tokenState") }?.getStringExtra("id")?.let { id ->
+            sendBroadcast(Intent("$packageName.CAPTCHA_RESULT").setPackage(packageName).putExtra("id", id).putExtra("result", "error:cancelled"), "$packageName.SERVICE")
+        }
+        captcha?.close(); captcha = null
+        super.onDestroy()
     }
 
     private fun render() {
@@ -116,9 +130,16 @@ class VkHashesActivity : ThemedActivity() {
         applySelected.isEnabled = !busy && checked.isNotEmpty()
         deleteSelected.isEnabled = !busy && checked.isNotEmpty()
         for (button in listOf(create, selectAll, applySelected, deleteSelected)) button.alpha = if (button.isEnabled) 1f else .45f
-        progress.visibility = if (busy) View.VISIBLE else View.INVISIBLE
         empty.visibility = if (hashes.isEmpty() && !busy) View.VISIBLE else View.GONE
         @Suppress("NotifyDataSetChanged") adapter.notifyDataSetChanged()
+    }
+
+    private fun showProgress(text: String?, done: Int = 0, total: Int = 0) {
+        status.text = text.orEmpty()
+        status.visibility = if (text == null) View.GONE else View.VISIBLE
+        progress.visibility = if (text == null) View.GONE else View.VISIBLE
+        progress.isIndeterminate = total == 0
+        if (total > 0) { progress.max = total; progress.progress = done }
     }
 
     /** Every change ends by reading the account again, so a half-finished request still shows what VK created. */
@@ -127,7 +148,7 @@ class VkHashesActivity : ThemedActivity() {
         lifecycleScope.launch {
             val saved = withContext(Dispatchers.IO) { VkRelayAccount.cachedHashes() }
             hashes.clear(); hashes.addAll(saved); checked.retainAll(saved.toSet())
-            busy = false; render()
+            busy = false; showProgress(null); render()
             message?.let { Toast.makeText(this@VkHashesActivity, it, Toast.LENGTH_LONG).show() }
         }
     }
@@ -139,9 +160,17 @@ class VkHashesActivity : ThemedActivity() {
         val counts = (1..room).map { count -> "$count ${if (count == 1) "хеш" else if (count < 5) "хеша" else "хешей"}" }.toTypedArray()
         MobileAlertDialogBuilder(this).setTitle("Сколько хешей создать?").setNegativeButton(android.R.string.cancel, null).setItems(counts) { _, index ->
             busy = true; render()
-            val target = hashes.size + index + 1
+            val before = hashes.size
+            val total = index + 1
+            showProgress("Создаётся хешей: $total", 0, total)
             lifecycleScope.launch {
-                val result = withContext(Dispatchers.IO) { runCatching { VkRelayAccount.hashes(target) } }
+                val result = withContext(Dispatchers.IO) {
+                    runCatching {
+                        VkRelayAccount.hashes(before + total) { created ->
+                            runOnUiThread { showProgress("Создано ${created - before} из $total", created - before, total) }
+                        }
+                    }
+                }
                 reload(result.exceptionOrNull()?.let { it.message ?: "Не удалось создать хеши" } ?: "Хеши созданы")
             }
         }.show()
@@ -192,7 +221,7 @@ class VkHashesActivity : ThemedActivity() {
             .setMessage(if (drop.size == 1) "Удалить хеш и завершить его звонок в VK?" else "Удалить выбранные хеши (${drop.size}) и завершить их звонки в VK?")
             .setNegativeButton(android.R.string.cancel, null)
             .setPositiveButton("Удалить") { _, _ ->
-                busy = true; render()
+                busy = true; render(); showProgress("Удаление хешей…")
                 lifecycleScope.launch {
                     val result = withContext(Dispatchers.IO) { runCatching { VkRelayAccount.deleteHashes(drop) } }
                     checked.removeAll(drop.toSet())
@@ -204,26 +233,17 @@ class VkHashesActivity : ThemedActivity() {
     }
 
     private inner class Row(view: LinearLayout) : RecyclerView.ViewHolder(view) {
-        val check = CheckBox(this@VkHashesActivity).apply { isClickable = false; isFocusable = false }
-        val text = TextView(this@VkHashesActivity).apply {
-            typeface = Typeface.MONOSPACE; textSize = 14f; setTextColor(MobilePalette.text)
-            maxLines = 1; ellipsize = TextUtils.TruncateAt.MIDDLE
+        val check = CheckBox(this@VkHashesActivity).apply {
+            isClickable = false; isFocusable = false; buttonTintList = android.content.res.ColorStateList.valueOf(ui.accent)
         }
-        val copy = ImageButton(this@VkHashesActivity).apply {
-            setImageResource(R.drawable.ic_mobile_copy_outline); contentDescription = "Копировать"
-            imageTintList = ColorStateList.valueOf(MobilePalette.accent(this@VkHashesActivity))
-            background = null
-        }
-        val drop = ImageButton(this@VkHashesActivity).apply {
-            setImageResource(R.drawable.ic_navigation_close); contentDescription = "Удалить"
-            imageTintList = ColorStateList.valueOf(MobilePalette.muted)
-            background = null
-        }
+        val text = ui.text("", 14f, mono = true).apply { maxLines = 1; ellipsize = TextUtils.TruncateAt.MIDDLE }
+        val copy = ui.iconButton(R.drawable.ic_mobile_copy_outline, "Копировать") {}
+        val drop = ui.iconButton(R.drawable.ic_navigation_close, "Удалить") {}
         init {
             view.addView(check, LinearLayout.LayoutParams(-2, -2))
             view.addView(text, LinearLayout.LayoutParams(0, -2, 1f))
-            view.addView(copy, LinearLayout.LayoutParams(dp(44), dp(44)))
-            view.addView(drop, LinearLayout.LayoutParams(dp(44), dp(44)))
+            view.addView(copy, LinearLayout.LayoutParams(ui.dp(40), ui.dp(40)))
+            view.addView(drop, LinearLayout.LayoutParams(ui.dp(40), ui.dp(40)))
         }
     }
 
@@ -231,12 +251,10 @@ class VkHashesActivity : ThemedActivity() {
         override fun getItemCount() = hashes.size
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = Row(LinearLayout(this@VkHashesActivity).apply {
             orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL
-            setPadding(dp(16), dp(4), dp(8), dp(4)); minimumHeight = dp(56)
-            layoutParams = RecyclerView.LayoutParams(-1, -2)
-            isClickable = true
-            val ripple = android.util.TypedValue()
-            context.theme.resolveAttribute(android.R.attr.selectableItemBackground, ripple, true)
-            setBackgroundResource(ripple.resourceId)
+            setPadding(ui.dp(8), ui.dp(4), ui.dp(4), ui.dp(4)); minimumHeight = ui.dp(52)
+            layoutParams = RecyclerView.LayoutParams(-1, -2).apply { bottomMargin = ui.dp(6) }
+            background = ui.card().background
+            isClickable = true; MobileFeedback.apply(this)
         })
         override fun onBindViewHolder(holder: Row, position: Int) {
             val hash = hashes[position]

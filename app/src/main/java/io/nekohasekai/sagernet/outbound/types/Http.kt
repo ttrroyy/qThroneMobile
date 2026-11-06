@@ -9,6 +9,7 @@ import app.qthrone.mobile.outbound.common.Tls
 import app.qthrone.mobile.outbound.json.JsonObject
 import app.qthrone.mobile.outbound.json.JsonValues
 import app.qthrone.mobile.outbound.link.Base64Strict
+import app.qthrone.mobile.outbound.link.Hosts
 import app.qthrone.mobile.outbound.link.LinkBuilder
 import app.qthrone.mobile.outbound.link.LinkParser
 
@@ -115,6 +116,9 @@ class Http : Outbound("http") {
         val headerObj = JsonValues.pairListToObject(headers)
         if (headerObj.isNotEmpty()) obj["headers"] = headerObj
         val tlsObj = tls.build(ctx)
+        // A bare https://ip link names no host a certificate could vouch for; verifying it can only fail.
+        if (tlsObj.isNotEmpty() && Hosts.isIpAddress(server) && !tlsObj.contains("server_name") && !tlsObj.contains("certificate") && !tlsObj.contains("certificate_public_key_sha256"))
+            tlsObj["insecure"] = true
         if (tlsObj.isNotEmpty()) obj["tls"] = tlsObj
         return BuildResult(obj)
     }

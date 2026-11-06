@@ -3,6 +3,7 @@
         <moe.matsuri.nb4a.ui.MTUPreference app:entries="@array/mtu_select" app:entryValues="@array/mtu_select" app:icon="@drawable/baseline_public_24" app:key="vpn_mtu" app:title="@string/mtu" />
         <SwitchPreference app:icon="@drawable/ic_image_looks_6" app:key="vpn_ipv6" app:summary="@string/vpn_ipv6_sum" app:title="@string/vpn_ipv6" />
         <SwitchPreference app:icon="@drawable/ic_baseline_legend_toggle_24" app:key="enable_tun_routing" app:summary="@string/enable_tun_routing_sum" app:title="@string/enable_tun_routing" />
+        <SwitchPreference app:defaultValue="true" app:icon="@drawable/ic_baseline_legend_toggle_24" app:key="block_unowned_tun" app:summary="@string/block_unowned_tun_sum" app:title="@string/block_unowned_tun" />
         <SwitchPreference app:defaultValue="true" app:icon="@drawable/ic_baseline_legend_toggle_24" app:key="block_quic" app:summary="@string/block_quic_sum" app:title="@string/block_quic" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/cag_private_range_bypass">

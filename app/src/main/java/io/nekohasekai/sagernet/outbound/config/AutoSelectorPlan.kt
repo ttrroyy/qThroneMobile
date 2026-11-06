@@ -28,6 +28,16 @@ enum class AutoSelectorSkip(@JvmField val reason: String) {
 }
 
 /** One profile of a tracked group as the plan reads it: the parsed outbound and the stored test columns. */
+/** The ISO code of the first flag emoji in a name, "" without one. */
+internal fun flagCountry(name: String): String {
+    val points = name.codePoints().toArray()
+    for (i in 0 until points.size - 1) {
+        if (points[i] in 0x1f1e6..0x1f1ff && points[i + 1] in 0x1f1e6..0x1f1ff)
+            return "${('A'.code + points[i] - 0x1f1e6).toChar()}${('A'.code + points[i + 1] - 0x1f1e6).toChar()}"
+    }
+    return ""
+}
+
 class SelectorMember(
     @JvmField val id: Long,
     /** Null when the row is gone. */
@@ -348,7 +358,7 @@ class AutoSelectorPlanner @JvmOverloads constructor(
         if (filters.exclude != null && filters.exclude.matcher(outbound.displayName()).find()) return AutoSelectorSkip.NameFilter
         if (filters.countries.isNotEmpty() || filters.excludedCountries.isNotEmpty()) {
             // Unknown country is skipped either way: an exclusion cannot vouch for a profile never IP-tested.
-            val country = member.testCountry.trim().uppercase()
+            val country = member.testCountry.trim().uppercase().ifEmpty { flagCountry(outbound.displayName()) }
             if (country.isEmpty() || country in filters.excludedCountries ||
                 (filters.countries.isNotEmpty() && country !in filters.countries)
             ) return AutoSelectorSkip.CountryFilter

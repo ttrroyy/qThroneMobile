@@ -236,7 +236,7 @@ class CarrierProcess private constructor(private val process: Process, private v
                                 } }
                             }
                         }
-                        runCatching { onStatus(NativeConnectionStage.AUTHORIZING) }
+                        runCatching { onStatus(if (kind in listOf(CarrierKind.QWDTT, CarrierKind.CSQTT, CarrierKind.WDTTPLUS)) NativeConnectionStage.AUTHORIZING else NativeConnectionStage.CONNECTING) }
                         val redactor = CarrierLogRedactor(privateJson, bridgeCredentials)
                         val totalWorkers = configuredWorkers(kind, privateJson)
                         moe.matsuri.nb4a.utils.CoreLog.write("[Info] [${kind.name}] Starting native transport")

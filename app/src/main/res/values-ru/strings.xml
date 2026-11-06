@@ -681,6 +681,8 @@
     <string name="enable_stats_sum">Отслеживать соединения и их процессы</string>
     <string name="enable_tls">Включить TLS</string>
     <string name="enable_tun_routing">Маршрутизация TUN</string>
+    <string name="block_unowned_tun">Скрывать туннель от приложений вне VPN</string>
+    <string name="block_unowned_tun_sum">Отбрасывает соединения без владельца: приложение вне VPN могло отправить их через tun0 и узнать адрес сервера. Android 10 и новее. Отключите, если перестала работать раздача интернета через VPN.</string>
     <string name="enable_tun_routing_sum">Оставлять прямые IP-правила маршрутизирующего профиля вне tun</string>
     <string name="block_quic">Блокировать QUIC</string>
     <string name="block_quic_sum">Отклонять QUIC (UDP 443), идущий через прокси: браузер сразу переходит на TCP. Прямой трафик не затрагивается</string>
@@ -1017,6 +1019,8 @@
     <string name="route_link_copied">Скопировано!</string>
     <string name="route_new">Создать</string>
     <string name="route_new_remote">Удалённый профиль</string>
+    <string name="provider_route_new">Профиль Happ / Incy</string>
+    <string name="provider_route_new_note">Работает как обычный профиль маршрутизации, пока он выбран, подписка не нужна. Он заменяет текущий профиль, а не дополняет его. Подписка с включённой своей маршрутизацией использует её вместо этого профиля. Список приложений действует в любом случае.</string>
     <string name="route_new_structured">Структурированный профиль</string>
     <string name="route_options">Другие параметры</string>
     <string name="route_profile_add_rule">Добавить правило</string>
@@ -1758,7 +1762,7 @@
     <string name="exit_ip_summary_location">Выходной IP: %1$s (%2$s)</string>
     <string name="provider_routing_title">Маршрутизация подписки</string>
     <string name="provider_routing_use">Использовать Маршрутизацию %1$s</string>
-    <string name="provider_routing_use_summary">Если выключено, используются общие настройки маршрутизации qThrone.</string>
+    <string name="provider_routing_use_summary">Включено: для серверов этой подписки действуют только её правила, общая маршрутизация qThrone с ними не объединяется. Выключено: действует общая маршрутизация. Список приложений работает в обоих случаях.</string>
     <string name="provider_routing_profile">Профиль маршрутизации</string>
     <string name="provider_routing_global">По умолчанию через прокси</string>
     <string name="provider_routing_fake_dns">FakeDNS</string>

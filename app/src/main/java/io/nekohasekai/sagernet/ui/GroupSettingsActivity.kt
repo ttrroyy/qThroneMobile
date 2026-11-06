@@ -694,7 +694,8 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
             if (preferenceScreen == null) return
             val store = DataStore.profileCacheStore
             val subscription = DataStore.groupType == TYPE_SUBSCRIPTION
-            val editing = !host.settingsMode
+            // The full screen holds both what the group is and how it behaves.
+            val editing = true
             val settings = host.settingsMode || !subscription
             findPreference<Preference>(Key.GROUP_NAME)?.isVisible = editing
             findPreference<Preference>(Key.GROUP_TYPE)?.isVisible = editing && host.editingId == 0L

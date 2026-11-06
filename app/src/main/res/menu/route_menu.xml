@@ -13,6 +13,9 @@
             <item
                 android:id="@+id/action_route_new_remote"
                 android:title="@string/route_new_remote" />
+            <item
+                android:id="@+id/action_route_new_provider"
+                android:title="@string/provider_route_new" />
         </menu>
     </item>
     <item

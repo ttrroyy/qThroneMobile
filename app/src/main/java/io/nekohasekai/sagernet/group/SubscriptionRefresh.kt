@@ -108,7 +108,10 @@ internal object SubscriptionRefresh {
         }
         SagerDatabase.groupDao.setSubscriptionInfo(gid, System.currentTimeMillis() / 1000, fetched.subInfo.toJsonString())
         // An unnamed subscription takes the provider's title, or the link's host; a name the user typed stays.
-        GroupRepo.get(gid)?.takeIf { it.name.isBlank() }?.let { latest ->
+        GroupRepo.get(gid)?.takeIf { latest ->
+            val host = runCatching { java.net.URI(latest.url.trim()).host }.getOrNull().orEmpty()
+            latest.name.isBlank() || (fetched.subInfo.title.isNotBlank() && (latest.name == host || latest.name == latest.url.trim()))
+        }?.let { latest ->
             latest.name = fetched.subInfo.title.ifBlank { runCatching { java.net.URI(latest.url.trim()).host }.getOrNull().orEmpty() }
             if (latest.name.isNotBlank()) SagerDatabase.groupDao.update(latest)
         }

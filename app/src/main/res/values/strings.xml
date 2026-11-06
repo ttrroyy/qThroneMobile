@@ -582,6 +582,8 @@
     <string name="vpn_ipv6">TUN IPv6</string>
     <string name="vpn_ipv6_sum">Give the tun an IPv6 address and route IPv6 through it</string>
     <string name="enable_tun_routing">Tun routing</string>
+    <string name="block_unowned_tun">Hide the tunnel from apps outside the VPN</string>
+    <string name="block_unowned_tun_sum">Drops connections with no owner: an app outside the VPN could send them through tun0 to learn the server\'s address. Android 10 or newer. Turn it off if hotspot sharing through the VPN stops working.</string>
     <string name="enable_tun_routing_sum">Keep the direct IP rules of the route profile outside the tun</string>
     <string name="block_quic">Block QUIC</string>
     <string name="block_quic_sum">Refuse QUIC (UDP 443) sent through a proxy so browsers switch to TCP at once. Direct traffic is not affected</string>
@@ -732,6 +734,8 @@
     <string name="route_new">New</string>
     <string name="route_new_structured">Structured profile</string>
     <string name="route_new_remote">Remote profile</string>
+    <string name="provider_route_new">Happ / Incy profile</string>
+    <string name="provider_route_new_note">Works like any routing profile while it is selected and needs no subscription. It replaces the current profile rather than adding to it. A subscription with its own routing turned on uses that instead. The per-app list works in every case.</string>
     <string name="route_import">Import</string>
     <string name="route_download_profiles">Download profiles</string>
     <string name="route_download_empty">No route profile bundles are available. Refresh the repository list and try again.</string>
@@ -1879,7 +1883,7 @@
     <string name="exit_ip_summary_location">Exit IP: %1$s (%2$s)</string>
     <string name="provider_routing_title">Subscription routing</string>
     <string name="provider_routing_use">Use %1$s routing</string>
-    <string name="provider_routing_use_summary">When disabled, use the common qThrone routing settings.</string>
+    <string name="provider_routing_use_summary">On: servers of this subscription use only its rules; the common qThrone routing is not applied and does not combine with them. Off: the common routing applies. The per-app list works in both cases.</string>
     <string name="provider_routing_profile">Routing profile</string>
     <string name="provider_routing_global">Proxy by default</string>
     <string name="provider_routing_fake_dns">FakeDNS</string>

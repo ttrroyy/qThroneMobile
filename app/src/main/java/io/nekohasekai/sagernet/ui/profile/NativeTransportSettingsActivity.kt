@@ -326,9 +326,21 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
         val checkButton=Preference(requireContext()).apply {
             title="Проверить хеши";isPersistent=false;setIcon(R.drawable.ic_mobile_hash)
         }
+        val hashPick=Preference(requireContext()).apply {
+            title="Хеши из созданных";isPersistent=false;setIcon(R.drawable.ic_mobile_hash);isVisible=false
+        }
+        fun hashSelectionKey()=app.qthrone.mobile.bg.carrier.VkRelayAccount.selectionKey(editingOutbound.type,
+            DataStore.profileCacheStore.getString(cache("server")).orEmpty().trim(),DataStore.profileCacheStore.getString(cache("server_port"))?.toIntOrNull() ?: 0)
+        fun refreshHashPick() {
+            val created=app.qthrone.mobile.bg.carrier.VkRelayAccount.cachedHashes().size
+            val selected=app.qthrone.mobile.bg.carrier.VkRelayAccount.selectedHashes(hashSelectionKey()).size
+            hashPick.summary=if(selected>0) "Выбрано: $selected из $created" else if(created>0) "Не выбраны: берутся первые, недостающие создаются. Создано: $created" else "Хешей пока нет: нажмите, чтобы создать"
+        }
         fun refreshEditors() {
             val source=DataStore.profileCacheStore.getString(cache("hash_source"))
             val automatic = source in listOf("auto","auto_js")
+            hashPick.isVisible=source=="auto"
+            if(source=="auto") refreshHashPick()
             editors["vk_access_token"]?.isVisible=source=="auto_js"
             (editors["vk_access_token"] as? EditTextPreference)?.dialogMessage="Необязательно: если поле пустое, токен берётся из общей привязки VK в настройках VK-релея."
             editors["rt_masque_server_bootstrap"]?.isEnabled=DataStore.profileCacheStore.getString(cache("rt_masque")) == "true"
@@ -479,9 +491,32 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             }
             editors[path]=preference
             preferenceScreen.addPreference(preference)
+            if(path=="hash_source") preferenceScreen.addPreference(hashPick)
             if(path=="hash_"+(if(editingOutbound.type=="csqtt") 6 else 4)) {
                 preferenceScreen.addPreference(checkButton)
             }
+        }
+        hashPick.setOnPreferenceClickListener {
+            val account=app.qthrone.mobile.bg.carrier.VkRelayAccount
+            val created=account.cachedHashes()
+            val generator={ startActivity(android.content.Intent(requireContext(),app.qthrone.mobile.ui.VkHashesActivity::class.java)) }
+            if(created.isEmpty()) { generator();return@setOnPreferenceClickListener true }
+            val slots=if(editingOutbound.type=="csqtt") 6 else 4
+            val key=hashSelectionKey()
+            val current=account.selectedHashes(key)
+            val picked=BooleanArray(created.size) { created[it] in current }
+            app.qthrone.mobile.ui.MobileAlertDialogBuilder(requireContext()).setTitle("Хеши профиля: не больше $slots")
+                .setMultiChoiceItems(created.map { if(it.length>24) it.take(14)+"…"+it.takeLast(8) else it }.toTypedArray(),picked) { dialog,index,on ->
+                    picked[index]=on && picked.count { it }<=slots
+                    if(on && !picked[index]) (dialog as androidx.appcompat.app.AlertDialog).listView.setItemChecked(index,false)
+                }
+                .setNegativeButton(android.R.string.cancel,null)
+                .setNeutralButton("Создать ещё") { _,_ -> generator() }
+                .setPositiveButton(android.R.string.ok) { _,_ ->
+                    runCatching { account.selectHashes(key,created.filterIndexed { index,_ -> picked[index] }) }
+                    refreshHashPick()
+                }.show()
+            true
         }
         val results=linkedMapOf<Int,String>()
         fun showResults() {

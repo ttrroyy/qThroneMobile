@@ -3,6 +3,7 @@ package app.qthrone.mobile.outbound.common
 import app.qthrone.mobile.outbound.BuildContext
 import app.qthrone.mobile.outbound.import.ClashProxy
 import app.qthrone.mobile.outbound.QtStrings
+import app.qthrone.mobile.outbound.json.JsonArray
 import app.qthrone.mobile.outbound.json.JsonObject
 import app.qthrone.mobile.outbound.json.JsonValues
 import app.qthrone.mobile.outbound.link.Hosts
@@ -205,6 +206,19 @@ class Transport {
         if (type.isEmpty() || type == "tcp") return obj
         obj["type"] = type
         return obj
+    }
+
+    /**
+     * Xray fixes ALPN by transport whatever a link says: a WebSocket cannot run over a negotiated h2 (the server closes it,
+     * "EOF"), gRPC needs h2. Without an ALPN in the profile sing-box already picks these itself.
+     */
+    fun tlsFor(tls: JsonObject): JsonObject {
+        if (!tls.contains("alpn")) return tls
+        when (type) {
+            "ws", "httpupgrade" -> tls["alpn"] = JsonArray.of("http/1.1")
+            "grpc" -> tls["alpn"] = JsonArray.of("h2")
+        }
+        return tls
     }
 
     /** transport.cpp:192-202: a comma list of http hosts becomes an array of trimmed hosts. */

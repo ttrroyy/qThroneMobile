@@ -181,6 +181,18 @@ object VkRelayAccount {
 
     const val MAX_HASHES = 30
     fun cachedHashes(): List<String> = read().optJSONArray("hashes")?.let { list -> (0 until list.length()).map(list::getString) }.orEmpty()
+    /** Which created hashes a server's profiles use; kept here so they stay out of profiles, exports and share links. */
+    fun selectionKey(type: String,server: String,port: Int) = "$type|$server:$port"
+    fun selectedHashes(key: String): List<String> {
+        val session=read()
+        val created=session.optJSONArray("hashes")?.let { list -> (0 until list.length()).map(list::getString) }.orEmpty()
+        return session.optJSONObject("selectedHashes")?.optJSONArray(key)?.let { list -> (0 until list.length()).map(list::getString) }.orEmpty().filter { it in created }
+    }
+    @Synchronized fun selectHashes(key: String,hashes: List<String>) {
+        val session=read()
+        session.put("selectedHashes",(session.optJSONObject("selectedHashes") ?: JSONObject()).put(key,org.json.JSONArray(hashes)))
+        writeCurrent(session)
+    }
     /**
      * Removes hashes and ends the VK calls behind them. A call VK refuses to end, or one created before call ids
      * were kept, is still removed here; returns how many were left running.
@@ -207,7 +219,7 @@ object VkRelayAccount {
         writeCurrent(session)
         unfinished
     }
-    fun hashes(count: Int, interactive: Boolean=true): List<String> {
+    fun hashes(count: Int, interactive: Boolean=true, onProgress: (Int) -> Unit={}): List<String> {
       synchronized(hashCreationLock) {
         require(count in 1..MAX_HASHES)
         val session = read()
@@ -248,7 +260,7 @@ object VkRelayAccount {
             call.optString("call_id").takeIf { it.isNotEmpty() }?.let { id ->
                 session.put("callIds",(session.optJSONObject("callIds") ?: JSONObject()).put(hash,id))
             }
-            session.put("hashes",org.json.JSONArray(hashes)); writeCurrent(session)
+            session.put("hashes",org.json.JSONArray(hashes)); writeCurrent(session); onProgress(hashes.size)
         }
         return hashes.take(count)
       }

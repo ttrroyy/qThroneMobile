@@ -859,6 +859,8 @@ class MobileHomeFragment : ToolbarFragment() {
                     val gestures=GestureDetector(requireContext(),object:GestureDetector.SimpleOnGestureListener() {
                         override fun onDown(event:MotionEvent)=true
                         override fun onSingleTapUp(event:MotionEvent):Boolean { heading.performClick();return true }
+                        override fun onLongPress(event:MotionEvent) { editGroup(group,true) }
+                        override fun onDoubleTap(event:MotionEvent):Boolean { host().displayFragmentWithId(R.id.nav_group);return true }
                         override fun onFling(start:MotionEvent?,end:MotionEvent,velocityX:Float,velocityY:Float):Boolean {
                             val first=start ?: return false
                             val dx=end.x-first.x
@@ -928,14 +930,16 @@ class MobileHomeFragment : ToolbarFragment() {
                     val firstLength=Character.charCount(first)
                     val second=if(displayName.length>firstLength) displayName.codePointAt(firstLength) else 0
                     val hasFlag=first in 0x1f1e6..0x1f1ff && second in 0x1f1e6..0x1f1ff
-                    val flagLength=if(hasFlag) firstLength+Character.charCount(second) else 0
+                    val leadingFlag=MobileCountryFlags.leading(displayName)
+                    val flagLength=leadingFlag.length
                     val badgeBackground=GradientDrawable().apply { setColor(toolbarColor);cornerRadius=dp(7).toFloat() }
                     val countryCode=if(hasFlag) "${('a'.code+first-0x1f1e6).toChar()}${('a'.code+second-0x1f1e6).toChar()}" else ""
-                    val flag=if(hasFlag) MobileCountryFlags.bitmap(requireContext(),countryCode) else null
+                    val flag=(if(hasFlag) MobileCountryFlags.bitmap(requireContext(),countryCode) else null)
+                        ?: if(leadingFlag.isNotEmpty()) MobileCountryFlags.emoji(requireContext(),leadingFlag) else null
                     val badge=ImageView(requireContext()).apply {
                         if(flag!=null) {
                             setImageBitmap(flag);scaleType=ImageView.ScaleType.FIT_XY
-                            contentDescription="Country flag: ${countryCode.uppercase(java.util.Locale.ROOT)}"
+                            contentDescription="Flag: ${countryCode.uppercase(java.util.Locale.ROOT).ifEmpty { leadingFlag }}"
                         } else {
                             setImageResource(R.drawable.ic_mobile_globe)
                             imageTintList=android.content.res.ColorStateList.valueOf(muted)
@@ -945,7 +949,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     badge.background=badgeBackground;badge.clipToOutline=true
                     row.addView(badge,LinearLayout.LayoutParams(dp(28),dp(28)).apply { marginStart=dp(10) })
                     val labels = LinearLayout(requireContext()).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(10), dp(6), dp(6), dp(6)) }
-                    labels.addView(text(if(hasFlag) displayName.substring(flagLength).trimStart() else displayName, 15f).apply { setTypeface(null,Typeface.BOLD); setPadding(0,0,0,dp(2)); maxLines = 1; ellipsize = android.text.TextUtils.TruncateAt.END })
+                    labels.addView(text(if(flagLength>0) displayName.substring(flagLength).trimStart() else displayName, 15f).apply { setTypeface(null,Typeface.BOLD); setPadding(0,0,0,dp(2)); maxLines = 1; ellipsize = android.text.TextUtils.TruncateAt.END })
                     labels.addView(text(profile.displayProtocol(), 12f, muted).apply { setPadding(0,0,0,0); maxLines=1 })
                     row.addView(labels, LinearLayout.LayoutParams(0, -2, 1f))
                     val latency=FrameLayout(requireContext()).apply { tag=profile.latency }
@@ -1191,7 +1195,6 @@ class MobileHomeFragment : ToolbarFragment() {
             startActivity(Intent(requireContext(),ProviderRoutingActivity::class.java).putExtra("groupId",group.id))
         }
         entry(getString(R.string.qmobile_ping),R.drawable.ic_mobile_test) { viewLifecycleOwner.lifecycleScope.launch { val ids=withContext(Dispatchers.IO) { SagerDatabase.proxyDao.getByGroup(group.id).map { it.id }.toLongArray() };testMenu(ids,group.displayName(),group.id,true) } }
-        entry(getString(R.string.qmobile_edit),R.drawable.ic_mobile_edit) { editGroup(group,false) }
         entry(getString(R.string.settings),R.drawable.ic_mobile_settings) { editGroup(group,true) }
         entry(getString(R.string.connection_test_clear_results),R.drawable.ic_mobile_test) {
             viewLifecycleOwner.lifecycleScope.launch {

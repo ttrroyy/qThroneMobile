@@ -134,8 +134,19 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
     private fun parseSlipNet(body:String):Boolean {
         val f=String(Base64Strict.decode(body.substringBefore('#').trim()) ?: Base64Strict.decode(body.trim(),true) ?: return false,Charsets.UTF_8).split('|')
         if(f.size<11) return false
-        val (kind,backendType)=SLIPNET_TYPES[f[1]] ?: return false
         fun field(i:Int)=f.getOrNull(i).orEmpty()
+        // SlipNet 2.5.6: only plain Soar; Soar over SSH has no counterpart here.
+        if(f[1]=="soar") {
+            val list=JsonArray()
+            for(item in field(4).split(',')) {
+                val parts=item.split(':');if(parts.size<2 || parts[0].isBlank()) continue
+                list.add(Hosts.displayAddress(parts[0],parts[1].toIntOrNull() ?: 53))
+            }
+            val obj=jsonObjectOf("type" to "soar","name" to field(2),"domain" to field(3),"pubkey" to field(11),"resolvers" to list)
+            obj["soar"]=jsonObjectOf("discovery" to (field(79)=="1"),"country" to field(80))
+            return parseFromJson(obj)
+        }
+        val (kind,backendType)=SLIPNET_TYPES[f[1]] ?: return false
         fun b64(i:Int)=field(i).takeIf { it.isNotEmpty() }?.let { Base64Strict.decode(it)?.toString(Charsets.UTF_8) }.orEmpty()
         val resolvers=JsonArray()
         val authoritative=field(4).split(',').any { it.split(':').getOrNull(2)=="1" }

@@ -99,16 +99,31 @@ internal class TestSession(
         Mobile.stopTests()
     }
 
+    /** A big subscription should not wait for its last profile: the fast ones rise as they answer. */
+    private suspend fun sortWhileTesting() {
+        if (kind != TestSpec.KIND_URL || spec.sortGroupId <= 0 ||
+            GroupRepo.get(spec.sortGroupId)?.subOptions?.effectiveSortRule != ServerSortRule.PING) return
+        var sorted = 0
+        while (true) {
+            kotlinx.coroutines.delay(5000)
+            if (done.get() == sorted) continue
+            sorted = done.get()
+            runCatching { GroupSort.sortProfiles(spec.sortGroupId, GroupSortAction(GroupSortMethod.BY_LATENCY)) }
+                .onFailure { if (it is CancellationException) throw it else Logs.w("Ping sort failed: ${it.readableMessage}") }
+        }
+    }
+
     suspend fun run() {
         var completed=false
         notification.start()
         try {
             coroutineScope {
                 val refresher = launch { notification.refreshLoop() }
+                val sorter = launch { sortWhileTesting() }
                 try {
                     if (spec.testCurrent) runCurrent() else runProfiles()
                 } finally {
-                    refresher.cancel()
+                    refresher.cancel(); sorter.cancel()
                 }
             }
             completed=true

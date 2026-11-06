@@ -19,7 +19,11 @@ object NativeHashPolicy {
     fun runtimeProfile(profile: Qwdtt, obtainHashes: (Int) -> List<String>): Qwdtt =
         runtimeProfile(profile, obtainHashes) { VkRelayAccount.tokenForCalls() }
 
-    internal fun runtimeProfile(profile: Qwdtt, obtainHashes: (Int) -> List<String>, obtainToken: () -> String): Qwdtt {
+    internal fun runtimeProfile(profile: Qwdtt, obtainHashes: (Int) -> List<String>, obtainToken: () -> String): Qwdtt =
+        runtimeProfile(profile, emptyList(), obtainHashes, obtainToken)
+
+    /** [picked]: the created hashes chosen for this server; none chosen takes the first ones and creates what is missing. */
+    internal fun runtimeProfile(profile: Qwdtt, picked: List<String>, obtainHashes: (Int) -> List<String>, obtainToken: () -> String): Qwdtt {
         if (!supportsAutomatic(profile)) return profile
         if(profile is Csqtt && profile.hashSource=="auto_js") {
             if(profile.vkAccessToken.isNotBlank()) return profile
@@ -36,12 +40,14 @@ object NativeHashPolicy {
         check(copy.parseFromJson(profile.exportToJson()))
         val count = (if(profile is Csqtt) (copy.workers+9)/10 else (copy.workers+26)/27)
             .coerceIn(1, if (profile.type == "csqtt") 6 else 4)
-        val hashes = obtainHashes(count)
-        check(hashes.size == count && hashes.distinct().size == count && hashes.all {
+        val hashes = picked.take(if (profile.type == "csqtt") 6 else 4).ifEmpty { obtainHashes(count) }
+        check((picked.isNotEmpty() || hashes.size == count) && hashes.isNotEmpty() && hashes.distinct().size == hashes.size && hashes.all {
             it.matches(Regex("[A-Za-z0-9_-]{16,512}"))
         }) { "VK не вернул необходимые хеши звонков" }
         copy.hashes = hashes.toList()
         copy.hashSource = "manual"
+        // Fewer chosen hashes than the workers were set for carry only what each hash can take.
+        if (picked.isNotEmpty() && copy !is WdttPlus) copy.workers = copy.workers.coerceAtMost(hashes.size * if (copy is Csqtt) 10 else 27)
         return copy
     }
 

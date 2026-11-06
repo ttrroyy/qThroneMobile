@@ -120,6 +120,7 @@ data class GeneratorSettings(
     val enableDnsRouting: Boolean = true,
     /** enable_tun_routing (SettingsRepo.h:222): the route profile's direct ip_cidr values bypass the tun. */
     val enableTunRouting: Boolean = false,
+    val blockUnownedTun: Boolean = false,
     /** block_quic (SettingsRepo.h): QUIC (UDP 443) headed for a proxy is refused so browsers fall back to TCP. */
     val blockQuic: Boolean = true,
     /** enable_stats (SettingsRepo.h:118): route.find_process and the api service. */
@@ -147,7 +148,7 @@ data class GeneratorSettings(
 
     // ---- tests (SettingsRepo.h:69-71): the auto-selector's probe URLs when its own are empty
     /** test_url (the desktop member test_latency_url). */
-    val testUrl: String = "http://cp.cloudflare.com/",
+    val testUrl: String = "https://cp.cloudflare.com/",
     /** direct_test_url: the selector's direct connectivity probe; "" omits it. */
     val directTestUrl: String = "",
 
