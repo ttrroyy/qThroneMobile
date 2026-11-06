@@ -157,7 +157,7 @@ for item in freeturn['archives']:
     files = {}
     with tarfile.open(fileobj=io.BytesIO(archive), mode='r:gz') as tar:
         for member in tar.getmembers():
-            assert member.isfile() and '/' not in member.name and '\' not in member.name
+            assert member.isfile() and '/' not in member.name and chr(92) not in member.name
             assert member.name not in files, 'Duplicate FreeTurn archive entry'
             files[member.name] = tar.extractfile(member).read()
     assert set(files) == {'libfreeturn.so', 'FreeTurn-LICENSE', 'FreeTurn.json', 'SOURCES.txt', 'SHA256SUMS'}
