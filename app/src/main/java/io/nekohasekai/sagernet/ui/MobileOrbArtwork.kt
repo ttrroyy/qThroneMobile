@@ -81,10 +81,10 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
         } else { wave = waveTo; spin = spinTo; lit = litTo }
 
         val cx = bounds.exactCenterX()
-        val rest = minOf(bounds.width(), bounds.height()) * .27f
+        val rest = radius(minOf(bounds.width(), bounds.height()))
         val base = rest * pressScale
         // The rings fade out inside the view: it clips whatever leaves it.
-        val cy = bounds.top + rest * 1.6f
+        val cy = bounds.top + centerY(minOf(bounds.width(), bounds.height()))
         val ink = MobilePalette.text
         val day = MobilePalette.light
         shaders(cx, cy, base, day, ink)
@@ -172,5 +172,8 @@ class MobileOrbArtwork(context: Context, private val idleText: String) : MobileP
     companion object {
         /** A screen change draws through a layer; repainting that layer every frame is what makes it stutter. */
         @JvmStatic var frozen = false
+        /** Where the disc sits in a button of [size]: the panel at the bottom curves around it. */
+        fun radius(size: Int) = size * .27f
+        fun centerY(size: Int) = radius(size) * 1.6f
     }
 }

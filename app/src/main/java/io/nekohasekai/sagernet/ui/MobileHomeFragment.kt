@@ -74,6 +74,8 @@ class MobileHomeFragment : ToolbarFragment() {
     private var homeTitle: TextView? = null
     private var modeSwitches: Map<String,androidx.appcompat.widget.SwitchCompat> = emptyMap()
     private var restartAfterStop = false
+    /** Appearance, new style: the button or switches in a panel at the bottom, with the subscription and servers above them. */
+    private fun controlAtBottom()=MobileStyle.new && DataStore.configurationStore.getString("qmobileControlPosition")=="bottom"
     private fun homeSwitchesOn()=DataStore.configurationStore.getString("qmobileHomeControl")=="switches"
     /** A switch starts or stops its own mode; turning on the other one moves the running connection over. */
     private fun pickMode(mode: String) {
@@ -696,7 +698,7 @@ class MobileHomeFragment : ToolbarFragment() {
             val column = content ?: return@launch
             groups.forEach { (group, _) -> knownGroups.add(group.id) }
             val tilesBottom=tilesAtBottom()
-            val tilesKey="${extendedTiles()}:$tilesBottom:$byGroups:${homeSwitchesOn()}"
+            val tilesKey="${extendedTiles()}:$tilesBottom:$byGroups:${homeSwitchesOn()}:${controlAtBottom()}"
             // A moved tile bar rebuilds the screen even when the server list is the same.
             val unchanged=withContext(Dispatchers.Default) { previousStructure == structure } && renderedGroupId==focusedGroup && chromeKey?.endsWith(":$tilesKey")!=false
             if (unchanged) {
@@ -809,6 +811,9 @@ class MobileHomeFragment : ToolbarFragment() {
                 },LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(14) })
                 val centre = FrameLayout(requireContext())
                 var statusRow: LinearLayout?=null
+                val dockBottom=controlAtBottom() && !landscape
+                val controlParent=if(dockBottom) LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL } else side
+                var dockLeft: FrameLayout?=null
                 if(homeSwitchesOn()) {
                     val rows=LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL }
                     // Side by side in one row: the server list keeps the room the button took.
@@ -829,7 +834,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     modeSwitches=switches.toMap()
                     power=text("",13f,muted).apply { gravity=Gravity.CENTER;maxLines=2;ellipsize=android.text.TextUtils.TruncateAt.END }
                     rows.addView(power,LinearLayout.LayoutParams(-1,-2))
-                    side.addView(rows,LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(10) })
+                    controlParent.addView(rows,LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(if(dockBottom) 2 else 10) })
                 } else {
                 power = action("") { if(!powerCovered()) host().toggleService() }.apply {
                     contentDescription = getString(R.string.qmobile_connect)
@@ -856,8 +861,9 @@ class MobileHomeFragment : ToolbarFragment() {
                 }
                 if(MobileStyle.new) {
                     // A smaller button right under the subscription: the servers and the subscription's actions keep the screen.
-                    centre.addView(power, FrameLayout.LayoutParams(dp(190), dp(190), Gravity.CENTER))
-                    side.addView(centre, LinearLayout.LayoutParams(-1, dp(190)).apply { topMargin=dp(4) })
+                    centre.addView(power, FrameLayout.LayoutParams(dp(190), dp(190), Gravity.TOP or Gravity.CENTER_HORIZONTAL))
+                    if(dockBottom) centre.background=MobileDockGlass(MobilePalette.cardDp*resources.displayMetrics.density,MobileOrbArtwork.centerY(dp(190)),MobileOrbArtwork.radius(dp(190))*1.26f,dp(104).toFloat())
+                    controlParent.addView(centre, LinearLayout.LayoutParams(-1, dp(if(dockBottom) 194 else 190)).apply { topMargin=dp(4) })
                 } else {
                 centre.addView(power, FrameLayout.LayoutParams(dp(188), dp(188), Gravity.TOP or Gravity.CENTER_HORIZONTAL).apply { topMargin=dp(8) })
                 side.addView(centre, LinearLayout.LayoutParams(-1, dp(206)))
@@ -867,9 +873,20 @@ class MobileHomeFragment : ToolbarFragment() {
                     sheetDown=text("↓ "+rateText(lastDown),12f,muted).apply { setPadding(dp(6),dp(2),dp(6),dp(2));maxLines=1 }
                     sheetUp=text("↑ "+rateText(lastUp),12f,muted).apply { setPadding(dp(6),dp(2),dp(6),dp(2));maxLines=1 }
                     // A fixed height: one line or two beside the speed, the list under it stays put.
+                    if(dockBottom && !homeSwitchesOn()) {
+                        // Either side of the caption in the panel, the same distance from its edges.
+                        dockLeft=FrameLayout(requireContext())
+                        centre.addView(dockLeft,FrameLayout.LayoutParams(dp(92),-2,Gravity.START or Gravity.BOTTOM).apply { marginStart=dp(14);bottomMargin=dp(14) })
+                        val speed=LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL;gravity=Gravity.END;addView(sheetDown);addView(sheetUp) }
+                        sheetSpeed=speed
+                        centre.addView(speed,FrameLayout.LayoutParams(dp(92),-2,Gravity.END or Gravity.BOTTOM).apply { marginEnd=dp(14);bottomMargin=dp(14) })
+                    } else {
                     statusRow=LinearLayout(requireContext()).apply { gravity=Gravity.CENTER_VERTICAL;setPadding(dp(10),0,dp(6),0);addView(sheetDown);addView(sheetUp) }
                     sheetSpeed=statusRow
-                    side.addView(statusRow,LinearLayout.LayoutParams(-1,dp(36)).apply { bottomMargin=-dp(4) })
+                    // At the bottom the check and speed stay above the switches, next to the list.
+                    if(dockBottom) controlParent.addView(statusRow,0,LinearLayout.LayoutParams(-1,dp(36)))
+                    else side.addView(statusRow,LinearLayout.LayoutParams(-1,dp(36)).apply { bottomMargin=-dp(4) })
+                    }
                 }
                 updateState()
                 val imports = LinearLayout(requireContext())
@@ -912,7 +929,7 @@ class MobileHomeFragment : ToolbarFragment() {
                 geoBanner!!.addView(geoCheck,LinearLayout.LayoutParams(dp(24),dp(24)))
                 // Under the decoration, right above the subscriptions it is about.
                 // In the new style the check sits beside the speed, under the button.
-                subscriptionTop?.let { if(statusRow!=null) { it.layoutParams=LinearLayout.LayoutParams(0,-2,1f); statusRow?.addView(it,0) } else body.addView(it) }
+                subscriptionTop?.let { if(dockLeft!=null) { it.layoutParams=FrameLayout.LayoutParams(-1,-2); dockLeft?.addView(it) } else if(statusRow!=null) { it.layoutParams=LinearLayout.LayoutParams(0,-2,1f); statusRow?.addView(it,0) } else body.addView(it) }
                 if(!byGroups) body.addView(geoBanner,LinearLayout.LayoutParams(-1,-2).apply { bottomMargin=dp(6) })
                 updateGeoStatus()
                 val serverPanel=if(byGroups) LinearLayout(requireContext()).apply {
@@ -987,6 +1004,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     if(MobileStyle.new) imports.addView(addTile,LinearLayout.LayoutParams(dp(48),dp(48)).apply { marginStart=dp(8) })
                     body.addView(imports,LinearLayout.LayoutParams(-1,dp(48)))
                 }
+                if(dockBottom) body.addView(controlParent,LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(6) })
                 // Appearance: the tile bar at the very bottom, under the server list.
                 if(tilesBottom && !MobileStyle.new) {
                     if(landscape) side.addView(View(requireContext()),LinearLayout.LayoutParams(-1,0,1f))

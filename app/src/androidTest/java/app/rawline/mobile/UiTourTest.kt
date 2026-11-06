@@ -82,22 +82,29 @@ class UiTourTest {
         })
         return group to SagerDatabase.proxyDao.getByGroup(group.id).first()
     }
-    private fun home(mode: String, control: String = "button") {
+    private fun home(mode: String, control: String = "button", position: String = "top") {
         val (group, _) = fixtures()
         DataStore.configurationStore.putString("qmobileHomeControl", control)
+        DataStore.configurationStore.putString("qmobileControlPosition", position)
         DataStore.mobileListMode = mode
         GroupRepo.setCurrent(group.id)
         open(MainActivity::class.java)
         ProviderGeoAssets.states.value = mapOf(group.id to ProviderGeoAssets.Status(complete = true))
         Thread.sleep(1000)
     }
-    private fun orb(connected: Boolean) {
-        home("groups")
+    private fun orb(connected: Boolean, position: String = "top") {
+        home("groups", position = position)
         // The home screen rewrites the state every second from the real service, so it is held here until the picture.
         repeat(24) {
             instrumentation.runOnMainSync {
                 fun walk(view: android.view.View) {
                     (view.background as? MobilePowerArtwork)?.let { it.connected = connected; it.connecting = !connected; it.statusText = if (connected) "Подключено" else "Подключение"; it.elapsedText = "00:12:49"; it.workersText = "27/27" }
+                    // The speed and the check belong to a live connection, which the emulator has none of.
+                    if (connected && view is android.widget.TextView) {
+                        val label = view.text.toString()
+                        if (label.startsWith("↓") || label.startsWith("↑")) (view.parent as android.view.View).visibility = android.view.View.VISIBLE
+                        if (label == context.getString(R.string.qmobile_check_connection)) view.visibility = android.view.View.VISIBLE
+                    }
                     if (view is android.view.ViewGroup) for (index in 0 until view.childCount) walk(view.getChildAt(index))
                 }
                 walk(resumed().window.decorView)
@@ -116,8 +123,12 @@ class UiTourTest {
         "home-connecting" to { orb(false) },
         "home-connected" to { orb(true) },
         "home-switches" to { home("groups", "switches") },
+        "home-bottom" to { home("groups", position = "bottom") },
+        "home-bottom-connected" to { orb(true, "bottom") },
+        "home-bottom-switches" to { home("groups", "switches", "bottom") },
         "home-empty" to {
             DataStore.configurationStore.putString("qmobileHomeControl", "button")
+            DataStore.configurationStore.putString("qmobileControlPosition", "top")
             SagerDatabase.groupDao.allGroups().filter { it.name == "api.host-cloud.uk" }.forEach { SagerDatabase.groupDao.deleteById(it.id) }
             open(MainActivity::class.java)
             Thread.sleep(1000)

@@ -21,6 +21,8 @@
     <string name="qmobile_tiles_position">Расположение плиток на главном экране</string>
     <string-array name="qmobile_tiles_positions"><item>Сверху</item><item>Снизу</item></string-array>
     <string name="qmobile_home_tiles">Плитки на главном экране</string>
+    <string name="qmobile_control_position">Расположение подключения</string>
+    <string-array name="qmobile_control_position_entries"><item>Сверху</item><item>Снизу</item></string-array>
     <string name="qmobile_home_control">Управление подключением</string>
     <string-array name="qmobile_home_control_entries"><item>Кнопка</item><item>Переключатели</item></string-array>
     <string-array name="qmobile_home_tiles_entries"><item>Расширенный</item><item>Стандартный</item></string-array>
