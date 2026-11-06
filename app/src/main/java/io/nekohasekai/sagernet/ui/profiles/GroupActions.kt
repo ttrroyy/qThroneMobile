@@ -1,7 +1,7 @@
 package app.qthrone.mobile.ui.profiles
 
 import androidx.annotation.PluralsRes
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.R
 import app.qthrone.mobile.database.DataStore
 import app.qthrone.mobile.database.GroupRepo
@@ -138,7 +138,7 @@ internal object GroupActions {
             host.onUi {
                 setGroupBusy(groupId, false)
                 if (report.isNotBlank()) {
-                    MaterialAlertDialogBuilder(requireContext())
+                    MobileAlertDialogBuilder(requireContext())
                         .setMessage(report)
                         .setPositiveButton(android.R.string.ok, null)
                         .show()

@@ -15,7 +15,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.Key
 import app.qthrone.mobile.R
 import app.qthrone.mobile.SagerNet
@@ -99,7 +99,7 @@ class VpnRequestActivity : AppCompatActivity() {
          */
         fun showConsentUnavailable(context: Context, onDismiss: () -> Unit = {}) {
             val command = "adb shell appops set ${context.packageName} ACTIVATE_VPN allow"
-            MaterialAlertDialogBuilder(context)
+            MobileAlertDialogBuilder(context)
                 .setTitle(R.string.vpn_dialog_missing_title)
                 .setMessage(context.getString(R.string.vpn_dialog_missing_message, context.packageName))
                 .setPositiveButton(R.string.vpn_dialog_use_proxy) { _, _ ->

@@ -2,7 +2,7 @@ package app.qthrone.mobile.ui.route
 
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.R
 import app.qthrone.mobile.SagerNet
 import app.qthrone.mobile.database.DataStore
@@ -27,7 +27,7 @@ object RouteQuickSwitch {
             }
             val context = fragment.context ?: return@launch
             val names = Array<CharSequence>(profiles.size) { profiles[it].name.ifBlank { "#" + profiles[it].id } }
-            MaterialAlertDialogBuilder(context)
+            MobileAlertDialogBuilder(context)
                 .setTitle(R.string.route_profile_quick_switch)
                 .setSingleChoiceItems(names, profiles.indexOfFirst { it.id == currentId }) { dialog, which ->
                     dialog.dismiss()

@@ -52,7 +52,7 @@ class QwdttAccessActivity : ServerScreenActivity() {
             .setOnMenuItemClickListener { form(null); true }
         val content = ui.column().apply { setPadding(ui.dp(16), ui.dp(8), ui.dp(16), ui.dp(24)) }
         search = ui.input("Поиск").apply {
-            setPadding(ui.dp(16), ui.dp(12), ui.dp(16), ui.dp(12)); background = ui.card(16).background
+            setPadding(ui.dp(16), ui.dp(12), ui.dp(16), ui.dp(12)); background = ui.card().background
             addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
                 override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}

@@ -22,7 +22,7 @@ internal class ServerUi(private val context: Context) {
 
     fun column(padding: Int = 0) = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(padding), dp(padding), dp(padding), dp(padding)) }
 
-    fun card(radius: Int = 5) = column(12).apply {
+    fun card(radius: Int = 12) = column(12).apply {
         background = GradientDrawable().apply { setColor(MobilePalette.surface); cornerRadius = dp(radius).toFloat(); setStroke(1,MobilePalette.outline) }
     }
 
@@ -81,6 +81,8 @@ internal class ServerUi(private val context: Context) {
 
     fun input(hint: String, value: String = "", number: Boolean = false) = EditText(context).apply {
         this.hint = hint; setText(value); setTextColor(MobilePalette.text); setHintTextColor(MobilePalette.muted); isSingleLine = true
+        background = well(); setPadding(dp(12), dp(10), dp(12), dp(10)); minimumHeight = dp(48); MobilePalette.tintCursor(this)
+        layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(8) }
         if (number) inputType = InputType.TYPE_CLASS_NUMBER
     }
 

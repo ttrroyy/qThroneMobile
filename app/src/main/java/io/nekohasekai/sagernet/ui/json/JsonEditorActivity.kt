@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import app.qthrone.mobile.ui.MobileSheetDialog as BottomSheetDialog
 import com.google.android.material.color.MaterialColors
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.SelectionChangeEvent
 import io.github.rosemoe.sora.lang.diagnostic.DiagnosticRegion
@@ -404,7 +404,7 @@ class JsonEditorActivity : ThemedActivity() {
                 store(formatted)
                 return@launch
             }
-            MaterialAlertDialogBuilder(this@JsonEditorActivity)
+            MobileAlertDialogBuilder(this@JsonEditorActivity)
                 .setTitle(R.string.json_save_anyway_title)
                 .setMessage(resources.getQuantityString(R.plurals.json_save_anyway_message, errors, errors))
                 .setPositiveButton(R.string.json_save_anyway) { _, _ -> store(formatted) }
@@ -426,7 +426,7 @@ class JsonEditorActivity : ThemedActivity() {
             finish()
             return
         }
-        MaterialAlertDialogBuilder(this)
+        MobileAlertDialogBuilder(this)
             .setTitle(R.string.unsaved_changes_prompt)
             .setPositiveButton(R.string.save) { _, _ -> save() }
             .setNegativeButton(R.string.discard) { _, _ -> finish() }
@@ -435,7 +435,7 @@ class JsonEditorActivity : ThemedActivity() {
     }
 
     private fun alert(message: String) {
-        MaterialAlertDialogBuilder(this)
+        MobileAlertDialogBuilder(this)
             .setTitle(R.string.json_invalid)
             .setMessage(message)
             .setPositiveButton(android.R.string.ok, null)

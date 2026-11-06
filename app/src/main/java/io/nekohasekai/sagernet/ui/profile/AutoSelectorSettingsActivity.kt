@@ -11,7 +11,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.Action
 import app.qthrone.mobile.R
 import app.qthrone.mobile.bg.autoselector.AutoSelectorProfiles
@@ -165,7 +165,7 @@ class AutoSelectorSettingsActivity : BindingSettingsActivity<AutoSelector>() {
             return
         }
         onMainDispatcher {
-            MaterialAlertDialogBuilder(this@AutoSelectorSettingsActivity)
+            MobileAlertDialogBuilder(this@AutoSelectorSettingsActivity)
                 .setTitle(R.string.autosel_title)
                 .setMessage(error)
                 .setPositiveButton(android.R.string.ok, null)
@@ -205,7 +205,7 @@ class AutoSelectorSettingsActivity : BindingSettingsActivity<AutoSelector>() {
             refreshBalance()
         }
         findPreference<Preference>(KEY_PINNED)?.setOnPreferenceClickListener {
-            MaterialAlertDialogBuilder(this@AutoSelectorSettingsActivity)
+            MobileAlertDialogBuilder(this@AutoSelectorSettingsActivity)
                 .setTitle(R.string.autosel_pinned)
                 .setMessage(R.string.autosel_use_automatic_tip)
                 .setPositiveButton(R.string.autosel_use_automatic) { _, _ -> releasePin() }

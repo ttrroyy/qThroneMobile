@@ -170,7 +170,7 @@
         <item name="rippleColor">@color/dialog_button_ripple</item>
         <item name="android:paddingLeft">12dp</item>
         <item name="android:paddingRight">12dp</item>
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.SagerNet.Pill</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.SagerNet.Button</item>
     </style>
 
     <style name="Widget.SagerNet.Button.TextButton.Dialog.Flush">
@@ -217,7 +217,15 @@
         <item name="android:layout">@layout/layout_preference_category</item>
     </style>
 
+    <style name="Widget.SagerNet.Chip.Action" parent="Widget.MaterialComponents.Chip.Action">
+        <item name="chipCornerRadius">@dimen/row_corner_radius</item>
+    </style>
+    <style name="Widget.SagerNet.Chip.Choice" parent="Widget.MaterialComponents.Chip.Choice">
+        <item name="chipCornerRadius">@dimen/row_corner_radius</item>
+    </style>
+
     <style name="Widget.MaterialComponents.Chip.Choice.SagerNet">
+        <item name="chipCornerRadius">@dimen/row_corner_radius</item>
         <item name="textStartPadding">30dp</item>
         <item name="textEndPadding">30dp</item>
         <item name="chipBackgroundColor">@color/chip_background</item>
@@ -236,6 +244,7 @@
 
     <!-- Elevated cards keep the same hairline outline as the other tiles. -->
     <style name="Widget.SagerNet.CardView.Elevated">
+        <item name="cardCornerRadius">@dimen/row_corner_radius</item>
         <item name="cardElevation">@dimen/card_elevation</item>
         <item name="strokeWidth">@dimen/card_stroke_width</item>
         <item name="strokeColor">@color/card_stroke</item>
@@ -243,6 +252,7 @@
     </style>
 
     <style name="Widget.SagerNet.CardView.Tinted" parent="Widget.SagerNet.CardView">
+        <item name="cardCornerRadius">@dimen/row_corner_radius</item>
         <item name="cardBackgroundColor">?attr/cardElevatedSurfaceColor</item>
     </style>
 
@@ -255,8 +265,11 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">@dimen/input_corner_radius</item>
     </style>
-    <style name="Widget.SagerNet.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="boxStrokeColor">@color/mobile_input_outline</item>
+    <style name="Widget.SagerNet.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <!-- The dark well of the cards: 14% black over whatever surface the field lies on, no underline. -->
+        <item name="boxBackgroundColor">#24000000</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
         <item name="hintTextColor">?attr/colorAccent</item>
         <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.SagerNet.Input</item>
     </style>

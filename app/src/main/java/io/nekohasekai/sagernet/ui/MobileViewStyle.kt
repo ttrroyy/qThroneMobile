@@ -13,7 +13,6 @@ object MobileViewStyle {
     fun apply(root: View) {
         if(root is MaterialCardView) {
             root.setCardBackgroundColor(MobilePalette.surface)
-            root.radius=16f*root.resources.displayMetrics.density
             root.strokeColor=MobilePalette.outline
             root.strokeWidth=1
         }

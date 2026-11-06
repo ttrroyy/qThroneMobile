@@ -25,7 +25,7 @@ import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import app.qthrone.mobile.widget.AlertDialogFragment
 import app.qthrone.mobile.widget.Empty
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.Key
 import app.qthrone.mobile.utils.ShortcutAuthorization
 import app.qthrone.mobile.QuickToggleShortcut
@@ -406,7 +406,7 @@ abstract class ProfileSettingsActivity<T : Outbound>(
                 val ent = activity.proxyEntity!!
                 val groups = SagerDatabase.groupDao.allGroups().filter { !it.isSubscription && it.id != ent.groupId }
                 // A tap on the group moves the profile (the group card's own button stayed hidden, so nothing happened).
-                MaterialAlertDialogBuilder(activity)
+                MobileAlertDialogBuilder(activity)
                     .setTitle(R.string.profiles_move_to_group)
                     .setItems(groups.map { it.displayName() }.toTypedArray()) { _, index ->
                         val newGroupId = groups[index].id

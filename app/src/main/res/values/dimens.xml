@@ -1,20 +1,22 @@
 <resources>
     <dimen name="qrcode_size">264dp</dimen>
 
-    <dimen name="card_corner_radius">16dp</dimen>
-    <dimen name="card_elevation">1dp</dimen>
+    <dimen name="card_corner_radius">12dp</dimen>
+    <dimen name="card_elevation">0dp</dimen>
     <dimen name="card_stroke_width">1px</dimen>
-    <dimen name="profile_card_corner_radius">10dp</dimen>
+    <dimen name="profile_card_corner_radius">5dp</dimen>
     <dimen name="profile_card_selected_bar_width">5dp</dimen>
     <dimen name="profile_card_elevation_classic">2dp</dimen>
 
     <dimen name="input_corner_radius">12dp</dimen>
     <dimen name="popup_corner_radius">12dp</dimen>
-    <dimen name="dialog_corner_radius">16dp</dimen>
+    <dimen name="dialog_corner_radius">12dp</dimen>
     <dimen name="dialog_background_inset">24dp</dimen>
 
-    <dimen name="nav_item_corner_radius">14dp</dimen>
-    <dimen name="button_corner_radius">12dp</dimen>
+    <dimen name="nav_item_corner_radius">5dp</dimen>
+    <!-- Rows and buttons are 5dp; the cards, dialogs and sheets that hold them are 12dp. -->
+    <dimen name="button_corner_radius">5dp</dimen>
+    <dimen name="row_corner_radius">5dp</dimen>
 
     <dimen name="mtrl_snackbar_background_corner_radius">12dp</dimen>
 </resources>

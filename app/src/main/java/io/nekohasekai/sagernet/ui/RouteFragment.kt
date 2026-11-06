@@ -21,7 +21,7 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import app.qthrone.mobile.R
@@ -279,7 +279,7 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
                 getString(R.string.route_import_clipboard_profile, RouteImports.nameOf(activity, profile))
             }
             val prompt = RouteImports.withDnsNote(activity, what, profile)
-            MaterialAlertDialogBuilder(activity)
+            MobileAlertDialogBuilder(activity)
                 .setTitle(R.string.route_import_clipboard_title)
                 .setMessage(RouteImports.withNotes(activity, prompt, imported.warnings))
                 .setPositiveButton(R.string.yes) { _, _ -> applyImported(profile, imported.legacyArray) }
@@ -302,7 +302,7 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
             setPadding(dp2px(20), dp2px(12), dp2px(20), 0)
             addView(layout)
         }
-        val dialog = MaterialAlertDialogBuilder(activity)
+        val dialog = MobileAlertDialogBuilder(activity)
             .setTitle(R.string.route_import_paste_title)
             .setView(container)
             .setPositiveButton(android.R.string.ok, null)
@@ -362,7 +362,7 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
                 return@launch
             }
             val countries = Array<CharSequence>(bundles.size) { bundles[it].country }
-            MaterialAlertDialogBuilder(activity)
+            MobileAlertDialogBuilder(activity)
                 .setTitle(R.string.route_download_profiles)
                 .setItems(countries) { _, which -> RouteImports.promptRemote(activity, bundles[which].entries) }
                 .setNegativeButton(android.R.string.cancel, null)
@@ -394,7 +394,7 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
         binding.progressLinear.isVisible = true
         binding.progressLinear.max = ids.size
         val cancelled = AtomicBoolean(false)
-        val dialog = MaterialAlertDialogBuilder(requireContext())
+        val dialog = MobileAlertDialogBuilder(requireContext())
             .setTitle(R.string.route_update_title)
             .setView(binding.root)
             .setNegativeButton(android.R.string.cancel, null)
@@ -464,7 +464,7 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
         onServiceStateChanged()
         val binding = LayoutProgressListBinding.inflate(layoutInflater)
         binding.progress.setText(R.string.route_rule_sets_running)
-        val dialog = MaterialAlertDialogBuilder(requireContext())
+        val dialog = MobileAlertDialogBuilder(requireContext())
             .setTitle(R.string.route_rule_sets_title)
             .setView(binding.root)
             .setCancelable(false)
@@ -491,7 +491,7 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
     private fun refreshRepository() {
         val binding = LayoutProgressListBinding.inflate(layoutInflater)
         binding.progress.setText(R.string.route_repo_running)
-        val dialog = MaterialAlertDialogBuilder(requireContext())
+        val dialog = MobileAlertDialogBuilder(requireContext())
             .setTitle(R.string.route_refresh_repo)
             .setView(binding.root)
             .setCancelable(false)

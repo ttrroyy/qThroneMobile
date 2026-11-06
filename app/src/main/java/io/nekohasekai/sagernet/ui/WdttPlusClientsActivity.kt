@@ -55,7 +55,7 @@ class WdttPlusClientsActivity : ServerScreenActivity() {
         progress = ProgressBar(this).apply { isIndeterminate = true; visibility = View.GONE }
         status = ui.text("", 14f, MobilePalette.muted).apply { gravity = Gravity.CENTER; setPadding(0, ui.dp(12), 0, 0) }
         search = ui.input("Поиск клиента").apply {
-            setPadding(ui.dp(16), ui.dp(12), ui.dp(16), ui.dp(12)); background = ui.card(16).background
+            setPadding(ui.dp(16), ui.dp(12), ui.dp(16), ui.dp(12)); background = ui.card().background
             addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
                 override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}

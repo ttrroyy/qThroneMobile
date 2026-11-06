@@ -17,13 +17,15 @@ import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import app.qthrone.mobile.R
 import app.qthrone.mobile.database.RouteManager
 import app.qthrone.mobile.databinding.LayoutRuleSetItemBinding
+import app.qthrone.mobile.ui.MobileFeedback
+import app.qthrone.mobile.ui.MobilePalette
 import app.qthrone.mobile.databinding.LayoutRuleSetPickerBinding
 import app.qthrone.mobile.ktx.crossFadeFrom
 import app.qthrone.mobile.ktx.dp2px
@@ -174,7 +176,7 @@ class RuleSetPickerActivity : ThemedActivity() {
             setPadding(dp2px(20), dp2px(12), dp2px(20), 0)
             addView(layout)
         }
-        val dialog = MaterialAlertDialogBuilder(this)
+        val dialog = MobileAlertDialogBuilder(this)
             .setTitle(R.string.rule_set_add_url)
             .setView(container)
             .setPositiveButton(android.R.string.ok, null)
@@ -196,7 +198,9 @@ class RuleSetPickerActivity : ThemedActivity() {
 
     private inner class RowAdapter : RecyclerView.Adapter<RowHolder>(), FastScrollRecyclerView.SectionedAdapter {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-            RowHolder(LayoutRuleSetItemBinding.inflate(layoutInflater, parent, false))
+            RowHolder(LayoutRuleSetItemBinding.inflate(layoutInflater, parent, false).apply {
+                root.background = MobilePalette.rowShape(parent.context); MobileFeedback.apply(root)
+            })
 
         override fun onBindViewHolder(holder: RowHolder, position: Int) = holder.bind(rows[position])
 

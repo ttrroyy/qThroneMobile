@@ -6,7 +6,8 @@
     style="@style/Widget.SagerNet.CardView.Elevated"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="4dp"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="3dp"
     android:clickable="true"
     android:focusable="true">
 
@@ -58,7 +59,7 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/group_type"
-                        style="@style/Widget.MaterialComponents.Chip.Action"
+                        style="@style/Widget.SagerNet.Chip.Action"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:clickable="false"

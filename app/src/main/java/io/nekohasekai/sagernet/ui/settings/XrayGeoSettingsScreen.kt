@@ -6,7 +6,7 @@ import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.R
 import app.qthrone.mobile.bg.XrayGeoAssets
 import app.qthrone.mobile.database.SettingsRegistry
@@ -134,7 +134,7 @@ class XrayGeoSettingsFragment : SettingsScreenFragment(R.xml.settings_xray_geo) 
         if (downloadJob?.isActive == true) return
         val context = requireContext()
         val binding = DialogGeoDownloadBinding.inflate(layoutInflater)
-        val dialog = MaterialAlertDialogBuilder(context)
+        val dialog = MobileAlertDialogBuilder(context)
             .setTitle(R.string.xray_geo_download_title)
             .setView(binding.root)
             .setNegativeButton(android.R.string.cancel) { _, _ -> downloadJob?.cancel() }
@@ -157,7 +157,7 @@ class XrayGeoSettingsFragment : SettingsScreenFragment(R.xml.settings_xray_geo) 
                 runCatching { dialog.dismiss() }
                 refreshFiles()
             }
-            MaterialAlertDialogBuilder(context)
+            MobileAlertDialogBuilder(context)
                 .setTitle(R.string.xray_geo_download_title)
                 .setMessage(
                     if (errors.isEmpty()) getString(R.string.xray_geo_download_done, files.joinToString(", "))

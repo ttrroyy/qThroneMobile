@@ -8,7 +8,7 @@ import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.Action
 import app.qthrone.mobile.R
 import app.qthrone.mobile.utils.WifiStateAccess
@@ -87,7 +87,7 @@ class WifiPermissionFlow(private val activity: ComponentActivity) {
 
     private fun explain(@StringRes message: Int, @StringRes positive: Int = R.string.wifi_permission_continue, action: () -> Unit) {
         if (activity.isFinishing || activity.isDestroyed) return finish(false)
-        MaterialAlertDialogBuilder(activity)
+        MobileAlertDialogBuilder(activity)
             .setTitle(R.string.wifi_permission_title)
             .setMessage(message)
             .setPositiveButton(positive) { _, _ -> action() }

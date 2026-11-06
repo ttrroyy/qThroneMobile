@@ -126,7 +126,7 @@ class OpenConnectAuthDialog(private val activity: MainActivity,
                     }
                     var selected = values.indexOf(field.optString("Value")).coerceAtLeast(0)
                     val input = MaterialButton(activity).apply {
-                        isAllCaps = false; cornerRadius = dp(16)
+                        isAllCaps = false; cornerRadius = dp(5)
                         setTextColor(MobilePalette.accent(activity))
                         backgroundTintList = ColorStateList.valueOf(MobilePalette.background)
                         text = labels.getOrElse(selected) { "" }

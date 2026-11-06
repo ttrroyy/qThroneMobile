@@ -7,7 +7,7 @@ import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.R
 import app.qthrone.mobile.SagerNet
 import app.qthrone.mobile.database.GroupRepo
@@ -32,7 +32,7 @@ object SubscriptionReportDialog {
             setPadding(dp2px(24), dp2px(8), dp2px(24), dp2px(8))
         }
         val scroll = NestedScrollView(context).apply { addView(textView) }
-        MaterialAlertDialogBuilder(context)
+        MobileAlertDialogBuilder(context)
             .setTitle(title)
             .setView(scroll)
             .setPositiveButton(android.R.string.ok, null)

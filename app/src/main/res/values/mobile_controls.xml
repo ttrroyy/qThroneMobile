@@ -50,8 +50,11 @@
         <item name="android:switchPadding">12dp</item>
         <item name="android:minHeight">48dp</item>
     </style>
-    <style name="MobileTextInput" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="boxStrokeColor">@color/mobile_input_outline</item>
+    <style name="MobileTextInput" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <!-- The dark well of the cards: 14% black over whatever surface the field lies on, no underline. -->
+        <item name="boxBackgroundColor">#24000000</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
         <item name="hintTextColor">?attr/colorAccent</item>
         <item name="boxCornerRadiusTopStart">12dp</item>
         <item name="boxCornerRadiusTopEnd">12dp</item>

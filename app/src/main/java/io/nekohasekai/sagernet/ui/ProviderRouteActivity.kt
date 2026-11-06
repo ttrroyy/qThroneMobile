@@ -65,14 +65,12 @@ class ProviderRouteActivity : ServerScreenActivity() {
     }
 
     private fun build(body: LinearLayout) {
-        fun card(vararg rows: android.view.View) = ui.card(12).apply {
+        fun card(vararg rows: android.view.View) = ui.card().apply {
             rows.forEachIndexed { index, row ->
                 addView(row, LinearLayout.LayoutParams(-1, -2).apply { if (index > 0) topMargin = ui.dp(10) })
             }
         }
         fun field(hint: String, value: String, lines: Boolean = false) = ui.input(hint, value).apply {
-            background = ui.well(); setPadding(ui.dp(12), ui.dp(10), ui.dp(12), ui.dp(10))
-            MobilePalette.tintCursor(this)
             if (lines) {
                 isSingleLine = false; minLines = 2; gravity = Gravity.TOP or Gravity.START
                 inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_VARIATION_URI

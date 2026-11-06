@@ -115,8 +115,8 @@ abstract class ThemedActivity : AppCompatActivity, androidx.preference.Preferenc
         view.backgroundTintList=null
         view.background=android.graphics.drawable.GradientDrawable().apply {
             setColor(MobilePalette.surface)
-            cornerRadius=16*density
-            setStroke(density.toInt().coerceAtLeast(1),ColorUtils.setAlphaComponent(MobilePalette.muted,64))
+            cornerRadius=12*density
+            setStroke(1,MobilePalette.outline)
         }
         view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text).apply {
             maxLines = 10

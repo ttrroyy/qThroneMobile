@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import kotlinx.parcelize.Parcelize
 
 /** The argument or result of a dialog that carries neither. */
@@ -49,7 +49,7 @@ abstract class AlertDialogFragment<Arg : Parcelable, Ret : Parcelable?> :
     fun key(resultKey: String = javaClass.name) = args().putString(KEY_RESULT, resultKey)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): AlertDialog =
-        MaterialAlertDialogBuilder(requireContext()).also { it.prepare(this) }.create()
+        MobileAlertDialogBuilder(requireContext()).also { it.prepare(this) }.create()
 
     override fun onClick(dialog: DialogInterface?, which: Int) {
         setFragmentResult(resultKey ?: return, Bundle().apply {

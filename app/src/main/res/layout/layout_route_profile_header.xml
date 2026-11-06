@@ -3,13 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="4dp">
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="3dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="12dp">
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
@@ -42,25 +43,25 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/outbound_proxy"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
+                style="@style/Widget.SagerNet.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/outbound_direct"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
+                style="@style/Widget.SagerNet.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/outbound_block"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
+                style="@style/Widget.SagerNet.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/outbound_warp"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
+                style="@style/Widget.SagerNet.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 

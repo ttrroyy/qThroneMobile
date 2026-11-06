@@ -19,7 +19,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.lifecycleScope
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.bg.test.TestSpec
 import app.qthrone.mobile.ui.test.TestSessionClient
 import androidx.room.InvalidationTracker
@@ -659,7 +659,7 @@ class MobileHomeFragment : ToolbarFragment() {
                 fun importButton(label: String, icon: Int, callback: () -> Unit) = LinearLayout(requireContext()).apply {
                     gravity=Gravity.CENTER; isFocusable=true; contentDescription=label
                     setOnClickListener { callback() }
-                    background=GradientDrawable().apply { setColor(surface); cornerRadius=dp(16).toFloat();setStroke(1,MobilePalette.outline) }
+                    background=tile()
                     addView(ImageView(requireContext()).apply { setImageResource(icon); imageTintList=android.content.res.ColorStateList.valueOf(foregroundColor); importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO }, LinearLayout.LayoutParams(dp(24),dp(24)).apply { marginEnd=dp(10) })
                     addView(text(label,14f).apply { setPadding(0,0,0,0); importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO })
                 }
@@ -680,8 +680,8 @@ class MobileHomeFragment : ToolbarFragment() {
                     updateState()
                 } else { currentCheck=null;subscriptionTop=null }
                 geoBanner = LinearLayout(requireContext()).apply {
-                    gravity = Gravity.CENTER_VERTICAL; setPadding(dp(16),dp(12),dp(16),dp(12))
-                    background = GradientDrawable().apply { setColor(surface); cornerRadius=dp(16).toFloat();setStroke(1,MobilePalette.outline) }
+                    gravity = Gravity.CENTER_VERTICAL; setPadding(dp(12),dp(8),dp(12),dp(8)); minimumHeight = dp(48)
+                    background = tile()
                     visibility = View.GONE
                     // A tap hides the card; a new download shows it again.
                     contentDescription = getString(R.string.update_action_hide)
@@ -691,11 +691,11 @@ class MobileHomeFragment : ToolbarFragment() {
                 geoProgress = ProgressBar(requireContext()).apply { isIndeterminate = true; indeterminateTintList = android.content.res.ColorStateList.valueOf(blue); importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO }
                 geoCheck = ImageView(requireContext()).apply { setImageResource(R.drawable.ic_baseline_check_circle_24); imageTintList = android.content.res.ColorStateList.valueOf(Color.rgb(76,175,80)); importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO }
                 geoBanner!!.addView(geoStatus,LinearLayout.LayoutParams(0,-2,1f))
-                geoBanner!!.addView(geoProgress,LinearLayout.LayoutParams(dp(28),dp(28)))
-                geoBanner!!.addView(geoCheck,LinearLayout.LayoutParams(dp(28),dp(28)))
+                geoBanner!!.addView(geoProgress,LinearLayout.LayoutParams(dp(24),dp(24)))
+                geoBanner!!.addView(geoCheck,LinearLayout.LayoutParams(dp(24),dp(24)))
                 // Under the decoration, right above the subscriptions it is about.
                 subscriptionTop?.let { body.addView(it) }
-                if(!byGroups) body.addView(geoBanner,LinearLayout.LayoutParams(-1,-2).apply { bottomMargin=dp(10) })
+                if(!byGroups) body.addView(geoBanner,LinearLayout.LayoutParams(-1,-2).apply { bottomMargin=dp(6) })
                 updateGeoStatus()
                 val serverPanel=if(byGroups) LinearLayout(requireContext()).apply {
                     orientation=LinearLayout.VERTICAL;background=tile();clipToOutline=true
@@ -739,7 +739,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     tabs.addView(stripScroll,LinearLayout.LayoutParams(0,dp(54),1f))
                     tabs.addView(groupRightIndicator,LinearLayout.LayoutParams(dp(14),dp(20)))
                     serverPanel.addView(tabs,LinearLayout.LayoutParams(-1,dp(54)))
-                    serverPanel.addView(geoBanner,LinearLayout.LayoutParams(-1,-2).apply { bottomMargin=dp(10) })
+                    serverPanel.addView(geoBanner,LinearLayout.LayoutParams(-1,-2).apply { setMargins(dp(5),dp(4),dp(5),0) })
                 }
                 val serverColumn=LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL }
                 val serverScroll=ScrollView(requireContext()).apply {
@@ -889,7 +889,7 @@ class MobileHomeFragment : ToolbarFragment() {
                             startActivity(Intent(Intent.ACTION_VIEW, uri))
                         }
                     },LinearLayout.LayoutParams(dp(32),dp(32)))
-                    val bar=FrameLayout(requireContext()).apply { background=GradientDrawable().apply { setColor(toolbarColor); cornerRadius=dp(3).toFloat(); setStroke(dp(1),muted) } }
+                    val bar=FrameLayout(requireContext()).apply { background=GradientDrawable().apply { setColor(toolbarColor); cornerRadius=dp(5).toFloat(); setStroke(1,MobilePalette.outline) } }
                     var usage=getString(R.string.qmobile_quota_unknown)
                     if (quota.valid && quota.hasQuota) {
                         val upload=quota.upload.coerceAtLeast(0); val download=quota.download.coerceAtLeast(0)
@@ -1425,11 +1425,11 @@ class MobileHomeFragment : ToolbarFragment() {
         ).map { (type, title) -> type to getString(title) }
         for((type, title) in nativeTypes + originalTypes) {
             protocols.addView(androidx.appcompat.widget.AppCompatButton(requireContext()).apply {
-                text=title;isAllCaps=false;textSize=18f;setTypeface(null,Typeface.BOLD)
+                text=title;isAllCaps=false;textSize=16f;setTypeface(null,Typeface.BOLD)
                 setTextColor(foregroundColor);background=tile();stateListAnimator=null
                 supportBackgroundTintList=null
                 gravity=Gravity.CENTER_VERTICAL or Gravity.START;includeFontPadding=false
-                minimumHeight=dp(56);setPadding(dp(16),dp(14),dp(16),dp(14))
+                minimumHeight=dp(48);setPadding(dp(12),dp(8),dp(12),dp(8))
                 MobileFeedback.apply(this,radius=5f)
                 setOnClickListener {
                     isEnabled=false

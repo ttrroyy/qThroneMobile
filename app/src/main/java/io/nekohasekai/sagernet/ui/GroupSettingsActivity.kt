@@ -21,7 +21,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.Key
 import app.qthrone.mobile.R
 import app.qthrone.mobile.database.DataStore
@@ -305,7 +305,7 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
         coordinator.setOnClickListener { close() }
         form.isClickable=true
         form.background=android.graphics.drawable.GradientDrawable().apply {
-            setColor(MobilePalette.background);cornerRadius=24*density
+            setColor(MobilePalette.background);cornerRadius=12*density
         }
         form.clipToOutline=true
         form.findViewById<View>(R.id.settings).layoutParams=android.widget.LinearLayout.LayoutParams(-1,0,1f)
@@ -464,7 +464,7 @@ open class GroupSettingsActivity : ServerScreenActivity(R.layout.layout_config_s
     /** DialogEditGroup::accept; an existing subscription keeps a URL ("Please input URL"). */
     private suspend fun save() {
         nameFilterError()?.let {
-            MaterialAlertDialogBuilder(this)
+            MobileAlertDialogBuilder(this)
                 .setTitle(R.string.grp_filter)
                 .setMessage(it)
                 .setPositiveButton(android.R.string.ok, null)

@@ -18,6 +18,14 @@ object MobilePalette {
     fun accent(context: Context) = if (!DataStore.useSystemTheme && DataStore.appTheme == Theme.CYAN) Color.rgb(87,190,229)
         else MaterialColors.getColor(context, androidx.appcompat.R.attr.colorAccent, Color.rgb(87,190,229))
 
+    /** A row or button: every list row and action in the app. */
+    fun rowShape(context: Context) = shape(context, 5)
+    /** A card that holds rows, fields or text: also the dialogs, notices and sheets. */
+    fun cardShape(context: Context) = shape(context, 12)
+    private fun shape(context: Context, radius: Int) = android.graphics.drawable.GradientDrawable().apply {
+        setColor(surface); cornerRadius = radius * context.resources.displayMetrics.density; setStroke(1, outline)
+    }
+
     /** The caret and selection handles in the accent: the theme draws them black, which vanishes on the dark themes. */
     fun tintCursor(edit: android.widget.EditText) {
         val accent = accent(edit.context)

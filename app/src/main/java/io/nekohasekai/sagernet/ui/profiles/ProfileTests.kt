@@ -1,6 +1,6 @@
 package app.qthrone.mobile.ui.profiles
 
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.R
 import app.qthrone.mobile.bg.test.TestSpec
 import app.qthrone.mobile.ktx.snackbar
@@ -29,7 +29,7 @@ internal object ProfileTests {
     /** Speed tests of more than one profile ask first: they move a lot of data. */
     private fun confirmSpeed(host: ConfigurationFragment, kind: Int, many: Boolean, start: () -> Boolean) {
         if (kind != TestSpec.KIND_SPEED || !many) return report(host, start())
-        MaterialAlertDialogBuilder(host.requireContext())
+        MobileAlertDialogBuilder(host.requireContext())
             .setTitle(R.string.speed_test_confirm_title)
             .setMessage(R.string.speed_test_confirm_message)
             .setPositiveButton(R.string.profiles_test_start) { _, _ -> report(host, start()) }

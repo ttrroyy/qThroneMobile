@@ -18,7 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.R
 import app.qthrone.mobile.database.DataStore
 import app.qthrone.mobile.databinding.LayoutLogcatBinding
@@ -80,10 +80,7 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
         super.onViewCreated(view, savedInstanceState)
         toolbar?.setTitle(R.string.qmobile_logs)
         view.setBackgroundColor(MobilePalette.background)
-        view.findViewById<View>(R.id.log_panel).background = android.graphics.drawable.GradientDrawable().apply {
-            setColor(MobilePalette.surface)
-            cornerRadius = 20 * resources.displayMetrics.density
-        }
+        view.findViewById<View>(R.id.log_panel).background = MobilePalette.cardShape(requireContext())
 
         toolbar?.inflateMenu(R.menu.logcat_menu)
         toolbar?.setOnMenuItemClickListener(this)
@@ -212,7 +209,7 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
             addView(regex)
             addView(problems)
         }
-        MaterialAlertDialogBuilder(context).setTitle(R.string.log_search)
+        MobileAlertDialogBuilder(context).setTitle(R.string.log_search)
             .setView(column)
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 applySearch(field.text.toString().trim(), regex.isChecked, problems.isChecked)
@@ -236,7 +233,7 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
             R.id.action_search_logs -> showSearch()
             R.id.action_log_detail -> {
                 val levels = listOf("debug", "info", "error")
-                MaterialAlertDialogBuilder(requireContext()).setTitle(R.string.log_detail)
+                MobileAlertDialogBuilder(requireContext()).setTitle(R.string.log_detail)
                     .setSingleChoiceItems(R.array.log_detail_choices, levels.indexOf(DataStore.logLevel)) { dialog, index ->
                         DataStore.configurationStore.putBoolean("diagnosticLogsConfigured", true)
                         DataStore.logLevel = levels[index]
@@ -246,7 +243,7 @@ class LogcatFragment : ToolbarFragment(R.layout.layout_logcat),
                     }.setNegativeButton(android.R.string.cancel, null).show()
             }
             R.id.action_clear_logcat -> {
-                MaterialAlertDialogBuilder(requireContext())
+                MobileAlertDialogBuilder(requireContext())
                     .setTitle(R.string.clear_logcat)
                     .setMessage(R.string.log_clear_confirm)
                     .setNegativeButton(android.R.string.cancel, null)

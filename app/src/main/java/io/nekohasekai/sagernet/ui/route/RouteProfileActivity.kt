@@ -21,7 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import app.qthrone.mobile.R
@@ -289,7 +289,7 @@ class RouteProfileActivity : ThemedActivity(R.layout.layout_route_profile) {
             finish()
             return
         }
-        MaterialAlertDialogBuilder(this)
+        MobileAlertDialogBuilder(this)
             .setTitle(R.string.unsaved_changes_prompt)
             .setPositiveButton(R.string.save) { _, _ -> save() }
             .setNegativeButton(R.string.discard) { _, _ -> finish() }
@@ -298,7 +298,7 @@ class RouteProfileActivity : ThemedActivity(R.layout.layout_route_profile) {
     }
 
     private fun message(title: Int, text: String) {
-        MaterialAlertDialogBuilder(this)
+        MobileAlertDialogBuilder(this)
             .setTitle(title)
             .setMessage(text)
             .setPositiveButton(android.R.string.ok, null)

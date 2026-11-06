@@ -14,7 +14,7 @@ import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.Key
 import app.qthrone.mobile.R
 import app.qthrone.mobile.database.DataStore
@@ -169,7 +169,7 @@ class RouteRuleActivity : ThemedActivity(R.layout.layout_config_settings), OnPre
     private fun pickNetworkTypes(current: List<String>) {
         val types = RouteRule.NETWORK_TYPES
         val checked = BooleanArray(types.size) { types[it] in current }
-        MaterialAlertDialogBuilder(this)
+        MobileAlertDialogBuilder(this)
             .setTitle(R.string.route_rule_network_type)
             .setMultiChoiceItems(R.array.route_rule_network_type_entries, checked) { _, which, isChecked ->
                 checked[which] = isChecked
@@ -212,7 +212,7 @@ class RouteRuleActivity : ThemedActivity(R.layout.layout_config_settings), OnPre
             finish()
             return
         }
-        MaterialAlertDialogBuilder(this)
+        MobileAlertDialogBuilder(this)
             .setTitle(R.string.unsaved_changes_prompt)
             .setPositiveButton(R.string.save) { _, _ -> save() }
             .setNegativeButton(R.string.discard) { _, _ -> finish() }
@@ -221,7 +221,7 @@ class RouteRuleActivity : ThemedActivity(R.layout.layout_config_settings), OnPre
     }
 
     private fun message(title: Int, text: String) {
-        MaterialAlertDialogBuilder(this)
+        MobileAlertDialogBuilder(this)
             .setTitle(title)
             .setMessage(text)
             .setPositiveButton(android.R.string.ok, null)
@@ -250,7 +250,7 @@ class RouteRuleActivity : ThemedActivity(R.layout.layout_config_settings), OnPre
             if (type != RuleType.CUSTOM && !edited.fitsType(type)) edited.type = RuleType.CUSTOM.id
             val action = edited.effectiveAction()
             if (!RouteRuleChecks.hasConditions(edited) && (action == "route" || action == "bypass" || action == "reject")) {
-                MaterialAlertDialogBuilder(this@RouteRuleActivity)
+                MobileAlertDialogBuilder(this@RouteRuleActivity)
                     .setTitle(R.string.route_rule_catch_all_title)
                     .setMessage(R.string.route_rule_catch_all)
                     .setPositiveButton(R.string.yes) { _, _ -> finishWith(edited) }

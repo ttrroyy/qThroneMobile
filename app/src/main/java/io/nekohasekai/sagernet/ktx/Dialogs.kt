@@ -6,11 +6,11 @@ import android.content.ContextWrapper
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.R
 
 fun Context.alert(text: String): AlertDialog {
-    return MaterialAlertDialogBuilder(this).setTitle(R.string.error_title)
+    return MobileAlertDialogBuilder(this).setTitle(R.string.error_title)
         .setMessage(text)
         .setPositiveButton(android.R.string.ok, null)
         .create()
@@ -20,7 +20,7 @@ fun Fragment.alert(text: String) = requireContext().alert(text)
 
 /** Asks before an action: [title] is the question, [message] names what it affects, then Cancel and [action] (a verb). */
 fun Context.confirmAction(title: CharSequence, message: CharSequence?, @StringRes action: Int, onConfirm: () -> Unit) {
-    MaterialAlertDialogBuilder(this)
+    MobileAlertDialogBuilder(this)
         .setTitle(title)
         .setMessage(message)
         .setNegativeButton(android.R.string.cancel, null)

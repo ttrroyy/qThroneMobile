@@ -9,7 +9,7 @@ import android.provider.OpenableColumns
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.R
 import app.qthrone.mobile.group.SubscriptionClient
 import app.qthrone.mobile.database.GroupRepo
@@ -92,7 +92,7 @@ object SubscribeFlows {
             val url=uri.buildUpon().fragment(null).build().toString()
             val name=uri.fragment.orEmpty().ifBlank { hostOf(content) }
             if (DataStore.mobileListMode == "groups") {
-                MaterialAlertDialogBuilder(activity).setTitle(R.string.qmobile_import_url)
+                MobileAlertDialogBuilder(activity).setTitle(R.string.qmobile_import_url)
                     .setItems(arrayOf(activity.getString(R.string.qmobile_import_url_to_group),
                         activity.getString(R.string.qmobile_import_url_subscription),
                         activity.getString(R.string.qmobile_import_url_proxy))) { _, choice ->

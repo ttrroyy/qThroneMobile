@@ -26,7 +26,6 @@
                 android:layout_height="wrap_content"
                 android:inputType="textUri|textMultiLine"
                 android:minHeight="48dp"
-                android:paddingTop="12dp"
                 android:typeface="monospace" />
 
             <LinearLayout

@@ -12,7 +12,7 @@ import android.os.Looper
 import android.provider.MediaStore
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.R
 import app.qthrone.mobile.ktx.Logs
 import java.io.File
@@ -39,7 +39,7 @@ class SaveDocument(private val mime: String) : ActivityResultContract<String, Ur
         } ?: return null
         Handler(Looper.getMainLooper()).post {
             if (context is Activity && (context.isFinishing || context.isDestroyed)) return@post
-            MaterialAlertDialogBuilder(context)
+            MobileAlertDialogBuilder(context)
                 .setTitle(R.string.save_fallback_title)
                 .setMessage(context.getString(R.string.save_fallback_message, location))
                 .setPositiveButton(android.R.string.ok, null)

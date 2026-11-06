@@ -16,7 +16,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.BuildConfig
 import app.qthrone.mobile.R
 import app.qthrone.mobile.SagerNet
@@ -281,7 +281,7 @@ class BackupFragment : Fragment(R.layout.layout_backup) {
                 return@runTask
             }
             val names = Array<CharSequence>(backups.size) { backups[it].name }
-            MaterialAlertDialogBuilder(requireContext())
+            MobileAlertDialogBuilder(requireContext())
                 .setTitle(R.string.webdav_choose_backup)
                 .setItems(names) { _, which ->
                     runTask(R.string.webdav_downloading, R.string.webdav_restore_failed, work = {
@@ -330,7 +330,7 @@ class BackupFragment : Fragment(R.layout.layout_backup) {
             box.isChecked = on
         }
         view.restoreOtp.isVisible = backup.contents.parts.otp
-        val dialog = MaterialAlertDialogBuilder(requireContext())
+        val dialog = MobileAlertDialogBuilder(requireContext())
             .setTitle(R.string.backup_restore_title)
             .setView(view.root)
             .setPositiveButton(R.string.backup_restore, null)
@@ -410,7 +410,7 @@ class BackupFragment : Fragment(R.layout.layout_backup) {
         } else {
             activity.getString(R.string.backup_restored_warnings, warnings.joinToString("\n") { "• $it" })
         }
-        MaterialAlertDialogBuilder(activity)
+        MobileAlertDialogBuilder(activity)
             .setTitle(R.string.backup_restore_title)
             .setMessage(text)
             .setCancelable(false)
@@ -444,7 +444,7 @@ class BackupFragment : Fragment(R.layout.layout_backup) {
         val view = LayoutProgressBinding.inflate(layoutInflater)
         view.content.setText(text)
         progress?.dismiss()
-        progress = MaterialAlertDialogBuilder(requireContext()).setView(view.root).setCancelable(false).show()
+        progress = MobileAlertDialogBuilder(requireContext()).setView(view.root).setCancelable(false).show()
     }
 
     private fun describe(e: Throwable): String = when (e) {
@@ -463,6 +463,6 @@ class BackupFragment : Fragment(R.layout.layout_backup) {
             MessageStore.showMessage(text)
             return
         }
-        MaterialAlertDialogBuilder(context).setMessage(text).setPositiveButton(android.R.string.ok, null).show()
+        MobileAlertDialogBuilder(context).setMessage(text).setPositiveButton(android.R.string.ok, null).show()
     }
 }

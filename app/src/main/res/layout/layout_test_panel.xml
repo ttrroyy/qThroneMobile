@@ -143,14 +143,14 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/test_panel_action_connect"
-                style="@style/Widget.MaterialComponents.Chip.Action"
+                style="@style/Widget.SagerNet.Chip.Action"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 tools:text="@string/test_panel_action_connect_fastest" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/test_panel_action_sort"
-                style="@style/Widget.MaterialComponents.Chip.Action"
+                style="@style/Widget.SagerNet.Chip.Action"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:chipSurfaceColor="@android:color/transparent"
@@ -158,7 +158,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/test_panel_action_remove"
-                style="@style/Widget.MaterialComponents.Chip.Action"
+                style="@style/Widget.SagerNet.Chip.Action"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:chipSurfaceColor="@android:color/transparent"
@@ -166,7 +166,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/test_panel_action_stop_other"
-                style="@style/Widget.MaterialComponents.Chip.Action"
+                style="@style/Widget.SagerNet.Chip.Action"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/test_panel_action_stop_other"

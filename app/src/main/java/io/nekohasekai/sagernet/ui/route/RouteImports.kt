@@ -5,7 +5,7 @@ import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.R
 import app.qthrone.mobile.database.RouteManager
 import app.qthrone.mobile.databinding.LayoutRouteRemotePromptBinding
@@ -43,7 +43,7 @@ object RouteImports {
         val binding = LayoutRouteRemotePromptBinding.inflate(activity.layoutInflater)
         binding.message.text = activity.getString(R.string.route_remote_add_prompt) + "\n\n" +
             entries.mapIndexed { i, e -> "${i + 1}. ${e.name}\n${e.url}" }.joinToString("\n\n")
-        MaterialAlertDialogBuilder(activity)
+        MobileAlertDialogBuilder(activity)
             .setTitle(R.string.route_remote_add_title)
             .setView(binding.root)
             .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -89,7 +89,7 @@ object RouteImports {
             }
             profile.name = nameOf(activity, profile)
             val prompt = withDnsNote(activity, activity.getString(R.string.route_import_prompt, profile.name), profile)
-            MaterialAlertDialogBuilder(activity)
+            MobileAlertDialogBuilder(activity)
                 .setTitle(R.string.route_import_title)
                 .setMessage(withNotes(activity, prompt, imported.warnings))
                 .setPositiveButton(R.string.yes) { _, _ ->
@@ -120,7 +120,7 @@ object RouteImports {
         else prompt + "\n\n" + context.getString(R.string.route_import_note) + "\n" + warnings.joinToString("\n")
 
     fun showMessage(context: Context, @StringRes title: Int, message: String) {
-        MaterialAlertDialogBuilder(context)
+        MobileAlertDialogBuilder(context)
             .setTitle(title)
             .setMessage(message)
             .setPositiveButton(android.R.string.ok, null)

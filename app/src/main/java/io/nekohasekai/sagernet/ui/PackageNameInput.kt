@@ -5,7 +5,7 @@ import android.text.InputType
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.Toast
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.R
 import app.qthrone.mobile.ktx.dp2px
 
@@ -27,7 +27,7 @@ object PackageNameInput {
             setPadding(dp2px(24), dp2px(8), dp2px(24), 0)
             addView(input)
         }
-        MaterialAlertDialogBuilder(context)
+        MobileAlertDialogBuilder(context)
             .setTitle(R.string.picker_add_package_title)
             .setView(container)
             .setPositiveButton(android.R.string.ok) { _, _ ->

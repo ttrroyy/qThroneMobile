@@ -6,7 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.R
 import app.qthrone.mobile.SagerNet
 import app.qthrone.mobile.database.DataStore
@@ -38,7 +38,7 @@ class FirstStartPrompts(private val activity: MainActivity) {
             PackageManager.PERMISSION_GRANTED
         ) {
             if (activity.shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
-                MaterialAlertDialogBuilder(activity)
+                MobileAlertDialogBuilder(activity)
                     .setTitle(R.string.notification_permission)
                     .setMessage(R.string.notification_permission_rationale)
                     .setPositiveButton(R.string.wifi_permission_continue) { _, _ -> requestNotifications() }

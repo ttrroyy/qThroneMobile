@@ -21,7 +21,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.updatePaddingRelative
 import androidx.core.view.WindowCompat
 import androidx.preference.PreferenceDataStore
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 import app.qthrone.mobile.BuildConfig
@@ -191,7 +191,7 @@ class MainActivity : ThemedActivity(),
         runOnDefaultDispatcher { AppShortcuts.publish(applicationContext) }
 
         if (isPreview && DataStore.previewHintDismissedVersion != BuildConfig.VERSION_NAME) {
-            MaterialAlertDialogBuilder(this)
+            MobileAlertDialogBuilder(this)
                 .setTitle(BuildConfig.VERSION_NAME)
                 .setMessage(R.string.preview_version_hint)
                 .setPositiveButton(android.R.string.ok, null)
@@ -333,7 +333,7 @@ class MainActivity : ThemedActivity(),
         }
 
         onMainDispatcher {
-            MaterialAlertDialogBuilder(this@MainActivity).setTitle(R.string.profile_import)
+            MobileAlertDialogBuilder(this@MainActivity).setTitle(R.string.profile_import)
                 .setMessage(getString(R.string.profile_import_message, profile.displayName()))
                 .setPositiveButton(R.string.yes) { _, _ ->
                     displayFragmentWithId(R.id.nav_mobile_home)
@@ -509,7 +509,7 @@ class MainActivity : ThemedActivity(),
 
     /** The next start, within a few minutes, goes without the rule-sets it could not download (DeferredRuleSets). */
     private fun confirmStartWithoutRuleSets() {
-        MaterialAlertDialogBuilder(this)
+        MobileAlertDialogBuilder(this)
             .setTitle(R.string.rule_set_deferred_title)
             .setMessage(R.string.rule_set_deferred_message)
             .setPositiveButton(R.string.connect) { _, _ ->

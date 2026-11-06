@@ -11,7 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.R
 import app.qthrone.mobile.database.DataStore
 import app.qthrone.mobile.ktx.readableMessage
@@ -28,7 +28,7 @@ object WarpGenerate {
         val message = HtmlCompat.fromHtml(
             context.getString(R.string.warp_tos_message, WarpClient.TERMS_URL), HtmlCompat.FROM_HTML_MODE_LEGACY
         )
-        val dialog = MaterialAlertDialogBuilder(context)
+        val dialog = MobileAlertDialogBuilder(context)
             .setTitle(R.string.cag_warp)
             .setMessage(message)
             .setPositiveButton(R.string.yes) { _, _ ->
@@ -61,7 +61,7 @@ object WarpGenerate {
         fun fail(e: Throwable) {
             button.summary = idle
             button.isEnabled = true
-            MaterialAlertDialogBuilder(context)
+            MobileAlertDialogBuilder(context)
                 .setTitle(failedTitle)
                 .setMessage(e.readableMessage)
                 .setPositiveButton(android.R.string.ok, null)

@@ -17,7 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import app.qthrone.mobile.R
 import app.qthrone.mobile.aidl.ISagerNetService
@@ -451,7 +451,7 @@ class AutoSelectorStatusActivity : ThemedActivity(), SagerConnection.Callback {
         }
         note(row).takeIf { it.isNotEmpty() && it != profile?.testError }?.let { lines.add(it) }
 
-        val builder = MaterialAlertDialogBuilder(this).setTitle(row.name)
+        val builder = MobileAlertDialogBuilder(this).setTitle(row.name)
         val actionable = liveFor(status) && status.phase != AutoSelectorStatus.PHASE_MEASURING
         if (actionable) {
             if (row.pinned) {
@@ -479,7 +479,9 @@ class AutoSelectorStatusActivity : ThemedActivity(), SagerConnection.Callback {
         override fun getItemCount(): Int = rows.size
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-            MemberHolder(LayoutAutoSelectorMemberBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+            MemberHolder(LayoutAutoSelectorMemberBinding.inflate(LayoutInflater.from(parent.context), parent, false).apply {
+                root.background = MobilePalette.rowShape(parent.context); MobileFeedback.apply(root)
+            })
 
         override fun onBindViewHolder(holder: MemberHolder, position: Int) = holder.bind(rows[position])
     }

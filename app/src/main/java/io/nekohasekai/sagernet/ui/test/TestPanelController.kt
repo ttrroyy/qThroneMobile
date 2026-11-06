@@ -638,6 +638,7 @@ class TestPanelController(
         isFocusable = false
         setEnsureMinTouchTargetSize(false)
         chipMinHeight = 28 * density
+        chipCornerRadius = 5 * density
         chipStartPadding = 8 * density
         chipEndPadding = 8 * density
         textStartPadding = 2 * density

@@ -6,7 +6,7 @@ import android.widget.EditText
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.SwitchPreference
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.R
 import app.qthrone.mobile.SpeedTestSettings
 import app.qthrone.mobile.database.DataStore
@@ -181,7 +181,7 @@ class CoreSettingsFragment : PresetSettingsFragment(R.xml.settings_core_combined
                 if (size == 0) size = moe.matsuri.nb4a.utils.CoreLog.DEFAULT_SIZE_KB
                 setText(size.toString())
             }
-            MaterialAlertDialogBuilder(requireContext()).setTitle(R.string.log_buffer_size)
+            MobileAlertDialogBuilder(requireContext()).setTitle(R.string.log_buffer_size)
                 .setView(view)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
                     DataStore.logBufSize = view.text.toString().toIntOrNull()?.takeIf { it > 0 } ?: 50

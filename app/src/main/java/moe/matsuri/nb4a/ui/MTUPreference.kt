@@ -5,7 +5,7 @@ import android.util.AttributeSet
 import android.text.InputType
 import android.widget.EditText
 import androidx.preference.ListPreference
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.R
 
 class MTUPreference @JvmOverloads constructor(
@@ -38,7 +38,7 @@ class MTUPreference @JvmOverloads constructor(
         input.backgroundTintList=android.content.res.ColorStateList.valueOf(app.qthrone.mobile.ui.MobilePalette.accent(context))
         val padding=(24*context.resources.displayMetrics.density).toInt()
         val body=android.widget.LinearLayout(context).apply { setPadding(padding,0,padding,padding/2);addView(input,android.widget.LinearLayout.LayoutParams(-1,-2)) }
-        val dialog=MaterialAlertDialogBuilder(context).setTitle("MTU").setView(body)
+        val dialog=MobileAlertDialogBuilder(context).setTitle("MTU").setView(body)
             .setPositiveButton(android.R.string.ok,null)
             .setNegativeButton(android.R.string.cancel,null).create()
         dialog.setOnShowListener {

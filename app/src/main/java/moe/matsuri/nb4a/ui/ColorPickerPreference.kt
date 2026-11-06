@@ -17,7 +17,7 @@ import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.setPadding
 import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.R
 import app.qthrone.mobile.database.DataStore
 import app.qthrone.mobile.utils.Theme
@@ -105,7 +105,7 @@ class ColorPickerPreference
 
         }
 
-        dialog = MaterialAlertDialogBuilder(context).setTitle(title)
+        dialog = MobileAlertDialogBuilder(context).setTitle(title)
             .setView(LinearLayout(context).apply {
                 gravity = Gravity.CENTER
                 layoutParams = ViewGroup.LayoutParams(

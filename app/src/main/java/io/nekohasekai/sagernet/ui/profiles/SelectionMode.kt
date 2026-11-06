@@ -2,7 +2,7 @@ package app.qthrone.mobile.ui.profiles
 
 import android.view.MenuItem
 import androidx.annotation.StringRes
-import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MaterialAlertDialogBuilder
+import app.qthrone.mobile.ui.MobileAlertDialogBuilder as MobileAlertDialogBuilder
 import app.qthrone.mobile.R
 import app.qthrone.mobile.SagerNet
 import app.qthrone.mobile.bg.test.TestSpec
@@ -157,7 +157,7 @@ class SelectionMode(private val host: ConfigurationFragment) {
             host.snackbar(R.string.profiles_move_no_target).show()
             return
         }
-        MaterialAlertDialogBuilder(host.requireContext())
+        MobileAlertDialogBuilder(host.requireContext())
             .setTitle(R.string.profiles_move_to_group)
             .setItems(targets.map { it.displayName() }.toTypedArray()) { _, which ->
                 val target = targets[which]
