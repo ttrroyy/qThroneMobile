@@ -988,6 +988,8 @@ class MobileHomeFragment : ToolbarFragment() {
                 val serverScroll=ScrollView(requireContext()).apply {
                     isVerticalScrollBarEnabled=false; isHorizontalScrollBarEnabled=false
                     clipToPadding=byGroups
+                    // Rows melt away at the edges of the list instead of being cut off.
+                    if(MobileStyle.new) { isVerticalFadingEdgeEnabled=true;setFadingEdgeLength(dp(20)) }
                     if(byGroups && !MobileStyle.new) setPadding(0,dp(8),0,0)
                     addView(serverColumn,FrameLayout.LayoutParams(-1,-2))
                     setOnScrollChangeListener { _, _, y, _, _ ->
