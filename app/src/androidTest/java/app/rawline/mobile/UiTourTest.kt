@@ -75,15 +75,45 @@ class UiTourTest {
         Thread.sleep(1200)
     }
     private fun fixtures(): Pair<ProxyGroup, ProxyEntity> {
-        val existing = SagerDatabase.groupDao.allGroups().firstOrNull { it.name == "api.host-cloud.uk" }
-        val group = existing ?: ProxyGroup(name = "api.host-cloud.uk", url = "https://example.invalid/sub").also { it.id = SagerDatabase.groupDao.insert(it) }
+        val existing = SagerDatabase.groupDao.allGroups().firstOrNull { it.name == "Sub 3" }
+        val group = existing ?: ProxyGroup(name = "Sub 3", url = "https://example.invalid/sub").also { it.id = SagerDatabase.groupDao.insert(it) }
         if (existing == null) SagerDatabase.proxyDao.insert(listOf("🇷🇺 ru-tcp-reality", "🇫🇮 fi-xhttp-tls", "🇩🇪 de-gaming-hy2", "plain-server").mapIndexed { index, name ->
             ProxyEntity(groupId = group.id, userOrder = index.toLong()).putOutbound(Socks().apply { this.name = name; server = "192.0.2.1"; serverPort = 1080 })
         })
         return group to SagerDatabase.proxyDao.getByGroup(group.id).first()
     }
-    private fun home(mode: String, control: String = "button", bottom: Boolean = false, chip: String = "top", tiles: String = "off", routeChip: Boolean = false) {
-        val (group, _) = fixtures()
+    /** Pictures for the README: made-up subscriptions and servers of the supported protocols, nothing private. */
+    private fun demo(): ProxyGroup {
+        SagerDatabase.groupDao.allGroups().filter { it.name == "Sub 3" }.forEach { SagerDatabase.groupDao.deleteById(it.id) }
+        val now = System.currentTimeMillis() / 1000
+        fun group(name: String, info: app.rawline.mobile.database.SubUserInfo, servers: List<Triple<String, app.rawline.mobile.outbound.Outbound, Int>>): ProxyGroup {
+            SagerDatabase.groupDao.allGroups().firstOrNull { it.name == name }?.let { return it }
+            val group = ProxyGroup(name = name, url = "https://example.invalid/" + name.last(), subMetadata = info).also { it.id = SagerDatabase.groupDao.insert(it) }
+            SagerDatabase.proxyDao.insert(servers.mapIndexed { index, (title, bean, ping) ->
+                ProxyEntity(groupId = group.id, userOrder = index.toLong(), latency = ping, latencyAt = now)
+                    .putOutbound(bean.apply { this.name = title; server = "203.0.113." + (index + 10); serverPort = 443 })
+            })
+            return group
+        }
+        val gb = 1024L * 1024 * 1024
+        group("Sub 1", app.rawline.mobile.database.SubUserInfo(valid = true, hasQuota = true, download = 12 * gb + 400 * 1024 * 1024, total = 200 * gb), listOf(
+            Triple("🇩🇪 Германия", app.rawline.mobile.outbound.types.Vless(), 48),
+            Triple("🇵🇱 Польша", app.rawline.mobile.outbound.types.Hysteria(), 57),
+            Triple("🇱🇻 Латвия", app.rawline.mobile.outbound.types.Mrtt(), 92),
+        ))
+        return group("Sub 2", app.rawline.mobile.database.SubUserInfo(valid = true, hasQuota = true, download = 3 * gb + 800 * 1024 * 1024, total = 0, expire = 1798761600), listOf(
+            Triple("🇳🇱 Нидерланды", app.rawline.mobile.outbound.types.Vless(), 61),
+            Triple("🇫🇮 Финляндия", app.rawline.mobile.outbound.types.Qwdtt(), 197),
+            Triple("🇸🇪 Швеция", app.rawline.mobile.outbound.types.Csqtt(), 214),
+            Triple("🇪🇪 Эстония", app.rawline.mobile.outbound.types.Mrtt(), 88),
+            Triple("🇱🇹 Литва", app.rawline.mobile.outbound.types.TrustTunnel(), 73),
+            Triple("🇫🇷 Франция", app.rawline.mobile.outbound.types.WdttPlus(), 165),
+            Triple("🇨🇿 Чехия", app.rawline.mobile.outbound.types.Freeturn(), 142),
+            Triple("S3 · запасной", app.rawline.mobile.outbound.types.S3Bypass(), 158),
+        ))
+    }
+    private fun home(mode: String, control: String = "button", bottom: Boolean = false, chip: String = "top", tiles: String = "off", routeChip: Boolean = false, readme: Boolean = false) {
+        val group = if (readme) demo().also { DataStore.selectedProxy = SagerDatabase.proxyDao.getByGroup(it.id).first().id } else fixtures().first
         DataStore.configurationStore.putBoolean("qmobileChipNearList", false)
         DataStore.configurationStore.putBoolean("qmobileChipExtended", routeChip)
         DataStore.configurationStore.putString("qmobileHomeControl", control)
@@ -96,12 +126,15 @@ class UiTourTest {
         ProviderGeoAssets.states.value = mapOf(group.id to ProviderGeoAssets.Status(complete = true))
         Thread.sleep(1000)
     }
-    private fun orb(connected: Boolean, bottom: Boolean = false) {
-        home("groups", bottom = bottom)
+    private fun orb(connected: Boolean, bottom: Boolean = false, control: String = "button", readme: Boolean = false) {
+        home("groups", control, bottom = bottom, readme = readme)
         // The home screen rewrites the state every second from the real service, so it is held here until the picture.
         repeat(24) {
             instrumentation.runOnMainSync {
+                var switched = false
                 fun walk(view: android.view.View) {
+                    // The VPN switch, the first of the two, as a live connection shows it.
+                    if (connected && view is androidx.appcompat.widget.SwitchCompat) { view.isChecked = !switched; switched = true }
                     (view.background as? MobilePowerArtwork)?.let { it.connected = connected; it.connecting = !connected; it.statusText = if (connected) "Подключено" else "Подключение"; it.elapsedText = "00:12:49"; it.workersText = "27/27" }
                     // The speed and the check belong to a live connection, which the emulator has none of.
                     if (connected && view is android.widget.TextView) {
@@ -162,14 +195,14 @@ class UiTourTest {
             DataStore.configurationStore.putString("qmobileControlPosition", "top")
             DataStore.configurationStore.putString("qmobileChipPosition", "top")
             DataStore.configurationStore.putString("qmobileNewTiles", "off")
-            SagerDatabase.groupDao.allGroups().filter { it.name == "api.host-cloud.uk" }.forEach { SagerDatabase.groupDao.deleteById(it.id) }
+            SagerDatabase.groupDao.allGroups().filter { it.name == "Sub 3" }.forEach { SagerDatabase.groupDao.deleteById(it.id) }
             open(MainActivity::class.java)
             Thread.sleep(1000)
         },
         "home-sheet" to { home("groups"); tap("ru-tcp-reality"); Thread.sleep(1500) },
-        "home-picker" to { home("groups"); tapTopmost("api.host-cloud.uk") },
+        "home-picker" to { home("groups"); tapTopmost("Sub 3") },
         "home-menu" to { home("groups"); tap(R.string.qmobile_quick_menu) },
-        "home-notice" to { home("groups"); instrumentation.runOnMainSync { MobileTopNotice.show(resumed(), "Подписка «api.host-cloud.uk» успешно обновлена") }; Thread.sleep(600) },
+        "home-notice" to { home("groups"); instrumentation.runOnMainSync { MobileTopNotice.show(resumed(), "Подписка «Sub 3» успешно обновлена") }; Thread.sleep(600) },
         "home-add" to { home("groups"); tap(R.string.qmobile_add) },
         "home-tests" to { home("groups"); tap(R.string.qmobile_tests) },
         "home-more" to { home("groups"); tap(R.string.qmobile_more) },
@@ -205,7 +238,7 @@ class UiTourTest {
         "deploy-csqtt" to { open(DeployActivity::class.java) { putExtra("kind", "csqtt"); putExtra("directEditor", true) } },
         "home-sheet-delete" to { home("groups"); tap("ru-tcp-reality"); Thread.sleep(1500); swipe("fi-xhttp-tls", .8f, .3f) },
         "home-sheet-share" to { home("groups"); tap("ru-tcp-reality"); Thread.sleep(1500); swipe("fi-xhttp-tls", .2f, .8f) },
-        "picker-share" to { home("groups"); tapTopmost("api.host-cloud.uk"); swipe("api.host-cloud.uk", .2f, .7f); tap(R.string.action_copy) },
+        "picker-share" to { home("groups"); tapTopmost("Sub 3"); swipe("Sub 3", .2f, .7f); tap(R.string.action_copy) },
         "home-switches" to {
             DataStore.configurationStore.putString("qmobileHomeControl", "switches")
             DataStore.configurationStore.putString("qmobileHomeTilesMode", "standard")
@@ -279,6 +312,8 @@ class UiTourTest {
             open(FreeturnClientsActivity::class.java) { putExtra("server", server.id) }
             Thread.sleep(1500)
         },
+        "readme-top" to { orb(true, readme = true) },
+        "readme-switches" to { orb(true, bottom = true, control = "switches", readme = true) },
     )
 
     @Test fun photographOneScreen() {

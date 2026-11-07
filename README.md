@@ -14,7 +14,7 @@
 [![sing-box](https://img.shields.io/badge/sing--box-1F2937?style=for-the-badge)](https://github.com/SagerNet/sing-box)
 [![Xray](https://img.shields.io/badge/Xray-2563EB?style=for-the-badge)](https://github.com/XTLS/Xray-core)
 
-[![Downloads](https://img.shields.io/github/downloads/ttrroyy/RawlineMobile/total?label=downloads-total&color=brightgreen)](https://github.com/ttrroyy/RawlineMobile/releases)
+[![Downloads](https://img.shields.io/github/downloads/ttrroyy/RawlineMobile/total?label=downloads-total&color=brightgreen&cacheSeconds=3600)](https://github.com/ttrroyy/RawlineMobile/releases)
 
 </div>
 
