@@ -21,9 +21,9 @@
 Помимо стандартных протоколов sing-box и Xray поддерживает MRTT, qWDTT, CSQTT, WDTT Plus, FreeTurn, olcRTC, OpenFlux, DNSTT, VayDNS, SlipStream, MasterDNS, CottenDNS, Soar, S3 Bypass и обфускацию WireGuard (wg-obfuscator, Phobos, wgobfs) - с подписками, тестом пинга и раздельной маршрутизацией.
 
 <p align="center">
-  <img src="docs/screenshots/screenshot-button.png" width="300" alt="Главный экран с кнопкой подключения">
+  <img src="docs/screenshots/home-button.png" width="300" alt="Главный экран с кнопкой подключения">
   &nbsp;&nbsp;
-  <img src="docs/screenshots/screenshot-switches.png" width="300" alt="Главный экран с переключателями режимов">
+  <img src="docs/screenshots/home-switches.png" width="300" alt="Главный экран с переключателями режимов">
 </p>
 
 ## Скачать
