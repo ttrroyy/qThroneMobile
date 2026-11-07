@@ -15,7 +15,7 @@ object ProfileJson {
     private val TLS_KEYS = listOf(ExtraKey("/tls", "spoof_enabled"), ExtraKey("/tls/ech", "resolver"))
 
     /** Root keys of the stored forms (the types' exportToJson) that sing-box does not have. */
-    private val THRONE_KEYS = mapOf(
+    private val EXTRA_PROFILE_KEYS = mapOf(
         "hysteria" to rootKeys("recv_window_conn", "recv_window", "disable_mtu_discovery"),
         "socks" to rootKeys("uot"),
         "openconnect" to rootKeys("only_advertised_routes", "otp_profile_id", "server_path", "tunnel_dns"),
@@ -40,7 +40,7 @@ object ProfileJson {
     }
 
     fun relaxations(outbound: Outbound) = JsonRelaxations(
-        extraKeys = TLS_KEYS + (THRONE_KEYS[outbound.type] ?: emptyList()),
+        extraKeys = TLS_KEYS + (EXTRA_PROFILE_KEYS[outbound.type] ?: emptyList()),
         typeAliases = mapOf("openvpn" to "openvpn-client"),
         unknownKeysAsWarnings = true,
     )

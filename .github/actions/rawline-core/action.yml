@@ -13,21 +13,21 @@ runs:
         REF=$(sed -n 's/^THRONE_AAR_REF=//p' nb4a.properties | tr -d '\r[:space:]')
         if [ -z "$REF" ]; then REF=$(sed -n 's/^THRONE_CORE_REF=//p' nb4a.properties | tr -d '\r[:space:]'); fi
         test -n "$REF"
-        THRONE_DIR="$(dirname "$GITHUB_WORKSPACE")/Rawline"
-        rm -rf "$THRONE_DIR"
-        git init -q "$THRONE_DIR"
-        git -C "$THRONE_DIR" remote add origin https://github.com/ttrroyy/qThrone
-        git -C "$THRONE_DIR" fetch -q --depth 1 origin "$REF"
-        git -C "$THRONE_DIR" checkout -q --detach FETCH_HEAD
+        CORE_DIR="$(dirname "$GITHUB_WORKSPACE")/Rawline"
+        rm -rf "$CORE_DIR"
+        git init -q "$CORE_DIR"
+        git -C "$CORE_DIR" remote add origin https://github.com/ttrroyy/qThrone
+        git -C "$CORE_DIR" fetch -q --depth 1 origin "$REF"
+        git -C "$CORE_DIR" checkout -q --detach FETCH_HEAD
         {
           echo "THRONE_CORE_REF=$REF"
-          echo "THRONE_DIR=$THRONE_DIR"
-          echo "THRONE_CORE_SHA=$(git -C "$THRONE_DIR" rev-parse HEAD)"
-          echo "THRONE_CORE_SCRIPT_SHA=$(sha256sum "$THRONE_DIR/script/build_android.sh" | cut -d' ' -f1)"
+          echo "CORE_DIR=$CORE_DIR"
+          echo "CORE_SHA=$(git -C "$CORE_DIR" rev-parse HEAD)"
+          echo "CORE_SCRIPT_SHA=$(sha256sum "$CORE_DIR/script/build_android.sh" | cut -d' ' -f1)"
         } >> "$GITHUB_ENV"
     - name: Apply mobile core dependency pins
       shell: bash
-      run: python3 scripts/prepare_mobile_core.py "$THRONE_DIR/core"
+      run: python3 scripts/prepare_mobile_core.py "$CORE_DIR/core"
     - name: RawlineCore cache
       id: cache
       uses: actions/cache/restore@v6
@@ -35,7 +35,7 @@ runs:
         path: |
           app/libs/RawlineCore.aar
           app/src/main/assets/schema/sing-box.json
-        key: throne-core-${{ env.THRONE_CORE_REF }}-${{ env.THRONE_CORE_SHA }}-${{ env.THRONE_CORE_SCRIPT_SHA }}-${{ hashFiles('.github/actions/throne-core/action.yml', 'core-dependencies.json', 'scripts/prepare_mobile_core.py', 'scripts/patch_mobile_trusttunnel.py', 'scripts/patch_mobile_socks.py', 'scripts/patch_mobile_xray_socks.py', 'core-patches/xray-socks/*.go', 'core-patches/socks/*.go', 'core-patches/trusttunnel/*.go', 'core-patches/mobile/*.go', 'core-patches/resolve/*.go', 'core-patches/providergeo/*.go', 'scripts/patch_mobile_warp.py', 'core-patches/warp/*.go', 'scripts/patch_mobile_obfs.py', 'core-patches/obfs/*.go') }}
+        key: rawline-core-${{ env.THRONE_CORE_REF }}-${{ env.CORE_SHA }}-${{ env.CORE_SCRIPT_SHA }}-${{ hashFiles('.github/actions/rawline-core/action.yml', 'core-dependencies.json', 'scripts/prepare_mobile_core.py', 'scripts/patch_mobile_trusttunnel.py', 'scripts/patch_mobile_socks.py', 'scripts/patch_mobile_xray_socks.py', 'core-patches/xray-socks/*.go', 'core-patches/socks/*.go', 'core-patches/trusttunnel/*.go', 'core-patches/mobile/*.go', 'core-patches/resolve/*.go', 'core-patches/providergeo/*.go', 'scripts/patch_mobile_warp.py', 'core-patches/warp/*.go', 'scripts/patch_mobile_obfs.py', 'core-patches/obfs/*.go') }}
     - name: Install Golang
       if: steps.cache.outputs.cache-hit != 'true'
       uses: actions/setup-go@v7
@@ -47,27 +47,27 @@ runs:
       uses: actions/cache@v6
       with:
         path: ~/go/pkg/mod
-        key: go-mod-rawline-${{ runner.os }}-${{ env.THRONE_CORE_SHA }}
+        key: go-mod-rawline-${{ runner.os }}-${{ env.CORE_SHA }}
         restore-keys: |
           go-mod-rawline-${{ runner.os }}-
     - name: Apply mobile TrustTunnel fallback
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
-      run: python3 scripts/patch_mobile_trusttunnel.py "$THRONE_DIR/core"
+      run: python3 scripts/patch_mobile_trusttunnel.py "$CORE_DIR/core"
     - name: Bind authenticated local SOCKS UDP sessions to their client ports
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
       run: |
-        python3 scripts/patch_mobile_socks.py "$THRONE_DIR/core"
-        python3 scripts/patch_mobile_xray_socks.py "$THRONE_DIR/core"
+        python3 scripts/patch_mobile_socks.py "$CORE_DIR/core"
+        python3 scripts/patch_mobile_xray_socks.py "$CORE_DIR/core"
     - name: WireGuard obfuscators and Phobos SOCKS5
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
-      run: python3 scripts/patch_mobile_obfs.py "$THRONE_DIR/core"
+      run: python3 scripts/patch_mobile_obfs.py "$CORE_DIR/core"
     - name: WARP registration through the active tunnel
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
-      run: python3 scripts/patch_mobile_warp.py "$THRONE_DIR/core"
+      run: python3 scripts/patch_mobile_warp.py "$CORE_DIR/core"
     - name: Setup Java
       if: steps.cache.outputs.cache-hit != 'true'
       uses: actions/setup-java@v6
@@ -92,7 +92,7 @@ runs:
     - name: Verify Android protocol dependencies
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
-      working-directory: ${{ env.THRONE_DIR }}/core
+      working-directory: ${{ env.CORE_DIR }}/core
       run: |
         set -euo pipefail
         TAGS=$(sed -n 's/^TAGS="\(.*\)"$/\1/p' ../script/build_android.sh)
@@ -103,31 +103,31 @@ runs:
     - name: Build RawlineCore AAR
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
-      working-directory: ${{ env.THRONE_DIR }}
+      working-directory: ${{ env.CORE_DIR }}
       run: |
         sed -i -e 's/ThroneCore.aar/RawlineCore.aar/g' -e 's/-javapkg=io.throneproj/-javapkg=app.rawline.core/g' -e 's/-libname=throne/-libname=rawline/g' script/build_android.sh
         DEST="$GITHUB_WORKSPACE/app/libs" bash script/build_android.sh
     - name: TrustTunnel connection regression
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
-      working-directory: ${{ env.THRONE_DIR }}/core
+      working-directory: ${{ env.CORE_DIR }}/core
       run: CGO_ENABLED=0 go test -tags with_quic,with_utls,with_purego github.com/xchacha20-poly1305/sing-trusttunnel ./mobile ./internal/warp -count=1
     - name: Local SOCKS UDP source isolation regression
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
-      working-directory: ${{ env.THRONE_DIR }}/core
+      working-directory: ${{ env.CORE_DIR }}/core
       run: CGO_ENABLED=0 go test github.com/sagernet/sing/protocol/socks github.com/xtls/xray-core/proxy/socks -count=1
     - name: Obfuscator wire compatibility
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
-      working-directory: ${{ env.THRONE_DIR }}/core
+      working-directory: ${{ env.CORE_DIR }}/core
       run: CGO_ENABLED=0 go test -tags with_purego ./internal/obfs ./internal/ssr ./internal/providergeo -count=1
     # Same registries as the AAR: the Android TAGS of script/build_android.sh (cf. script/gen_schema.sh). with_purego and
     # CGO_ENABLED=0 only keep cronet-go from linking its static library; option registration does not depend on them.
     - name: Generate sing-box schema
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
-      working-directory: ${{ env.THRONE_DIR }}/core
+      working-directory: ${{ env.CORE_DIR }}/core
       run: |
         set -euo pipefail
         TAGS=$(sed -n 's/^TAGS="\(.*\)"$/\1/p' ../script/build_android.sh)
@@ -140,19 +140,19 @@ runs:
       run: |
         set -euo pipefail
         test -s app/libs/RawlineCore.aar
-        unzip -l app/libs/RawlineCore.aar > "$RUNNER_TEMP/throne-core-aar.txt"
-        unzip -p app/libs/RawlineCore.aar classes.jar > "$RUNNER_TEMP/throne-core-classes.jar"
-        unzip -l "$RUNNER_TEMP/throne-core-classes.jar" > "$RUNNER_TEMP/throne-core-classes.txt"
-        grep -q 'app/rawline/core/mobile/Mobile.class' "$RUNNER_TEMP/throne-core-classes.txt"
-        grep -q 'app/rawline/core/mobile/ResolveRequest.class' "$RUNNER_TEMP/throne-core-classes.txt"
-        javap -classpath "$RUNNER_TEMP/throne-core-classes.jar" app.rawline.core.mobile.Mobile > "$RUNNER_TEMP/throne-core-api.txt"
-        grep -q 'fetchThroughProxy(' "$RUNNER_TEMP/throne-core-api.txt"
-        grep -q 'resolveDomains(' "$RUNNER_TEMP/throne-core-api.txt"
-        grep -q 'validateGeoFile(' "$RUNNER_TEMP/throne-core-api.txt"
-        grep -q 'go/Seq.class' "$RUNNER_TEMP/throne-core-classes.txt"
+        unzip -l app/libs/RawlineCore.aar > "$RUNNER_TEMP/rawline-core-aar.txt"
+        unzip -p app/libs/RawlineCore.aar classes.jar > "$RUNNER_TEMP/rawline-core-classes.jar"
+        unzip -l "$RUNNER_TEMP/rawline-core-classes.jar" > "$RUNNER_TEMP/rawline-core-classes.txt"
+        grep -q 'app/rawline/core/mobile/Mobile.class' "$RUNNER_TEMP/rawline-core-classes.txt"
+        grep -q 'app/rawline/core/mobile/ResolveRequest.class' "$RUNNER_TEMP/rawline-core-classes.txt"
+        javap -classpath "$RUNNER_TEMP/rawline-core-classes.jar" app.rawline.core.mobile.Mobile > "$RUNNER_TEMP/rawline-core-api.txt"
+        grep -q 'fetchThroughProxy(' "$RUNNER_TEMP/rawline-core-api.txt"
+        grep -q 'resolveDomains(' "$RUNNER_TEMP/rawline-core-api.txt"
+        grep -q 'validateGeoFile(' "$RUNNER_TEMP/rawline-core-api.txt"
+        grep -q 'go/Seq.class' "$RUNNER_TEMP/rawline-core-classes.txt"
         # the APK splits (buildSrc Helpers.kt) must match the core targets
         for abi in arm64-v8a armeabi-v7a x86_64; do
-          grep -q "jni/$abi/librawline.so" "$RUNNER_TEMP/throne-core-aar.txt" \
+          grep -q "jni/$abi/librawline.so" "$RUNNER_TEMP/rawline-core-aar.txt" \
             || { echo "::error::RawlineCore.aar has no jni/$abi/librawline.so"; exit 1; }
         done
         python3 -c 'import json, sys; json.load(open(sys.argv[1]))' app/src/main/assets/schema/sing-box.json
@@ -163,4 +163,4 @@ runs:
         path: |
           app/libs/RawlineCore.aar
           app/src/main/assets/schema/sing-box.json
-        key: throne-core-${{ env.THRONE_CORE_REF }}-${{ env.THRONE_CORE_SHA }}-${{ env.THRONE_CORE_SCRIPT_SHA }}-${{ hashFiles('.github/actions/throne-core/action.yml', 'core-dependencies.json', 'scripts/prepare_mobile_core.py', 'scripts/patch_mobile_trusttunnel.py', 'scripts/patch_mobile_socks.py', 'scripts/patch_mobile_xray_socks.py', 'core-patches/xray-socks/*.go', 'core-patches/socks/*.go', 'core-patches/trusttunnel/*.go', 'core-patches/mobile/*.go', 'core-patches/resolve/*.go', 'core-patches/providergeo/*.go', 'scripts/patch_mobile_warp.py', 'core-patches/warp/*.go', 'scripts/patch_mobile_obfs.py', 'core-patches/obfs/*.go') }}
+        key: rawline-core-${{ env.THRONE_CORE_REF }}-${{ env.CORE_SHA }}-${{ env.CORE_SCRIPT_SHA }}-${{ hashFiles('.github/actions/rawline-core/action.yml', 'core-dependencies.json', 'scripts/prepare_mobile_core.py', 'scripts/patch_mobile_trusttunnel.py', 'scripts/patch_mobile_socks.py', 'scripts/patch_mobile_xray_socks.py', 'core-patches/xray-socks/*.go', 'core-patches/socks/*.go', 'core-patches/trusttunnel/*.go', 'core-patches/mobile/*.go', 'core-patches/resolve/*.go', 'core-patches/providergeo/*.go', 'scripts/patch_mobile_warp.py', 'core-patches/warp/*.go', 'scripts/patch_mobile_obfs.py', 'core-patches/obfs/*.go') }}

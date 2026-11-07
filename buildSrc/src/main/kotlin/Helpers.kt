@@ -22,20 +22,20 @@ private fun Project.buildOption(property: String, env: String): String? =
     (findProperty(property) as String?)?.trim()?.takeIf { it.isNotEmpty() }
         ?: System.getenv(env)?.trim()?.takeIf { it.isNotEmpty() }
 
-/** `stable` (default) or `preview`: `-Pthrone.channel` / `THRONE_CHANNEL`. */
+/** `stable` (default) or `preview`: `-Prawline.channel` / `RAWLINE_CHANNEL`. */
 fun Project.buildChannel(): String {
-    val channel = buildOption("throne.channel", "THRONE_CHANNEL") ?: "stable"
-    if (channel != "stable" && channel != "preview") throw GradleException("throne.channel must be stable or preview, got $channel")
+    val channel = buildOption("rawline.channel", "RAWLINE_CHANNEL") ?: "stable"
+    if (channel != "stable" && channel != "preview") throw GradleException("rawline.channel must be stable or preview, got $channel")
     return channel
 }
 
 /**
  * The last three digits of versionCode: 999 for a stable tag build, the commit count since the last stable tag for a
- * preview, 0 for a local build (`-Pthrone.build` / `THRONE_BUILD`).
+ * preview, 0 for a local build (`-Prawline.build` / `RAWLINE_BUILD`).
  */
 fun Project.buildNumber(): Int {
-    val raw = buildOption("throne.build", "THRONE_BUILD") ?: return 0
-    return raw.toIntOrNull()?.takeIf { it in 0..999 } ?: throw GradleException("throne.build must be 0..999, got $raw")
+    val raw = buildOption("rawline.build", "RAWLINE_BUILD") ?: return 0
+    return raw.toIntOrNull()?.takeIf { it in 0..999 } ?: throw GradleException("rawline.build must be 0..999, got $raw")
 }
 
 /** SHA-256 of the release signing certificate pinned by the in-app updater, "" = no pin (`UPDATE_SIGNER_SHA256`). */

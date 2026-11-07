@@ -31,7 +31,7 @@ runs:
         distribution: temurin
         java-version: '17'
     - name: RawlineCore AAR and schema
-      uses: ./.github/actions/throne-core
+      uses: ./.github/actions/rawline-core
     - name: Fetch routeprofiles snapshot
       uses: ./.github/actions/routeprofiles
     - name: Fetch sing-box dashboard
@@ -43,12 +43,12 @@ runs:
     - name: Gradle build
       shell: bash
       env:
-        THRONE_CHANNEL: ${{ inputs.channel }}
-        THRONE_BUILD: ${{ inputs.build-number }}
-        THRONE_SIGN: ${{ inputs.sign }}
+        RAWLINE_CHANNEL: ${{ inputs.channel }}
+        RAWLINE_BUILD: ${{ inputs.build-number }}
+        RAWLINE_SIGN: ${{ inputs.sign }}
       run: |
         set -euo pipefail
-        if [ "$THRONE_SIGN" = "true" ]; then
+        if [ "$RAWLINE_SIGN" = "true" ]; then
           if [ -n "${SIGNING_KEYSTORE_B64:-}" ]; then
             : "${SIGNING_STORE_PASSWORD:?the SIGNING_STORE_PASSWORD secret is missing}"
             : "${SIGNING_KEY_ALIAS:?the SIGNING_KEY_ALIAS secret is missing}"
