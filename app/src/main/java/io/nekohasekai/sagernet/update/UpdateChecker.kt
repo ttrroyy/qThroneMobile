@@ -84,7 +84,7 @@ object UpdateChecker {
         val installed = Semver.parse(BuildConfig.VERSION_NAME)
         val candidates = fetchReleases(context, client)
             .filter { release -> allowBeta || !release.prerelease }
-            .mapNotNull { release -> Semver.parse(release.tag)?.let { release to it } }
+            .mapNotNull { release -> Semver.ofTag(release.tag)?.let { release to it } }
             .filter { (release, version) -> hasManifest(release) || installed == null || Semver.compare(version, installed) > 0 }
             .sortedWith { a, b -> Semver.compare(b.second, a.second) }
             .map { it.first }
@@ -110,14 +110,14 @@ object UpdateChecker {
         val legacy = candidates.firstOrNull { !hasManifest(it) } ?: return Result.UpToDate
         return Result.Available(
             Offer(
-                legacy, legacy.tag.removePrefix("v"), 0, null, null, null,
+                legacy, legacy.tag.removePrefix(Semver.TAG_PREFIX), 0, null, null, null,
                 context.getString(R.string.update_reason_no_manifest)
             )
         )
     }
 
     private fun offerOf(context: Context, release: Release, manifest: JSONObject): Offer {
-        val versionName = manifest.optString("versionName").ifEmpty { release.tag.removePrefix("v") }
+        val versionName = manifest.optString("versionName").ifEmpty { release.tag.removePrefix(Semver.TAG_PREFIX) }
         val versionCode = manifest.getLong("versionCode")
         val assets = manifest.optJSONObject("assets") ?: JSONObject()
         fun browserOnly(abi: String?, reason: String) = Offer(release, versionName, versionCode, abi, null, null, reason)

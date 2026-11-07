@@ -16,6 +16,10 @@ object Semver {
         return Version(numbers + List(3 - numbers.size) { 0L }, pre)
     }
 
+    /** Rawline's release tags only: the repository also keeps releases of the earlier app, numbered higher. */
+    const val TAG_PREFIX = "rawline-"
+    fun ofTag(tag: String): Version? = if (tag.startsWith(TAG_PREFIX)) parse(tag.removePrefix(TAG_PREFIX)) else null
+
     fun compare(a: Version, b: Version): Int {
         for (i in 0 until 3) {
             val c = a.core[i].compareTo(b.core[i])

@@ -2490,9 +2490,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/update/Semver.kt": {
-    "mtime": 1793969061.2035756,
-    "seen": 1793969347.499441,
-    "ast_hash": "4ad885f14c862b54ff7da5776f9c3868",
+    "mtime": 1794053234.7771664,
+    "seen": 1794053279.5801408,
+    "ast_hash": "e36d53aee2d1db16a777b089fe5ddbc1",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/update/UpdateActivity.kt": {
@@ -2502,9 +2502,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/update/UpdateChecker.kt": {
-    "mtime": 1793978564.6184132,
-    "seen": 1793978627.7906177,
-    "ast_hash": "8390df1eb0b18965696a1813f8ed48ef",
+    "mtime": 1794053234.7776873,
+    "seen": 1794053279.5801408,
+    "ast_hash": "3935395f1c67d4b190c30e292c99b9db",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/update/UpdateDiscovery.kt": {
@@ -3432,9 +3432,9 @@
     "semantic_hash": ""
   },
   "buildScript/release_tag.py": {
-    "mtime": 1793978484.9706478,
-    "seen": 1793978627.7906177,
-    "ast_hash": "041b438aa5470686b0b75372ffef71ad",
+    "mtime": 1794053234.7782087,
+    "seen": 1794053279.5801408,
+    "ast_hash": "064d252773f515d0d6ceeb8c3ac9a3c9",
     "semantic_hash": ""
   },
   "buildScript/test_release_metadata.py": {
@@ -4326,9 +4326,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/release.yml": {
-    "mtime": 1793969060.7945123,
-    "seen": 1793969347.499441,
-    "ast_hash": "20a22f23d63e70c7e16e0b252ee3f0ff",
+    "mtime": 1794053234.7787445,
+    "seen": 1794053279.5806904,
+    "ast_hash": "eb2e97d7ecde6086de3beb01765bab40",
     "semantic_hash": ""
   },
   ".github/workflows/secure-carriers.yml": {
@@ -7317,6 +7317,12 @@
     "mtime": 1794051056.3881228,
     "seen": 1794053142.237035,
     "ast_hash": "5d06018a4dee6e91ffdd21f882cad021",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/io/nekohasekai/sagernet/update/SemverTagTest.kt": {
+    "mtime": 1794053234.7782087,
+    "seen": 1794053279.5801408,
+    "ast_hash": "e171e46d31e95e4e6d17e02a621cf2c4",
     "semantic_hash": ""
   }
 }

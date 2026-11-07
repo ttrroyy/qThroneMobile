@@ -51,9 +51,9 @@ jobs:
         run: |
           set -euo pipefail
           VERSION_NAME=$(sed -n 's/^VERSION_NAME=//p' nb4a.properties | tr -d '[:space:]')
-          DRAFT=$(gh release view "v$VERSION_NAME" --json isDraft --jq .isDraft 2>/dev/null || true)
+          DRAFT=$(gh release view "rawline-$VERSION_NAME" --json isDraft --jq .isDraft 2>/dev/null || true)
           if [[ "$DRAFT" == false ]]; then
-            echo "::notice::v$VERSION_NAME is already published: nothing to release"
+            echo "::notice::rawline-$VERSION_NAME is already published: nothing to release"
             echo "publish=false" >> "$GITHUB_OUTPUT"
           else
             echo "publish=true" >> "$GITHUB_OUTPUT"
