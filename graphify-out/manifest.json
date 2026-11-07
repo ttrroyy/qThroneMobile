@@ -2376,9 +2376,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/settings/NetworkSettingsScreens.kt": {
-    "mtime": 1793969061.1887796,
-    "seen": 1793969347.499441,
-    "ast_hash": "bec643eb1315b0ab3ec18c9cd701c83c",
+    "mtime": 1794056998.693541,
+    "seen": 1794057034.9101472,
+    "ast_hash": "d9f0d90f056eb20e601c77efc1daa01c",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/settings/SettingsScreenFragment.kt": {
@@ -4356,9 +4356,9 @@
     "semantic_hash": ""
   },
   "RELEASE_NOTES.md": {
-    "mtime": 1794056320.7665842,
-    "seen": 1794056354.0409892,
-    "ast_hash": "9ae28f2c567f0f62b5e8117c6c9c9fab",
+    "mtime": 1794057011.8426561,
+    "seen": 1794057034.9101472,
+    "ast_hash": "77612e737db13d1fba58b3f681df57b2",
     "semantic_hash": ""
   },
   "app/src/main/assets/flags/SOURCE.txt": {

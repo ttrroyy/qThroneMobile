@@ -293,7 +293,8 @@ class RoutingSettingsFragment : SettingsScreenFragment(R.xml.settings_routing) {
 
     override fun onResume() {
         super.onResume()
-        pref<SwitchPreference>(Key.PROXY_APPS).isChecked = DataStore.proxyApps
+        // Setting it writes the store, and any write asks for a service reload: only when it really changed.
+        pref<SwitchPreference>(Key.PROXY_APPS).apply { if (isChecked != DataStore.proxyApps) isChecked = DataStore.proxyApps }
         showCurrentRoute()
     }
 
