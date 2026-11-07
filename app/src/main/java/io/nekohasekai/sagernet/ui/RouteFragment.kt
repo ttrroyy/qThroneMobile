@@ -319,6 +319,11 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
                 RouteImports.promptRemote(activity, entries)
                 return@setOnClickListener
             }
+            RouteImports.urlEntry(text)?.let { entry ->
+                dialog.dismiss()
+                RouteImports.promptRemote(activity, listOf(entry))
+                return@setOnClickListener
+            }
             activity.lifecycleScope.launch {
                 val imported = RouteImports.parse(text)
                 val profile = imported.profile

@@ -80,8 +80,8 @@ object SubscribeFlows {
             }
             return
         }
-        if (content.startsWith("rawline://")) {
-            openDeepLink(activity, content, gid)
+        if (UrlText.currentScheme(content).startsWith("rawline://")) {
+            openDeepLink(activity, UrlText.currentScheme(content), gid)
             return
         }
         subscribeLink(content)?.let {
@@ -123,7 +123,7 @@ object SubscribeFlows {
         val batch = ArrayList<String>()
         for (payload in payloads.map { it.trim() }.filter { it.isNotEmpty() }) {
             val single = payload.startsWith("http://") || payload.startsWith("https://") ||
-                payload.startsWith("rawline://") || ProviderLinks.isProviderLink(payload) || subscribeLink(payload) != null
+                UrlText.currentScheme(payload).startsWith("rawline://") || ProviderLinks.isProviderLink(payload) || subscribeLink(payload) != null
             if (single) importText(activity, payload, gid) else batch.add(payload)
         }
         if (batch.isNotEmpty()) importInto(activity, batch.joinToString("\n"), gid)
@@ -157,7 +157,7 @@ object SubscribeFlows {
             val uri = Uri.parse(content)
             return SubscribeLink(uri.getQueryParameter("url").orEmpty(), uri.getQueryParameter("name").orEmpty())
         }
-        if (!content.startsWith("rawline://")) return null
+        if (!UrlText.currentScheme(content).startsWith("rawline://")) return null
         val uri = Uri.parse(content)
         if (!uri.host.equals("addsub", ignoreCase = true)) return null
         val path = uri.path ?: return null

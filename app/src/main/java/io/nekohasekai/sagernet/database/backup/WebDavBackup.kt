@@ -144,7 +144,7 @@ class WebDavBackup private constructor(private val base: HttpUrl, private val se
                     "response" -> {
                         val url = href?.let { directory.resolve(it) }
                         val name = url?.pathSegments?.lastOrNull { it.isNotEmpty() }
-                        if (!collection && url != null && name != null && (name.endsWith(EXTENSION, ignoreCase = true))) {
+                        if (!collection && url != null && name != null && (name.endsWith(EXTENSION, ignoreCase = true) || name.endsWith(OLD_EXTENSION, ignoreCase = true))) {
                             out.add(Remote(name, url, size, modified))
                         }
                     }
@@ -169,6 +169,7 @@ class WebDavBackup private constructor(private val base: HttpUrl, private val se
     companion object {
         const val EXTENSION = ".rwlbackup"
         /** Backups made before the rename stay listed and restorable. */
+        private const val OLD_EXTENSION = ".thrbackup"
         private const val OCTET_STREAM = "application/octet-stream"
         private const val STAMP_FORMAT = "yyyyMMdd_HHmmss"
         private val STAMP = Regex("\\d{8}_\\d{6}")

@@ -12,6 +12,7 @@ object RouteShare {
     const val ROUTE_LINK_PREFIX = "rawline://route/"
     const val REMOTE_ROUTE_LINK_PREFIX = "rawline://remoteroute/"
     private const val KIND = "rawline-route-profile"
+    private const val OLD_KIND = "throne-route-profile"
 
     /** Keys whose numbers the desktop writes (port lists, ip_version, override_port) and must read back (D12). */
     private val NUMERIC_KEYS = setOf("port", "source_port", "ip_version", "override_port")
@@ -73,6 +74,7 @@ object RouteShare {
             if (profile == null) failure("Routing off is only supported for a subscription") else Imported(profile, "", emptyList(), false)
         } catch (e: Exception) { failure(e.message ?: "Invalid routing profile") }
         if (input.isEmpty()) return failure("Empty input")
+        input = UrlText.currentScheme(input)
         if (input.startsWith(ROUTE_LINK_PREFIX, ignoreCase = true)) {
             input = UrlText.deepLinkPayload(input, ROUTE_LINK_PREFIX.length)
             if (input.isEmpty()) return failure("Deep link has no data")
@@ -94,7 +96,7 @@ object RouteShare {
      * invalid one an [IllegalArgumentException] carries the desktop's error text, so a returned list is never empty.
      */
     fun fromRemoteRoutesLink(text: String): List<RemoteEntry>? {
-        val input = text.trim()
+        val input = UrlText.currentScheme(text.trim())
         if (!input.startsWith(REMOTE_ROUTE_LINK_PREFIX, ignoreCase = true)) return null
         val base64 = UrlText.deepLinkPayload(input, REMOTE_ROUTE_LINK_PREFIX.length)
         if (base64.isEmpty()) throw IllegalArgumentException("Deep link has no data")
@@ -124,7 +126,7 @@ object RouteShare {
     }
 
     private fun fromObject(root: JsonObject, warnings: MutableList<String>, profileIdByName: (String) -> Long?): Imported {
-        if (root.string("kind") != KIND) return failure("Unrecognized route object")
+        if (root.string("kind") != KIND && root.string("kind") != OLD_KIND) return failure("Unrecognized route object")
         if (root.bool("raw")) return failure("raw routing profiles are not supported on Android")
         val profile = RouteProfile()
         profile.name = root.string("name")

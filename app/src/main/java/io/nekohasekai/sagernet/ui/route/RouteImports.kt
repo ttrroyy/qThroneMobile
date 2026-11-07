@@ -20,11 +20,20 @@ import kotlinx.coroutines.withContext
 object RouteImports {
 
     fun isRouteLink(text: String): Boolean {
-        val t = text.trim()
+        val t = app.rawline.mobile.route.UrlText.currentScheme(text.trim())
         return t.startsWith(RouteShare.ROUTE_LINK_PREFIX, true) || t.startsWith(RouteShare.REMOTE_ROUTE_LINK_PREFIX, true) || app.rawline.mobile.route.ProviderRouting.isLink(t)
     }
 
-    fun isRemoteRouteLink(text: String) = text.trim().startsWith(RouteShare.REMOTE_ROUTE_LINK_PREFIX, true)
+    /** A plain http(s) address of a profile file (a .json rule list, a route link): added as a remote profile. */
+    fun urlEntry(text: String): RouteShare.RemoteEntry? {
+        val t = text.trim()
+        if (t.any { it.isWhitespace() } || !(t.startsWith("https://", true) || t.startsWith("http://", true))) return null
+        val file = android.net.Uri.decode(t.substringBefore('#').substringBefore('?').trimEnd('/').substringAfterLast('/'))
+        val name = android.net.Uri.decode(t.substringAfter('#', "")).ifBlank { file.substringBeforeLast('.').replace('_', ' ') }
+        return RouteShare.RemoteEntry(t.substringBefore('#'), name.ifBlank { t })
+    }
+
+    fun isRemoteRouteLink(text: String) = app.rawline.mobile.route.UrlText.currentScheme(text.trim()).startsWith(RouteShare.REMOTE_ROUTE_LINK_PREFIX, true)
 
     /** The entries of a rawline://remoteroute link, or null after showing why it is invalid (FromRemoteRoutesLink). */
     fun remoteEntries(context: Context, text: String): List<RouteShare.RemoteEntry>? = try {

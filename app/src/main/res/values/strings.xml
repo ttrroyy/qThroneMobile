@@ -782,7 +782,7 @@
     <string name="route_import_clipboard_profile">Import routing profile \"%s\" from the clipboard?</string>
     <string name="route_import_clipboard_rules">Import a routing rule list from the clipboard?</string>
     <string name="route_import_paste_title">Import routing profile</string>
-    <string name="route_import_paste_hint">Paste a Rawline route link, a remoteRoute link, a base64 blob, or a JSON rule array</string>
+    <string name="route_import_paste_hint">Paste a Rawline or Throne route link, a profile file address (https://…), a remoteRoute link, a base64 blob, or a JSON rule array</string>
     <string name="route_import_invalid_title">Invalid input</string>
     <string name="route_import_invalid">Could not import this routing profile:\n%s</string>
     <string name="route_import_warnings_title">Imported with warnings</string>

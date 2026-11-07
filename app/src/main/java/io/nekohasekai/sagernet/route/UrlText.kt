@@ -4,7 +4,10 @@ import java.io.ByteArrayOutputStream
 
 /** The few QUrl behaviours the route formats rely on, without android.net or java.net.URI's strictness. */
 internal object UrlText {
-    fun isAddLink(text: String) = text.startsWith("rawline://add/", ignoreCase = true)
+    private const val OLD_SCHEME = "throne://"
+    /** Links shared before the rename name the old scheme; they still open. */
+    fun currentScheme(text: String) = if (text.startsWith(OLD_SCHEME, ignoreCase = true)) "rawline://" + text.substring(OLD_SCHEME.length) else text
+    fun isAddLink(text: String) = currentScheme(text).startsWith("rawline://add/", ignoreCase = true)
 
     private val URL = Regex("^([A-Za-z][A-Za-z0-9+.-]*)://([^/?#]*)([^?#]*)")
 

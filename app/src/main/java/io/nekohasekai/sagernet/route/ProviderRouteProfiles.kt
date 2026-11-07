@@ -9,13 +9,14 @@ object ProviderRouteProfiles {
             ?: (JsonInput.parseValue(saved) as? JsonArray)?.filterIsInstance<JsonObject>()?.firstOrNull()
             ?: JsonObject()
     private const val SOURCE="_rawline_source"
+    private const val OLD_SOURCE="_qthrone_source"
     private fun canonicalProvider(value:String)=when(value.lowercase()) { "happ" -> "Happ";"incy" -> "Incy";else -> value.ifBlank { "Happ" } }
-    fun source(document:JsonObject,fallback:String="Happ") = canonicalProvider(document.string(SOURCE).ifBlank { fallback })
+    fun source(document:JsonObject,fallback:String="Happ") = canonicalProvider(document.string(SOURCE).ifEmpty { document.string(OLD_SOURCE) }.ifBlank { fallback })
     fun tagged(document:JsonObject,provider:String)=document.copy().apply { this[SOURCE]=canonicalProvider(provider) }
-    fun externalDocument(document:JsonObject)=document.copy().apply { remove(SOURCE) }
+    fun externalDocument(document:JsonObject)=document.copy().apply { remove(SOURCE);remove(OLD_SOURCE) }
     fun key(document:JsonObject,fallback:String="Happ")=source(document,fallback)+"\u0000"+document.string("Name")
     fun sameSettings(a:JsonObject,b:JsonObject):Boolean {
-        fun clean(document:JsonObject)=document.copy().apply { remove("Name");remove("LastUpdated");remove(SOURCE) }
+        fun clean(document:JsonObject)=document.copy().apply { remove("Name");remove("LastUpdated");remove(SOURCE);remove(OLD_SOURCE) }
         return clean(a)==clean(b)
     }
     data class Choice(val document:JsonObject,val keys:Set<String>,val label:String,val providers:String)

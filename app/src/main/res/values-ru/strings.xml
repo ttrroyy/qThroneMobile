@@ -1004,7 +1004,7 @@
     <string name="route_import_invalid_title">Недопустимый ввод</string>
     <string name="route_import_note">Примечание:</string>
     <string name="route_import_parse_failed">Не удалось разобрать ссылку:\n%s</string>
-    <string name="route_import_paste_hint">Вставьте ссылку маршрута Rawline, ссылку remoteRoute, блок base64 или массив правил JSON</string>
+    <string name="route_import_paste_hint">Вставьте ссылку маршрута Rawline или Throne, адрес файла профиля (https://…), ссылку remoteRoute, блок base64 или массив правил JSON</string>
     <string name="route_import_paste_title">Импорт маршрутизирующего профиля</string>
     <string name="route_import_prompt">Добавить этот маршрутизирующий профиль?\n\nИмя: %s</string>
     <string name="route_import_title">Импорт маршрутизирующего профиля</string>
