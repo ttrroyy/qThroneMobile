@@ -1,7 +1,7 @@
 # Graph Report - qThroneMobile  (2026-11-07)
 
 ## Corpus Check
-- 802 files · ~1,483,281 words
+- 802 files · ~1,483,321 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 686 file(s) not represented in the graph (top: .xml 657, .aidl 10, (none) 9)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `56cc6bb8`
+- Built from commit: `daee2970`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

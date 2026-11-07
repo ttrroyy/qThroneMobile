@@ -573,10 +573,11 @@ class MobileHomeFragment : ToolbarFragment() {
             })
             routes.forEachIndexed { index,route ->
                 val row=LinearLayout(requireContext()).apply {
-                    orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER_VERTICAL;minimumHeight=dp(60);setPadding(dp(16),dp(8),dp(12),dp(8))
+                    // One line each, the current one lit: a caption under it only made that row taller than the rest.
+                    orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER_VERTICAL;minimumHeight=dp(52);setPadding(dp(16),dp(6),dp(12),dp(6))
                     background=tile(route.id==DataStore.currentRouteId);isFocusable=true
+                    contentDescription=route.name+if(route.id==DataStore.currentRouteId) ", "+getString(R.string.route_profile_current) else ""
                     addView(text(route.name,15f).apply { setTypeface(typeface,Typeface.BOLD);maxLines=1;ellipsize=android.text.TextUtils.TruncateAt.END })
-                    if(route.id==DataStore.currentRouteId) addView(text(getString(R.string.route_profile_current),12f,muted))
                     setOnClickListener {
                         sheet.dismiss()
                         app.rawline.mobile.ui.route.RouteQuickSwitch.switchTo(route.id)

@@ -1662,9 +1662,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/MobileHomeFragment.kt": {
-    "mtime": 1794056320.7265432,
-    "seen": 1794056354.0399122,
-    "ast_hash": "13bd5ef3985645ad7b3e082a2d9ea540",
+    "mtime": 1794067203.942311,
+    "seen": 1794067253.1094425,
+    "ast_hash": "12f94796c44b317554cbb0a09389c625",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/ui/MobilePalette.kt": {
@@ -4356,9 +4356,9 @@
     "semantic_hash": ""
   },
   "RELEASE_NOTES.md": {
-    "mtime": 1794067019.6977942,
-    "seen": 1794067051.8635747,
-    "ast_hash": "65ad822551cfbc5b37f65f87af34ac4a",
+    "mtime": 1794067215.82414,
+    "seen": 1794067253.1109555,
+    "ast_hash": "f26f00e9822148ae41cdbe8a0e2a688e",
     "semantic_hash": ""
   },
   "app/src/main/assets/flags/SOURCE.txt": {
