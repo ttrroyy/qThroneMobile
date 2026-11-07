@@ -848,8 +848,14 @@ class MobileHomeFragment : ToolbarFragment() {
                     val popup=androidx.appcompat.widget.PopupMenu(requireContext(),anchor)
                     popup.menu.add(R.string.service_mode).setOnMenuItemClickListener { modeMenu(anchor); true }
                     popup.menu.add(R.string.route_profile_quick_switch).setOnMenuItemClickListener { routingMenu(anchor); true }
-                    popup.menu.add(R.string.qmobile_manage_groups).setOnMenuItemClickListener { subscriptionsMenu(anchor); true }
-                    popup.menu.add(R.string.qmobile_updates).setOnMenuItemClickListener { updatesMenu(anchor); true }
+                    // The menu has a width limit: the long label was cut short.
+                    popup.menu.add(R.string.qmobile_groups_menu).setOnMenuItemClickListener { subscriptionsMenu(anchor); true }
+                    // The same dot the corner button shows, on the item it is about.
+                    val updates=getString(R.string.qmobile_updates)
+                    val title=if(DataStore.updateCheckAuto && UpdateDiscovery.available.value!=null) android.text.SpannableString("$updates  ●").apply {
+                        setSpan(android.text.style.ForegroundColorSpan(MobilePalette.accent(requireContext())),updates.length+2,length,0)
+                    } else updates
+                    popup.menu.add(title).setOnMenuItemClickListener { updatesMenu(anchor); true }
                     popup.show()
                 }.also { updatesTile=it;updateUpdatesBadge() } else null
                 val tiles = if(quickMenu!=null) listOf(quickMenu, settingsTile) else if(extended) listOf(settingsTile) + quick + (if(MobileStyle.new) emptyList() else listOf(addTile)) else listOf(settingsTile, addTile)

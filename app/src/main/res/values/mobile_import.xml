@@ -17,6 +17,7 @@
     <string name="qmobile_new_group">Create a group</string>
     <string name="qmobile_existing_group">Add to an existing group</string>
     <string name="qmobile_manage_groups">Manage groups and subscriptions</string>
+    <string name="qmobile_groups_menu">Groups and subscriptions</string>
     <string name="qmobile_fold_all">Collapse all groups</string>
     <string name="qmobile_expand_all">Expand all groups</string>
     <string-array name="qmobile_tiles_positions"><item>Top</item><item>Bottom</item></string-array>
