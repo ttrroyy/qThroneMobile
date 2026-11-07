@@ -2628,9 +2628,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/utils/Theme.kt": {
-    "mtime": 1793969061.21711,
-    "seen": 1793969347.499441,
-    "ast_hash": "1009a1651a28f461ac13c3836e7a08df",
+    "mtime": 1794056220.437521,
+    "seen": 1794056265.5474668,
+    "ast_hash": "fcc74db90af26ef2e7785cfcb8988f20",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/utils/WifiStateAccess.kt": {
@@ -4350,15 +4350,15 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1794053903.8384812,
-    "seen": 1794053938.1341197,
-    "ast_hash": "fa770798f2358044c7460829b00126f8",
+    "mtime": 1794055968.3121908,
+    "seen": 1794056265.548566,
+    "ast_hash": "b979668b4cc7e7edfbc5fc7d76a5785d",
     "semantic_hash": ""
   },
   "RELEASE_NOTES.md": {
-    "mtime": 1794054511.118917,
-    "seen": 1794054605.38364,
-    "ast_hash": "1ae1630eab5b4b7028da0d48a22512bf",
+    "mtime": 1794056236.848706,
+    "seen": 1794056265.548566,
+    "ast_hash": "8739ef8ac2b926d2b7ebc622ee86dd5b",
     "semantic_hash": ""
   },
   "app/src/main/assets/flags/SOURCE.txt": {
@@ -6833,18 +6833,6 @@
     "ast_hash": "6c98b2028ca6d10ac23839d9be725eab",
     "semantic_hash": ""
   },
-  "docs/screenshots/screenshot-profiles.png": {
-    "mtime": 1792475440.1213908,
-    "seen": 1793941383.6705291,
-    "ast_hash": "451e663e0a546b14cd1fe23923635703",
-    "semantic_hash": ""
-  },
-  "docs/screenshots/screenshot-subscriptions.png": {
-    "mtime": 1792475440.1263888,
-    "seen": 1793941383.6705291,
-    "ast_hash": "8aa4aa238d43ece07562717a7358b47b",
-    "semantic_hash": ""
-  },
   "app/src/test/java/io/nekohasekai/sagernet/ui/MobileImportTest.kt": {
     "mtime": 1793969061.6485496,
     "seen": 1793969347.499441,
@@ -7323,6 +7311,18 @@
     "mtime": 1794053234.7782087,
     "seen": 1794053279.5801408,
     "ast_hash": "e171e46d31e95e4e6d17e02a621cf2c4",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/home-button.png": {
+    "mtime": 1794055796.0623543,
+    "seen": 1794056265.5497024,
+    "ast_hash": "5c8d3c877892e01957d364e69317e450",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/home-switches.png": {
+    "mtime": 1794055744.6724524,
+    "seen": 1794056265.5497024,
+    "ast_hash": "0d3fde11ea339a3549d5c6910c04a7d9",
     "semantic_hash": ""
   }
 }

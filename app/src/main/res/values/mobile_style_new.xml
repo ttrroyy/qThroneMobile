@@ -31,6 +31,15 @@
         <item name="bottomSheetDialogTheme">@style/MobileSheetThemeNew</item>
         <item name="materialButtonStyle">@style/MobileButtonNew</item>
     </style>
+    <!-- Dialog windows get no surface style: their fields and sheets still need these colours. -->
+    <style name="MobileWellNewOled">
+        <item name="qtWellColor">#14FFFFFF</item>
+        <item name="qtSheetColor">#F80A0A0B</item>
+    </style>
+    <style name="MobileWellNewWhite">
+        <item name="qtWellColor">#10000000</item>
+        <item name="qtSheetColor">#F8FAFAFC</item>
+    </style>
     <style name="MobileSwitchNew" parent="MobileSwitch">
         <item name="track">@drawable/mobile_switch_track_new</item>
         <item name="thumbTint">@color/mobile_switch_thumb_alpha</item>

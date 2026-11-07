@@ -50,6 +50,8 @@ object Theme {
 
     private fun applyStyleShapes(context: Context) {
         context.theme.applyStyle(if (MobileStyle.new) R.style.MobileStyleNew else R.style.MobileStyleClassic, true)
+        // Not forced: only where no surface style has set them already.
+        if (MobileStyle.new) context.theme.applyStyle(if (MobilePalette.light) R.style.MobileWellNewWhite else R.style.MobileWellNewOled, false)
     }
 
     fun applyDialog(context: Context) {
