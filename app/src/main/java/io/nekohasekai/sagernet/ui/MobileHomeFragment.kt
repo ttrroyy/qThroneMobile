@@ -237,6 +237,8 @@ class MobileHomeFragment : ToolbarFragment() {
     }
     private val latencyViews=mutableMapOf<Long,FrameLayout>()
     private val collapsed = mutableSetOf<Long>()
+    /** Subscriptions whose description is shown whole; the rest show two lines, so a long one does not hide the servers. */
+    private val openNotes = mutableSetOf<Long>()
     private val knownGroups = mutableSetOf<Long>()
     private var serverScrollView: ScrollView? = null
     /** The focused subscription's header: above the list, so that only the servers scroll. */
@@ -1276,7 +1278,15 @@ class MobileHomeFragment : ToolbarFragment() {
                     },LinearLayout.LayoutParams(dp(32),dp(32)))
                     head.addView(traffic)
                     if (quota.expire > 0) head.addView(text(getString(R.string.qmobile_expiry,java.text.DateFormat.getDateInstance().format(java.util.Date(quota.expire*1000))),11f,muted).apply { setPadding(dp(14),0,dp(14),dp(8)) })
-                    if (quota.announce.isNotBlank()) head.addView(text(quota.announce,12f,muted).apply { setPadding(dp(14),0,dp(14),dp(10)) })
+                    if (quota.announce.isNotBlank()) head.addView(text(quota.announce,12f,muted).apply {
+                        setPadding(dp(14),0,dp(14),dp(10))
+                        ellipsize=android.text.TextUtils.TruncateAt.END
+                        maxLines=if(group.id in openNotes) Int.MAX_VALUE else 2
+                        setOnClickListener {
+                            if(!openNotes.add(group.id)) openNotes.remove(group.id)
+                            maxLines=if(group.id in openNotes) Int.MAX_VALUE else 2
+                        }
+                    })
                 }
                 for ((profileIndex,profile) in visibleProfiles.withIndex()) {
                     // Give input and animation callbacks a turn even when a page contains complex rows.
