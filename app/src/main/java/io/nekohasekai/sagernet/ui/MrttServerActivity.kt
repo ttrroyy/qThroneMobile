@@ -185,7 +185,7 @@ class MrttServerActivity : ServerScreenActivity() {
         val values = joined.split(Regex("[,\\s]+")).filter { it.isNotBlank() }
         return (0 until 6).map { index -> input("VK хеш ${index+1}",values.getOrNull(index).orEmpty()).also { parent.addView(it) } }
     }
-    private fun hashes(fields: List<EditText>) = fields.map { app.rawline.mobile.outbound.link.VkCallHash.strip(it.text.toString()) }.filter { it.isNotEmpty() }.distinct().take(6).joinToString(",")
+    private fun hashes(fields: List<EditText>) = fields.map { app.rawline.mobile.outbound.types.VkCallHash.strip(it.text.toString()) }.filter { it.isNotEmpty() }.distinct().take(6).joinToString(",")
     private fun share(title: String,link: String) {
         MobileAlertDialogBuilder(this).setTitle(title).setView(ScrollView(this).apply { addView(ui.column(16).apply {
             addView(ui.qrRow(link)); addView(ui.linkRow("Ссылка",link,lines = 4))
@@ -194,7 +194,7 @@ class MrttServerActivity : ServerScreenActivity() {
     }
 
     // Configs and subscriptions.
-    private fun loadConfigs() = request({
+    private fun loadConfigs(): Unit = request({
         val loadedSettings = runCatching { admin.settings() }.getOrDefault(JSONObject())
         Triple(admin.clients(),admin.groups(),loadedSettings)
     }) { (loadedClients,loadedGroups,loadedSettings) ->
@@ -386,7 +386,7 @@ class MrttServerActivity : ServerScreenActivity() {
     }
 
     // Groups.
-    private fun loadGroups() = request({ admin.groups() to admin.rules() }) { (loaded,loadedRules) ->
+    private fun loadGroups(): Unit = request({ admin.groups() to admin.rules() }) { (loaded,loadedRules) ->
         groups = loaded; rules = loadedRules
         if(section!=1) return@request
         content.removeAllViews()
@@ -422,7 +422,7 @@ class MrttServerActivity : ServerScreenActivity() {
     }
 
     // Routes.
-    private fun loadRules() = request({ Triple(admin.rules(),admin.groups(),admin.clients()) }) { (loaded,loadedGroups,loadedClients) ->
+    private fun loadRules(): Unit = request({ Triple(admin.rules(),admin.groups(),admin.clients()) }) { (loaded,loadedGroups,loadedClients) ->
         rules = loaded; groups = loadedGroups; clients = loadedClients
         if(section!=2) return@request
         content.removeAllViews()
@@ -468,7 +468,7 @@ class MrttServerActivity : ServerScreenActivity() {
     }
 
     // Proxy.
-    private fun loadProxy() = request({ admin.proxy() }) { proxy ->
+    private fun loadProxy(): Unit = request({ admin.proxy() }) { proxy ->
         if(section!=3) return@request
         content.removeAllViews()
         add(ui.text("Локальный SOCKS5 на сервере: весь трафик клиентов можно отправить через прокси, запущенный на этом же VPS (например, каскад).",13f,MobilePalette.muted))
@@ -505,7 +505,7 @@ class MrttServerActivity : ServerScreenActivity() {
     }
 
     // Settings.
-    private fun loadSettings() = request({ admin.settings() }) { loaded ->
+    private fun loadSettings(): Unit = request({ admin.settings() }) { loaded ->
         settings = loaded
         if(section!=4) return@request
         content.removeAllViews()
@@ -620,7 +620,7 @@ class MrttServerActivity : ServerScreenActivity() {
     }
 
     // Statistics and logs: live while their section is open.
-    private fun loadStats() = request({ admin.stats() }) { s ->
+    private fun loadStats(): Unit = request({ admin.stats() }) { s ->
         if(section!=5) return@request
         content.removeAllViews()
         val uptime = s.optLong("uptime")
@@ -642,7 +642,7 @@ class MrttServerActivity : ServerScreenActivity() {
             "Горячих сессий" to "${s.optInt("hot_sessions")} / ${s.optInt("hot_session_capacity")}","Буфер логов" to "${s.optInt("mem_log_ring")} строк","DPI-кадров в буфере" to s.optInt("mem_dpi_ring").toString()))
         add(ui.button("Обновить") { loadStats(); toast("Обновлено") })
     }
-    private fun loadLogs() = request({ admin.logs() }) { json ->
+    private fun loadLogs(): Unit = request({ admin.logs() }) { json ->
         if(section!=6) return@request
         content.removeAllViews()
         add(CheckBox(this).apply {

@@ -145,7 +145,7 @@ class Mrtt:Qwdtt() {
             val bytes=plain.toByteArray(Charsets.UTF_8)
             val nonce=Mac.getInstance("HmacSHA256").apply { init(key) }.doFinal(bytes).copyOf(12)
             val cipher=Cipher.getInstance("AES/GCM/NoPadding").apply { init(Cipher.ENCRYPT_MODE,key,GCMParameterSpec(128,nonce)) }
-            return Base64Strict.encode(String(nonce+cipher.doFinal(bytes),Charsets.ISO_8859_1).toByteArray(Charsets.ISO_8859_1),urlSafe=true,padding=false)
+            return Base64Strict.encode(nonce+cipher.doFinal(bytes),urlSafe=true,padding=false)
         }
         fun decrypt(payload:String):String? {
             val clean=payload.replace("\n","").replace("\r","").replace(" ","").trim()

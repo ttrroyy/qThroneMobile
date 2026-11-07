@@ -127,7 +127,7 @@ class UiTourTest {
         instrumentation.sendPointerSync(android.view.MotionEvent.obtain(downAt, android.os.SystemClock.uptimeMillis(), action, x, y, 0))
     private fun editor(reset: Boolean = true) {
         fixtures()
-        if (reset) { MobileHomeLayout.tilesBottom = false; MobileHomeLayout.controlBottom = false; MobileHomeLayout.chipBottom = false; MobileHomeLayout.extendedTiles = false }
+        if (reset) { MobileHomeLayout.tilesBottom = false; MobileHomeLayout.controlBottom = false; MobileHomeLayout.chipBottom = false; MobileHomeLayout.chipNearList = false; MobileHomeLayout.extendedTiles = false }
         open(MobileLayoutEditorActivity::class.java)
     }
     private fun shot(name: String) {
@@ -228,6 +228,29 @@ class UiTourTest {
             }
             Thread.sleep(700)
             check(MobileHomeLayout.extendedTiles) { "a double tap did not switch the tiles" }
+            val control = frameOf(R.string.qmobile_layout_control)
+            repeat(2) {
+                val at = android.os.SystemClock.uptimeMillis()
+                touch(android.view.MotionEvent.ACTION_DOWN, control.exactCenterX(), control.exactCenterY(), at)
+                touch(android.view.MotionEvent.ACTION_UP, control.exactCenterX(), control.exactCenterY(), at)
+                Thread.sleep(90)
+            }
+            Thread.sleep(700)
+            check(MobileHomeLayout.controlSwitches) { "a double tap did not switch the connection control" }
+            if (MobileStyle.new) {
+                // The subscription goes from above the control to between it and the list.
+                val chip = frameOf(R.string.qmobile_layout_chip)
+                val under = frameOf(R.string.qmobile_layout_control).bottom.toFloat()
+                val startX = chip.exactCenterX(); val startY = chip.exactCenterY()
+                val at = android.os.SystemClock.uptimeMillis()
+                touch(android.view.MotionEvent.ACTION_DOWN, startX, startY, at)
+                Thread.sleep(900)
+                for (step in 1..8) { touch(android.view.MotionEvent.ACTION_MOVE, startX, startY + (under - startY) * step / 8, at); Thread.sleep(30) }
+                touch(android.view.MotionEvent.ACTION_UP, startX, under, at)
+                Thread.sleep(600)
+                check(MobileHomeLayout.chipNearList && !MobileHomeLayout.chipBottom) { "the subscription did not move under the connection control" }
+                check(frameOf(R.string.qmobile_layout_chip).top >= frameOf(R.string.qmobile_layout_control).bottom - 2) { "the subscription is not drawn under the connection control" }
+            }
         },
         "home-after-editor" to { open(MainActivity::class.java); Thread.sleep(1000) },
     )

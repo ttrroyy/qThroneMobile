@@ -5,6 +5,7 @@ import android.security.keystore.KeyProperties
 import android.util.AtomicFile
 import app.rawline.mobile.ktx.app
 import app.rawline.mobile.outbound.link.Hosts
+import app.rawline.mobile.outbound.types.Mrtt
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -58,7 +59,7 @@ class DeployServer(val json: JSONObject) {
         if(kind=="mrtt") require(port("peerPort")!=port("webPort")) { "Порт подключения и порт API должны различаться" }
         if(!install) return
         if(kind=="mrtt") {
-            require(app.rawline.mobile.outbound.types.Mrtt.validPassword(get("password"))) { "Пароль владельца: без пробелов и «|», не длиннее 128 байт" }
+            require(Mrtt.validPassword(get("password"))) { "Пароль владельца: без пробелов и «|», не длиннее 128 байт" }
             return
         }
         if(kind == "freeturn") {
@@ -88,7 +89,7 @@ class DeployServer(val json: JSONObject) {
             set("dns1","1.1.1.1");set("dns2","1.0.0.1");set("deviceId",java.util.UUID.randomUUID().toString())
             set("adminToken",java.util.UUID.randomUUID().toString()+java.util.UUID.randomUUID().toString())
             if(kind == "csqtt") set("secretPath",java.util.UUID.randomUUID().toString())
-            if(kind == "mrtt") set("password",app.rawline.mobile.outbound.types.Mrtt.generatePassword())
+            if(kind == "mrtt") set("password",Mrtt.generatePassword())
             if(kind == "freeturn") { set("wgPort","51820");set("ftMethod","docker");set("ftBackend","new");set("ftMode","udp");set("ftObf","rtpopus3") }
         }
     }

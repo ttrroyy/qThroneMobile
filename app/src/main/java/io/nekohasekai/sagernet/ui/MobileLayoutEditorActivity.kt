@@ -44,10 +44,17 @@ object MobileHomeLayout {
     var controlBottom: Boolean
         get() = store.getString("qmobileControlPosition") == "bottom"
         set(value) = store.putString("qmobileControlPosition", position(value))
+    var controlSwitches: Boolean
+        get() = store.getString("qmobileHomeControl") == "switches"
+        set(value) = store.putString("qmobileHomeControl", if (value) "switches" else "button")
     /** The classic style has no subscription row. */
     var chipBottom: Boolean
         get() = MobileStyle.new && store.getString("qmobileChipPosition") == "bottom"
         set(value) = store.putString("qmobileChipPosition", position(value))
+    /** Between the connection control and the servers, rather than on the control's outer side. */
+    var chipNearList: Boolean
+        get() = MobileStyle.new && store.getBoolean("qmobileChipNearList", false)
+        set(value) = store.putBoolean("qmobileChipNearList", value)
 }
 
 /** A miniature of the home screen in the current style: hold a part to move it above or below the server list. */
@@ -91,7 +98,7 @@ class MobileLayoutEditorActivity : ServerScreenActivity() {
         body.addView(FrameLayout(this).apply { addView(Miniature(this@MobileLayoutEditorActivity), FrameLayout.LayoutParams(-2, -2, Gravity.CENTER)) },
             if (landscape) LinearLayout.LayoutParams(0, -1, 1f) else LinearLayout.LayoutParams(-1, 0, 1f))
         body.addView(ui.card().apply {
-            for (hint in listOf(R.string.qmobile_layout_hint_move, R.string.qmobile_layout_hint_tiles)) addView(ui.text(getString(hint), 14f, MobilePalette.muted).apply { setPadding(dp(4), dp(3), dp(4), dp(3)) })
+            for (hint in listOf(R.string.qmobile_layout_hint_move, R.string.qmobile_layout_hint_tiles, R.string.qmobile_layout_hint_control)) addView(ui.text(getString(hint), 14f, MobilePalette.muted).apply { setPadding(dp(4), dp(3), dp(4), dp(3)) })
         }, if (landscape) LinearLayout.LayoutParams(dp(260), -2).apply { marginStart = dp(12); gravity = Gravity.CENTER_VERTICAL } else LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(12) })
         root.addView(body, LinearLayout.LayoutParams(-1, 0, 1f))
         ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
@@ -129,14 +136,18 @@ class MobileLayoutEditorActivity : ServerScreenActivity() {
         }
         // The control looks different at the bottom, in a panel of its own.
         if (part == Part.CONTROL) fill(part)
+        rearrange()
+    }
+
+    private fun rearrange() {
         TransitionManager.beginDelayedTransition(column, ChangeBounds().setDuration(180).apply { dragged?.let { excludeTarget(parts.getValue(it), true) } })
         arrange()
     }
 
-    /** The home screen's order: from the top edge tiles, subscription, control; the same ones mirrored under the list. */
+    /** The home screen's order: from the top edge tiles, then subscription and control in either order; the same ones mirrored under the list. */
     private fun arrange() {
         column.removeAllViews()
-        val order = listOf(Part.TILES, Part.CHIP, Part.CONTROL).filter { it in parts }
+        val order = (if (MobileHomeLayout.chipNearList) listOf(Part.TILES, Part.CONTROL, Part.CHIP) else listOf(Part.TILES, Part.CHIP, Part.CONTROL)).filter { it in parts }
         fun add(part: Part) = column.addView(parts.getValue(part), LinearLayout.LayoutParams(-1, -2))
         order.filterNot(::isBottom).forEach(::add)
         column.addView(list, LinearLayout.LayoutParams(-1, 0, 1f))
@@ -164,12 +175,29 @@ class MobileLayoutEditorActivity : ServerScreenActivity() {
         val popup = PopupMenu(this, anchor)
         val positions = resources.getStringArray(R.array.qmobile_tiles_positions)
         positions.forEachIndexed { index, label ->
-            popup.menu.add(label).setOnMenuItemClickListener { place(part, index == 1); anchor.requestFocus(); true }
+            popup.menu.add(label).setOnMenuItemClickListener {
+                if (part == Part.CHIP) MobileHomeLayout.chipNearList = false
+                place(part, index == 1); anchor.requestFocus(); true
+            }
+        }
+        if (part == Part.CHIP) popup.menu.add(R.string.qmobile_layout_chip_near).setOnMenuItemClickListener {
+            MobileHomeLayout.chipNearList = true
+            place(part, MobileHomeLayout.controlBottom); anchor.requestFocus(); true
+        }
+        if (part == Part.CONTROL) resources.getStringArray(R.array.qmobile_home_control_entries).forEachIndexed { index, label ->
+            popup.menu.add(label).setOnMenuItemClickListener { setSwitches(index == 1); true }
         }
         if (part == Part.TILES) resources.getStringArray(R.array.qmobile_home_tiles_entries).forEachIndexed { index, label ->
             popup.menu.add(label).setOnMenuItemClickListener { setExtended(index == 0); true }
         }
         popup.show()
+    }
+
+    private fun setSwitches(switches: Boolean) {
+        MobileHomeLayout.controlSwitches = switches
+        fill(Part.CONTROL)
+        val modes = resources.getStringArray(R.array.qmobile_home_control_entries)
+        MobileTopNotice.show(this, getString(R.string.qmobile_home_control) + ": " + modes[if (switches) 1 else 0])
     }
 
     private fun setExtended(extended: Boolean) {
@@ -222,7 +250,7 @@ class MobileLayoutEditorActivity : ServerScreenActivity() {
         val bottom = MobileHomeLayout.controlBottom
         val box = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         fun status() = box.addView(check().apply { setPadding(dp(10), 0, dp(6), 0) }, LinearLayout.LayoutParams(-1, dp(40)))
-        if (DataStore.configurationStore.getString("qmobileHomeControl") == "switches") {
+        if (MobileHomeLayout.controlSwitches) {
             if (new && bottom) status()
             box.addView(LinearLayout(this).apply {
                 isBaselineAligned = false
@@ -288,6 +316,13 @@ class MobileLayoutEditorActivity : ServerScreenActivity() {
         fingerY = y
         val bottom = y > list.top + list.height / 2f
         if (bottom != isBottom(part)) place(part, bottom)
+        // On the control's side the finger also chooses which side of the control the subscription takes.
+        if (part == Part.CHIP && bottom == MobileHomeLayout.controlBottom) {
+            val control = parts.getValue(Part.CONTROL)
+            val middle = control.top + control.height / 2f
+            val near = if (bottom) y < middle else y > middle
+            if (near != MobileHomeLayout.chipNearList) { MobileHomeLayout.chipNearList = near; rearrange() }
+        }
         follow()
     }
 
@@ -310,7 +345,11 @@ class MobileLayoutEditorActivity : ServerScreenActivity() {
         private val gestures = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
             override fun onDown(event: MotionEvent) = true
             override fun onDoubleTap(event: MotionEvent): Boolean {
-                if (partAt(event.y / scale) == Part.TILES) setExtended(!MobileHomeLayout.extendedTiles)
+                when (partAt(event.y / scale)) {
+                    Part.TILES -> setExtended(!MobileHomeLayout.extendedTiles)
+                    Part.CONTROL -> setSwitches(!MobileHomeLayout.controlSwitches)
+                    else -> {}
+                }
                 return true
             }
             override fun onLongPress(event: MotionEvent) { partAt(event.y / scale)?.let { startDrag(it, event.y / scale) } }

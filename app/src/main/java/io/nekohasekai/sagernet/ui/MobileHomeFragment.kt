@@ -76,6 +76,7 @@ class MobileHomeFragment : ToolbarFragment() {
     private var restartAfterStop = false
     private fun controlAtBottom()=MobileHomeLayout.controlBottom
     private fun chipAtBottom()=MobileHomeLayout.chipBottom
+    private fun chipNearList()=MobileHomeLayout.chipNearList
     private fun homeSwitchesOn()=DataStore.configurationStore.getString("qmobileHomeControl")=="switches"
     /** A switch starts or stops its own mode; turning on the other one moves the running connection over. */
     private fun pickMode(mode: String) {
@@ -720,7 +721,7 @@ class MobileHomeFragment : ToolbarFragment() {
             val column = content ?: return@launch
             groups.forEach { (group, _) -> knownGroups.add(group.id) }
             val tilesBottom=tilesAtBottom()
-            val tilesKey="${extendedTiles()}:$tilesBottom:$byGroups:${homeSwitchesOn()}:${controlAtBottom()}:${chipAtBottom()}"
+            val tilesKey="${extendedTiles()}:$tilesBottom:$byGroups:${homeSwitchesOn()}:${controlAtBottom()}:${chipAtBottom()}:${chipNearList()}"
             // A moved tile bar rebuilds the screen even when the server list is the same.
             val unchanged=withContext(Dispatchers.Default) { previousStructure == structure } && renderedGroupId==focusedGroup && chromeKey?.endsWith(":$tilesKey")!=false
             if (unchanged) {
@@ -836,7 +837,8 @@ class MobileHomeFragment : ToolbarFragment() {
                     addView(groupChip,LinearLayout.LayoutParams(0,dp(48),1f).apply { marginEnd=dp(8) })
                     addView(addTile,LinearLayout.LayoutParams(dp(48),dp(48)))
                 } else null
-                if(!chipBottom) chipRow?.let { side.addView(it,LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(14) }) }
+                val chipNear=chipNearList()
+                if(!chipBottom && !chipNear) chipRow?.let { side.addView(it,LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(14) }) }
                 val centre = FrameLayout(requireContext())
                 var statusRow: LinearLayout?=null
                 val dockBottom=controlAtBottom() && !landscape
@@ -968,6 +970,7 @@ class MobileHomeFragment : ToolbarFragment() {
                 // Under the decoration, right above the subscriptions it is about.
                 // In the new style the check sits beside the speed, under the button.
                 subscriptionTop?.let { if(dockLeft!=null) { currentCheck?.maxLines=3; it.layoutParams=FrameLayout.LayoutParams(-1,-2); dockLeft?.addView(it) } else if(statusRow!=null) { it.layoutParams=LinearLayout.LayoutParams(0,-2,1f); statusRow?.addView(it,0) } else body.addView(it) }
+                if(!chipBottom && chipNear) chipRow?.let { side.addView(it,LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(6);bottomMargin=dp(6) }) }
                 if(!byGroups) body.addView(geoBanner,LinearLayout.LayoutParams(-1,-2).apply { bottomMargin=dp(6) })
                 updateGeoStatus()
                 val serverPanel=if(byGroups) LinearLayout(requireContext()).apply {
@@ -1044,8 +1047,9 @@ class MobileHomeFragment : ToolbarFragment() {
                     body.addView(text(getString(R.string.qmobile_empty),14f).apply { gravity=Gravity.CENTER; setPadding(dp(16),dp(16),dp(16),dp(12)) })
                     body.addView(imports,LinearLayout.LayoutParams(-1,dp(48)))
                 }
+                if(chipBottom && chipNear) chipRow?.let { body.addView(it,LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(8) }) }
                 if(dockBottom) body.addView(controlParent,LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(6) })
-                if(chipBottom) chipRow?.let { body.addView(it,LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(8) }) }
+                if(chipBottom && !chipNear) chipRow?.let { body.addView(it,LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(8) }) }
                 // Appearance: the tile bar at the very bottom, under the server list.
                 if(tilesBottom) {
                     if(landscape) side.addView(View(requireContext()),LinearLayout.LayoutParams(-1,0,1f))
