@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/screenshots/icon.png" width="128" alt="RawlineMobile">
+<img src="docs/screenshots/icon.png" width="128" alt="Rawline">
 
 # RawlineMobile
 
@@ -18,7 +18,7 @@
 
 </div>
 
-Помимо стандартных протоколов sing-box и Xray поддерживает qWDTT, CSQTT, olcRTC, OpenFlux, DNSTT, VayDNS, SlipStream, MasterDNS, CottenDNS, Soar, S3 Bypass и обфускацию WireGuard (wg-obfuscator, Phobos, wgobfs) - с подписками, тестом пинга и раздельной маршрутизацией.
+Помимо стандартных протоколов sing-box и Xray поддерживает MRTT, qWDTT, CSQTT, WDTT Plus, FreeTurn, olcRTC, OpenFlux, DNSTT, VayDNS, SlipStream, MasterDNS, CottenDNS, Soar, S3 Bypass и обфускацию WireGuard (wg-obfuscator, Phobos, wgobfs) - с подписками, тестом пинга и раздельной маршрутизацией.
 
 <p align="center">
   <img src="docs/screenshots/screenshot-subscriptions.png" width="300" alt="Подписки и тест пинга">
@@ -32,11 +32,11 @@
 
 ## Особенности
 
-**Новые протоколы.** qWDTT, CSQTT, olcRTC, OpenFlux, DNS-туннели и S3 Bypass запускаются через оригинальные клиенты этих проектов. Работают как обычные профили: с маршрутизацией, цепочками и тестом пинга.
+**Новые протоколы.** MRTT, qWDTT, CSQTT, WDTT Plus, FreeTurn, olcRTC, OpenFlux, DNS-туннели и S3 Bypass запускаются через оригинальные клиенты этих проектов. Работают как обычные профили: с маршрутизацией, цепочками и тестом пинга.
 
-**Привязка аккаунта VK.** Хеши звонков для qWDTT и CSQTT можно получать автоматически.
+**Привязка аккаунтов VK и MAX.** Звонки для MRTT, qWDTT, CSQTT и WDTT Plus можно создавать автоматически.
 
-**Деплой сервера.** Сервер qWDTT или CSQTT можно развернуть на VPS по SSH прямо из приложения и сразу получить ссылку на профиль. Подробнее - в [docs/vk-relay-deployment.md](docs/vk-relay-deployment.md).
+**Деплой сервера.** Сервер MRTT, qWDTT, CSQTT, WDTT Plus или FreeTurn можно развернуть на VPS по SSH прямо из приложения, управлять клиентами и сразу получить ссылку или QR-код профиля. Подробнее - в [docs/vk-relay-deployment.md](docs/vk-relay-deployment.md).
 
 ## Протоколы
 
@@ -46,7 +46,7 @@
 | QUIC | Hysteria, Hysteria2, TUIC, MASQUE |
 | VPN | WireGuard, AmneziaWG, OpenVPN, OpenConnect, SSTP |
 | Другие прокси | ShadowTLS, NaïveProxy, AnyTLS, Mieru, Snell, Juicity, TrustTunnel |
-| VK и WebRTC | qWDTT, CSQTT, olcRTC, OpenFlux |
+| VK и WebRTC | MRTT, qWDTT, CSQTT, WDTT Plus, FreeTurn, olcRTC, OpenFlux |
 | DNS-туннели | DNSTT, VayDNS, SlipStream, MasterDNS (и StormDNS), CottenDNS, Soar |
 | Обфускация WireGuard | wg-obfuscator (маскировка STUN и MEDIA под видеозвонок), Phobos (STUN, MEDIA, TLS, режим SOCKS5), wgobfs |
 | S3-хранилище | S3 Bypass |
@@ -55,7 +55,7 @@
 
 ## Как добавить профиль
 
-Кнопка «+» на главном экране: из буфера обмена, по QR-коду, из файла, по ссылке на подписку или вручную. Понимает ссылки всех перечисленных протоколов - в том числе `qwdtt://`, `csqtt://`, `olcrtc://`, `openflux://`, `dnst://`, `slipnet://`, `masterdns://`, `stormdns://`, `cottendns://`, `soar://` и `phobos://`, - а также JSON-конфиги sing-box и Xray (S3 Bypass импортируется из Xray-конфига с outbound `fedarisha`). Обфускатор WireGuard и ключ Phobos задаются и вручную, в редакторе профиля.
+Кнопка «+» на главном экране: из буфера обмена, по QR-коду, из файла, по ссылке на подписку или вручную. Понимает ссылки всех перечисленных протоколов - в том числе `mrtt://`, `freeturn://`, `qwdtt://`, `csqtt://`, `olcrtc://`, `openflux://`, `dnst://`, `slipnet://`, `masterdns://`, `stormdns://`, `cottendns://`, `soar://` и `phobos://`, - а также JSON-конфиги sing-box и Xray (S3 Bypass импортируется из Xray-конфига с outbound `fedarisha`). Обфускатор WireGuard и ключ Phobos задаются и вручную, в редакторе профиля.
 
 ## Сборка
 
@@ -69,12 +69,12 @@ APK собирает CI: [`.github/workflows/ci.yml`](.github/workflows/ci.yml),
 
 - Ядра: [SagerNet/sing-box](https://github.com/SagerNet/sing-box), [XTLS/Xray-core](https://github.com/XTLS/Xray-core), [RawlineCore](https://github.com/ttrroyy/qThrone)
 - Основа клиента: [ThroneForAndroid](https://github.com/throneproj/ThroneForAndroid), [NekoBoxForAndroid](https://github.com/MatsuriDayo/NekoBoxForAndroid), [SagerNet](https://github.com/SagerNet/SagerNet)
-- VK и WebRTC: [proxy-turn-vk-android](https://github.com/SpaceNeuroX/proxy-turn-vk-android), [amurcanov/csqtt](https://github.com/amurcanov/csqtt), [olcRTC](https://github.com/openlibrecommunity/olcrtc), [OpenFlux](https://github.com/p1neappleXpress/OpenFlux)
+- VK и WebRTC: [MRTT](https://github.com/ttrroyy/mrtt), [proxy-turn-vk-android](https://github.com/SpaceNeuroX/proxy-turn-vk-android), [amurcanov/csqtt](https://github.com/amurcanov/csqtt), [WDTT Plus](https://github.com/Ivan4537/WDTT-Plus), [free-turn-proxy](https://github.com/hackdiaz-dev/free-turn-proxy), [olcRTC](https://github.com/openlibrecommunity/olcrtc), [OpenFlux](https://github.com/p1neappleXpress/OpenFlux), [openflux-server](https://github.com/wlruscfd/openflux-server)
 - DNS-туннели: [dnstt](https://www.bamsoftware.com/software/dnstt/), [VayDNS](https://github.com/net2share/vaydns), [slipstream-rust](https://github.com/Mygod/slipstream-rust), [MasterDnsVPN](https://github.com/masterking32/MasterDnsVPN), [CottenDNS](https://github.com/TaJirax/cottenDNS), [Soar](https://github.com/getlantern/soar), [dnst-url-spec](https://github.com/net2share/dnst-url-spec), [SlipNet](https://github.com/anonvector/SlipNet), [WhiteDNS](https://github.com/WhiteDNS/WhiteDNS-Android)
 - S3 Bypass и TrustTunnel: [s3-bypass](https://github.com/SpaceNeuroX/s3-bypass), [Xray-core-fedarisha](https://github.com/Fedarisha/Xray-core-fedarisha), [sing-trusttunnel](https://github.com/xchacha20-poly1305/sing-trusttunnel), [TrustTunnelClient](https://github.com/TrustTunnel/TrustTunnelClient)
 - SSTP: [SwiftSSTP](https://github.com/alichdrdzn/swiftsstp)
 - Обфускация WireGuard: [wg-obfuscator](https://github.com/ClusterM/wg-obfuscator), [Phobos](https://github.com/Ground-Zerro/Phobos), [xt_wgobfs](https://github.com/infinet/xt_wgobfs), [rs-wgobfs](https://github.com/infinet/rs-wgobfs)
-- Прочее: [routeprofiles](https://github.com/throneproj/routeprofiles), [sing-box-dashboard](https://github.com/SagerNet/sing-box-dashboard), [flag-icons](https://github.com/lipis/flag-icons)
+- Прочее: [routeprofiles](https://github.com/throneproj/routeprofiles), [sing-box-dashboard](https://github.com/SagerNet/sing-box-dashboard), [flag-icons](https://github.com/lipis/flag-icons), шрифт [Geologica](https://github.com/monokromskriftforlag/geologisk)
 
 ## Обсуждение и поддержка
 

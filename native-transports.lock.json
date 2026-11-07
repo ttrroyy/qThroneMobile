@@ -7,21 +7,21 @@
       "name": "rawline-transports-8a472e40-armeabi-v7a.tar.gz",
       "sha256": "3422e60cfeff661f952ed0976a358b7c8aea95591f3bab23639c211284df825f",
       "sources": "Rawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nolcRTC f3ad8fb7c0d0fa981423f83269526fa94077c23d\nOpenFlux f492a1a33b7581ad8f88118f97e0b866adda3cdc\nCSQTT 71712b07dbabe16fa43f5a248dc69e1ab9f3a270\nVayDNS a0ff70110d5e96686ab8f4c8e1c44cd09be07a75\nMasterDnsVPN 4052a6b95e758adf2dc26fa1fe527457e58d627c\nXray-core-fedarisha a04f4c09972b2aa7d6255197732c1c20e3fdc8a1\nslipstream-rust 7de506b222c83ae97a19a618e33fe26899af1bd5\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nAndroid ABI armeabi-v7a\nCSQTT minimum API 26\n",
-      "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-transports-8a472e40-armeabi-v7a.tar.gz"
+      "url": "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/rawline-transports-8a472e40-armeabi-v7a.tar.gz"
     },
     {
       "abi": "arm64-v8a",
       "name": "rawline-transports-8a472e40-arm64-v8a.tar.gz",
       "sha256": "672243111bdffa3f348aa962a45eba352177de9f90c4bded2d84d9af0bcb34c2",
       "sources": "Rawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nolcRTC f3ad8fb7c0d0fa981423f83269526fa94077c23d\nOpenFlux f492a1a33b7581ad8f88118f97e0b866adda3cdc\nCSQTT 71712b07dbabe16fa43f5a248dc69e1ab9f3a270\nVayDNS a0ff70110d5e96686ab8f4c8e1c44cd09be07a75\nMasterDnsVPN 4052a6b95e758adf2dc26fa1fe527457e58d627c\nXray-core-fedarisha a04f4c09972b2aa7d6255197732c1c20e3fdc8a1\nslipstream-rust 7de506b222c83ae97a19a618e33fe26899af1bd5\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nAndroid ABI arm64-v8a\nCSQTT minimum API 26\n",
-      "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-transports-8a472e40-arm64-v8a.tar.gz"
+      "url": "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/rawline-transports-8a472e40-arm64-v8a.tar.gz"
     },
     {
       "abi": "x86_64",
       "name": "rawline-transports-8a472e40-x86_64.tar.gz",
       "sha256": "ae804f93ec7044e17d8ace85da406d9e3720d537146669b96148db68469de392",
       "sources": "Rawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nolcRTC f3ad8fb7c0d0fa981423f83269526fa94077c23d\nOpenFlux f492a1a33b7581ad8f88118f97e0b866adda3cdc\nCSQTT 71712b07dbabe16fa43f5a248dc69e1ab9f3a270\nVayDNS a0ff70110d5e96686ab8f4c8e1c44cd09be07a75\nMasterDnsVPN 4052a6b95e758adf2dc26fa1fe527457e58d627c\nXray-core-fedarisha a04f4c09972b2aa7d6255197732c1c20e3fdc8a1\nslipstream-rust 7de506b222c83ae97a19a618e33fe26899af1bd5\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nAndroid ABI x86_64\nCSQTT minimum API 26\n",
-      "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-transports-8a472e40-x86_64.tar.gz"
+      "url": "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/rawline-transports-8a472e40-x86_64.tar.gz"
     }
   ],
   "inputs": {
@@ -69,21 +69,21 @@
         "name": "rawline-secure-socks-8a472e40-armeabi-v7a.tar.gz",
         "sha256": "716777cf8960bfa18ed1d4e6ef95b708889e395caa91ea938afc221bcd0ecfae",
         "sources": "Rawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nCSQTT 2066156119a5afe7d63e104aefdc8e0849999d03\nAndroid ABI armeabi-v7a\nLocal IPC hardening 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-secure-socks-8a472e40-armeabi-v7a.tar.gz"
+        "url": "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/rawline-secure-socks-8a472e40-armeabi-v7a.tar.gz"
       },
       {
         "abi": "arm64-v8a",
         "name": "rawline-secure-socks-8a472e40-arm64-v8a.tar.gz",
         "sha256": "b3eae120fe902613068bd84e0bb18787f4344eec5e1384d4773c6f3861eedc09",
         "sources": "Rawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nCSQTT 2066156119a5afe7d63e104aefdc8e0849999d03\nAndroid ABI arm64-v8a\nLocal IPC hardening 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-secure-socks-8a472e40-arm64-v8a.tar.gz"
+        "url": "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/rawline-secure-socks-8a472e40-arm64-v8a.tar.gz"
       },
       {
         "abi": "x86_64",
         "name": "rawline-secure-socks-8a472e40-x86_64.tar.gz",
         "sha256": "c1ffbce2257518060fafe86c1cc265ee49d5b9de61edc7c9fa44433f00e289bd",
         "sources": "Rawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nWDTT-Plus f706ccd373685bbde20cae33b2b7f400e8335ecc\nCSQTT 2066156119a5afe7d63e104aefdc8e0849999d03\nAndroid ABI x86_64\nLocal IPC hardening 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-secure-socks-8a472e40-x86_64.tar.gz"
+        "url": "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/rawline-secure-socks-8a472e40-x86_64.tar.gz"
       }
     ]
   },
@@ -147,21 +147,21 @@
         "name": "rawline-sstp-8a472e40-armeabi-v7a.tar.gz",
         "sha256": "fba810817651c3e58d4e53352d9e2a320191c372cda2e842160171063677cc4c",
         "sources": "RawlineMobile SSTP 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\nAndroid ABI armeabi-v7a\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-sstp-8a472e40-armeabi-v7a.tar.gz"
+        "url": "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/rawline-sstp-8a472e40-armeabi-v7a.tar.gz"
       },
       {
         "abi": "arm64-v8a",
         "name": "rawline-sstp-8a472e40-arm64-v8a.tar.gz",
         "sha256": "e12f2584cc98d9fc04420fe242b983046cdd94b5c552041302c86a428ed50784",
         "sources": "RawlineMobile SSTP 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\nAndroid ABI arm64-v8a\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-sstp-8a472e40-arm64-v8a.tar.gz"
+        "url": "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/rawline-sstp-8a472e40-arm64-v8a.tar.gz"
       },
       {
         "abi": "x86_64",
         "name": "rawline-sstp-8a472e40-x86_64.tar.gz",
         "sha256": "13ed19e38a0c78d3fd6351c1251d31018837323d39aa93bd1fd177d8fef2fa5c",
         "sources": "RawlineMobile SSTP 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\nAndroid ABI x86_64\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-sstp-8a472e40-x86_64.tar.gz"
+        "url": "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/rawline-sstp-8a472e40-x86_64.tar.gz"
       }
     ]
   },
@@ -187,21 +187,21 @@
         "name": "rawline-dns-8a472e40-armeabi-v7a.tar.gz",
         "sha256": "a2bcd78990b538f03f2ccc6d73d4c47284b9adc02dd36927a86d2f6f529814db",
         "sources": "RawlineMobile DNS engines 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\nCottenDNS ac8e86ed83a5006ab320468daaebe759d9574da6\nSoar fea80aae6c60a9f27d7358e5f967cbc9b57bb37d\nOpenFlux f492a1a33b7581ad8f88118f97e0b866adda3cdc\nOpenFlux Key fc5647767c9daba6571ec3157f9be9b6ffe6e551\nAndroid ABI armeabi-v7a\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-dns-8a472e40-armeabi-v7a.tar.gz"
+        "url": "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/rawline-dns-8a472e40-armeabi-v7a.tar.gz"
       },
       {
         "abi": "arm64-v8a",
         "name": "rawline-dns-8a472e40-arm64-v8a.tar.gz",
         "sha256": "8b660dae73644120ec273a363a8ab8b0d6bd30028050b1baeabad5514a4b8e78",
         "sources": "RawlineMobile DNS engines 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\nCottenDNS ac8e86ed83a5006ab320468daaebe759d9574da6\nSoar fea80aae6c60a9f27d7358e5f967cbc9b57bb37d\nOpenFlux f492a1a33b7581ad8f88118f97e0b866adda3cdc\nOpenFlux Key fc5647767c9daba6571ec3157f9be9b6ffe6e551\nAndroid ABI arm64-v8a\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-dns-8a472e40-arm64-v8a.tar.gz"
+        "url": "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/rawline-dns-8a472e40-arm64-v8a.tar.gz"
       },
       {
         "abi": "x86_64",
         "name": "rawline-dns-8a472e40-x86_64.tar.gz",
         "sha256": "5ee5a3167f88030096d64959d26ef494ec60408e4d697dbbd93802be9757ba5b",
         "sources": "RawlineMobile DNS engines 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\nCottenDNS ac8e86ed83a5006ab320468daaebe759d9574da6\nSoar fea80aae6c60a9f27d7358e5f967cbc9b57bb37d\nOpenFlux f492a1a33b7581ad8f88118f97e0b866adda3cdc\nOpenFlux Key fc5647767c9daba6571ec3157f9be9b6ffe6e551\nAndroid ABI x86_64\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-dns-8a472e40-x86_64.tar.gz"
+        "url": "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/rawline-dns-8a472e40-x86_64.tar.gz"
       }
     ]
   },
@@ -230,19 +230,19 @@
     "archives": [
       {
         "abi": "arm64-v8a",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-csqtt-compat-8a472e40-arm64-v8a.tar.gz",
+        "url": "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/rawline-csqtt-compat-8a472e40-arm64-v8a.tar.gz",
         "sha256": "7b517f11f20a141cfbe4e76371832e1f0dbf69e2067145da6cd4f09114e0f577",
         "sources": "Rawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nCSQTT compatibility 446293aa2e873ac5323ef6fd2316d9b81d966c11\nAndroid ABI arm64-v8a\nPrivate IPC 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\n"
       },
       {
         "abi": "armeabi-v7a",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-csqtt-compat-8a472e40-armeabi-v7a.tar.gz",
+        "url": "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/rawline-csqtt-compat-8a472e40-armeabi-v7a.tar.gz",
         "sha256": "10ad973f54eb9ec3eaab83c3f3e75fc49b40541d7b2a3519ec70a4ac0eb7f5a3",
         "sources": "Rawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nCSQTT compatibility 446293aa2e873ac5323ef6fd2316d9b81d966c11\nAndroid ABI armeabi-v7a\nPrivate IPC 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\n"
       },
       {
         "abi": "x86_64",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-csqtt-compat-8a472e40-x86_64.tar.gz",
+        "url": "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/rawline-csqtt-compat-8a472e40-x86_64.tar.gz",
         "sha256": "746d2dd547aa6b393fd78a8864803afd11ab8df366943cdf1b635730be36e8dc",
         "sources": "Rawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nCSQTT compatibility 446293aa2e873ac5323ef6fd2316d9b81d966c11\nAndroid ABI x86_64\nPrivate IPC 8a472e404a6f6cf4f24721c961d7ca11f30b7a84\n"
       }
@@ -267,21 +267,21 @@
         "name": "rawline-freeturn-e3b143ed-armeabi-v7a.tar.gz",
         "sha256": "57c318d1bb5ed7d76b786e36e3baf379ac97f039692f4ac999321645f349d55d",
         "sources": "RawlineMobile FreeTurn e3b143ed5f19e6d3eb1c1c3d7ad915dd7fc10b34\nfree-turn-proxy 6d857e1e847a38fdee3e150314fb37009e3c37a6\nAndroid ABI armeabi-v7a\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-freeturn-e3b143ed-armeabi-v7a.tar.gz"
+        "url": "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/rawline-freeturn-e3b143ed-armeabi-v7a.tar.gz"
       },
       {
         "abi": "arm64-v8a",
         "name": "rawline-freeturn-e3b143ed-arm64-v8a.tar.gz",
         "sha256": "152c6cf5b856b9cd0400cca1979f166ee2594411790d520ee29446d112d499c0",
         "sources": "RawlineMobile FreeTurn e3b143ed5f19e6d3eb1c1c3d7ad915dd7fc10b34\nfree-turn-proxy 6d857e1e847a38fdee3e150314fb37009e3c37a6\nAndroid ABI arm64-v8a\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-freeturn-e3b143ed-arm64-v8a.tar.gz"
+        "url": "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/rawline-freeturn-e3b143ed-arm64-v8a.tar.gz"
       },
       {
         "abi": "x86_64",
         "name": "rawline-freeturn-e3b143ed-x86_64.tar.gz",
         "sha256": "61751ebe205d03e6a80f337f24ebfabfd2936cc7f0cc1f08671b5d2953b72d87",
         "sources": "RawlineMobile FreeTurn e3b143ed5f19e6d3eb1c1c3d7ad915dd7fc10b34\nfree-turn-proxy 6d857e1e847a38fdee3e150314fb37009e3c37a6\nAndroid ABI x86_64\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-freeturn-e3b143ed-x86_64.tar.gz"
+        "url": "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/rawline-freeturn-e3b143ed-x86_64.tar.gz"
       }
     ]
   },
@@ -302,21 +302,21 @@
         "name": "rawline-mrtt-eef17c26-armeabi-v7a.tar.gz",
         "sha256": "527964d19e3a97b5baa1a52a65f7d2ac2a0ba6863f95dfd2fe6d6a39c82f5021",
         "sources": "RawlineMobile MRTT eef17c266a62ce007c910734044d0f2fb0954836\nMRTT 233eddc06a0a117d3b1cbd20386be2bb4300126e\nRawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nAndroid ABI armeabi-v7a\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-mrtt-eef17c26-armeabi-v7a.tar.gz"
+        "url": "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/rawline-mrtt-eef17c26-armeabi-v7a.tar.gz"
       },
       {
         "abi": "arm64-v8a",
         "name": "rawline-mrtt-eef17c26-arm64-v8a.tar.gz",
         "sha256": "05228f6b4cc2698b1528008309372fbcd89fe920a5bb1be7b78398955b9ceee3",
         "sources": "RawlineMobile MRTT eef17c266a62ce007c910734044d0f2fb0954836\nMRTT 233eddc06a0a117d3b1cbd20386be2bb4300126e\nRawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nAndroid ABI arm64-v8a\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-mrtt-eef17c26-arm64-v8a.tar.gz"
+        "url": "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/rawline-mrtt-eef17c26-arm64-v8a.tar.gz"
       },
       {
         "abi": "x86_64",
         "name": "rawline-mrtt-eef17c26-x86_64.tar.gz",
         "sha256": "3434fb3991a5957825adfa913b7c0ff9ee6e7e96c8f1d0f40060f7db5f4f0668",
         "sources": "RawlineMobile MRTT eef17c266a62ce007c910734044d0f2fb0954836\nMRTT 233eddc06a0a117d3b1cbd20386be2bb4300126e\nRawline e5c3c405f21cfb27a883038a0aec40bd9dcf8587\nAndroid ABI x86_64\n",
-        "url": "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/rawline-mrtt-eef17c26-x86_64.tar.gz"
+        "url": "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/rawline-mrtt-eef17c26-x86_64.tar.gz"
       }
     ]
   }

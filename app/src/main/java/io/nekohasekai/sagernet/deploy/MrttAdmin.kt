@@ -17,7 +17,7 @@ import java.util.zip.GZIPInputStream
 
 /** MRTT's own server files of the release this client carries: deploy.sh, cascade.sh, the server and the cascade client for each architecture. */
 object MrttBundle {
-    const val URL = "https://github.com/ttrroyy/qThroneMobile/releases/download/v1.0.0/mrtt-server-233eddc0.tar.gz"
+    const val URL = "https://github.com/ttrroyy/RawlineMobile/releases/download/v1.0.0/mrtt-server-233eddc0.tar.gz"
     const val SHA256 = "bb94501c7c762bb24297f3a36d94b0d1c74e7fed8125f9a89b6a21027da2c503"
     fun load(): Map<String,ByteArray> {
         val cached = File(app.cacheDir,"mrtt-server-$SHA256.tar.gz")
