@@ -127,7 +127,7 @@ class UiTourTest {
         instrumentation.sendPointerSync(android.view.MotionEvent.obtain(downAt, android.os.SystemClock.uptimeMillis(), action, x, y, 0))
     private fun editor(reset: Boolean = true) {
         fixtures()
-        if (reset) { MobileHomeLayout.tilesBottom = false; MobileHomeLayout.controlBottom = false; MobileHomeLayout.chipBottom = false; MobileHomeLayout.chipNearList = false; MobileHomeLayout.extendedTiles = false }
+        if (reset) { MobileHomeLayout.tilesBottom = false; MobileHomeLayout.controlBottom = false; MobileHomeLayout.chipBottom = false; MobileHomeLayout.chipNearList = false; MobileHomeLayout.extendedTiles = false; MobileHomeLayout.controlSwitches = false }
         open(MobileLayoutEditorActivity::class.java)
     }
     private fun shot(name: String) {
@@ -253,6 +253,14 @@ class UiTourTest {
             }
         },
         "home-after-editor" to { open(MainActivity::class.java); Thread.sleep(1000) },
+        "deploy-mrtt" to { open(DeployActivity::class.java) { putExtra("kind", "mrtt"); putExtra("directEditor", true) } },
+        "new-mrtt" to { fixtures(); open(settingsActivityFor("mrtt")) { putExtra("qmobileProfileType", "mrtt"); putExtra("qmobileGroupId", fixtures().first.id) } },
+        "mrtt-server" to {
+            val server = app.rawline.mobile.deploy.DeployServer.create("mrtt")
+            app.rawline.mobile.deploy.DeployStore.save(server)
+            open(MrttServerActivity::class.java) { putExtra("server", server.id) }
+            Thread.sleep(1500)
+        },
     )
 
     @Test fun photographOneScreen() {
