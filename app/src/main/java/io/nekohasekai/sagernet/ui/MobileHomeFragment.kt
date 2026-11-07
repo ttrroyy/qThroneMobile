@@ -593,7 +593,7 @@ class MobileHomeFragment : ToolbarFragment() {
                     gravity=Gravity.CENTER;minHeight=dp(52);setPadding(dp(10),dp(8),dp(10),dp(8));background=tile();isFocusable=true
                     setOnClickListener(callback);MobileFeedback.apply(this)
                 }
-                addView(action(getString(R.string.qmobile_route_add)) {
+                addView(action(getString(R.string.qmobile_route_profile_add)) {
                     sheet.dismiss();startActivity(Intent(requireContext(),app.rawline.mobile.ui.route.RouteProfileActivity::class.java))
                 },LinearLayout.LayoutParams(0,-1,1f).apply { marginEnd=dp(6) })
                 addView(action(getString(R.string.qmobile_route_manage)) { sheet.dismiss();host().displayFragmentWithId(R.id.nav_route) },LinearLayout.LayoutParams(0,-1,1f).apply { marginStart=dp(6) })

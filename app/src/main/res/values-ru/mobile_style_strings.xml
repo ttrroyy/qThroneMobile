@@ -14,7 +14,7 @@
     <string name="qmobile_layout_chip_near">Между подключением и серверами</string>
     <string name="qmobile_layout_hint_chip">Дважды нажмите на подписку, чтобы показать рядом профиль маршрутизации.</string>
     <string name="qmobile_route_chip">Маршрутизация</string>
-    <string name="qmobile_route_add">Добавить профиль</string>
+    <string name="qmobile_route_profile_add">Добавить профиль</string>
     <string name="qmobile_route_manage">Управление профилями</string>
     <string name="qmobile_layout_control">Управление подключением</string>
 </resources>
