@@ -9,6 +9,7 @@ import app.rawline.mobile.outbound.types.Http
 import app.rawline.mobile.outbound.types.OpenFluxKey
 import app.rawline.mobile.outbound.types.S3Bypass
 import app.rawline.mobile.outbound.types.Freeturn
+import app.rawline.mobile.outbound.types.Mrtt
 import app.rawline.mobile.outbound.types.Sstp
 import app.rawline.mobile.outbound.types.WdttPlus
 import app.rawline.mobile.outbound.types.Shadowsocks
@@ -37,7 +38,7 @@ object OutboundFactory {
     /** Every factory string of OutboundFactory.cpp:35-61 (R2 Р В РІР‚в„ўР вЂ™Р’В§A). */
     @JvmField
     val ALL_TYPES: List<String> = listOf(
-        "qwdtt", "csqtt", "wdttplus", "freeturn", "openflux", "openfluxkey", "olcrtc", "dnstt", "vaydns", "slipstream", "masterdns", "cottendns", "soar", "s3bypass", "sstp", "socks", "http", "shadowsocks", "chain", "autoselector", "vmess", "trojan", "vless", "xrayvless", "hysteria",
+        "qwdtt", "csqtt", "mrtt", "wdttplus", "freeturn", "openflux", "openfluxkey", "olcrtc", "dnstt", "vaydns", "slipstream", "masterdns", "cottendns", "soar", "s3bypass", "sstp", "socks", "http", "shadowsocks", "chain", "autoselector", "vmess", "trojan", "vless", "xrayvless", "hysteria",
         "shadowsocksr", "tuic", "juicity", "trusttunnel", "anytls", "mieru", "snell", "shadowtls", "wireguard", "masque", "openvpn",
         "openconnect", "tailscale", "ssh", "custom", "extracore", "naive", "direct",
     )
@@ -57,7 +58,7 @@ object OutboundFactory {
         "anytls" to "AnyTls", "mieru" to "Mieru", "snell" to "Snell", "shadowtls" to "ShadowTls",
         "wireguard" to "WireGuard", "masque" to "Masque", "openvpn" to "OpenVpn", "openconnect" to "OpenConnect",
         "ssh" to "Ssh", "custom" to "Custom", "naive" to "Naive", "direct" to "Direct", "chain" to "Chain",
-        "autoselector" to "AutoSelector", "qwdtt" to "Qwdtt", "csqtt" to "Csqtt", "openflux" to "OpenFlux", "olcrtc" to "OlcRtc", "sstp" to "Sstp", "freeturn" to "Freeturn",
+        "autoselector" to "AutoSelector", "qwdtt" to "Qwdtt", "csqtt" to "Csqtt", "mrtt" to "Mrtt", "openflux" to "OpenFlux", "olcrtc" to "OlcRtc", "sstp" to "Sstp", "freeturn" to "Freeturn",
     )
 
     private const val TYPES_PACKAGE = "app.rawline.mobile.outbound.types."
@@ -77,6 +78,7 @@ object OutboundFactory {
         "openfluxkey" to { OpenFluxKey() },
         "sstp" to { Sstp() },
         "freeturn" to { Freeturn() },
+        "mrtt" to { Mrtt() },
         "wdttplus" to { WdttPlus() },
     )
 
@@ -133,6 +135,7 @@ object OutboundFactory {
         Protocol("sstp", listOf("sstp://"), listOf("sstp"), emptyList()),
         Protocol("freeturn", listOf("freeturn://"), listOf("freeturn"), emptyList()),
         Protocol("csqtt", listOf("csqtt://"), listOf("csqtt"), emptyList()),
+        Protocol("mrtt", listOf("mrtt://"), listOf("mrtt"), emptyList()),
         // Every wdtt:// link speaks the original WDTT protocol, which WDTT Plus runs with all its workers; qwdtt:// is qWDTT.
         Protocol("wdttplus", listOf("wdtt://"), listOf("wdttplus"), emptyList()),
         Protocol("qwdtt", listOf("qwdtt://", "qwdtt:config"), listOf("qwdtt"), emptyList()),
@@ -162,7 +165,7 @@ object OutboundFactory {
     fun typeForScheme(link: String): String? {
         // The desktop reads qWDTT and CSQTT schemes in any letter case.
         for (p in PROTOCOLS) for (scheme in p.schemes)
-            if (link.startsWith(scheme, ignoreCase = p.type in listOf("qwdtt", "csqtt", "wdttplus", "freeturn", "sstp", "shadowsocksr"))) return p.type
+            if (link.startsWith(scheme, ignoreCase = p.type in listOf("qwdtt", "csqtt", "mrtt", "wdttplus", "freeturn", "sstp", "shadowsocksr"))) return p.type
         return null
     }
 
@@ -256,7 +259,7 @@ object OutboundFactory {
         else newByType(profileType)
         // QWDTT:// or Csqtt:// reach the model with the scheme it parses.
         val scheme = PROTOCOLS.first { it.type == profileType }.schemes.firstOrNull { line.startsWith(it, ignoreCase = true) }
-        val link = if (scheme != null && profileType in listOf("qwdtt", "csqtt", "wdttplus", "freeturn", "sstp")) scheme + line.substring(scheme.length) else line
+        val link = if (scheme != null && profileType in listOf("qwdtt", "csqtt", "mrtt", "wdttplus", "freeturn", "sstp")) scheme + line.substring(scheme.length) else line
         if (!outbound.parseFromLink(link)) return null
         return outbound
     }

@@ -36,7 +36,7 @@ internal class SpeedTestRunner(private val session: TestSession) {
 
     suspend fun run(profiles: List<ProxyEntity>) {
         val slices=if(countryOnly) {
-            val (native,regular)=profiles.partition { it.type in listOf("qwdtt","csqtt","wdttplus","freeturn") }
+            val (native,regular)=profiles.partition { it.type in listOf("qwdtt","csqtt","mrtt","wdttplus","freeturn") }
             regular.chunked(TEST_BATCH_SIZE)+native.map { listOf(it) }
         } else profiles.chunked(1)
         for (slice in slices) {

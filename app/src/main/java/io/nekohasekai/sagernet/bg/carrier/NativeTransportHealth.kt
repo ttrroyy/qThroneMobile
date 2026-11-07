@@ -33,11 +33,11 @@ internal class NativeTransportHealth(private val minimumRecoveryPeak: Int = 9, p
         }
         workers?.let { peak = maxOf(peak, it) }
         // CSQTT's own events, the ones the original app restarts on.
-        if (line.contains("[CSQTT diagnostic] ACTIVE_ZERO")) { workers = 0; zeroEventAt = clock() }
-        if (line.contains("[CSQTT diagnostic] SERVER_RESTART")) serverRestartAt = clock()
+        if (line.contains("[CSQTT diagnostic] ACTIVE_ZERO") || line.contains("[MRTT diagnostic] ACTIVE_ZERO")) { workers = 0; zeroEventAt = clock() }
+        if (line.contains("[CSQTT diagnostic] SERVER_RESTART") || line.contains("[MRTT diagnostic] SERVER_RESTART")) serverRestartAt = clock()
         // A DTLS handshake the server never answers: the password (WRAP key) does not match.
         if (line.contains("WRAP_AUTH_TIMEOUT", true)) { if ((workers ?: 0) > 0) wrapTimeouts = 0 else wrapTimeouts++ }
-        if (line.contains("[READY]") || line.contains("[CSQTT diagnostic] READY")) workers = maxOf(1, workers ?: 0)
+        if (line.contains("[READY]") || line.contains("[CSQTT diagnostic] READY") || line.contains("[MRTT diagnostic] READY")) workers = maxOf(1, workers ?: 0)
         val flood = line.contains("Flood control", true) || Regex("error_code[\\s:=]+9\\b").containsMatchIn(line)
         // Only a failed solve counts, like the original app: "капча решена" lines are progress.
         val captchaFailed = captchaFailure.containsMatchIn(line)

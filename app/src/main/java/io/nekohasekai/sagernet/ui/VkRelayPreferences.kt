@@ -25,7 +25,7 @@ object VkRelayPreferences {
                 key="vkRelayAccount"; title="Привязать аккаунт VK"; setIcon(R.drawable.ic_mobile_vk); isSelectable=false
             })
             group.addPreference(Preference(fragment.requireContext()).apply {
-                key="vkRelayDefaultHashes"; title="Хеши новых профилей qWDTT, CSQTT и WDTT Plus"
+                key="vkRelayDefaultHashes"; title="Хеши новых профилей qWDTT, CSQTT, MRTT и WDTT Plus"
                 summary="Загрузка…"; isSingleLineTitle=false; setIcon(R.drawable.ic_mobile_hash); isSelectable=false
             })
             group.addPreference(Preference(fragment.requireContext()).apply {
@@ -48,6 +48,10 @@ object VkRelayPreferences {
                 (holder.findViewById(android.R.id.summary) as? android.widget.TextView)?.apply {
                     isSingleLine=false;maxLines=Int.MAX_VALUE;ellipsize=null
                     setTextColor(MobilePalette.muted)
+                }
+                (holder.findViewById(R.id.relay_edit) as? ImageButton)?.apply {
+                    imageTintList=android.content.res.ColorStateList.valueOf(MobilePalette.accent(context))
+                    setOnClickListener { fragment.startActivity(Intent(context,VkRelayActivity::class.java).putExtra("login",true)) }
                 }
                 (holder.findViewById(R.id.vk_unlink) as? ImageButton)?.apply {
                     imageTintList=android.content.res.ColorStateList.valueOf(MobilePalette.accent(context))
@@ -78,7 +82,7 @@ object VkRelayPreferences {
             setIcon(R.drawable.ic_mobile_vk)
             if(linked) {
                 summary = info.displayName.takeIf { it.isNotBlank() }?.let { "ID: $it" }
-                widgetLayoutResource = R.layout.vk_relay_unlink
+                widgetLayoutResource = R.layout.relay_account_actions
                 isSelectable = true
                 setOnPreferenceClickListener {
                     fragment.startActivity(Intent(context,VkRelayActivity::class.java).putExtra("login",true)); true
@@ -95,10 +99,11 @@ object VkRelayPreferences {
             }
         }
         group.addPreference(account)
+        group.addPreference(maxPreference(fragment,group))
         val hashesPreference = SimpleMenuPreference(context).apply {
             key = "vkRelayDefaultHashes"
             optionEnabled = { index -> index != 1 || (info.linked && !info.needsRelink) }
-            title = "Хеши новых профилей qWDTT, CSQTT и WDTT Plus"
+            title = "Хеши новых профилей qWDTT, CSQTT, MRTT и WDTT Plus"
             setIcon(R.drawable.ic_mobile_hash)
             isSingleLineTitle = false; isPersistent = false
             entries = arrayOf("Вручную","Авто"); entryValues = arrayOf("manual","auto")
@@ -135,9 +140,45 @@ object VkRelayPreferences {
             }
             val latest=withContext(Dispatchers.IO) { VkRelayAccount.uiInfo() }
             if(fragment.isAdded && group.findPreference<Preference>("vkRelayAccount") === account && latest.linked) {
-                if(!latest.needsRelink) account.summary = latest.displayName
+                if(latest.displayName.isNotBlank()) account.summary = "ID: "+latest.displayName
                 if(avatar != null) account.icon = RoundedBitmapDrawableFactory.create(context.resources,avatar).apply { isCircular = true }
             }
+        }
+    }
+    /** The MAX binding under VK's: «Группа: ...» in the muted line, a pencil to change it and a bin to remove it. */
+    private fun maxPreference(fragment: PreferenceFragmentCompat,group: PreferenceGroup): Preference {
+        val context = fragment.requireContext()
+        val binding = app.rawline.mobile.bg.carrier.MaxAccount.current()
+        val bind = { MaxLoginActivity.confirmRisk(context) { fragment.startActivity(Intent(context,MaxLoginActivity::class.java)) } }
+        return object : Preference(context) {
+            override fun onBindViewHolder(holder: PreferenceViewHolder) {
+                super.onBindViewHolder(holder)
+                (holder.findViewById(android.R.id.summary) as? android.widget.TextView)?.apply {
+                    isSingleLine=false;maxLines=Int.MAX_VALUE;ellipsize=null;setTextColor(MobilePalette.muted)
+                }
+                (holder.findViewById(R.id.relay_edit) as? ImageButton)?.apply {
+                    imageTintList=android.content.res.ColorStateList.valueOf(MobilePalette.accent(context))
+                    setOnClickListener { bind() }
+                }
+                (holder.findViewById(R.id.vk_unlink) as? ImageButton)?.apply {
+                    imageTintList=android.content.res.ColorStateList.valueOf(MobilePalette.accent(context))
+                    setOnClickListener {
+                        MobileAlertDialogBuilder(context).setTitle("Отвязать MAX")
+                            .setMessage("Токен и группа MAX будут удалены из этого приложения. Профили MRTT с транспортом MAX перестанут подключаться.")
+                            .setNegativeButton(android.R.string.cancel,null)
+                            .setPositiveButton("Отвязать") { _,_ ->
+                                app.rawline.mobile.bg.carrier.MaxAccount.clear()
+                                bind(fragment,group)
+                                fragment.needReload()
+                            }.show()
+                    }
+                }
+            }
+        }.apply {
+            key = "maxRelayAccount"; isSingleLineTitle = false; setIcon(R.drawable.ic_mobile_max)
+            title = if(binding!=null) "Аккаунт MAX привязан" else "Привязать MAX"
+            if(binding!=null) { summary = "Группа: "+binding.group; widgetLayoutResource = R.layout.relay_account_actions }
+            setOnPreferenceClickListener { bind(); true }
         }
     }
     private fun java.io.InputStream.readBytesBounded(): ByteArray {

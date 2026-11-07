@@ -43,8 +43,9 @@ class DeployServer(val json: JSONObject) {
         require(get("user").matches(Regex("[A-Za-z0-9_.-]+"))) { "Укажите логин SSH" }
     }
     fun validate(install: Boolean) {
-        require(kind in listOf("qwdtt","csqtt","wdttplus","freeturn"))
+        require(kind in listOf("qwdtt","csqtt","mrtt","wdttplus","freeturn"))
         validateAddress()
+        if(kind=="mrtt") require(!get("host").contains(':')) { "Укажите IP или домен без порта" }
         for(key in listOf("sshPort","peerPort")) port(key)
         when(kind) {
             "qwdtt" -> { port("wgPort"); port("rawPort"); port("adminPort"); port("directPort") }
@@ -54,7 +55,12 @@ class DeployServer(val json: JSONObject) {
         }
         if(get("auth") == "key") require(get("key").isNotBlank()) { "Загрузите SSH-ключ" }
         else require(get("sshPassword").isNotBlank()) { "Введите пароль SSH" }
+        if(kind=="mrtt") require(port("peerPort")!=port("webPort")) { "Порт подключения и порт API должны различаться" }
         if(!install) return
+        if(kind=="mrtt") {
+            require(app.rawline.mobile.outbound.types.Mrtt.validPassword(get("password"))) { "Пароль владельца: без пробелов и «|», не длиннее 128 байт" }
+            return
+        }
         if(kind == "freeturn") {
             if(get("ftBackend") == "external") require(get("ftConnect").matches(Regex("""[A-Za-z0-9.:\[\]-]+:[0-9]{1,5}"""))) { "Укажите адрес VPN на сервере: хост:порт" }
             return
@@ -77,11 +83,12 @@ class DeployServer(val json: JSONObject) {
     companion object {
         fun create(kind: String) = DeployServer(JSONObject().put("id",java.util.UUID.randomUUID().toString()).put("kind",kind)).apply {
             set("name","");set("user","root");set("auth","password");set("sshPort","22")
-            set("peerPort",if(kind == "csqtt") "46000" else "56000");set("localPort","9000");set("dns","")
+            set("peerPort",if(kind == "csqtt" || kind == "mrtt") "46000" else "56000");set("localPort","9000");set("dns","")
             set("wgPort","56001");set("directPort","56002");set("rawPort","56003");set("adminPort","56002");set("webPort","46002")
             set("dns1","1.1.1.1");set("dns2","1.0.0.1");set("deviceId",java.util.UUID.randomUUID().toString())
             set("adminToken",java.util.UUID.randomUUID().toString()+java.util.UUID.randomUUID().toString())
             if(kind == "csqtt") set("secretPath",java.util.UUID.randomUUID().toString())
+            if(kind == "mrtt") set("password",app.rawline.mobile.outbound.types.Mrtt.generatePassword())
             if(kind == "freeturn") { set("wgPort","51820");set("ftMethod","docker");set("ftBackend","new");set("ftMode","udp");set("ftObf","rtpopus3") }
         }
     }

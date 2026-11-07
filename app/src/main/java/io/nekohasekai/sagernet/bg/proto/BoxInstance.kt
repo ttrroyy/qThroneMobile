@@ -97,7 +97,7 @@ abstract class BoxInstance(
             }
         }
         try {
-            if(config.carrierPlans.any { it.kind in listOf(app.rawline.mobile.bg.carrier.CarrierKind.QWDTT,app.rawline.mobile.bg.carrier.CarrierKind.CSQTT,app.rawline.mobile.bg.carrier.CarrierKind.WDTTPLUS,app.rawline.mobile.bg.carrier.CarrierKind.FREETURN,app.rawline.mobile.bg.carrier.CarrierKind.FREETURN_TCP) }) {
+            if(config.carrierPlans.any { it.kind in listOf(app.rawline.mobile.bg.carrier.CarrierKind.QWDTT,app.rawline.mobile.bg.carrier.CarrierKind.CSQTT,app.rawline.mobile.bg.carrier.CarrierKind.MRTT,app.rawline.mobile.bg.carrier.CarrierKind.WDTTPLUS,app.rawline.mobile.bg.carrier.CarrierKind.FREETURN,app.rawline.mobile.bg.carrier.CarrierKind.FREETURN_TCP) }) {
                 nativeStatus=NativeConnectionStatus.Writer(profile.id).also { it.update(NativeConnectionStage.PREPARING) }
             }
             for(plan in config.carrierPlans) {

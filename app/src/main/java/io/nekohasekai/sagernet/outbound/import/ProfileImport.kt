@@ -228,7 +228,7 @@ object ProfileImport {
                     if(outbound.parseFromJson(copy)) produce(outbound) else log("Invalid ShadowsocksR profile")
                     return
                 }
-                if (type in listOf("qwdtt","wdtt","csqtt","wdttplus","freeturn","openflux","openfluxkey","olcrtc","dnstt","vaydns","slipstream","masterdns","cottendns","soar","s3bypass","sstp",
+                if (type in listOf("qwdtt","wdtt","csqtt","mrtt","wdttplus","freeturn","openflux","openfluxkey","olcrtc","dnstt","vaydns","slipstream","masterdns","cottendns","soar","s3bypass","sstp",
                         "chain","autoselector","custom","xrayvless","ssr","shadowsocksr")) {
                     val outbound=OutboundFactory.newByType(type)
                     if(outbound.parseFromJson(doc)) produce(outbound) else log("Invalid $type profile")
@@ -492,6 +492,15 @@ object ProfileImport {
             }
             if (line.startsWith("phobos://", ignoreCase = true)) {
                 phobosLink(line)
+                return
+            }
+            if (line.startsWith(app.rawline.mobile.outbound.types.Mrtt.SUBSCRIPTION_SCHEME, ignoreCase = true)) {
+                val links = app.rawline.mobile.outbound.types.Mrtt.decodeSubscription(line)
+                if (links == null) log("Invalid MRTT subscription")
+                else for ((name, link) in links) {
+                    val outbound = OutboundFactory.newByType("mrtt")
+                    if (outbound.parseFromLink(link)) { outbound.name = name; produce(outbound) }
+                }
                 return
             }
             val outbound = OutboundFactory.parseLink(line, preference)

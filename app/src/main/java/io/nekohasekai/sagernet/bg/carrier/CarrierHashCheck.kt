@@ -30,10 +30,10 @@ class CarrierHashCheck : AutoCloseable {
      * CSQTT's own check, as its original app runs it: `--validate-vk-hashes` asks VK for an anonymous
      * token of each call, one after another, without TURN credentials or a captcha.
      */
-    fun runCsqtt(context: Context, hashes: List<Pair<Int, String>>, onUpdate: (Int, String) -> Unit) {
+    fun runCsqtt(context: Context, hashes: List<Pair<Int, String>>, onUpdate: (Int, String) -> Unit, client: String = "libcsqtt_transport.so") {
         if (hashes.isEmpty() || stopped.get()) return
         require(hashes.all { it.second.matches(Regex("[A-Za-z0-9_-]{16,512}")) }) { "Некорректный хеш VK" }
-        val binary = File(context.applicationInfo.nativeLibraryDir, "libcsqtt_transport.so")
+        val binary = File(context.applicationInfo.nativeLibraryDir, client)
         check(binary.canExecute()) { "Бинарный клиент не найден" }
         val child = ProcessBuilder(binary.absolutePath, "--validate-vk-hashes", "--vk", hashes.joinToString(",") { it.second },
             "--fingerprint", "firefox", "--client-ids", "8202606,6287487")

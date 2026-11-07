@@ -116,7 +116,7 @@ open class DeployEditorFragment : Fragment() {
                 }
                 contentDescription="Удалить VPS из списка"
                 setOnClickListener {
-                    if(DeployEngine.state.value.running && DeployEngine.state.value.serverId==server.id) {
+                    if(host.busy(server.id)) {
                         Toast.makeText(context,"Дождитесь завершения операции",Toast.LENGTH_SHORT).show()
                     } else MobileAlertDialogBuilder(requireContext()).setMessage("Удалить VPS из списка? Сервис на сервере останется.")
                         .setPositiveButton("Удалить") { _,_ -> DeployStore.remove(server.id);build() }.setNegativeButton(android.R.string.cancel,null).show()
@@ -279,7 +279,7 @@ open class DeployEditorFragment : Fragment() {
             }
         }
         refreshSaveAction()
-        if(s.kind!="csqtt" && s.kind!="freeturn") {
+        if(s.kind!="csqtt" && s.kind!="freeturn" && s.kind!="mrtt") {
             button(body,if(s.kind=="qwdtt") "Секреты (бот, пароли)" else "Авторизация",R.drawable.ic_baseline_vpn_key_24) { secrets(s) }
         }
         val access=card()
@@ -326,7 +326,15 @@ open class DeployEditorFragment : Fragment() {
             choice(access,s,"ftObf","Обфускация",listOf("rtpopus3" to "rtpopus3","rtpopus2" to "rtpopus2","none" to "Нет"))
         }
         switch(access,s,"manualPorts","Ручное управление портами",true)
-        if(s.kind!="csqtt" && s["manualPorts"]=="true") {
+        if(s.kind=="mrtt") {
+            if(s["manualPorts"]=="true") {
+                field(access,s,"sshPort","Порт SSH",number=true)
+                row(access) { r -> field(r,s,"peerPort","UDP-порт",number=true,pair=true);field(r,s,"webPort","Порт API",number=true,pair=true) }
+                heading(access,"Порт API слушает только 127.0.0.1 на сервере: приложение подключается к нему через SSH.")
+            }
+            field(access,s,"password","Пароль владельца")
+            switch(access,s,"docker","Установка в Docker")
+        } else if(s.kind!="csqtt" && s["manualPorts"]=="true") {
             row(access) { r -> field(r,s,"peerPort","Порт туннеля",number=true,pair=true);field(r,s,"wgPort","Порт WG",number=true,pair=true) }
             if(s.kind=="wdttplus") field(access,s,"localPort","Локальный порт клиента",number=true)
             if(s.kind=="freeturn") field(access,s,"sshPort","Порт SSH",number=true)
@@ -387,7 +395,7 @@ open class DeployEditorFragment : Fragment() {
             if(followLogs && !touchingLogs) logScroll?.scrollTo(0,output?.height ?: 0)
         }
         content.addView(logScroll,LinearLayout.LayoutParams(-1,dp(220)))
-        stop=button(content,"Остановить") { DeployEngine.cancel() }.apply {
+        stop=button(content,"Остановить") { host.cancelOperation() }.apply {
             if(!MobileStyle.new) backgroundTintList=android.content.res.ColorStateList.valueOf(MobilePalette.background)
             insetTop=0;insetBottom=0
             (layoutParams as LinearLayout.LayoutParams).apply { topMargin=dp(12);bottomMargin=dp(6) }
@@ -397,7 +405,7 @@ open class DeployEditorFragment : Fragment() {
         val configBody=column();config.addView(configBody);configDetails=configBody
         // The same share blocks as every server screen: the link, its QR code and, for qWDTT, the legacy wdtt:// link.
         configBox=column().also { configBody.addView(it) }
-        expand();render(DeployEngine.state.value)
+        expand();render(host.currentState())
     }
     private fun expand() {
         details?.visibility=if(expanded) View.VISIBLE else View.GONE

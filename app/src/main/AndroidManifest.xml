@@ -79,6 +79,8 @@
         <activity android:name=".ui.VkRelayActivity" android:exported="false" />
         <activity android:name=".ui.MobileLayoutEditorActivity" android:exported="false" />
         <activity android:name=".ui.FreeturnClientsActivity" android:exported="false" />
+        <activity android:name=".ui.MrttServerActivity" android:exported="false" />
+        <activity android:name=".ui.MaxLoginActivity" android:exported="false" />
         <activity android:name=".ui.VkHashesActivity" android:exported="false" />
         <activity android:name=".ui.ProviderRouteActivity" android:exported="false" />
         <activity android:name=".ui.ProviderRoutingActivity" android:exported="false" />

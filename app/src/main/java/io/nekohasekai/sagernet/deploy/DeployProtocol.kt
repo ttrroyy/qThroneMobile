@@ -6,7 +6,7 @@ object DeployProtocol {
         return !text.contains("/etc/wireguard") && (!text.contains("wg0") || text.contains("wdtt0"))
     }
     fun progress(kind: String,line: String): Pair<Int,String>? {
-        val prefix=if(kind=="qwdtt" || kind=="wdttplus") "WDTT_PROGRESS" else if(kind=="csqtt") "CSQTT_PROGRESS" else return null
+        val prefix=if(kind=="qwdtt" || kind=="wdttplus") "WDTT_PROGRESS" else if(kind=="csqtt") "CSQTT_PROGRESS" else if(kind=="mrtt") "MRTT_PROGRESS" else return null
         val parts=line.trim().split('|',limit=3)
         if(parts.size!=3 || parts[0]!=prefix) return null
         val value=parts[1].toDoubleOrNull() ?: return null
@@ -31,6 +31,7 @@ object DeployProtocol {
     fun successful(kind: String,exit: Int,output: String): Boolean = exit == 0 && when(kind) {
         "qwdtt" -> output.contains("WDTT_DEPLOY_OK") && Regex("WDTT_ADMIN_PIN\\|(sha256/[A-Za-z0-9+/=]+)").containsMatchIn(output)
         "csqtt" -> output.lineSequence().any { it.trim()=="CSQTT_DEPLOY_OK" }
+        "mrtt" -> output.lineSequence().any { it.trim()=="MRTT_DEPLOY_OK" }
         "wdttplus" -> Regex("""(?m)^WDTT_INSTALL_RESULT=success\s*$""").containsMatchIn(output)
         else -> false
     }

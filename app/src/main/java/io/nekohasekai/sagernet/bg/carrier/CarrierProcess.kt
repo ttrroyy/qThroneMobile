@@ -14,6 +14,7 @@ import kotlin.coroutines.coroutineContext
 enum class CarrierKind(val executable: String, val configFlag: String, val minimumApi: Int) {
     QWDTT("libqwdtt.so", "-config", 24),
     CSQTT("libqwdtt.so", "-csqtt-config", 26),
+    MRTT("libmrtt.so", "-mrtt-config", 26),
     OPENFLUX("libopenflux.so", "--rawline-config", 24),
     OPENFLUXKEY("libopenfluxkey.so", "--rawline-config", 24),
     OLCRTC("libolcrtc.so", "--rawline-config", 24),
@@ -54,8 +55,8 @@ class CarrierProcess private constructor(private val process: Process, private v
     private val unavailableCall = AtomicBoolean(false)
     private class UnavailableCall:IllegalStateException("VK: выбранный хеш недоступен; звонок не найден")
     private class TransientStartup:IllegalStateException("Временная ошибка авторизации VK; повторите подключение")
-    private val captcha=CarrierCaptchaBridge(process,allowUi=allowInteractions,client=when(kind) { CarrierKind.CSQTT -> "csqtt"; CarrierKind.WDTTPLUS -> "wdttplus"; CarrierKind.OPENFLUX -> "openflux"; CarrierKind.OPENFLUXKEY -> "openfluxkey"; CarrierKind.FREETURN,CarrierKind.FREETURN_TCP -> "freeturn"; else -> "qwdtt" })
-    private val health=NativeTransportHealth(minimumRecoveryPeak=if(kind==CarrierKind.CSQTT) 10 else 9)
+    private val captcha=CarrierCaptchaBridge(process,allowUi=allowInteractions,client=when(kind) { CarrierKind.CSQTT,CarrierKind.MRTT -> "csqtt"; CarrierKind.WDTTPLUS -> "wdttplus"; CarrierKind.OPENFLUX -> "openflux"; CarrierKind.OPENFLUXKEY -> "openfluxkey"; CarrierKind.FREETURN,CarrierKind.FREETURN_TCP -> "freeturn"; else -> "qwdtt" })
+    private val health=NativeTransportHealth(minimumRecoveryPeak=if(kind==CarrierKind.CSQTT) 10 else if(kind==CarrierKind.MRTT) 3 else 9)
     private var wdttLifecycle: WdttPlusLifecycle? = null
     private var wdttBootstrap: WdttPlusBootstrapRelay? = null
     private var wdttDeadSince=0L
@@ -180,6 +181,7 @@ class CarrierProcess private constructor(private val process: Process, private v
                         val compatible=app.rawline.mobile.outbound.json.JsonInput.parseObject(privateJson).string("protocol_variant")=="compat"
                         check(!compatible || File(nativeDirectory,"libcsqtt_compat.so").canExecute()) { "CSQTT 2.1.9 transport is not installed" }
                     }
+                    if (kind == CarrierKind.MRTT) check(File(nativeDirectory, "libmrtt_client.so").canExecute()) { "MRTT transport client is not installed" }
                     if (kind == CarrierKind.SLIPSTREAM) {
                         check(File(nativeDirectory, "libslipstream.so").canExecute()) { "Slipstream transport client is not installed" }
                     }
@@ -221,6 +223,8 @@ class CarrierProcess private constructor(private val process: Process, private v
                             // Lifecycle events (stream count, panel restarts) for the watchdog; no addresses or hashes.
                             builder.environment()["CSQTT_DIAGNOSTICS"] = "1"
                         }
+                        // Lifecycle events (stream count, panel restarts) for the watchdog; no addresses or hashes.
+                        if (kind == CarrierKind.MRTT) builder.environment()["MRTT_DIAGNOSTICS"] = "1"
                         val child = try { launch(builder) } catch (_: Exception) {
                             throw IllegalStateException("Cannot start transport client")
                         }
@@ -250,7 +254,7 @@ class CarrierProcess private constructor(private val process: Process, private v
                                 send(command)
                             }
                         }
-                        runCatching { onStatus(if (kind in listOf(CarrierKind.QWDTT, CarrierKind.CSQTT, CarrierKind.WDTTPLUS, CarrierKind.FREETURN, CarrierKind.FREETURN_TCP)) NativeConnectionStage.AUTHORIZING else NativeConnectionStage.CONNECTING) }
+                        runCatching { onStatus(if (kind in listOf(CarrierKind.QWDTT, CarrierKind.CSQTT, CarrierKind.MRTT, CarrierKind.WDTTPLUS, CarrierKind.FREETURN, CarrierKind.FREETURN_TCP)) NativeConnectionStage.AUTHORIZING else NativeConnectionStage.CONNECTING) }
                         val redactor = CarrierLogRedactor(privateJson, bridgeCredentials)
                         val totalWorkers = configuredWorkers(kind, privateJson)
                         moe.matsuri.nb4a.utils.CoreLog.write("[Info] [${kind.name}] Starting native transport")
@@ -273,7 +277,7 @@ class CarrierProcess private constructor(private val process: Process, private v
                             check(!running.captcha.userCancelled) { "VK confirmation cancelled" }
                             running.startupFailure.get()?.let { throw IllegalStateException(it) }
                             if(running.health.wrongPassword(running.captcha.waiting)) throw IllegalStateException(WRONG_PASSWORD)
-                            if(kind in listOf(CarrierKind.QWDTT,CarrierKind.CSQTT) && running.health.needsRestart(running.captcha.waiting,true)) throw TransientStartup()
+                            if(kind in listOf(CarrierKind.QWDTT,CarrierKind.CSQTT,CarrierKind.MRTT) && running.health.needsRestart(running.captcha.waiting,true)) throw TransientStartup()
                             val now=System.nanoTime()
                             if(running.captcha.waiting) {
                                 val paused=(now-lastWaitTick).coerceAtMost(interactionBudget)
@@ -285,7 +289,7 @@ class CarrierProcess private constructor(private val process: Process, private v
                                 outputReader.join(200)
                                 running.startupFailure.get()?.let { throw IllegalStateException(it) }
                                 if(kind==CarrierKind.QWDTT && running.unavailableCall.get()) throw UnavailableCall()
-                                if(kind in listOf(CarrierKind.QWDTT,CarrierKind.CSQTT) && running.health.transientFailure) throw TransientStartup()
+                                if(kind in listOf(CarrierKind.QWDTT,CarrierKind.CSQTT,CarrierKind.MRTT) && running.health.transientFailure) throw TransientStartup()
                                 error(running.startupFailure.get() ?: "Transport client stopped before becoming ready")
                             }
                             if (socksReady(socksPort, bridgeCredentials)) {
@@ -335,7 +339,7 @@ class CarrierProcess private constructor(private val process: Process, private v
         internal fun configuredWorkers(kind: CarrierKind, privateJson: String): Int = runCatching {
             val json = org.json.JSONObject(privateJson)
             when (kind) {
-                CarrierKind.QWDTT, CarrierKind.CSQTT -> json.optInt("workers")
+                CarrierKind.QWDTT, CarrierKind.CSQTT, CarrierKind.MRTT -> json.optInt("workers")
                 CarrierKind.FREETURN, CarrierKind.FREETURN_TCP -> json.getJSONObject("core").getJSONObject("turn").optInt("n")
                 CarrierKind.WDTTPLUS -> json.getJSONArray("args").let { args ->
                     (0 until args.length() - 1).firstOrNull { args.getString(it) == "-n" }?.let { args.getString(it + 1).toInt() } ?: 0

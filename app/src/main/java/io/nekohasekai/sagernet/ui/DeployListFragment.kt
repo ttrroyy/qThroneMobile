@@ -32,7 +32,7 @@ class DeployListFragment : Fragment() {
     private var load: Job? = null
     private var cachedItems: List<DeployServer> = emptyList()
     private var openSwipe: MobileSwipeTile? = null
-    private val kind get() = arguments?.getString("kind").takeIf { it in listOf("qwdtt", "csqtt", "wdttplus", "freeturn") } ?: "qwdtt"
+    private val kind get() = arguments?.getString("kind").takeIf { it in listOf("qwdtt", "csqtt", "mrtt", "wdttplus", "freeturn") } ?: "qwdtt"
     private fun dp(n: Int) = (n * resources.displayMetrics.density).toInt()
     override fun onCreateAnimator(transit: Int, enter: Boolean, nextAnim: Int): android.animation.Animator? =
         MobileScreenMotion.create(this, nextAnim)
@@ -67,6 +67,8 @@ class DeployListFragment : Fragment() {
 
     private fun render(items: List<DeployServer>) {
         body.removeAllViews(); openSwipe = null
+        // Where this list sits inside the settings there is no toolbar of its own to carry the button.
+        if (kind == "mrtt") body.addView(MrttDeployJobs.strip(requireContext(), viewLifecycleOwner), LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(8) })
         items.forEach { server ->
             tile(server["name"], server["host"], R.drawable.ic_mobile_core, server) { open(server.id) }
         }
@@ -113,7 +115,7 @@ class DeployListFragment : Fragment() {
                 }
                 contentDescription = "Удалить VPS из списка"
                 setOnClickListener {
-                    if (DeployEngine.state.value.running && DeployEngine.state.value.serverId == server.id)
+                    if ((DeployEngine.state.value.running && DeployEngine.state.value.serverId == server.id) || app.rawline.mobile.deploy.MrttDeploy.running(server.id))
                         Toast.makeText(context, "Дождитесь завершения операции", Toast.LENGTH_SHORT).show()
                     else MobileAlertDialogBuilder(context).setMessage("Удалить VPS из списка? Сервис на сервере останется.")
                         .setNegativeButton(android.R.string.cancel, null)

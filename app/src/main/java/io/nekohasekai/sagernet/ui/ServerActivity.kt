@@ -82,6 +82,10 @@ class ServerActivity : ServerScreenActivity() {
                     else Toast.makeText(this, "Доступно после установки сервера из приложения", Toast.LENGTH_LONG).show()
                 })
             }
+            "mrtt" -> body.addView(ui.tile("Конфиги и сервер", "Конфиги, подписки, группы, маршруты, прокси, настройки, статистика и логи", R.drawable.ic_baseline_vpn_key_24) {
+                if (app.rawline.mobile.deploy.MrttAdmin(server).available) startActivity(Intent(this, MrttServerActivity::class.java).putExtra("server", server.id))
+                else Toast.makeText(this, "Доступно после установки сервера из приложения", Toast.LENGTH_LONG).show()
+            })
             "freeturn" -> body.addView(ui.tile("Клиенты", "Ссылки и WireGuard для каждого устройства", R.drawable.ic_baseline_vpn_key_24) {
                 if (app.rawline.mobile.deploy.FreeturnAdmin(server).available) startActivity(Intent(this, FreeturnClientsActivity::class.java).putExtra("server", server.id))
                 else Toast.makeText(this, "Доступно после установки сервера из приложения", Toast.LENGTH_SHORT).show()

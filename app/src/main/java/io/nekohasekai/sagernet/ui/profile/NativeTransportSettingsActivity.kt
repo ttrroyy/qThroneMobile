@@ -145,6 +145,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
         write(document)
         val order = when(type) {
             "qwdtt" -> listOf("name","server","server_port","mode","password","hash_source") + (1..4).map { "hash_$it" } + listOf("raw_port","workers","turn_tcp","vk_anon_path","captcha_mode","obfs","go_dns","device_id")
+            "mrtt" -> listOf("name","server","server_port","password","transport","max_group","jitsi_room","jitsi_workers","hash_source","vk_access_token") + (1..6).map { "hash_$it" } + listOf("workers","turn_transport","srtp_mode","vk_anon_path","captcha_mode","mtu","fingerprint","client_ids","custom_turn_ips")
             "csqtt" -> listOf("name","server","server_port","csqtt_version","password","hash_source","vk_access_token") + (1..6).map { "hash_$it" } + listOf("workers","turn_transport","srtp_mode","vk_anon_path","captcha_mode","obfs","fingerprint","client_ids","custom_turn_ips","device_id")
             "wdttplus" -> listOf("name","server","server_port","engine","mode","raw_port","wg_port","local_port","password","hash_source") + (1..4).map { "hash_$it" } + listOf("workers","captcha_mode","tcp_only","turn_sni","rt_masque","rt_masque_server_bootstrap","device_id")
             "openflux" -> listOf("name","secret") + openFluxKinds.map { "transport_$it" } + listOf("context")
@@ -161,9 +162,9 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
                 listOf("pollIntervalMs","writeIntervalMs","idleTimeoutSec","maxFileSizeBytes").map { "tuning.$it" }
             else -> listOf("name","provider","transport","room","key","token","channel","dns","device_id") + optionDefaults.keys.map { "options.$it" }
         }
-        if(type in listOf("qwdtt","csqtt","wdttplus")) {
+        if(type in listOf("qwdtt","csqtt","mrtt","wdttplus")) {
             val hashes=document.array("hashes").strings()
-            for(i in 1..if(type=="csqtt") 6 else 4) {
+            for(i in 1..if(type=="csqtt" || type=="mrtt") 6 else 4) {
                 fields["hash_$i"]=hashes.getOrElse(i-1) { "" }
                 DataStore.profileCacheStore.putString(cache("hash_$i"),hashes.getOrElse(i-1) { "" })
             }
@@ -211,7 +212,12 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
                 else -> text
             }
         }
-        if(type in listOf("qwdtt","csqtt","wdttplus")) {
+        if(type=="mrtt") {
+            result["jitsi_room"]=DataStore.profileCacheStore.getString(cache("jitsi_room")).orEmpty().trim().let { if(it.isEmpty()) "" else app.rawline.mobile.outbound.types.Mrtt.parseJitsiRoom(it) ?: error("Неверная ссылка на комнату Jitsi") }
+            // Another room than the link's has no server seats to go by.
+            if(result.string("jitsi_room")!=document.string("jitsi_room")) result["jitsi_seats"]=0
+        }
+        if(type in listOf("qwdtt","csqtt","mrtt","wdttplus")) {
             result["hashes"]=JsonArray.of(*fields.keys.filter { it.startsWith("hash_") && it != "hash_source" }.map { DataStore.profileCacheStore.getString(cache(it))?.trim().orEmpty() }.filter { it.isNotEmpty() }.toTypedArray())
             // Hand-edited slots win over the subscription's on the next refresh.
             if(result.array("hashes").strings()!=document.array("hashes").strings()) result["manual_hashes_override"]=true
@@ -254,7 +260,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
         if(type in dnsTypes) for(key in listOf("cert","idle_timeout","keepalive")) if(result.string(key).isBlank()) result.remove(key)
         val candidate = OutboundFactory.newByType(type)
         // A profile may be saved without hashes and get them later; the launch asks for them.
-        val checked = if(type in listOf("qwdtt","csqtt","wdttplus") && result.array("hashes").isEmpty()) result.copy().also { it["hashes"]=JsonArray.of("0".repeat(16)) } else result
+        val checked = if(type in listOf("qwdtt","csqtt","mrtt","wdttplus") && result.array("hashes").isEmpty()) result.copy().also { it["hashes"]=JsonArray.of("0".repeat(16)) } else result
         require(candidate.parseFromJson(checked)) { "Проверьте параметры профиля" }
         (candidate as NativeCarrier).privateConfig(1080,1081,CarrierBridgeCredentials("validation","validation"))
         require(parseFromJson(result))
@@ -302,7 +308,8 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             "pollIntervalMs" to "Опрос хранилища, мс", "writeIntervalMs" to "Запись в хранилище, мс",
             "idleTimeoutSec" to "Тайм-аут простоя, с", "maxFileSizeBytes" to "Наибольший объект, байт",
             "doc_url" to "Ссылка на документ или доску", "key_token" to "Ключ доступа", "e2e_encryption" to "Сквозное шифрование ключом",
-            "options" to "Дополнительные параметры MasterDNS (JSON)")
+            "options" to "Дополнительные параметры MasterDNS (JSON)",
+            "max_group" to "ID группы MAX (пусто: группа привязки)", "jitsi_room" to "Ссылка на комнату Jitsi", "jitsi_workers" to "Воркеры Jitsi", "mtu" to "MTU")
         val choices = mutableMapOf("hash_source" to listOf("manual","auto"),"mode" to listOf("raw","wg"), "obfs" to listOf("audio","video"),
             "vk_anon_path" to listOf("vkcalls","legacy"), "captcha_mode" to listOf("auto","wv","rjs"),
             "provider" to listOf("jitsi","telemost","wbstream"),
@@ -328,6 +335,21 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
         if(editingOutbound.type=="openfluxkey") {
             choices["transport"]=app.rawline.mobile.outbound.types.OpenFluxKey.TRANSPORTS
             captions["transport"]=listOf("Яндекс Документы","Яндекс Волга","MAX","Яндекс Доски","Mail.ru","МТС Линк","Телемост","Cups.online","Авито","Яндекс Документы, несколько")
+        }
+        if(editingOutbound.type=="mrtt") {
+            choices["transport"]=listOf("vk","max","jitsi")
+            captions["transport"]=listOf("VK","MAX","Jitsi")
+            choices["hash_source"]=listOf("manual","auto","auto_js")
+            captions["hash_source"]=listOf("Вручную","Созданные в клиенте","Auto JS")
+            choices["vk_anon_path"]=listOf("vkcalls","legacy")
+            captions["vk_anon_path"]=listOf("Звонок VK","Капча")
+            choices["turn_transport"]=listOf("udp","tcp_tls")
+            captions["turn_transport"]=listOf("UDP","TCP")
+            choices["srtp_mode"]=listOf("auto","wrap","dtls")
+            captions["srtp_mode"]=listOf("Автоматически","WRAP-SRTP","DTLS-SRTP")
+            choices["fingerprint"]=listOf("firefox","chrome","safari","edge","opera")
+            choices["mtu"]=listOf("1280","1400","1500")
+            choices["jitsi_workers"]=(app.rawline.mobile.outbound.types.Mrtt.MIN_JITSI_WORKERS..app.rawline.mobile.outbound.types.Mrtt.MAX_JITSI_WORKERS).map(Int::toString)
         }
         if(editingOutbound.type=="csqtt") {
             choices["hash_source"]=listOf("manual","auto","auto_js")
@@ -373,6 +395,26 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
                 val qwdttEngine=DataStore.profileCacheStore.getString(cache("engine"))=="qwdtt"
                 editors["mode"]?.isVisible=qwdttEngine;editors["raw_port"]?.isVisible=qwdttEngine
             }
+            if(editingOutbound.type=="mrtt") {
+                // The settings of the chosen transport only, as in the original.
+                val mode=DataStore.profileCacheStore.getString(cache("transport")) ?: "vk"
+                val vk=mode=="vk"
+                editors["max_group"]?.isVisible=mode=="max"
+                for(key in listOf("jitsi_room","jitsi_workers")) editors[key]?.isVisible=mode=="jitsi"
+                for(key in listOf("turn_transport","custom_turn_ips","workers")) editors[key]?.isVisible=mode!="jitsi"
+                for(key in listOf("hash_source","vk_anon_path","captcha_mode","client_ids")) editors[key]?.isVisible=vk
+                if(!vk) {
+                    hashPick.isVisible=false;checkButton.isVisible=false;editors["vk_access_token"]?.isVisible=false
+                    editors.filterKeys { it.startsWith("hash_") && it != "hash_source" }.values.forEach { it.isVisible=false }
+                }
+                val count=editors.keys.filter { it.startsWith("hash_") && it != "hash_source" }.map { DataStore.profileCacheStore.getString(cache(it))?.trim().orEmpty() }.count { it.isNotEmpty() }
+                val anyCount=mode=="max" || source=="auto_js" || source=="auto"
+                val limit=app.rawline.mobile.outbound.types.Mrtt.maxWorkers(count,anyCount)
+                (editors["workers"] as? ListPreference)?.apply {
+                    entries=(app.rawline.mobile.outbound.types.Mrtt.WORKERS_PER_GROUP..limit step app.rawline.mobile.outbound.types.Mrtt.WORKERS_PER_GROUP).map(Int::toString).toTypedArray();entryValues=entries
+                    value=app.rawline.mobile.outbound.types.Mrtt.normalizeWorkers(DataStore.profileCacheStore.getString(cache("workers"))?.toIntOrNull() ?: 18,count,anyCount).toString()
+                }
+            }
             if(editingOutbound.type in listOf("qwdtt","csqtt","wdttplus")) {
                 val count=editors.keys.filter { it.startsWith("hash_") && it != "hash_source" }.map { DataStore.profileCacheStore.getString(cache(it))?.trim().orEmpty() }.filter { it.isNotEmpty() }.distinct().size.coerceAtLeast(1)
                 val csqtt=editingOutbound.type=="csqtt"
@@ -407,7 +449,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
                     setOnPreferenceChangeListener { _, next -> DataStore.profileCacheStore.putString(cache(path), next.toString()); true }
                 }
                 choices.containsKey(key) || key=="workers" -> SimpleMenuPreference(requireContext()).apply {
-                    if(key == "hash_source") optionEnabled = { index -> index != 1 || (editingOutbound.type in listOf("qwdtt","csqtt","wdttplus","freeturn") && app.rawline.mobile.bg.carrier.VkRelayAccount.linked() && !app.rawline.mobile.bg.carrier.VkRelayAccount.needsRelink()) }
+                    if(key == "hash_source") optionEnabled = { index -> index != 1 || (editingOutbound.type in listOf("qwdtt","csqtt","mrtt","wdttplus","freeturn") && app.rawline.mobile.bg.carrier.VkRelayAccount.linked() && !app.rawline.mobile.bg.carrier.VkRelayAccount.needsRelink()) }
                     entryValues = (choices[key] ?: listOf("9")).toTypedArray()
                     entries = (captions[key] ?: choices[key] ?: listOf("9")).toTypedArray()
                     this.value=DataStore.profileCacheStore.getString(cache(path))
@@ -470,12 +512,19 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             preference.setOnPreferenceChangeListener { _, next ->
                 // A full VK call link pasted into a hash field keeps only its hash, as in the original apps.
                 val text=if(path.startsWith("hash_") && path!="hash_source") VkCallHash.strip(next.toString()) else next.toString()
-                if(key == "hash_source" && text == "auto" && (editingOutbound.type !in listOf("qwdtt","csqtt","wdttplus","freeturn") || !app.rawline.mobile.bg.carrier.VkRelayAccount.linked() || app.rawline.mobile.bg.carrier.VkRelayAccount.needsRelink())) return@setOnPreferenceChangeListener false
+                if(key == "hash_source" && text == "auto" && (editingOutbound.type !in listOf("qwdtt","csqtt","mrtt","wdttplus","freeturn") || !app.rawline.mobile.bg.carrier.VkRelayAccount.linked() || app.rawline.mobile.bg.carrier.VkRelayAccount.needsRelink())) return@setOnPreferenceChangeListener false
                 val range=optionLimits[path.removePrefix("options.")]
                 if(value is Number && text.toLongOrNull()==null) return@setOnPreferenceChangeListener false
                 if(value is JsonObject && text.isNotBlank() && JsonInput.parseObjectOrNull(text)==null) return@setOnPreferenceChangeListener false
                 if(range!=null && text.toIntOrNull()?.let { it in range }!=true) return@setOnPreferenceChangeListener false
                 if(key in listOf("server_port","raw_port") && text.toIntOrNull()?.let { it in 1..65535 }!=true) return@setOnPreferenceChangeListener false
+                // The warning of the original app when MAX is chosen.
+                if(editingOutbound.type=="mrtt" && path=="transport" && text=="max" && DataStore.profileCacheStore.getString(cache(path))!="max") {
+                    app.rawline.mobile.ui.MaxLoginActivity.confirmRisk(this@NativeTransportSettingsActivity) {
+                        DataStore.profileCacheStore.putString(cache(path),text);(preference as? ListPreference)?.value=text;refreshEditors()
+                    }
+                    return@setOnPreferenceChangeListener false
+                }
                 DataStore.profileCacheStore.putString(cache(path),text)
                 if(editingOutbound.type=="csqtt") {
                     val linked=when {
@@ -512,7 +561,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             editors[path]=preference
             preferenceScreen.addPreference(preference)
             if(path=="hash_source") preferenceScreen.addPreference(hashPick)
-            if(path=="hash_"+(if(editingOutbound.type=="csqtt") 6 else 4)) {
+            if(path=="hash_"+(if(editingOutbound.type in listOf("csqtt","mrtt")) 6 else 4)) {
                 preferenceScreen.addPreference(checkButton)
             }
         }
@@ -521,7 +570,7 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
             val created=account.cachedHashes()
             val generator={ startActivity(android.content.Intent(requireContext(),app.rawline.mobile.ui.VkHashesActivity::class.java)) }
             if(created.isEmpty()) { generator();return@setOnPreferenceClickListener true }
-            val slots=if(editingOutbound.type=="csqtt") 6 else 4
+            val slots=if(editingOutbound.type in listOf("csqtt","mrtt")) 6 else 4
             val key=hashSelectionKey()
             val current=account.selectedHashes(key)
             val density=resources.displayMetrics.density
@@ -603,7 +652,8 @@ class NativeTransportSettingsActivity : ProfileSettingsActivity<Outbound>() {
                             val update: (Int,String) -> Unit = { slot,status -> runOnUiThread { if(hashCheck===session) { results[slot]=status;showResults() } } }
                             withContext(Dispatchers.IO) {
                                 // Each client checks its hashes its own way, as its original app does.
-                                if(editingOutbound.type=="csqtt") session.runCsqtt(this@NativeTransportSettingsActivity,hashes,update)
+                                if(editingOutbound.type=="mrtt") session.runCsqtt(this@NativeTransportSettingsActivity,hashes,update,"libmrtt_client.so")
+                                else if(editingOutbound.type=="csqtt") session.runCsqtt(this@NativeTransportSettingsActivity,hashes,update)
                                 else if(editingOutbound.type=="wdttplus") session.runWdttPlus(this@NativeTransportSettingsActivity,hashes,captchaMode,update)
                                 else session.run(this@NativeTransportSettingsActivity,hashes,captchaMode,anonPath,dns,deviceId,update)
                             }

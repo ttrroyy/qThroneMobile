@@ -205,7 +205,7 @@ class VkHashesActivity : ServerScreenActivity() {
                 SagerDatabase.proxyDao.getAll().filter { it.outbound is Qwdtt || it.outbound is app.rawline.mobile.outbound.types.Freeturn }.sortedBy { it.displayName().lowercase() }
             }
             if (profiles.isEmpty()) {
-                Toast.makeText(this@VkHashesActivity, "Нет профилей qWDTT, CSQTT, WDTT Plus или FreeTurn", Toast.LENGTH_LONG).show(); return@launch
+                Toast.makeText(this@VkHashesActivity, "Нет профилей qWDTT, CSQTT, MRTT, WDTT Plus или FreeTurn", Toast.LENGTH_LONG).show(); return@launch
             }
             val picked = BooleanArray(profiles.size)
             MobileAlertDialogBuilder(this@VkHashesActivity).setTitle("Применить к профилям")
@@ -227,7 +227,7 @@ class VkHashesActivity : ServerScreenActivity() {
                                 }
                                 val outbound = profile.outbound as Qwdtt
                                 // The profile editors' slots: CSQTT has six, the others four.
-                                outbound.hashes = selected.take(if (outbound.type == "csqtt") 6 else 4)
+                                outbound.hashes = selected.take(if (outbound.type == "csqtt" || outbound.type == "mrtt") 6 else 4)
                                 outbound.hashSource = "manual"; outbound.hashSourceChosen = true
                                 // A subscription refresh keeps hashes the user set.
                                 outbound.manualHashesOverride = true
