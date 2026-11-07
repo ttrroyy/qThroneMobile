@@ -87,6 +87,20 @@ class DnsTunnelLinkTest {
         assertEquals(900,own.privateConfig(1080,0,CarrierBridgeCredentials("u","p")).obj("options").int("MIN_DOWNLOAD_MTU"))
     }
 
+    @Test fun addressLinesBesideALinkBecomeItsResolvers() {
+        val json=jsonObjectOf("schema" to "whitedns.profile","version" to 1,"profile" to jsonObjectOf("name" to "x",
+            "server" to jsonObjectOf("domain" to "t.example.com","encryption_key" to "k","encryption_method" to 5)))
+        val link="cottendns://"+Base64Strict.encode(json.toCompact(),urlSafe=true,padding=false)
+        val list=ProfileImport.parse("$link\n\n\n46.243.233.247\n81.200.149.162:5353, [2001:db8::1]:53\n")
+        assertEquals(1,list.outbounds.size)
+        assertEquals(listOf("46.243.233.247","81.200.149.162:5353","[2001:db8::1]:53"),config(list.outbounds[0] as DnsTunnel).array("resolvers").strings())
+        // Only plain address lines count, and a profile's own resolvers stay.
+        assertTrue(DnsTunnel.resolverList("999.1.1.1").isEmpty() && DnsTunnel.resolverList("1.1.1.1 канал").isEmpty() && DnsTunnel.resolverList("").isEmpty())
+        val own=jsonObjectOf("type" to "cottendns","domain" to "t.example.com","mkey" to "k","encryption" to 5,"resolvers" to JsonArray.of("9.9.9.9"))
+        val kept=ProfileImport.parse("[${own.toCompact()}]\n1.1.1.1\n").outbounds.single() as DnsTunnel
+        assertEquals(listOf("9.9.9.9"),config(kept).array("resolvers").strings())
+    }
+
     @Test fun whiteDnsMasterDnsLink() {
         val json = """{"schema":"whitedns.profile","version":1,"profile":{"name":"Iran","server":{"domain":"v.example.com","encryption_key":"k3y","encryption_method":2}}}"""
         val profile = read("masterdns://" + Base64.getUrlEncoder().withoutPadding().encodeToString(json.toByteArray()))!!

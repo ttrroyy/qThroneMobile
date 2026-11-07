@@ -43,6 +43,19 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
             "vaydns" to ("vaydns" to "socks"),"vaydns_ssh" to ("vaydns" to "ssh"),
             "ss" to ("slipstream" to "socks"),"slipstream_ssh" to ("slipstream" to "ssh"))
 
+        private val IPV4_RESOLVER=Regex("""(\d{1,3}(?:\.\d{1,3}){3})(?::\d{1,5})?""")
+        private val IPV6_RESOLVER=Regex("""\[([^\]]+)](?::\d{1,5})?""")
+
+        /** The resolvers on a line of plain addresses; channels post them under the link. Empty for any other line. */
+        fun resolverList(line:String):List<String> {
+            val tokens=line.trim().split(Regex("[,\\s]+")).filter { it.isNotEmpty() }
+            val valid=tokens.isNotEmpty() && tokens.all { token ->
+                IPV4_RESOLVER.matchEntire(token)?.let { Hosts.isIpv4Address(it.groupValues[1]) }
+                    ?: Hosts.isIpv6Address(IPV6_RESOLVER.matchEntire(token)?.groupValues?.get(1) ?: token)
+            }
+            return if(valid) tokens else emptyList()
+        }
+
         /** The network's DNS servers right now, for profiles that name no resolver. */
         fun systemResolvers():List<String> = runCatching {
             val connectivity=app.rawline.mobile.SagerNet.connectivity
@@ -51,6 +64,11 @@ class DnsTunnel(type:String="dnstt"):Outbound(type),NativeCarrier {
                 address.hostAddress?.substringBefore('%')?.let { Hosts.displayAddress(it,53) }
             }
         }.getOrDefault(emptyList())
+    }
+
+    /** Resolvers that came beside the link; the ones the profile names itself stay. */
+    fun adoptResolvers(list:List<String>) {
+        if(list.isNotEmpty() && data.array("resolvers").isEmpty()) data["resolvers"]=JsonArray.of(*list.toTypedArray())
     }
 
     override fun parseFromJson(obj:JsonObject):Boolean {

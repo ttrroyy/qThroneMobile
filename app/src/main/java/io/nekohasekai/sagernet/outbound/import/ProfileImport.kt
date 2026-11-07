@@ -62,6 +62,9 @@ object ProfileImport {
         val produced = ArrayList<Outbound>()
         val messages = ArrayList<String>()
 
+        /** The address lines of the text being read, for the DNS tunnels in it. */
+        private var resolvers = emptyList<String>()
+
         /** Issue #63: a node its core cannot run is logged and dropped ([CoreSupport]). */
         private fun produce(outbound: Outbound?) {
             if (outbound == null) return
@@ -70,6 +73,7 @@ object ProfileImport {
                 skip(outbound, problem)
                 return
             }
+            (outbound as? DnsTunnel)?.adoptResolvers(resolvers)
             produced.add(outbound)
         }
 
@@ -157,9 +161,14 @@ object ProfileImport {
             }
 
             if (needParse && text.contains('\n')) {
+                val outer = resolvers
+                val found = ArrayList<String>()
+                Scan.forEachLine(text) { line -> found.addAll(DnsTunnel.resolverList(line)); true }
+                resolvers = found.distinct().ifEmpty { outer }
                 Scan.forEachItem(text) { item ->
-                    document(item, allowBase64 = true, needParse = false, depth = depth + 1, overrideName = overrideName)
+                    if (DnsTunnel.resolverList(item).isEmpty()) document(item, allowBase64 = true, needParse = false, depth = depth + 1, overrideName = overrideName)
                 }
+                resolvers = outer
                 return
             }
 
