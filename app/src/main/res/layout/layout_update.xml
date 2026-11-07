@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:visibility="gone"
-        app:indicatorColor="?colorPrimary" />
+        app:indicatorColor="?attr/qtProgressColor" />
 
     <TextView
         android:id="@+id/progress_text"

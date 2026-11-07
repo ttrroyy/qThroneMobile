@@ -1,7 +1,7 @@
 # Graph Report - qThroneMobile  (2026-11-07)
 
 ## Corpus Check
-- 802 files · ~1,483,270 words
+- 802 files · ~1,483,281 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 686 file(s) not represented in the graph (top: .xml 657, .aidl 10, (none) 9)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2aed61ad`
+- Built from commit: `56cc6bb8`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -1060,7 +1060,7 @@ Nodes (3): probe(), Client, httpsFallbackTransport
 
 ### Community 219 - "qThroneMobile"
 Cohesion: 0.12
-Nodes (14): Install protocol, Reference sources, Storage and UI, Validation limits, VK relay deployment contract for mobile and future desktop port, RawlineMobile, Благодарности, Как добавить профиль (+6 more)
+Nodes (14): Install protocol, Reference sources, Storage and UI, Validation limits, VK relay deployment contract for mobile and future desktop port, RawlineMobile (бывший qThroneMobile), Благодарности, Как добавить профиль (+6 more)
 
 ### Community 222 - "RuleSetPickerActivity"
 Cohesion: 0.10
@@ -1347,7 +1347,7 @@ Nodes (10): CoreConfig, IpTestRunner, awaitCore(), isSkipReason(), LatencySweep,
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Instance` connect `authTestEndpoint` to `dnsTunnel`?**
-  _High betweenness centrality (0.198) - this node is a cross-community bridge._
+  _High betweenness centrality (0.205) - this node is a cross-community bridge._
 - **Are the 6 inferred relationships involving `JsonObject` (e.g. with `NativeTransportSettingsActivity.kt` and `init()`) actually correct?**
   _`JsonObject` has 6 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `Idle`, `Connecting`, `Connected` to the rest of the system?**
@@ -1355,7 +1355,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `app` be split into smaller, more focused modules?**
   _Cohesion score 0.04738985560903369 - nodes in this community are weakly interconnected._
 - **Why does `JsonObject` connect `JsonObject` to `app`, `r`, `ProfileImports.kt`, `RwlBackupTest.kt`, `RwlBackupTest.kt`, `Logs`, `BuildContext`, `jsonObjectOf`, `.parseObject`, `OpenVpn.kt`, `Custom`, `.parse`, `Outbound`, `ProxyEntity`, `AnyTls`, `.parseObjectOrNull`, `.append`, `Hysteria`, `CarrierBridgeCredentials`, `OutboundFactory`, `ProviderGeoAssets`, `WireGuard`, `ProviderRouteProfiles`, `GroupMenu.kt`, `r`, `Qwdtt`, `OpenFluxLinkTest`, `.check`, `ProviderRouting`, `LinkBuilder`, `SubUserInfo`, `Sstp`, `AutoSelector`, `RwlBackup`, `DataStore`, `ClashProxy`, `.proxies`, `ServerScreenActivity`, `Trojan`, `TrustTunnel`, `Mrtt`, `RouteRule`, `release_assets.py`, `Masque`, `XrayGeoAssets`, `DnsTunnelLinkTest`, `RouteProfile`, `CoreSupport`, `.buildMain`, `AutoSelectorStatus`, `RouteShare`?**
-  _High betweenness centrality (0.129) - this node is a cross-community bridge._
+  _High betweenness centrality (0.124) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `ProxyEntity` (e.g. with `.unmeasuredProfilesStayBelowEvenVerySlowWorkingProfiles()` and `.mainScreenUsesTheSameDesktopThresholdsAsProfileRows()`) actually correct?**
   _`ProxyEntity` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **Should `r` be split into smaller, more focused modules?**

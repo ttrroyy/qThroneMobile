@@ -8,6 +8,8 @@
     <attr name="qtSwitchThumb" format="reference" />
     <attr name="qtWellColor" format="color" />
     <attr name="qtSheetColor" format="color" />
+    <!-- Bars and spinners: the theme's primary colour is clear in the new style. -->
+    <attr name="qtProgressColor" format="color" />
     <style name="MobileStyleClassic">
         <item name="qtRowRadius">5dp</item>
         <item name="qtCardRadius">12dp</item>
@@ -16,6 +18,7 @@
         <item name="qtSwitchThumb">@drawable/mobile_switch_thumb</item>
         <item name="qtWellColor">#24000000</item>
         <item name="qtSheetColor">?android:attr/colorBackground</item>
+        <item name="qtProgressColor">?attr/colorPrimary</item>
     </style>
     <style name="MobileStyleNew">
         <item name="qtRowRadius">20dp</item>
@@ -30,6 +33,18 @@
         <item name="toolbarStyle">@style/MobileToolbarNew</item>
         <item name="bottomSheetDialogTheme">@style/MobileSheetThemeNew</item>
         <item name="materialButtonStyle">@style/MobileButtonNew</item>
+        <item name="qtProgressColor">?attr/colorAccent</item>
+        <item name="linearProgressIndicatorStyle">@style/MobileLinearProgressNew</item>
+        <item name="circularProgressIndicatorStyle">@style/MobileCircularProgressNew</item>
+    </style>
+    <style name="MobileLinearProgressNew" parent="Widget.MaterialComponents.LinearProgressIndicator">
+        <item name="indicatorColor">?attr/colorAccent</item>
+        <item name="trackColor">?attr/qtWellColor</item>
+        <item name="trackCornerRadius">3dp</item>
+        <item name="trackThickness">6dp</item>
+    </style>
+    <style name="MobileCircularProgressNew" parent="Widget.MaterialComponents.CircularProgressIndicator">
+        <item name="indicatorColor">?attr/colorAccent</item>
     </style>
     <!-- Dialog windows get no surface style: their fields and sheets still need these colours. -->
     <style name="MobileWellNewOled">
