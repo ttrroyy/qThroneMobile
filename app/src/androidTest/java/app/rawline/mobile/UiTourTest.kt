@@ -273,7 +273,8 @@ class UiTourTest {
         DataStore.nightTheme = night
         app.rawline.mobile.utils.Theme.currentNightMode = night
         DataStore.selectedProxy = fixtures().second.id
-        go()
+        // A failing step leaves its picture: the instrumentation output does not reach the job log.
+        runCatching(go).onFailure { shot("$style$night-%02d-%s-failed".format(index, name)); throw it }
         shot("$style$night-%02d-%s".format(index, name))
     }
 }
