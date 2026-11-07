@@ -125,6 +125,15 @@ class UiTourTest {
         }
         return found
     }
+    /** Clicks the app's own view with this description, whatever window the system shows over it. */
+    private fun click(title: Int) {
+        instrumentation.runOnMainSync {
+            val views = java.util.ArrayList<android.view.View>()
+            resumed().window.decorView.findViewsWithText(views, context.getString(title), android.view.View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION)
+            views.first().performClick()
+        }
+        Thread.sleep(2000)
+    }
     private fun touch(action: Int, x: Float, y: Float, downAt: Long) =
         instrumentation.sendPointerSync(android.view.MotionEvent.obtain(downAt, android.os.SystemClock.uptimeMillis(), action, x, y, 0))
     private fun editor(reset: Boolean = true) {
@@ -263,7 +272,7 @@ class UiTourTest {
             open(MrttServerActivity::class.java) { putExtra("server", server.id) }
             Thread.sleep(1500)
         },
-        "home-route-chip" to { RouteManager.ensureDefault(); home("groups", routeChip = true); tap(R.string.qmobile_route_chip) },
+        "home-route-chip" to { RouteManager.ensureDefault(); home("groups", routeChip = true); click(R.string.qmobile_route_chip) },
         "freeturn-clients" to {
             val server = app.rawline.mobile.deploy.DeployServer.create("freeturn")
             app.rawline.mobile.deploy.DeployStore.save(server)
