@@ -365,58 +365,35 @@ open class DeployEditorFragment : Fragment() {
         }
         operations+=button(body,"Установить / обновить",R.drawable.ic_mobile_core) { host.start(false) }
         operations+=button(body,"Удалить сервис с VPS",R.drawable.ic_mobile_delete) { host.start(true) }
+        // The install's state: its step and bar while it runs, the result after; the log opens on request.
         val console=card();consoleCard=console.parent as View
-        toggle=disclosure(console,"Консоль") { expanded=!expanded;expand() };consoleHeader=toggle?.parent as? View
         val content=column();console.addView(content);details=content
-        status=TextView(requireContext()).apply { setTextColor(MobilePalette.text);textSize=14f };content.addView(status)
-        progress=ProgressBar(requireContext(),null,android.R.attr.progressBarStyleHorizontal);content.addView(progress,LinearLayout.LayoutParams(-1,dp(16)))
-        output=TextView(requireContext()).apply { setTextColor(android.graphics.Color.rgb(134,235,149));typeface=android.graphics.Typeface.MONOSPACE;textSize=12f;setTextIsSelectable(true);setPadding(dp(12),dp(12),dp(12),dp(12)) }
-        logScroll=object: ScrollView(requireContext()) {
-            override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean {
-                if(event.actionMasked==android.view.MotionEvent.ACTION_DOWN) {
-                    touchingLogs=true;followLogs=false;parent.requestDisallowInterceptTouchEvent(true)
-                }
-                val handled=super.dispatchTouchEvent(event)
-                if(event.actionMasked==android.view.MotionEvent.ACTION_UP || event.actionMasked==android.view.MotionEvent.ACTION_CANCEL) {
-                    touchingLogs=false;followLogs=!canScrollVertically(1);parent.requestDisallowInterceptTouchEvent(false)
-                }
-                return handled
-            }
-        }.apply {
-            background=android.graphics.drawable.GradientDrawable().apply { setColor(android.graphics.Color.rgb(8,12,9));cornerRadius=dp(MobilePalette.wellDp).toFloat() };clipToOutline=true
-            isVerticalScrollBarEnabled=false;isHorizontalScrollBarEnabled=false;overScrollMode=View.OVER_SCROLL_NEVER
-            setOnScrollChangeListener { _: View, _: Int, _: Int, _: Int, _: Int ->
-                if(touchingLogs) followLogs=!canScrollVertically(1)
-                else if(!canScrollVertically(1)) followLogs=true
-            }
-            addView(output)
-        }
-        output?.addOnLayoutChangeListener { _,_,_,_,_,_,_,_,_ ->
-            if(followLogs && !touchingLogs) logScroll?.scrollTo(0,output?.height ?: 0)
-        }
-        content.addView(logScroll,LinearLayout.LayoutParams(-1,dp(220)))
-        stop=button(content,"Остановить") { host.cancelOperation() }.apply {
-            if(!MobileStyle.new) backgroundTintList=android.content.res.ColorStateList.valueOf(MobilePalette.background)
-            insetTop=0;insetBottom=0
-            (layoutParams as LinearLayout.LayoutParams).apply { topMargin=dp(12);bottomMargin=dp(6) }
-        }
-        val config=card();configCard=config.parent as View
-        configArrow=disclosure(config,DeployActivity.title(s.kind)+" конфиг") { configExpanded=!configExpanded;expand() }
-        val configBody=column();config.addView(configBody);configDetails=configBody
-        // The same share blocks as every server screen: the link, its QR code and, for qWDTT, the legacy wdtt:// link.
-        configBox=column().also { configBody.addView(it) }
+        status=TextView(requireContext()).apply { setTextColor(MobilePalette.text);textSize=15f;setTypeface(typeface,android.graphics.Typeface.BOLD) };content.addView(status)
+        progress=MobileProgress.bar(requireContext());content.addView(progress,LinearLayout.LayoutParams(-1,dp(8)).apply { topMargin=dp(10);bottomMargin=dp(4) })
+        val actions=LinearLayout(requireContext()).apply { gravity=android.view.Gravity.CENTER_VERTICAL }
+        content.addView(actions)
+        actions.addView(ServerUi(requireContext()).textButton("Журнал установки") { showLog() })
+        actions.addView(View(requireContext()),LinearLayout.LayoutParams(0,1,1f))
+        stop=MaterialButton(requireContext()).apply { visibility=View.GONE }
+        val cancel=ServerUi(requireContext()).textButton("Остановить") { host.cancelOperation() }
+        actions.addView(cancel);stopLabel=cancel
         expand();render(host.currentState())
     }
-    private fun expand() {
-        details?.visibility=if(expanded) View.VISIBLE else View.GONE
-        toggle?.setImageResource(if(expanded) R.drawable.ic_baseline_expand_less_24 else R.drawable.ic_baseline_expand_more_24)
-        consoleHeader?.contentDescription=if(expanded) "Консоль, раскрыта" else "Консоль, свёрнута"
-        configDetails?.visibility=if(configExpanded) View.VISIBLE else View.GONE
-        configArrow?.setImageResource(if(configExpanded) R.drawable.ic_baseline_expand_less_24 else R.drawable.ic_baseline_expand_more_24)
-        (configArrow?.parent as? View)?.contentDescription=if(configExpanded) "Конфиг, раскрыт" else "Конфиг, свёрнут"
+    private fun expand() {}
+    private var stopLabel: TextView?=null
+    private fun showLog() {
+        val text=shownLog.ifBlank { "Журнал пуст" }
+        val ui=ServerUi(requireContext())
+        ui.sheet("Журнал установки") { body,_ ->
+            body.addView(ui.text(text,12f,mono=true).apply { setTextIsSelectable(true);setPadding(dp(12),dp(12),dp(12),dp(12));background=ui.well() })
+            body.addView(ui.button("Поделиться") {
+                startActivity(android.content.Intent.createChooser(android.content.Intent(android.content.Intent.ACTION_SEND).setType("text/plain")
+                    .putExtra(android.content.Intent.EXTRA_TEXT,text),"Журнал установки"))
+            },LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(10) })
+        }
     }
+    private var shownLog=""
     fun revealConsole() {
-        expanded=true;followLogs=true;expand()
         (requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager).hideSoftInputFromWindow(scroll.windowToken,0)
         scroll.post { consoleCard?.let { scroll.smoothScrollTo(0,it.top) } }
     }
@@ -427,35 +404,16 @@ open class DeployEditorFragment : Fragment() {
             if(state.configCleared) s.recordUninstall()
             else if(state.config.isNotBlank()) s["config"]=state.config
         }
-        displayedConfig=DeployConfig.display(s?.get("config").orEmpty())
-        val legacy=if(s!=null && s.kind=="qwdtt" && displayedConfig.isNotBlank()) runCatching {
-            app.rawline.mobile.deploy.QwdttAdmin.links(s,s["name"].ifBlank { s["password"] },s["password"],emptyList()).second
-        }.getOrNull() else null
-        val shown=displayedConfig+" "+legacy.orEmpty()
-        if(configBox!=null && shown!=shownConfig) {
-            shownConfig=shown
-            val ui=ServerUi(requireContext())
-            configBox?.removeAllViews()
-            if(displayedConfig.isBlank()) configBox?.addView(ui.text("Конфиг появится после успешной установки",14f,MobilePalette.muted))
-            else {
-                configBox?.addView(ui.linkRow(null,displayedConfig,lines=4))
-                configBox?.addView(ui.qrRow(displayedConfig))
-                if(legacy!=null) configBox?.addView(ui.linkRow("Ссылка WDTT (легаси)",legacy))
-            }
-        }
-        status?.text=if(relevant) state.step+(if(state.running && !state.installerProgress && state.percent in 45..99) "" else " · "+state.percent+"%") else "Готово к подключению"
-        val logs="$ "+(s?.kind ?: "deploy")+" deploy\n"+(if(relevant) state.logs.ifBlank { "Ожидание подключения к VPS…" } else "Ожидание подключения к VPS…")
-        if(output?.text?.toString()!=logs) {
-            output?.text=logs
-            if(followLogs) logScroll?.post { if(followLogs && !touchingLogs) logScroll?.scrollTo(0,output?.height ?: 0) }
-        }
+        // Seen while this server's install runs and after it, until the screen is left.
+        consoleCard?.visibility=if(relevant && (state.running || state.logs.isNotBlank())) View.VISIBLE else View.GONE
+        status?.text=if(relevant) state.step+(if(state.running && !state.installerProgress && state.percent in 45..99) "" else " · "+state.percent+"%") else ""
+        shownLog=if(relevant) state.logs else ""
         progress?.progress=if(relevant) state.percent else 0
         progress?.isIndeterminate=relevant && state.running && !state.installerProgress && state.percent in 45..99
-        stop?.apply {
+        stopLabel?.apply {
+            visibility=if(relevant && state.running) View.VISIBLE else View.GONE
             isEnabled=relevant && state.running && !state.stopping
             text=if(relevant && state.stopping) "Останавливаю…" else "Остановить"
-            alpha=if(isEnabled) 1f else .45f
-            setTextColor(if(isEnabled) MobilePalette.accent(requireContext()) else MobilePalette.muted)
         }
         operations.forEach { it.isEnabled=!state.running }
         // Keep the encrypted record consistent with the operation's SSH/settings snapshot.

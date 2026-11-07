@@ -50,7 +50,7 @@ class Freeturn : Outbound("freeturn"), NativeCarrier {
     override fun displayAddress(): String = Hosts.displayAddress(server, serverPort)
 
     /** A bare hash from the hash screen is a call link too. */
-    private fun linkList() = links.split('\n', ',').map { it.trim() }.filter { it.isNotEmpty() }.map { if ('/' in it) it else CALL_LINK + it }
+    private fun linkList() = callLinks(links)
 
     /** A launch-only copy, as for qWDTT: account calls stay out of stored profiles, exports and subscriptions. */
     fun withCalls(hashes: List<String>): Freeturn {
@@ -165,6 +165,10 @@ class Freeturn : Outbound("freeturn"), NativeCarrier {
     companion object {
         const val SCHEME = "freeturn://"
         const val CALL_LINK = "https://vk.com/call/join/"
+
+        /** Call links or bare codes, one per line or comma: each becomes https://vk.com/call/join/<code>, as normalizeVKLinks of the client reads it. */
+        fun callLinks(text: String) = text.split('\n', ',').map { it.trim().substringAfterLast("join/").substringBefore('?').substringBefore('#').trimEnd('/') }
+            .filter { it.isNotEmpty() && it.none(Char::isWhitespace) }.distinct().map { CALL_LINK + it }
         const val DEFAULT_THREADS = 12
         // WireGuard goes over TURN: the original's constant, the server keeps the same value.
         const val WG_MTU = 1280

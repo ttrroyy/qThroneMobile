@@ -51,6 +51,10 @@ object MobileHomeLayout {
     var chipBottom: Boolean
         get() = MobileStyle.new && store.getString("qmobileChipPosition") == "bottom"
         set(value) = store.putString("qmobileChipPosition", position(value))
+    /** The routing profile beside the subscription, in the new style. */
+    var extendedChip: Boolean
+        get() = MobileStyle.new && store.getBoolean("qmobileChipExtended", false)
+        set(value) = store.putBoolean("qmobileChipExtended", value)
     /** Between the connection control and the servers, rather than on the control's outer side. */
     var chipNearList: Boolean
         get() = MobileStyle.new && store.getBoolean("qmobileChipNearList", false)
@@ -98,7 +102,7 @@ class MobileLayoutEditorActivity : ServerScreenActivity() {
         body.addView(FrameLayout(this).apply { addView(Miniature(this@MobileLayoutEditorActivity), FrameLayout.LayoutParams(-2, -2, Gravity.CENTER)) },
             if (landscape) LinearLayout.LayoutParams(0, -1, 1f) else LinearLayout.LayoutParams(-1, 0, 1f))
         body.addView(ui.card().apply {
-            for (hint in listOf(R.string.qmobile_layout_hint_move, R.string.qmobile_layout_hint_tiles, R.string.qmobile_layout_hint_control)) addView(ui.text(getString(hint), 14f, MobilePalette.muted).apply { setPadding(dp(4), dp(3), dp(4), dp(3)) })
+            for (hint in listOf(R.string.qmobile_layout_hint_move, R.string.qmobile_layout_hint_tiles, R.string.qmobile_layout_hint_control) + if (MobileStyle.new) listOf(R.string.qmobile_layout_hint_chip) else emptyList()) addView(ui.text(getString(hint), 14f, MobilePalette.muted).apply { setPadding(dp(4), dp(3), dp(4), dp(3)) })
         }, if (landscape) LinearLayout.LayoutParams(dp(260), -2).apply { marginStart = dp(12); gravity = Gravity.CENTER_VERTICAL } else LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(12) })
         root.addView(body, LinearLayout.LayoutParams(-1, 0, 1f))
         ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
@@ -180,6 +184,9 @@ class MobileLayoutEditorActivity : ServerScreenActivity() {
                 place(part, index == 1); anchor.requestFocus(); true
             }
         }
+        if (part == Part.CHIP) resources.getStringArray(R.array.qmobile_home_tiles_entries).forEachIndexed { index, label ->
+            popup.menu.add(label).setOnMenuItemClickListener { setChipExtended(index == 0); true }
+        }
         if (part == Part.CHIP) popup.menu.add(R.string.qmobile_layout_chip_near).setOnMenuItemClickListener {
             MobileHomeLayout.chipNearList = true
             place(part, MobileHomeLayout.controlBottom); anchor.requestFocus(); true
@@ -198,6 +205,13 @@ class MobileLayoutEditorActivity : ServerScreenActivity() {
         fill(Part.CONTROL)
         val modes = resources.getStringArray(R.array.qmobile_home_control_entries)
         MobileTopNotice.show(this, getString(R.string.qmobile_home_control) + ": " + modes[if (switches) 1 else 0])
+    }
+
+    private fun setChipExtended(extended: Boolean) {
+        MobileHomeLayout.extendedChip = extended
+        fill(Part.CHIP)
+        val modes = resources.getStringArray(R.array.qmobile_home_tiles_entries)
+        MobileTopNotice.show(this, getString(R.string.qmobile_layout_chip) + ": " + modes[if (extended) 0 else 1])
     }
 
     private fun setExtended(extended: Boolean) {
@@ -237,6 +251,9 @@ class MobileLayoutEditorActivity : ServerScreenActivity() {
 
     private fun chip() = LinearLayout(this).apply {
         gravity = Gravity.CENTER_VERTICAL
+        if (MobileHomeLayout.extendedChip) addView(ui.text(getString(R.string.qmobile_route_chip), 16f, bold = true).apply {
+            gravity = Gravity.CENTER_VERTICAL; maxLines = 1; setPadding(dp(16), 0, dp(12), 0); background = MobilePalette.rowShape(context)
+        }, LinearLayout.LayoutParams(0, dp(48), .8f).apply { marginEnd = dp(8) })
         addView(ui.text(getString(R.string.subscription), 16f, bold = true).apply {
             gravity = Gravity.CENTER_VERTICAL; maxLines = 1; setPadding(dp(16), 0, dp(12), 0); background = MobilePalette.rowShape(context)
         }, LinearLayout.LayoutParams(0, dp(48), 1f).apply { marginEnd = dp(8) })
@@ -348,6 +365,7 @@ class MobileLayoutEditorActivity : ServerScreenActivity() {
                 when (partAt(event.y / scale)) {
                     Part.TILES -> setExtended(!MobileHomeLayout.extendedTiles)
                     Part.CONTROL -> setSwitches(!MobileHomeLayout.controlSwitches)
+                    Part.CHIP -> setChipExtended(!MobileHomeLayout.extendedChip)
                     else -> {}
                 }
                 return true

@@ -87,16 +87,18 @@ class MrttAdmin(private val server: DeployServer) {
         val channel = ssh.openChannel("direct-tcpip") as ChannelDirectTCPIP
         channel.setHost("127.0.0.1"); channel.setPort(server.port("webPort"))
         val input = channel.inputStream; val output = channel.outputStream
-        try { channel.connect(20_000) } catch(_: Exception) { throw MrttApiException("MRTT не установлен") }
+        val opening = System.currentTimeMillis()
+        // A refusal comes at once and means nothing listens; silence means the kept connection died, so it goes back to be retried.
+        try { channel.connect(10_000) } catch(error: Exception) {
+            if(System.currentTimeMillis()-opening>=9_000 || !ssh.isConnected) throw java.io.IOException(error)
+            throw MrttApiException("MRTT не установлен")
+        }
         try {
             output.write(head.toByteArray(Charsets.US_ASCII)); output.write(payload); output.flush()
             return parseResponse(input.readBytes())
         } finally { channel.disconnect() }
     }
-    fun request(method: String,path: String,body: String? = null): String {
-        val ssh = session()
-        try { return exchange(ssh,method,path,body) } finally { ssh.disconnect() }
-    }
+    fun request(method: String,path: String,body: String? = null): String = SshSessions.use(server) { exchange(it,method,path,body) }
     fun get(path: String) = request("GET",path)
     fun post(path: String,body: JSONObject? = null) = request("POST",path,(body ?: JSONObject()).toString())
     fun put(path: String,body: JSONObject) = request("PUT",path,body.toString())

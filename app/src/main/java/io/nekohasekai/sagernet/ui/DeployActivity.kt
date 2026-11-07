@@ -75,7 +75,7 @@ class DeployActivity : ServerScreenActivity() {
         }
         // MRTT installs run side by side, each with its own state; the toolbar button shows them while any goes.
         if(kind=="mrtt") {
-            MrttDeployJobs.attach(this,toolbar)
+            if(!intent.getBooleanExtra("directEditor",false)) MrttDeployJobs.attach(this,toolbar,this)
             lifecycleScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
                     app.rawline.mobile.deploy.MrttDeploy.states.collect { states ->

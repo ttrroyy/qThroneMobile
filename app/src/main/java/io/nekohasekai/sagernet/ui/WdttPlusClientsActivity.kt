@@ -192,16 +192,23 @@ class WdttPlusClientsActivity : ServerScreenActivity() {
         }
         initial.ifEmpty { listOf("") }.forEach(::add)
         body.addView(box)
-        body.addView(ui.text("+ Добавить хеш", 15f, ui.accent).apply { setPadding(0, ui.dp(10), 0, ui.dp(10)); setOnClickListener { add("") } })
+        body.addView(LinearLayout(this).apply { addView(ui.textButton("+ Добавить хеш") { add("") }) })
+        ui.createdCallsButton(body, 4) { picked ->
+            val fields = (0 until box.childCount).map { (box.getChildAt(it) as LinearLayout).getChildAt(0) as EditText }
+            for (hash in picked.filter { hash -> fields.none { VkCallHash.strip(it.text.toString()) == hash } }) {
+                val empty = (0 until box.childCount).map { (box.getChildAt(it) as LinearLayout).getChildAt(0) as EditText }.firstOrNull { it.text.isBlank() }
+                if (empty != null) empty.setText(hash) else add(hash)
+            }
+        }
         return { (0 until box.childCount).mapNotNull { ((box.getChildAt(it) as LinearLayout).getChildAt(0) as EditText).text.toString().let(VkCallHash::strip).takeIf(String::isNotEmpty) }.distinct() }
     }
 
     /** As in WDTT Plus: a name, VK hashes (may be empty), a term in days and an optional own password. */
     private fun createForm() = sheet("Новый клиент") { body, sheet ->
-        val label = ui.input("Имя (кому выдан)"); body.addView(label)
+        val label = ui.field(body, "Имя (кому выдан)")
         val hashes = hashFields(body, emptyList())
-        val days = ui.input("Дней (0 — бессрочно)", "30", number = true); body.addView(days)
-        val password = ui.input("Пароль (пусто — сгенерировать)"); body.addView(password)
+        val days = ui.field(body, "Дней (0 — бессрочно)", "30", number = true)
+        val password = ui.field(body, "Пароль (пусто — сгенерировать)")
         body.addView(ui.gap(12))
         body.addView(ui.button("Создать", primary = true) {
             val count = days.text.toString().toIntOrNull()?.takeIf { it in 0..365 } ?: return@button Toast.makeText(this, "Дней: от 0 до 365", Toast.LENGTH_SHORT).show()
@@ -232,10 +239,10 @@ class WdttPlusClientsActivity : ServerScreenActivity() {
             body.addView(ui.button("Отвязать устройство") { sheet.dismiss(); request(access.password, { admin.action("unbind", access.password) }) { refresh() } })
         }
         body.addView(ui.section("Изменить"))
-        val label = ui.input("Имя", access.label); body.addView(label)
+        val label = ui.field(body, "Имя", access.label)
         val hashes = hashFields(body, access.hashes)
-        val days = ui.input("Новый срок в днях (пусто — без изменений)", "", number = true); body.addView(days)
-        val password = ui.input("Новый пароль (пусто — без изменений)"); body.addView(password)
+        val days = ui.field(body, "Новый срок в днях (пусто — без изменений)", "", number = true)
+        val password = ui.field(body, "Новый пароль (пусто — без изменений)")
         body.addView(ui.gap(12))
         body.addView(ui.button("Сохранить", primary = true) {
             val newLabel = label.text.toString().trim(); val newHashes = hashes()
@@ -254,10 +261,10 @@ class WdttPlusClientsActivity : ServerScreenActivity() {
     }
 
     private fun settingsForm(server: org.json.JSONObject) = sheet("Настройки сервера") { body, sheet ->
-        val dns = ui.input("DNS для клиентов", server.optString("dns")); body.addView(dns)
-        val limit = ui.input("Лимит доступов", server.optInt("max_passwords", 50).toString(), number = true); body.addView(limit)
-        val ports = ui.input("Порты по умолчанию (DTLS,WG,локальный)", server.optString("default_ports")); body.addView(ports)
-        val host = ui.input("Публичный адрес (пусто — авто)", server.optString("public_ip")); body.addView(host)
+        val dns = ui.field(body, "DNS для клиентов", server.optString("dns"))
+        val limit = ui.field(body, "Лимит доступов", server.optInt("max_passwords", 50).toString(), number = true)
+        val ports = ui.field(body, "Порты по умолчанию (DTLS,WG,локальный)", server.optString("default_ports"))
+        val host = ui.field(body, "Публичный адрес (пусто — авто)", server.optString("public_ip"))
         body.addView(ui.gap(12))
         body.addView(ui.button("Сохранить", primary = true) {
             val value = limit.text.toString().toIntOrNull()?.takeIf { it in 1..500 } ?: return@button Toast.makeText(this, "Лимит: от 1 до 500", Toast.LENGTH_SHORT).show()

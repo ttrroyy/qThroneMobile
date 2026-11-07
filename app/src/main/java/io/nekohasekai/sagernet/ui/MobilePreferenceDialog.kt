@@ -12,8 +12,13 @@ class MobilePreferenceDialog : EditTextPreferenceDialogFragmentCompat() {
         val density = resources.displayMetrics.density
         MobileAlertDialogBuilder.style(alert)
         alert.findViewById<android.widget.EditText>(android.R.id.edit)?.apply {
-            setTextColor(MobilePalette.text)
-            backgroundTintList = android.content.res.ColorStateList.valueOf(MobilePalette.accent(requireContext()))
+            // The same dark well as every input of the app: tinting the theme's own field turned it into a white bar.
+            setTextColor(MobilePalette.text); setHintTextColor(MobilePalette.muted)
+            backgroundTintList = null
+            background = android.graphics.drawable.GradientDrawable().apply { setColor(MobilePalette.well); cornerRadius = MobilePalette.wellDp * density }
+            setPadding((14 * density).toInt(), (12 * density).toInt(), (14 * density).toInt(), (12 * density).toInt())
+            minHeight = (48 * density).toInt()
+            MobilePalette.tintCursor(this)
             if(preference is HashTextPreference) {
                 val input=this
                 val parent=input.parent as? android.view.ViewGroup

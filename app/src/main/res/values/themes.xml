@@ -47,6 +47,8 @@
         <item name="textInputStyle">@style/Widget.SagerNet.TextInputLayout</item>
         <item name="popupMenuStyle">@style/Widget.SagerNet.PopupMenu</item>
         <item name="actionOverflowMenuStyle">@style/Widget.SagerNet.PopupMenu.Overflow</item>
+        <item name="dropDownListViewStyle">@style/Widget.SagerNet.DropDownList</item>
+        <item name="android:dropDownListViewStyle">@style/Widget.SagerNet.DropDownList</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.SagerNet.BottomSheetDialog</item>
         <item name="materialButtonStyle">@style/Widget.SagerNet.Button</item>
         <item name="textAppearanceButton">@style/TextAppearance.SagerNet.Button</item>
@@ -103,6 +105,8 @@
         <item name="textInputStyle">@style/Widget.SagerNet.TextInputLayout</item>
         <item name="popupMenuStyle">@style/Widget.SagerNet.PopupMenu</item>
         <item name="actionOverflowMenuStyle">@style/Widget.SagerNet.PopupMenu.Overflow</item>
+        <item name="dropDownListViewStyle">@style/Widget.SagerNet.DropDownList</item>
+        <item name="android:dropDownListViewStyle">@style/Widget.SagerNet.DropDownList</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.SagerNet.BottomSheetDialog</item>
         <item name="materialButtonStyle">@style/Widget.SagerNet.Button</item>
         <item name="textAppearanceButton">@style/TextAppearance.SagerNet.Button</item>
@@ -289,6 +293,10 @@
     <style name="Widget.SagerNet.PopupMenu" parent="Widget.MaterialComponents.PopupMenu">
         <item name="android:popupBackground">@drawable/bg_popup_menu</item>
         <item name="android:popupAnimationStyle">@style/PopupMenuAnimation</item>
+    </style>
+    <style name="Widget.SagerNet.DropDownList" parent="Widget.AppCompat.ListView.DropDown">
+        <item name="android:listSelector">@drawable/bg_popup_item</item>
+        <item name="android:drawSelectorOnTop">false</item>
     </style>
     <style name="Widget.SagerNet.PopupMenu.Overflow" parent="Widget.MaterialComponents.PopupMenu.Overflow">
         <item name="android:popupBackground">@drawable/bg_popup_menu</item>

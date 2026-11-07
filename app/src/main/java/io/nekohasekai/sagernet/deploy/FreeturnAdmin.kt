@@ -36,6 +36,15 @@ object FreeturnRpc {
     }
 
     fun shellQuote(value: String) = DeployProtocol.quote(value)
+
+    /** The link with the client's call in it: the server keeps no calls, the link's own «vk» field carries them. */
+    fun withCalls(link: String, calls: String): String {
+        val scheme = "freeturn://"
+        if (calls.isBlank() || !link.startsWith(scheme)) return link
+        val json = JSONObject(String(java.util.Base64.getUrlDecoder().decode(link.removePrefix(scheme)), Charsets.UTF_8))
+        json.put("vk", calls.split('\n', ',').map { it.trim() }.filter { it.isNotEmpty() }.joinToString("\n"))
+        return scheme + java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(json.toString().toByteArray(Charsets.UTF_8))
+    }
 }
 
 /** The client list of a deployed FreeTurn server. */
@@ -50,8 +59,7 @@ class FreeturnAdmin(private val server: DeployServer) {
     val available: Boolean get() = server["installed"] == "true" && server["hostKey"].isNotBlank()
 
     private fun call(vararg arguments: String): JSONObject {
-        val ssh: Session = WdttPlusAdmin(server).session()
-        try {
+        return SshSessions.use(server) { ssh ->
             val command = (listOf("bash", FreeturnRpc.SCRIPT) + arguments).joinToString(" ") { FreeturnRpc.shellQuote(it) }
             val plan = rootStdinPlan(command, server["sudoPassword"].ifBlank { server["sshPassword"] }, "")
             val channel = ssh.openChannel("exec") as ChannelExec
@@ -61,8 +69,8 @@ class FreeturnAdmin(private val server: DeployServer) {
             channel.connect(30_000)
             val output = input.bufferedReader().use { it.readText() }
             channel.disconnect()
-            return FreeturnRpc.data(output)
-        } finally { ssh.disconnect() }
+            FreeturnRpc.data(output)
+        }
     }
 
     fun clients(): List<Client> {

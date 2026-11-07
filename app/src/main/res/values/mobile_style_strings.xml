@@ -14,5 +14,9 @@
     <string name="qmobile_layout_tiles">Tiles</string>
     <string name="qmobile_layout_chip">Subscription row</string>
     <string name="qmobile_layout_chip_near">Between the connection and the servers</string>
+    <string name="qmobile_layout_hint_chip">Double-tap the subscription to show the routing profile beside it.</string>
+    <string name="qmobile_route_chip">Routing</string>
+    <string name="qmobile_route_add">Add a profile</string>
+    <string name="qmobile_route_manage">Manage profiles</string>
     <string name="qmobile_layout_control">Connection control</string>
 </resources>

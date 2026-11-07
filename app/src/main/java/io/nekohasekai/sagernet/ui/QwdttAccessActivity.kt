@@ -147,8 +147,7 @@ class QwdttAccessActivity : ServerScreenActivity() {
         val sheet = MobileSheetDialog(this)
         val body = ui.column(20).apply { setBackgroundColor(MobilePalette.surface) }
         body.addView(ui.text(if (existing == null) "Новый пароль доступа" else "Изменить доступ", 22f, bold = true))
-        val label = ui.input("Имя (кому выдан)", existing?.label.orEmpty())
-        body.addView(label)
+        val label = ui.field(body, "Имя (кому выдан)", existing?.label.orEmpty())
         body.addView(ui.text("VK хеши", 14f, MobilePalette.muted).apply { setPadding(0, ui.dp(14), 0, 0) })
         val hashBox = ui.column()
         fun addHash(value: String) {
@@ -161,14 +160,22 @@ class QwdttAccessActivity : ServerScreenActivity() {
         }
         (existing?.hashes?.ifEmpty { null } ?: listOf("")).forEach(::addHash)
         body.addView(hashBox)
-        body.addView(ui.text("+ Добавить хеш", 15f, ui.accent).apply {
-            setPadding(0, ui.dp(10), 0, ui.dp(10)); setOnClickListener { addHash("") }
-        })
-        val days = ui.input(if (existing == null) "Дней" else "Продлить на дней (пусто — без изменений)", if (existing == null) "30" else "", number = true)
-        val devices = ui.input("Устройств", (existing?.maxDevices ?: 1).toString(), number = true)
         body.addView(LinearLayout(this).apply {
-            addView(days, LinearLayout.LayoutParams(0, -2, 1f).apply { marginEnd = ui.dp(8) })
-            addView(devices, LinearLayout.LayoutParams(0, -2, 1f))
+            addView(ui.textButton("+ Добавить хеш") { addHash("") })
+        })
+        ui.createdCallsButton(body, 16) { picked ->
+            val present = (0 until hashBox.childCount).map { ((hashBox.getChildAt(it) as LinearLayout).getChildAt(0) as android.widget.EditText).text.toString().let(VkCallHash::strip) }
+            for (hash in picked.filter { it !in present }) {
+                val empty = (0 until hashBox.childCount).map { (hashBox.getChildAt(it) as LinearLayout).getChildAt(0) as android.widget.EditText }.firstOrNull { it.text.isBlank() }
+                if (empty != null) empty.setText(hash) else addHash(hash)
+            }
+        }
+        val left = ui.column(); val right = ui.column()
+        val days = ui.field(left, if (existing == null) "Дней" else "Продлить на дней (пусто — без изменений)", if (existing == null) "30" else "", number = true)
+        val devices = ui.field(right, "Устройств", (existing?.maxDevices ?: 1).toString(), number = true)
+        body.addView(LinearLayout(this).apply {
+            addView(left, LinearLayout.LayoutParams(0, -2, 1f).apply { marginEnd = ui.dp(8) })
+            addView(right, LinearLayout.LayoutParams(0, -2, 1f))
         })
         body.addView(ui.gap(12))
         body.addView(ui.button(if (existing == null) "Создать" else "Сохранить", primary = true) {

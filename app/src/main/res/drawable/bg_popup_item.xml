@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A menu row lights up as a rounded pill inside the rounded menu, not as a square past its corners. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android" android:exitFadeDuration="@android:integer/config_shortAnimTime">
+    <item android:state_pressed="true">
+        <inset android:insetLeft="6dp" android:insetRight="6dp" android:insetTop="2dp" android:insetBottom="2dp">
+            <shape android:shape="rectangle"><corners android:radius="12dp" /><solid android:color="?attr/colorControlHighlight" /></shape>
+        </inset>
+    </item>
+    <item android:state_focused="true">
+        <inset android:insetLeft="6dp" android:insetRight="6dp" android:insetTop="2dp" android:insetBottom="2dp">
+            <shape android:shape="rectangle"><corners android:radius="12dp" /><solid android:color="?attr/colorControlHighlight" /></shape>
+        </inset>
+    </item>
+    <item android:drawable="@android:color/transparent" />
+</selector>

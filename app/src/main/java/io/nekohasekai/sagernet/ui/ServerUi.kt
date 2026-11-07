@@ -12,8 +12,12 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.view.ContextThemeWrapper
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.graphics.ColorUtils
 import app.rawline.mobile.R
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 
 /** The building blocks of the server screens, in the look of the deploy list and editor. */
 internal class ServerUi(private val context: Context) {
@@ -81,6 +85,144 @@ internal class ServerUi(private val context: Context) {
         background = well(); setPadding(dp(12), dp(10), dp(12), dp(10)); minimumHeight = dp(48); MobilePalette.tintCursor(this)
         layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(8) }
         if (number) inputType = InputType.TYPE_CLASS_NUMBER
+    }
+
+    /** A field whose label floats above the value, like the deploy editor's: a filled value never hides what it means. */
+    fun field(parent: LinearLayout, label: String, value: String = "", number: Boolean = false, secret: Boolean = false, multiline: Boolean = false): EditText {
+        val accentColor = ColorStateList.valueOf(accent)
+        val box = TextInputLayout(ContextThemeWrapper(context, R.style.MobileDeployInputOverlay)).apply {
+            hint = label; boxBackgroundMode = TextInputLayout.BOX_BACKGROUND_FILLED
+            boxBackgroundColor = MobilePalette.well; boxStrokeWidth = 0; boxStrokeWidthFocused = 0
+            val radius = dp(MobilePalette.wellDp).toFloat()
+            setBoxCornerRadii(radius, radius, radius, radius)
+            defaultHintTextColor = ColorStateList.valueOf(MobilePalette.muted); hintTextColor = accentColor
+            setEndIconTintList(accentColor)
+            if (secret) endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
+        }
+        val editor = TextInputEditText(box.context).apply {
+            textSize = 16f; setTextColor(MobilePalette.text); minimumHeight = dp(48); setPadding(dp(12), dp(24), dp(12), dp(8))
+            inputType = when {
+                number -> InputType.TYPE_CLASS_NUMBER
+                secret -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                multiline -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                else -> InputType.TYPE_CLASS_TEXT
+            }
+            if (multiline) minLines = 2 else isSingleLine = true
+            setText(value); MobilePalette.tintCursor(this)
+            setOnFocusChangeListener { view, focused -> if (focused) view.post { MobilePalette.tintCursor(this) } }
+        }
+        box.addView(editor, LinearLayout.LayoutParams(-1, -2))
+        parent.addView(box, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(8) })
+        return editor
+    }
+
+    /** A setting with its name on the left and the choice on the right, as the original apps draw it. */
+    fun dropdown(parent: LinearLayout, title: String, options: List<Pair<String, String>>, selected: String, enabled: Boolean = true, picked: (String) -> Unit = {}) {
+        var current = selected
+        fun caption() = options.firstOrNull { it.first == current }?.second ?: options.firstOrNull()?.second.orEmpty()
+        val choice = text(caption(), 14f, MobilePalette.text).apply {
+            gravity = Gravity.CENTER_VERTICAL; maxLines = 2; ellipsize = android.text.TextUtils.TruncateAt.END
+            minimumHeight = dp(44); setPadding(dp(14), dp(6), dp(10), dp(6)); background = MobilePalette.rowShape(context); compoundDrawablePadding = dp(6)
+            androidx.core.content.ContextCompat.getDrawable(context, R.drawable.ic_baseline_expand_more_24)?.mutate()?.let {
+                it.setTint(MobilePalette.muted); it.setBounds(0, 0, dp(20), dp(20)); setCompoundDrawablesRelative(null, null, it, null)
+            }
+            isFocusable = enabled
+            if (enabled) MobileFeedback.apply(this)
+            setOnClickListener { anchor ->
+                if (!enabled) return@setOnClickListener
+                val popup = androidx.appcompat.widget.PopupMenu(context, anchor, Gravity.END)
+                options.forEach { (key, label) ->
+                    popup.menu.add(label).apply { isCheckable = true; isChecked = key == current }.setOnMenuItemClickListener {
+                        current = key; this@apply.text = caption(); picked(key); true
+                    }
+                }
+                popup.show()
+            }
+        }
+        parent.addView(LinearLayout(context).apply {
+            gravity = Gravity.CENTER_VERTICAL; alpha = if (enabled) 1f else .5f; setPadding(0, dp(4), 0, dp(4))
+            addView(text(title, 15f), LinearLayout.LayoutParams(0, -2, 1f).apply { marginEnd = dp(8) })
+            addView(choice, LinearLayout.LayoutParams(-2, -2).apply { width = -2 })
+        }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(4) })
+    }
+
+    fun switchRow(parent: LinearLayout, title: String, checked: Boolean, changed: (Boolean) -> Unit = {}): SwitchCompat {
+        val switch = SwitchCompat(context).apply { isChecked = checked; setOnClickListener { changed(isChecked) } }
+        parent.addView(LinearLayout(context).apply {
+            gravity = Gravity.CENTER_VERTICAL; minimumHeight = dp(44)
+            addView(text(title, 15f), LinearLayout.LayoutParams(0, -2, 1f).apply { marginEnd = dp(8) })
+            addView(switch)
+        }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(4) })
+        return switch
+    }
+
+    /** Two or more choices side by side, the deploy editor's «Пароль / SSH-ключ». */
+    fun segmented(parent: LinearLayout, options: List<Pair<String, String>>, selected: String, picked: (String) -> Unit = {}) {
+        val row = LinearLayout(context)
+        fun draw(current: String) {
+            row.removeAllViews()
+            options.forEachIndexed { index, (key, label) ->
+                row.addView(button(label, primary = key == current) { draw(key); picked(key) }.apply { textSize = 14f },
+                    LinearLayout.LayoutParams(0, -2, 1f).apply { if (index > 0) marginStart = dp(8) })
+            }
+        }
+        draw(selected)
+        parent.addView(row, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(6) })
+    }
+
+    /** A small action in the text colour of the links, without a surface. */
+    fun textButton(label: String, danger: Boolean = false, click: () -> Unit) = text(label, 14f, if (danger) android.graphics.Color.rgb(232, 120, 112) else accent, bold = true).apply {
+        gravity = Gravity.CENTER_VERTICAL; minimumHeight = dp(40); setPadding(dp(8), dp(6), dp(8), dp(6))
+        isFocusable = true; setOnClickListener { click() }; MobileFeedback.apply(this)
+    }
+
+    /** Small actions that wrap to the next line; [chosen] marks the one in force. */
+    fun chips(items: List<Pair<String, () -> Unit>>, chosen: Int = -1) = com.google.android.material.chip.ChipGroup(context).apply {
+        chipSpacingHorizontal = dp(6); chipSpacingVertical = dp(6)
+        items.forEachIndexed { index, (label, click) ->
+            addView(button(label, primary = index == chosen) { click() }.apply { textSize = 13f; minimumHeight = dp(38); setPadding(dp(12), dp(4), dp(12), dp(4)) })
+        }
+    }
+
+    /** A row of a list: title, line under it, no icon. */
+    fun item(title: String, subtitle: String?, click: (() -> Unit)? = null) = column(12).apply {
+        background = MobilePalette.rowShape(context)
+        addView(text(title, 15f, bold = true).apply { maxLines = 2; ellipsize = android.text.TextUtils.TruncateAt.END })
+        if (subtitle != null) addView(text(subtitle, 13f, MobilePalette.muted).apply { setPadding(0, dp(3), 0, 0) })
+        if (click != null) { isFocusable = true; setOnClickListener { click() }; MobileFeedback.apply(this) }
+    }
+
+    /** Every server form: a bottom sheet with a title, its fields and, when given, the one button that applies them. */
+    fun sheet(title: String, action: String? = null, apply: () -> Boolean = { true }, fill: (LinearLayout, MobileSheetDialog) -> Unit): MobileSheetDialog {
+        val sheet = MobileSheetDialog(context)
+        val body = column(20).apply { setBackgroundColor(MobilePalette.surface) }
+        body.addView(text(title, 22f, bold = true).apply { setPadding(0, 0, 0, dp(4)) })
+        fill(body, sheet)
+        if (action != null) body.addView(button(action, primary = true) { if (apply()) sheet.dismiss() },
+            LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(16) })
+        sheet.setContentView(android.widget.ScrollView(context).apply { addView(body) }); sheet.show()
+        return sheet
+    }
+
+    fun hint(parent: LinearLayout, value: String, color: Int = MobilePalette.muted) = parent.addView(text(value, 13f, color).apply { setPadding(0, dp(6), 0, 0) })
+
+    fun heading(parent: LinearLayout, value: String) = parent.addView(text(value, 15f, bold = true).apply { setPadding(0, dp(14), 0, dp(2)) })
+
+    /** The calls made in the client from the linked VK account, to pick instead of copying them over by hand. */
+    fun pickCreatedCalls(limit: Int, chosen: (List<String>) -> Unit) {
+        val created = runCatching { app.rawline.mobile.bg.carrier.VkRelayAccount.cachedHashes() }.getOrDefault(emptyList())
+        if (created.isEmpty()) {
+            android.widget.Toast.makeText(context, "Созданных звонков нет: создайте их в «Хешах» настроек VK-релея", android.widget.Toast.LENGTH_LONG).show(); return
+        }
+        val checks = BooleanArray(created.size)
+        MobileAlertDialogBuilder(context).setTitle("Созданные звонки").setMultiChoiceItems(created.toTypedArray(), checks) { _, index, on -> checks[index] = on }
+            .setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton("Выбрать") { _, _ -> chosen(created.filterIndexed { index, _ -> checks[index] }.take(limit)) }.show()
+    }
+
+    /** Shown only with a linked VK account. */
+    fun createdCallsButton(parent: LinearLayout, limit: Int, chosen: (List<String>) -> Unit) {
+        if (app.rawline.mobile.bg.carrier.VkRelayAccount.linked()) parent.addView(textButton("Выбрать из созданных в клиенте") { pickCreatedCalls(limit, chosen) })
     }
 
     /** Label and value, the statistics row of an access card. */

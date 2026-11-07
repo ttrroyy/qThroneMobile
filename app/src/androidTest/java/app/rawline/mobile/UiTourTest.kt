@@ -82,8 +82,10 @@ class UiTourTest {
         })
         return group to SagerDatabase.proxyDao.getByGroup(group.id).first()
     }
-    private fun home(mode: String, control: String = "button", bottom: Boolean = false, chip: String = "top", tiles: String = "off") {
+    private fun home(mode: String, control: String = "button", bottom: Boolean = false, chip: String = "top", tiles: String = "off", routeChip: Boolean = false) {
         val (group, _) = fixtures()
+        DataStore.configurationStore.putBoolean("qmobileChipNearList", false)
+        DataStore.configurationStore.putBoolean("qmobileChipExtended", routeChip)
         DataStore.configurationStore.putString("qmobileHomeControl", control)
         DataStore.configurationStore.putString("qmobileControlPosition", if (bottom) "bottom" else "top")
         DataStore.configurationStore.putString("qmobileChipPosition", chip)
@@ -259,6 +261,13 @@ class UiTourTest {
             val server = app.rawline.mobile.deploy.DeployServer.create("mrtt")
             app.rawline.mobile.deploy.DeployStore.save(server)
             open(MrttServerActivity::class.java) { putExtra("server", server.id) }
+            Thread.sleep(1500)
+        },
+        "home-route-chip" to { RouteManager.ensureDefault(); home("groups", routeChip = true); tap(R.string.qmobile_route_chip) },
+        "freeturn-clients" to {
+            val server = app.rawline.mobile.deploy.DeployServer.create("freeturn")
+            app.rawline.mobile.deploy.DeployStore.save(server)
+            open(FreeturnClientsActivity::class.java) { putExtra("server", server.id) }
             Thread.sleep(1500)
         },
     )

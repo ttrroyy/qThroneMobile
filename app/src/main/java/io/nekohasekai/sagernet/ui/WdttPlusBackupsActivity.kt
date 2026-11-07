@@ -148,9 +148,9 @@ class WdttPlusBackupsActivity : ServerScreenActivity() {
         form.addView(ui.text("Автоматические копии", 22f, bold = true))
         val enabled = android.widget.CheckBox(this).apply { text = "Включены"; setTextColor(MobilePalette.text); isChecked = policy.optBoolean("enabled") }
         form.addView(enabled)
-        val interval = ui.input("Интервал, ч (6–168)", policy.optInt("interval_hours", 24).toString(), number = true)
-        val retention = ui.input("Количество (2–90)", policy.optInt("retention_count", 14).toString(), number = true)
-        form.addView(interval); form.addView(retention); form.addView(ui.gap(12))
+        val interval = ui.field(form, "Интервал, ч (6–168)", policy.optInt("interval_hours", 24).toString(), number = true)
+        val retention = ui.field(form, "Количество (2–90)", policy.optInt("retention_count", 14).toString(), number = true)
+        form.addView(ui.gap(12))
         form.addView(ui.button("Сохранить", primary = true) {
             val hours = interval.text.toString().toIntOrNull()?.takeIf { it in 6..168 } ?: return@button Toast.makeText(this, "Интервал: от 6 до 168 ч", Toast.LENGTH_SHORT).show()
             val count = retention.text.toString().toIntOrNull()?.takeIf { it in 2..90 } ?: return@button Toast.makeText(this, "Количество: от 2 до 90", Toast.LENGTH_SHORT).show()

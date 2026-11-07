@@ -57,6 +57,12 @@ class ServerActivity : ServerScreenActivity() {
         }
     }
 
+    private fun ownerConfig(server: DeployServer) {
+        val link = app.rawline.mobile.deploy.DeployConfig.display(server["config"])
+        if (link.isBlank()) { Toast.makeText(this, "Конфиг появится после успешной установки", Toast.LENGTH_LONG).show(); return }
+        ui.sheet(server["name"].ifBlank { server["host"] }) { sheet, _ -> sheet.addView(ui.qrRow(link)); sheet.addView(ui.linkRow("Ссылка", link, lines = 4)) }
+    }
+
     private fun render(server: DeployServer) {
         toolbar.subtitle = server["host"]
         body.removeAllViews()
@@ -90,9 +96,12 @@ class ServerActivity : ServerScreenActivity() {
                 if (app.rawline.mobile.deploy.FreeturnAdmin(server).available) startActivity(Intent(this, FreeturnClientsActivity::class.java).putExtra("server", server.id))
                 else Toast.makeText(this, "Доступно после установки сервера из приложения", Toast.LENGTH_SHORT).show()
             })
-            "csqtt" -> body.addView(ui.tile("Панель сервера", "Пароли, устройства и звонки в веб-панели CSQTT", R.drawable.baseline_public_24) {
-                startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(server.panelUrl())))
-            })
+            "csqtt" -> {
+                body.addView(ui.tile("Панель сервера", "Пароли, устройства и звонки в веб-панели CSQTT", R.drawable.baseline_public_24) {
+                    startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(server.panelUrl())))
+                }, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = ui.dp(8) })
+                body.addView(ui.tile("Конфиг", "Ссылка и QR-код подключения к этому серверу", R.drawable.ic_baseline_vpn_key_24) { ownerConfig(server) })
+            }
             "wdttplus" -> listOf(
                 Triple("Клиенты и сервер", "Пароли, хеши, устройства, сроки и настройки сервера", R.drawable.ic_mobile_people) to WdttPlusClientsActivity::class.java,
                 Triple("Выходной IP и прокси", "Прокси, WARP, WireGuard или второй сервер для выхода", R.drawable.ic_hardware_router) to WdttPlusExitActivity::class.java,

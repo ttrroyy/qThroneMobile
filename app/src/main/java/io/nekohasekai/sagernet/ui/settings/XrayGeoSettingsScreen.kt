@@ -134,6 +134,7 @@ class XrayGeoSettingsFragment : SettingsScreenFragment(R.xml.settings_xray_geo) 
         if (downloadJob?.isActive == true) return
         val context = requireContext()
         val binding = DialogGeoDownloadBinding.inflate(layoutInflater)
+        app.rawline.mobile.ui.MobileProgress.style(binding.progress)
         val dialog = MobileAlertDialogBuilder(context)
             .setTitle(R.string.xray_geo_download_title)
             .setView(binding.root)

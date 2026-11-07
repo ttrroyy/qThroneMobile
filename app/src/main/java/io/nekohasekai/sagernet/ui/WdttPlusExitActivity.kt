@@ -156,11 +156,7 @@ class WdttPlusExitActivity : ServerScreenActivity() {
     }
 
     private fun field(parent: LinearLayout, label: String, value: String, number: Boolean = false, secret: Boolean = false): EditText {
-        parent.addView(ui.text(label, 14f, MobilePalette.muted).apply { setPadding(0, ui.dp(12), 0, ui.dp(4)) })
-        return ui.input(label, value, number).also {
-            if (secret) it.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-            parent.addView(it)
-        }
+        return ui.field(parent, label, value, number, secret)
     }
 
     private fun actions(parent: LinearLayout, vararg buttons: Pair<String, () -> Unit>) {

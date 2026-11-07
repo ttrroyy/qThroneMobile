@@ -535,6 +535,73 @@ class MobileHomeFragment : ToolbarFragment() {
         sheet.setContentView(body)
         sheet.show()
     }
+    private var routeChipView: TextView?=null
+    /** The routing profile beside the subscription: the same card, its own sheet. */
+    private fun routeChip()=text("",16f).apply {
+        setTypeface(typeface,Typeface.BOLD);maxLines=1;ellipsize=android.text.TextUtils.TruncateAt.END;gravity=Gravity.CENTER_VERTICAL
+        setPadding(dp(14),0,dp(10),0);background=tile();isFocusable=true;compoundDrawablePadding=dp(8)
+        contentDescription=getString(R.string.qmobile_route_chip)
+        val icon=androidx.core.content.ContextCompat.getDrawable(requireContext(),R.drawable.ic_mobile_route)?.mutate()?.apply { setTint(foregroundColor);setBounds(0,0,dp(20),dp(20)) }
+        val arrow=androidx.core.content.ContextCompat.getDrawable(requireContext(),R.drawable.ic_mobile_chevron)?.mutate()?.apply { setBounds(0,0,dp(22),dp(22)) }
+        setCompoundDrawablesRelative(icon,null,android.graphics.drawable.RotateDrawable().apply { drawable=arrow;fromDegrees=90f;toDegrees=90f;level=1;setBounds(0,0,dp(22),dp(22)) },null)
+        setOnClickListener { routePicker() };MobileFeedback.apply(this)
+        routeChipView=this
+        viewLifecycleOwner.lifecycleScope.launch {
+            val name=withContext(Dispatchers.IO) { runCatching { RouteManager.current().name }.getOrNull() }
+            if(name!=null) text=name
+        }
+    }
+    /** The routing profiles as the subscriptions' sheet shows them: switch, add, manage; hold one to move it, in the same order as the routing settings. */
+    private fun routePicker() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val routes=withContext(Dispatchers.IO) { RouteManager.usable() }
+            if(!isAdded) return@launch
+            val sheet=MobileSheetDialog(requireContext())
+            val body=LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL; setPadding(dp(16),dp(8),dp(16),dp(16)) }
+            val handle=View(requireContext()).apply { background=GradientDrawable().apply { setColor(muted);cornerRadius=dp(2).toFloat() } }
+            body.addView(handle,LinearLayout.LayoutParams(dp(36),dp(4)).apply { gravity=Gravity.CENTER_HORIZONTAL;bottomMargin=dp(14) })
+            val list=LinearLayout(requireContext()).apply { orientation=LinearLayout.VERTICAL }
+            val scroller=androidx.core.widget.NestedScrollView(requireContext()).apply { isVerticalScrollBarEnabled=false;addView(list) }
+            val drag=MobileReorder(list,scroller,{},{ ids ->
+                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                    // Profiles the sheet does not show keep their places.
+                    val moved=ids.iterator()
+                    RouteManager.saveOrder(RouteManager.all().map { if(it.id in ids && moved.hasNext()) moved.next() else it.id })
+                }
+            })
+            routes.forEachIndexed { index,route ->
+                val row=LinearLayout(requireContext()).apply {
+                    orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER_VERTICAL;minimumHeight=dp(60);setPadding(dp(16),dp(8),dp(12),dp(8))
+                    background=tile(route.id==DataStore.currentRouteId);isFocusable=true
+                    addView(text(route.name,15f).apply { setTypeface(typeface,Typeface.BOLD);maxLines=1;ellipsize=android.text.TextUtils.TruncateAt.END })
+                    if(route.id==DataStore.currentRouteId) addView(text(getString(R.string.route_profile_current),12f,muted))
+                    setOnClickListener {
+                        sheet.dismiss()
+                        app.rawline.mobile.ui.route.RouteQuickSwitch.switchTo(route.id)
+                        app.rawline.mobile.ui.route.RouteQuickSwitch.switched(this@MobileHomeFragment,route.name)
+                        routeChipView?.text=route.name
+                    }
+                    MobileFeedback.apply(this)
+                }
+                drag.bind(row,row,route.id)
+                list.addView(row,LinearLayout.LayoutParams(-1,-2).apply { if(index>0) topMargin=dp(6) })
+            }
+            body.addView(scroller,LinearLayout.LayoutParams(-1,-2,1f))
+            body.addView(LinearLayout(requireContext()).apply {
+                isBaselineAligned=false
+                fun action(label: String, callback: (View) -> Unit)=text(label,14f).apply {
+                    gravity=Gravity.CENTER;minHeight=dp(52);setPadding(dp(10),dp(8),dp(10),dp(8));background=tile();isFocusable=true
+                    setOnClickListener(callback);MobileFeedback.apply(this)
+                }
+                addView(action(getString(R.string.qmobile_route_add)) {
+                    sheet.dismiss();startActivity(Intent(requireContext(),app.rawline.mobile.ui.route.RouteProfileActivity::class.java))
+                },LinearLayout.LayoutParams(0,-1,1f).apply { marginEnd=dp(6) })
+                addView(action(getString(R.string.qmobile_route_manage)) { sheet.dismiss();host().displayFragmentWithId(R.id.nav_route) },LinearLayout.LayoutParams(0,-1,1f).apply { marginStart=dp(6) })
+            },LinearLayout.LayoutParams(-1,-2).apply { topMargin=dp(12) })
+            sheet.setContentView(body)
+            sheet.show()
+        }
+    }
     /** Live speed in the closed sheet, like the classic notification shows it. */
     fun updateSpeed(down: Long, up: Long) {
         if(!isAdded) return
@@ -596,10 +663,7 @@ class MobileHomeFragment : ToolbarFragment() {
                 return true
             }
         })
-        viewLifecycleOwner.lifecycleScope.launch {
-            val snapshots=withContext(Dispatchers.IO) { app.rawline.mobile.bg.carrier.NativeConnectionStatus.read() to app.rawline.mobile.bg.carrier.NativeConnectionStatus.read(true) }
-            nativeConnection=snapshots.first;nativeTest=snapshots.second;updateState()
-        }
+        readNativeStatus()
         collapsed.clear()
         collapsed.addAll(requireContext().getSharedPreferences("dashboard",Context.MODE_PRIVATE).getStringSet("collapsedGroups",emptySet()).orEmpty().mapNotNull { it.toLongOrNull() })
         state?.getLongArray("knownGroups")?.let { knownGroups.addAll(it.toList()) }
@@ -643,7 +707,7 @@ class MobileHomeFragment : ToolbarFragment() {
         outState.putIntArray("groupScrollPositions",groupScrollPositions.values.toIntArray())
         super.onSaveInstanceState(outState)
     }
-    override fun onResume() { super.onResume(); refresh() }
+    override fun onResume() { super.onResume(); refresh(); readNativeStatus() }
     override fun onPause() {
         activeProfileDrag?.cancel()
         groupReorder?.cancel();profileReorders.values.forEach { it.cancel() }
@@ -651,6 +715,13 @@ class MobileHomeFragment : ToolbarFragment() {
         powerPulse?.cancel(); powerPulse=null; pulseTarget=null
         power?.scaleX=1f; power?.scaleY=1f
         super.onPause()
+    }
+    /** Broadcasts only carry changes, so a screen made anew starts from what the service last wrote down. */
+    private fun readNativeStatus() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val snapshots=withContext(Dispatchers.IO) { app.rawline.mobile.bg.carrier.NativeConnectionStatus.read() to app.rawline.mobile.bg.carrier.NativeConnectionStatus.read(true) }
+            nativeConnection=snapshots.first;nativeTest=snapshots.second;updateState()
+        }
     }
     override fun onDestroyView() {
         activeProfileDrag?.cancel()
@@ -721,7 +792,7 @@ class MobileHomeFragment : ToolbarFragment() {
             val column = content ?: return@launch
             groups.forEach { (group, _) -> knownGroups.add(group.id) }
             val tilesBottom=tilesAtBottom()
-            val tilesKey="${extendedTiles()}:$tilesBottom:$byGroups:${homeSwitchesOn()}:${controlAtBottom()}:${chipAtBottom()}:${chipNearList()}"
+            val tilesKey="${extendedTiles()}:$tilesBottom:$byGroups:${homeSwitchesOn()}:${controlAtBottom()}:${chipAtBottom()}:${chipNearList()}:${MobileHomeLayout.extendedChip}"
             // A moved tile bar rebuilds the screen even when the server list is the same.
             val unchanged=withContext(Dispatchers.Default) { previousStructure == structure } && renderedGroupId==focusedGroup && chromeKey?.endsWith(":$tilesKey")!=false
             if (unchanged) {
@@ -761,10 +832,7 @@ class MobileHomeFragment : ToolbarFragment() {
                 }
                 val extended=extendedTiles()
                 updatesTile=null;updateBanner=null;homeTitle=null;modeSwitches=emptyMap();groupChip=null
-                val settingsTile=headerIcon(R.drawable.ic_mobile_settings, getString(R.string.qmobile_settings)) { host().displayFragmentWithId(R.id.nav_settings) }.apply {
-                    // The only solid icon among outlined ones: at full strength it outweighs them.
-                    if(MobileStyle.new) imageAlpha=205
-                }
+                val settingsTile=headerIcon(R.drawable.ic_mobile_settings, getString(R.string.qmobile_settings)) { host().displayFragmentWithId(R.id.nav_settings) }
                 val addTile=headerIcon(R.drawable.ic_mobile_add, getString(R.string.qmobile_add)) { addMenu(it) }
                 val quick = if(extended) listOf(
                     headerIcon(R.drawable.ic_mobile_tun, getString(R.string.service_mode)) { modeMenu(it) },
@@ -834,6 +902,7 @@ class MobileHomeFragment : ToolbarFragment() {
                         setCompoundDrawablesRelative(null,null,android.graphics.drawable.RotateDrawable().apply { drawable=arrow;fromDegrees=90f;toDegrees=90f;level=1;setBounds(0,0,dp(22),dp(22)) },null)
                         setOnClickListener { groupPicker() };MobileFeedback.apply(this)
                     }
+                    if(MobileHomeLayout.extendedChip) addView(routeChip(),LinearLayout.LayoutParams(0,dp(48),.8f).apply { marginEnd=dp(8) })
                     addView(groupChip,LinearLayout.LayoutParams(0,dp(48),1f).apply { marginEnd=dp(8) })
                     addView(addTile,LinearLayout.LayoutParams(dp(48),dp(48)))
                 } else null
@@ -1620,7 +1689,9 @@ class MobileHomeFragment : ToolbarFragment() {
                     true
                 }
             }
-            popup.menu.add(3, android.view.Menu.NONE, android.view.Menu.NONE, R.string.settings).setOnMenuItemClickListener { host().displayFragmentWithId(R.id.nav_route);true }
+            popup.menu.add(3, android.view.Menu.NONE, android.view.Menu.NONE, R.string.settings).setOnMenuItemClickListener {
+                host().openSettingsScreen(app.rawline.mobile.ui.settings.RoutingSettingsFragment::class.java.name,getString(R.string.settings_routing));true
+            }
             popup.menu.add(3, android.view.Menu.NONE, android.view.Menu.NONE, R.string.xray_geo_download_title).setOnMenuItemClickListener {
                 host().openSettingsScreen(app.rawline.mobile.ui.settings.XrayGeoSettingsFragment::class.java.name, getString(R.string.xray_geo_download_title));true
             }

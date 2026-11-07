@@ -49,6 +49,11 @@ class DeployListFragment : Fragment() {
         }
     }
 
+    override fun onViewCreated(view: View, state: Bundle?) {
+        super.onViewCreated(view, state)
+        if (kind == "mrtt") (parentFragment as? ToolbarFragment)?.toolbar?.let { MrttDeployJobs.attach(requireActivity(), it, viewLifecycleOwner) }
+    }
+
     override fun onResume() {
         super.onResume()
         refresh()
@@ -67,10 +72,9 @@ class DeployListFragment : Fragment() {
 
     private fun render(items: List<DeployServer>) {
         body.removeAllViews(); openSwipe = null
-        // Where this list sits inside the settings there is no toolbar of its own to carry the button.
-        if (kind == "mrtt") body.addView(MrttDeployJobs.strip(requireContext(), viewLifecycleOwner), LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(8) })
         items.forEach { server ->
-            tile(server["name"], server["host"], R.drawable.ic_mobile_core, server) { open(server.id) }
+            val named = server["name"].isNotBlank()
+            tile(if (named) server["name"] else server["host"], if (named) server["host"] else null, R.drawable.ic_mobile_core, server) { open(server.id) }
         }
         tile("Добавить VPS для деплоя", null, R.drawable.ic_mobile_add) { open(null) }
     }
