@@ -1,7 +1,7 @@
 # Graph Report - qThroneMobile  (2026-11-07)
 
 ## Corpus Check
-- 800 files · ~1,495,798 words
+- 800 files · ~1,495,688 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 686 file(s) not represented in the graph (top: .xml 657, .aidl 10, (none) 9)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `76588e14`
+- Built from commit: `73bb9fae`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -1376,7 +1376,7 @@ Nodes (3): WarpEntryPreference, Identity, WarpClient
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Instance` connect `authTestEndpoint` to `dnsTunnel`?**
-  _High betweenness centrality (0.190) - this node is a cross-community bridge._
+  _High betweenness centrality (0.205) - this node is a cross-community bridge._
 - **Are the 6 inferred relationships involving `JsonObject` (e.g. with `NativeTransportSettingsActivity.kt` and `init()`) actually correct?**
   _`JsonObject` has 6 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `Idle`, `Connecting`, `Connected` to the rest of the system?**
@@ -1384,7 +1384,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `Logs` be split into smaller, more focused modules?**
   _Cohesion score 0.02802466896426628 - nodes in this community are weakly interconnected._
 - **Why does `JsonObject` connect `JsonObject` to `Logs`, `r`, `ProfileImports.kt`, `r`, `RwlBackupTest.kt`, `ShadowTls`, `RwlBackupTest.kt`, `DataStore`, `Outbound`, `ClashYaml.kt`, `jsonObjectOf`, `.parseObject`, `OpenConnect`, `OpenVpn.kt`, `Custom`, `.parse`, `ProxyEntity`, `Tls`, `Hysteria`, `OpenFluxKey`, `CarrierBridgeCredentials`, `AutoSelector`, `ProviderGeoAssets`, `WireGuard`, `.parseObjectOrNull`, `.parseObjectOrNull`, `context`, `Qwdtt`, `OpenFluxLinkTest`, `.check`, `ProviderRouting`, `ProfileImport.kt`, `SubUserInfo`, `Sstp`, `.of`, `Snell`, `RwlBackup`, `XrayVless`, `SubscriptionOptions`, `.parse`, `.proxies`, `Trojan`, `TrustTunnel`, `Mrtt`, `RouteRule`, `XrayGeoAssets`, `DnsTunnelLinkTest`, `RouteProfile`, `.buildMain`, `RouteShare`, `AutoSelectorStatus`?**
-  _High betweenness centrality (0.123) - this node is a cross-community bridge._
+  _High betweenness centrality (0.127) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `ProxyEntity` (e.g. with `.unmeasuredProfilesStayBelowEvenVerySlowWorkingProfiles()` and `.mainScreenUsesTheSameDesktopThresholdsAsProfileRows()`) actually correct?**
   _`ProxyEntity` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **Should `r` be split into smaller, more focused modules?**

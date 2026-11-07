@@ -4356,9 +4356,9 @@
     "semantic_hash": ""
   },
   "RELEASE_NOTES.md": {
-    "mtime": 1794053117.1321077,
-    "seen": 1794053142.237035,
-    "ast_hash": "9c372d4f48d559565e30090696bcb648",
+    "mtime": 1794054511.118917,
+    "seen": 1794054605.38364,
+    "ast_hash": "1ae1630eab5b4b7028da0d48a22512bf",
     "semantic_hash": ""
   },
   "app/src/main/assets/flags/SOURCE.txt": {
@@ -7080,9 +7080,9 @@
     "semantic_hash": ""
   },
   "app/src/androidTest/java/app/rawline/mobile/UiTourTest.kt": {
-    "mtime": 1794053903.8079062,
-    "seen": 1794053938.1330585,
-    "ast_hash": "143228c6738097b9015b9adbfe38e59e",
+    "mtime": 1794054570.0005865,
+    "seen": 1794054605.3820648,
+    "ast_hash": "fad2faa14f587228f3af5b76e85d456c",
     "semantic_hash": ""
   },
   "app/src/main/java/io/nekohasekai/sagernet/database/backup/RwlBackup.kt": {

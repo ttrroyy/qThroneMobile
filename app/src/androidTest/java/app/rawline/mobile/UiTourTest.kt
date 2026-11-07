@@ -84,6 +84,8 @@ class UiTourTest {
     }
     /** Pictures for the README: made-up subscriptions and servers of the supported protocols, nothing private. */
     private fun demo(): ProxyGroup {
+        // No battery prompt over the picture.
+        android.os.ParcelFileDescriptor.AutoCloseInputStream(instrumentation.uiAutomation.executeShellCommand("cmd deviceidle whitelist +" + context.packageName)).use { it.readBytes() }
         SagerDatabase.groupDao.allGroups().filter { it.name == "Sub 3" }.forEach { SagerDatabase.groupDao.deleteById(it.id) }
         val now = System.currentTimeMillis() / 1000
         fun group(name: String, info: app.rawline.mobile.database.SubUserInfo, servers: List<Triple<String, app.rawline.mobile.outbound.Outbound, Int>>): ProxyGroup {
@@ -123,7 +125,7 @@ class UiTourTest {
         DataStore.mobileListMode = mode
         GroupRepo.setCurrent(group.id)
         open(MainActivity::class.java)
-        ProviderGeoAssets.states.value = mapOf(group.id to ProviderGeoAssets.Status(complete = true))
+        if (!readme) ProviderGeoAssets.states.value = mapOf(group.id to ProviderGeoAssets.Status(complete = true))
         Thread.sleep(1000)
     }
     private fun orb(connected: Boolean, bottom: Boolean = false, control: String = "button", readme: Boolean = false) {
@@ -140,6 +142,9 @@ class UiTourTest {
                     if (connected && view is android.widget.TextView) {
                         val label = view.text.toString()
                         if (label.startsWith("↓") || label.startsWith("↑")) (view.parent as android.view.View).visibility = android.view.View.VISIBLE
+                        if (readme && label.startsWith("↓")) view.text = "↓ 2,4 МБ/s"
+                        if (readme && label.startsWith("↑")) view.text = "↑ 312 КБ/s"
+                        if (readme && label.startsWith("Нажмите")) view.text = "Подключено · 00:12:49"
                         if (label == context.getString(R.string.qmobile_check_connection)) view.visibility = android.view.View.VISIBLE
                     }
                     if (view is android.view.ViewGroup) for (index in 0 until view.childCount) walk(view.getChildAt(index))
