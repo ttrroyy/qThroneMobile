@@ -57,6 +57,11 @@ object LogExport {
             if (CoreLog.previousFile.exists()) {
                 section(out, "core.log.prev (previous service session)", String(CoreLog.readPrevious()), redactor)
             }
+            // The core's own text of a fatal error: Android keeps only the signal it ends in.
+            val crash = File(context.filesDir, "core-crash.log")
+            if (crash.length() > 0) {
+                section(out, "core-crash.log (written " + SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date(crash.lastModified())) + ")", crash.readText(), redactor)
+            }
             section(out, "logcat (this app, last $LOGCAT_LINES lines)", logcat.get(), redactor)
         }
         return file
