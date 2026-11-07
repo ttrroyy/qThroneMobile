@@ -760,7 +760,10 @@ class MobileHomeFragment : ToolbarFragment() {
                 }
                 val extended=extendedTiles()
                 updatesTile=null;updateBanner=null;homeTitle=null;modeSwitches=emptyMap();groupChip=null
-                val settingsTile=headerIcon(R.drawable.ic_mobile_settings, getString(R.string.qmobile_settings)) { host().displayFragmentWithId(R.id.nav_settings) }
+                val settingsTile=headerIcon(R.drawable.ic_mobile_settings, getString(R.string.qmobile_settings)) { host().displayFragmentWithId(R.id.nav_settings) }.apply {
+                    // The only solid icon among outlined ones: at full strength it outweighs them.
+                    if(MobileStyle.new) imageAlpha=205
+                }
                 val addTile=headerIcon(R.drawable.ic_mobile_add, getString(R.string.qmobile_add)) { addMenu(it) }
                 val quick = if(extended) listOf(
                     headerIcon(R.drawable.ic_mobile_tun, getString(R.string.service_mode)) { modeMenu(it) },
