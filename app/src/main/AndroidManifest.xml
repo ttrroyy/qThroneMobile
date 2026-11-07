@@ -96,12 +96,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
 
@@ -297,6 +291,30 @@
             android:name="app.rawline.mobile.ui.AutoSelectorStatusActivity"
             android:configChanges="uiMode"
             android:parentActivityName="app.rawline.mobile.ui.MainActivity" />
+        <activity-alias
+            android:name="app.rawline.mobile.LauncherDark"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher"
+            android:targetActivity="app.rawline.mobile.ui.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name="app.rawline.mobile.LauncherLight"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_light"
+            android:roundIcon="@mipmap/ic_launcher_light"
+            android:targetActivity="app.rawline.mobile.ui.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
         <activity android:name="app.rawline.mobile.ui.profile.NativeTransportSettingsActivity" android:exported="false" />
         <activity
             android:name="app.rawline.mobile.ui.profile.CustomSettingsActivity"

@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- The launcher icon follows the system theme: a dark plate with the white mark at night. -->
-<resources>
-    <color name="qmobile_launcher_background">#FF050506</color>
-</resources>

@@ -205,6 +205,7 @@ class MainActivity : ThemedActivity(),
     override fun onResume() {
         super.onResume()
         MessageStore.setCurrentActivity(this)
+        LauncherIcon.sync(this)
         DataStore.serviceError.takeIf { it.isNotEmpty() }?.let(::showServiceError)
 
         if (DataStore.hideFromRecentApps) {
